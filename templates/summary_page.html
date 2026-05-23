@@ -23,6 +23,39 @@
     </p>
   </section>
 
+  {% if table_kind == "period" %}
+    <section class="section-block chart-block" aria-label="{{ page_title }} 그래프">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker">Chart</p>
+          <h2>{{ period_label }}간 추이</h2>
+        </div>
+        <div class="chart-legend" aria-label="그래프 범례">
+          <span class="legend-volume">볼륨</span>
+          <span class="legend-calories">kcal</span>
+          <span class="legend-sets">세트</span>
+        </div>
+      </div>
+      {% if chart_items %}
+        <div class="trend-chart" role="img" aria-label="{{ page_title }} 운동 볼륨, 칼로리, 세트 수 그래프">
+          {% for item in chart_items %}
+            <article class="chart-group">
+              <div class="bar-stack">
+                <span class="chart-bar volume-bar" style="height: {{ item.volume_height }}%" title="볼륨 {{ '%.0f'|format(item.volume) }} kg"></span>
+                <span class="chart-bar calorie-bar" style="height: {{ item.calories_height }}%" title="칼로리 {{ '%.0f'|format(item.calories) }} kcal"></span>
+                <span class="chart-bar set-bar" style="height: {{ item.set_height }}%" title="세트 {{ item.set_count }}"></span>
+              </div>
+              <strong>{{ item.period }}</strong>
+              <small>{{ item.workout_days }}일 · {{ item.meal_count }}식</small>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-state">기록을 추가하면 그래프가 표시됩니다.</p>
+      {% endif %}
+    </section>
+  {% endif %}
+
   <section class="section-block report-block" aria-label="{{ page_title }}">
     <div class="section-head">
       <div>

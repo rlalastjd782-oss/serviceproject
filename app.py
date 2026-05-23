@@ -58,25 +58,29 @@ def create_app() -> Flask:
 
     @app.get("/summaries/weekly")
     def weekly_summary_page():
+        period_rows = list_weekly_summary()
         return render_template(
             "summary_page.html",
             page_title="주간 집계",
             page_kicker="Weekly",
             table_kind="period",
-            period_rows=list_weekly_summary(),
+            period_rows=period_rows,
             period_label="주",
+            chart_items=build_period_chart(period_rows),
             active_page="weekly",
         )
 
     @app.get("/summaries/monthly")
     def monthly_summary_page():
+        period_rows = list_monthly_summary()
         return render_template(
             "summary_page.html",
             page_title="월간 집계",
             page_kicker="Monthly",
             table_kind="period",
-            period_rows=list_monthly_summary(),
+            period_rows=period_rows,
             period_label="월",
+            chart_items=build_period_chart(period_rows),
             active_page="monthly",
         )
 
@@ -420,6 +424,27 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
         """,
         (period_format, period_format, period_format, period_format, limit),
     ).fetchall()
+
+
+def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
+    ordered_rows = list(reversed(rows))
+    max_volume = max([float(row["volume"]) for row in ordered_rows] + [1.0])
+    max_calories = max([float(row["calories"]) for row in ordered_rows] + [1.0])
+    max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
+    return [
+        {
+            "period": row["period"],
+            "volume": float(row["volume"]),
+            "calories": float(row["calories"]),
+            "set_count": int(row["set_count"]),
+            "workout_days": int(row["workout_days"]),
+            "meal_count": int(row["meal_count"]),
+            "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
+            "calories_height": max(3, round(float(row["calories"]) / max_calories * 100)),
+            "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
+        }
+        for row in ordered_rows
+    ]
 
 
 def list_exercise_summary(limit: int = 20) -> list[sqlite3.Row]:
