@@ -332,7 +332,7 @@ select:focus {
 
 .set-entry-row {
   display: grid;
-  grid-template-columns: 34px 1fr 1fr 1.35fr;
+  grid-template-columns: 34px 1fr 1fr 1.35fr 36px;
   gap: 8px;
   align-items: end;
   padding: 10px;
@@ -349,6 +349,17 @@ select:focus {
   border-radius: 8px;
   background: rgb(63 242 177 / 10%);
   color: var(--accent);
+}
+
+.row-remove-button {
+  width: 36px;
+  height: 46px;
+  border: 1px solid rgb(255 107 107 / 26%);
+  border-radius: 8px;
+  background: rgb(255 107 107 / 10%);
+  color: var(--warn);
+  font-size: 1.25rem;
+  line-height: 1;
 }
 
 .section-head {

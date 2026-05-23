@@ -5,13 +5,23 @@ if ("serviceWorker" in navigator) {
 }
 
 document.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-add-set-row]");
-  if (!button) {
-    return;
-  }
+  const addButton = event.target.closest("[data-add-set-row]");
+  const removeButton = event.target.closest("[data-remove-set-row]");
 
   const list = document.querySelector("[data-set-list]");
   if (!list) {
+    return;
+  }
+
+  if (removeButton) {
+    if (list.querySelectorAll(".set-entry-row").length > 1) {
+      removeButton.closest(".set-entry-row").remove();
+      renumberSetRows(list);
+    }
+    return;
+  }
+
+  if (!addButton) {
     return;
   }
 
@@ -32,7 +42,14 @@ document.addEventListener("click", (event) => {
       <span>메모</span>
       <input name="set_memo" autocomplete="off" placeholder="추가 세트">
     </label>
+    <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
   `;
   list.append(row);
   row.querySelector("input").focus();
 });
+
+function renumberSetRows(list) {
+  list.querySelectorAll(".set-entry-row").forEach((row, index) => {
+    row.querySelector("strong").textContent = index + 1;
+  });
+}
