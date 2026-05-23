@@ -1,14 +1,25 @@
 {% extends "base.html" %}
 
-{% block title %}오늘의 기록{% endblock %}
-{% block eyebrow %}오늘의 기록{% endblock %}
+{% block title %}기록 입력{% endblock %}
+{% block eyebrow %}기록 입력{% endblock %}
 {% block heading %}{{ session.workout_date }}{% endblock %}
 
 {% block content %}
-  <section class="hero-panel" aria-label="오늘 요약">
+  <section class="date-panel" aria-label="기록 날짜 선택">
+    <form method="get" action="{{ url_for('index') }}" class="date-form">
+      <label>
+        <span>기록할 날짜</span>
+        <input name="date" type="date" value="{{ session.workout_date }}">
+      </label>
+      <button class="secondary-button" type="submit">날짜 이동</button>
+      <a class="text-link" href="{{ url_for('index') }}">오늘로 이동</a>
+    </form>
+  </section>
+
+  <section class="hero-panel" aria-label="선택 날짜 요약">
     <div>
       <p class="section-kicker">Session</p>
-      <h2>오늘 운동과 식단을 빠르게 남기세요</h2>
+      <h2>선택한 날짜의 운동과 식단을 기록하세요</h2>
     </div>
     <div class="overview-grid">
       <article class="metric-tile metric-workout">
@@ -24,7 +35,7 @@
       <article class="metric-tile metric-protein">
         <span>단백질</span>
         <strong>{{ "%.1f"|format(today_summary.protein) }}g</strong>
-        <small>오늘 누적</small>
+        <small>선택 날짜 누적</small>
       </article>
     </div>
   </section>
@@ -127,12 +138,12 @@
     </article>
   </section>
 
-  <section class="today-layout" aria-label="오늘 기록 목록">
-    <section class="section-block" aria-label="오늘 운동">
+  <section class="today-layout" aria-label="선택 날짜 기록 목록">
+    <section class="section-block" aria-label="선택 날짜 운동">
       <div class="section-head">
         <div>
-          <p class="section-kicker">Today</p>
-          <h2>오늘 운동</h2>
+          <p class="section-kicker">Workout</p>
+          <h2>{{ session.workout_date }} 운동</h2>
         </div>
       </div>
       <div class="set-list">
@@ -155,16 +166,16 @@
             </article>
           {% endfor %}
         {% else %}
-          <p class="empty-state">아직 운동 기록이 없습니다.</p>
+          <p class="empty-state">이 날짜의 운동 기록이 없습니다.</p>
         {% endif %}
       </div>
     </section>
 
-    <section class="section-block" aria-label="오늘 식단">
+    <section class="section-block" aria-label="선택 날짜 식단">
       <div class="section-head">
         <div>
-          <p class="section-kicker">Today</p>
-          <h2>오늘 식단</h2>
+          <p class="section-kicker">Meal</p>
+          <h2>{{ session.workout_date }} 식단</h2>
         </div>
       </div>
       <div class="set-list">
@@ -187,7 +198,7 @@
             </article>
           {% endfor %}
         {% else %}
-          <p class="empty-state">아직 식단 기록이 없습니다.</p>
+          <p class="empty-state">이 날짜의 식단 기록이 없습니다.</p>
         {% endif %}
       </div>
     </section>

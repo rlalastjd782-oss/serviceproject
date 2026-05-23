@@ -27,7 +27,8 @@ def create_app() -> Flask:
 
     @app.get("/")
     def index():
-        today_session = get_or_create_session()
+        selected_date = request.args.get("date") or current_local_date()
+        today_session = get_or_create_session(selected_date)
         sessions = list_recent_sessions()
         exercises = list_exercises()
         meals = list_meals_for_date(today_session["workout_date"])
@@ -100,7 +101,7 @@ def create_app() -> Flask:
         session = get_or_create_session(request.form.get("workout_date"))
         exercise_name = request.form.get("exercise_name", "").strip()
         if not exercise_name:
-            return redirect(url_for("index"))
+            return redirect(url_for("index", date=session["workout_date"]))
 
         set_weights = request.form.getlist("set_weight") or [request.form.get("weight", "")]
         set_reps = request.form.getlist("set_reps") or [request.form.get("reps", "")]
@@ -122,7 +123,7 @@ def create_app() -> Flask:
             )
 
         if not set_rows:
-            return redirect(url_for("index"))
+            return redirect(url_for("index", date=session["workout_date"]))
 
         db = get_db()
         exercise_id = get_or_create_exercise(exercise_name)
@@ -139,7 +140,7 @@ def create_app() -> Flask:
                 (session["id"], exercise_id, weight, reps, memo, next_order + offset),
             )
         db.commit()
-        return redirect(url_for("index"))
+        return redirect(url_for("index", date=session["workout_date"]))
 
     @app.post("/meals")
     def create_meal():
@@ -147,7 +148,7 @@ def create_app() -> Flask:
         meal_type = request.form.get("meal_type", "").strip()
         food_name = request.form.get("food_name", "").strip()
         if not food_name:
-            return redirect(url_for("index"))
+            return redirect(url_for("index", date=meal_date))
 
         db = get_db()
         db.execute(
@@ -168,21 +169,31 @@ def create_app() -> Flask:
             ),
         )
         db.commit()
-        return redirect(url_for("index"))
+        return redirect(url_for("index", date=meal_date))
 
     @app.post("/meals/<int:meal_id>/delete")
     def delete_meal(meal_id: int):
         db = get_db()
+        meal = db.execute("SELECT meal_date FROM meal_entries WHERE id = ?", (meal_id,)).fetchone()
         db.execute("DELETE FROM meal_entries WHERE id = ?", (meal_id,))
         db.commit()
-        return redirect(url_for("index"))
+        return redirect(url_for("index", date=meal["meal_date"] if meal else None))
 
     @app.post("/sets/<int:set_id>/delete")
     def delete_set(set_id: int):
         db = get_db()
+        workout = db.execute(
+            """
+            SELECT s.workout_date
+            FROM workout_sets ws
+            JOIN workout_sessions s ON s.id = ws.session_id
+            WHERE ws.id = ?
+            """,
+            (set_id,),
+        ).fetchone()
         db.execute("DELETE FROM workout_sets WHERE id = ?", (set_id,))
         db.commit()
-        return redirect(url_for("index"))
+        return redirect(url_for("index", date=workout["workout_date"] if workout else None))
 
     @app.get("/api/sessions")
     def api_sessions():
