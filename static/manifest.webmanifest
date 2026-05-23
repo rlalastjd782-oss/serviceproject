@@ -3,8 +3,8 @@
   "short_name": "운동식단",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f4f6f2",
-  "theme_color": "#101820",
+  "background_color": "#080b12",
+  "theme_color": "#080b12",
   "icons": [
     {
       "src": "/static/icon.svg",

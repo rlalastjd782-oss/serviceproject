@@ -43,13 +43,52 @@ def create_app() -> Flask:
 
     @app.get("/summaries")
     def summaries():
+        return redirect(url_for("weekly_summary_page"))
+
+    @app.get("/summaries/daily")
+    def daily_summary_page():
         return render_template(
-            "summaries.html",
+            "summary_page.html",
+            page_title="일간 집계",
+            page_kicker="Daily",
+            table_kind="daily",
             daily_summary=list_daily_summary(),
-            weekly_summary=list_weekly_summary(),
-            monthly_summary=list_monthly_summary(),
+            active_page="daily",
+        )
+
+    @app.get("/summaries/weekly")
+    def weekly_summary_page():
+        return render_template(
+            "summary_page.html",
+            page_title="주간 집계",
+            page_kicker="Weekly",
+            table_kind="period",
+            period_rows=list_weekly_summary(),
+            period_label="주",
+            active_page="weekly",
+        )
+
+    @app.get("/summaries/monthly")
+    def monthly_summary_page():
+        return render_template(
+            "summary_page.html",
+            page_title="월간 집계",
+            page_kicker="Monthly",
+            table_kind="period",
+            period_rows=list_monthly_summary(),
+            period_label="월",
+            active_page="monthly",
+        )
+
+    @app.get("/summaries/exercises")
+    def exercise_summary_page():
+        return render_template(
+            "summary_page.html",
+            page_title="운동별 횟수",
+            page_kicker="Exercise",
+            table_kind="exercise",
             exercise_summary=list_exercise_summary(),
-            active_page="summaries",
+            active_page="exercises",
         )
 
     @app.post("/sets")
