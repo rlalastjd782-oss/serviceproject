@@ -67,7 +67,7 @@ def create_app() -> Flask:
             page_kicker="Weekly",
             table_kind="period",
             period_rows=period_rows,
-            period_label="주",
+            period_label="기간",
             chart_items=build_daily_chart(chart_rows),
             chart_title="일별 추이",
             chart_note="최근 기록일 7개를 일별로 표시합니다.",
@@ -84,7 +84,7 @@ def create_app() -> Flask:
             page_kicker="Monthly",
             table_kind="period",
             period_rows=period_rows,
-            period_label="월",
+            period_label="기간",
             chart_items=build_period_chart(chart_rows),
             chart_title="주간별 추이",
             chart_note="최근 6주를 주간 단위로 표시합니다.",
@@ -416,7 +416,59 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
 
 
 def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
-    return list_period_summary("%Y-%W", limit)
+    return get_db().execute(
+        """
+        WITH workout AS (
+            SELECT
+                strftime('%Y-%m', s.workout_date) AS month_key,
+                CAST(strftime('%m', s.workout_date) AS INTEGER) AS month_number,
+                ((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
+                COUNT(DISTINCT s.workout_date) AS workout_days,
+                COUNT(ws.id) AS set_count,
+                COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+            FROM workout_sessions s
+            LEFT JOIN workout_sets ws ON ws.session_id = s.id
+            GROUP BY month_key, week_of_month
+        ),
+        meal AS (
+            SELECT
+                strftime('%Y-%m', meal_date) AS month_key,
+                CAST(strftime('%m', meal_date) AS INTEGER) AS month_number,
+                ((CAST(strftime('%d', meal_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
+                COUNT(DISTINCT meal_date) AS meal_days,
+                COUNT(id) AS meal_count,
+                COALESCE(SUM(calories), 0) AS calories,
+                COALESCE(SUM(protein), 0) AS protein
+            FROM meal_entries
+            GROUP BY month_key, week_of_month
+        ),
+        periods AS (
+            SELECT month_key, month_number, week_of_month FROM workout
+            UNION
+            SELECT month_key, month_number, week_of_month FROM meal
+        )
+        SELECT
+            p.month_key || '-' || p.week_of_month AS period_key,
+            p.month_number || '월 ' || p.week_of_month || '주차' AS period,
+            COALESCE(w.workout_days, 0) AS workout_days,
+            COALESCE(w.set_count, 0) AS set_count,
+            COALESCE(w.rep_count, 0) AS rep_count,
+            COALESCE(w.volume, 0) AS volume,
+            COALESCE(m.meal_days, 0) AS meal_days,
+            COALESCE(m.meal_count, 0) AS meal_count,
+            COALESCE(m.calories, 0) AS calories,
+            COALESCE(m.protein, 0) AS protein
+        FROM periods p
+        LEFT JOIN workout w
+            ON w.month_key = p.month_key AND w.week_of_month = p.week_of_month
+        LEFT JOIN meal m
+            ON m.month_key = p.month_key AND m.week_of_month = p.week_of_month
+        ORDER BY p.month_key DESC, p.week_of_month DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
 
 
 def list_monthly_summary(limit: int = 12) -> list[sqlite3.Row]:
