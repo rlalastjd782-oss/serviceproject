@@ -12,11 +12,11 @@
     </div>
     <p>
       {% if table_kind == "daily" %}
-        날짜별 운동량과 식단 섭취량을 한 번에 확인합니다.
+        날짜별 운동량과 식단 섭취량을 확인합니다.
       {% elif active_page == "weekly" %}
-        주 단위로 운동일, 세트, 총 횟수, 식단 기록을 집계합니다.
+        주간 페이지에서는 일별 그래프로 최근 흐름을 확인합니다.
       {% elif active_page == "monthly" %}
-        월 단위 흐름을 보면서 꾸준함과 식단 누적량을 확인합니다.
+        월간 페이지에서는 주간별 그래프로 긴 흐름을 확인합니다.
       {% else %}
         어떤 운동을 몇 세트, 몇 회 했는지 운동별로 정리합니다.
       {% endif %}
@@ -28,7 +28,8 @@
       <div class="section-head">
         <div>
           <p class="section-kicker">Chart</p>
-          <h2>{{ period_label }}간 추이</h2>
+          <h2>{{ chart_title }}</h2>
+          {% if chart_note %}<small class="section-note">{{ chart_note }}</small>{% endif %}
         </div>
         <div class="chart-legend" aria-label="그래프 범례">
           <span class="legend-volume">볼륨</span>
@@ -37,7 +38,7 @@
         </div>
       </div>
       {% if chart_items %}
-        <div class="trend-chart" role="img" aria-label="{{ page_title }} 운동 볼륨, 칼로리, 세트 수 그래프">
+        <div class="trend-chart" role="img" aria-label="{{ page_title }} 그래프">
           {% for item in chart_items %}
             <article class="chart-group">
               <div class="bar-stack">

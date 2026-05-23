@@ -28,7 +28,7 @@ def create_app() -> Flask:
     @app.get("/")
     def index():
         selected_date = request.args.get("date") or current_local_date()
-        today_session = get_or_create_session(selected_date)
+        today_session = get_session_for_date(selected_date)
         sessions = list_recent_sessions()
         exercises = list_exercises()
         meals = list_meals_for_date(today_session["workout_date"])
@@ -60,6 +60,7 @@ def create_app() -> Flask:
     @app.get("/summaries/weekly")
     def weekly_summary_page():
         period_rows = list_weekly_summary()
+        chart_rows = list_daily_summary(limit=7)
         return render_template(
             "summary_page.html",
             page_title="주간 집계",
@@ -67,13 +68,16 @@ def create_app() -> Flask:
             table_kind="period",
             period_rows=period_rows,
             period_label="주",
-            chart_items=build_period_chart(period_rows),
+            chart_items=build_daily_chart(chart_rows),
+            chart_title="일별 추이",
+            chart_note="최근 기록일 7개를 일별로 표시합니다.",
             active_page="weekly",
         )
 
     @app.get("/summaries/monthly")
     def monthly_summary_page():
         period_rows = list_monthly_summary()
+        chart_rows = list_weekly_summary(limit=6)
         return render_template(
             "summary_page.html",
             page_title="월간 집계",
@@ -81,7 +85,9 @@ def create_app() -> Flask:
             table_kind="period",
             period_rows=period_rows,
             period_label="월",
-            chart_items=build_period_chart(period_rows),
+            chart_items=build_period_chart(chart_rows),
+            chart_title="주간별 추이",
+            chart_note="최근 6주를 주간 단위로 표시합니다.",
             active_page="monthly",
         )
 
@@ -273,6 +279,16 @@ def get_or_create_session(workout_date: str | None = None) -> sqlite3.Row:
         "SELECT * FROM workout_sessions WHERE workout_date = ?",
         (date_value,),
     ).fetchone()
+
+
+def get_session_for_date(workout_date: str) -> sqlite3.Row | dict[str, str | None]:
+    existing = get_db().execute(
+        "SELECT * FROM workout_sessions WHERE workout_date = ?",
+        (workout_date,),
+    ).fetchone()
+    if existing:
+        return existing
+    return {"id": None, "workout_date": workout_date}
 
 
 def get_or_create_exercise(name: str) -> int:
@@ -468,6 +484,27 @@ def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | 
             "calories": float(row["calories"]),
             "set_count": int(row["set_count"]),
             "workout_days": int(row["workout_days"]),
+            "meal_count": int(row["meal_count"]),
+            "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
+            "calories_height": max(3, round(float(row["calories"]) / max_calories * 100)),
+            "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
+        }
+        for row in ordered_rows
+    ]
+
+
+def build_daily_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
+    ordered_rows = list(reversed(rows))
+    max_volume = max([float(row["volume"]) for row in ordered_rows] + [1.0])
+    max_calories = max([float(row["calories"]) for row in ordered_rows] + [1.0])
+    max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
+    return [
+        {
+            "period": row["period"],
+            "volume": float(row["volume"]),
+            "calories": float(row["calories"]),
+            "set_count": int(row["set_count"]),
+            "workout_days": 1 if int(row["set_count"]) > 0 else 0,
             "meal_count": int(row["meal_count"]),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
             "calories_height": max(3, round(float(row["calories"]) / max_calories * 100)),

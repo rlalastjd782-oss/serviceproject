@@ -383,6 +383,14 @@ select:focus {
   margin-bottom: 12px;
 }
 
+.section-note {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .chart-block {
   margin-bottom: 14px;
 }
