@@ -48,21 +48,59 @@
             <option value="{{ exercise.name }}"></option>
           {% endfor %}
         </datalist>
-        <div class="input-grid">
-          <label>
-            <span>무게 kg</span>
-            <input name="weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
-          </label>
-          <label>
-            <span>횟수</span>
-            <input name="reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
-          </label>
+
+        <div class="set-entry-head">
+          <span>세트</span>
+          <button class="secondary-button" type="button" data-add-set-row>세트 추가</button>
         </div>
-        <label>
-          <span>메모</span>
-          <input name="memo" autocomplete="off" placeholder="자세, 난이도, 컨디션">
-        </label>
-        <button class="primary-button" type="submit">운동 추가</button>
+        <div class="set-entry-list" data-set-list>
+          <div class="set-entry-row">
+            <strong>1</strong>
+            <label>
+              <span>무게 kg</span>
+              <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+            </label>
+            <label>
+              <span>횟수</span>
+              <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
+            </label>
+            <label>
+              <span>메모</span>
+              <input name="set_memo" autocomplete="off" placeholder="가볍게">
+            </label>
+          </div>
+          <div class="set-entry-row">
+            <strong>2</strong>
+            <label>
+              <span>무게 kg</span>
+              <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+            </label>
+            <label>
+              <span>횟수</span>
+              <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
+            </label>
+            <label>
+              <span>메모</span>
+              <input name="set_memo" autocomplete="off" placeholder="자세 유지">
+            </label>
+          </div>
+          <div class="set-entry-row">
+            <strong>3</strong>
+            <label>
+              <span>무게 kg</span>
+              <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+            </label>
+            <label>
+              <span>횟수</span>
+              <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
+            </label>
+            <label>
+              <span>메모</span>
+              <input name="set_memo" autocomplete="off" placeholder="마지막 세트">
+            </label>
+          </div>
+        </div>
+        <button class="primary-button" type="submit">운동 세트 저장</button>
       </form>
     </article>
 

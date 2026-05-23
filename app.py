@@ -102,23 +102,42 @@ def create_app() -> Flask:
         if not exercise_name:
             return redirect(url_for("index"))
 
-        exercise_id = get_or_create_exercise(exercise_name)
-        weight = parse_float(request.form.get("weight"))
-        reps = parse_int(request.form.get("reps"))
-        memo = request.form.get("memo", "").strip()
+        set_weights = request.form.getlist("set_weight") or [request.form.get("weight", "")]
+        set_reps = request.form.getlist("set_reps") or [request.form.get("reps", "")]
+        set_memos = request.form.getlist("set_memo") or [request.form.get("memo", "")]
+        set_count = max(len(set_weights), len(set_reps), len(set_memos))
+        set_rows = []
+        for index in range(set_count):
+            weight_value = value_at(set_weights, index)
+            reps_value = value_at(set_reps, index)
+            memo_value = value_at(set_memos, index).strip()
+            if weight_value.strip() == "" and reps_value.strip() == "" and memo_value == "":
+                continue
+            set_rows.append(
+                (
+                    parse_float(weight_value),
+                    parse_int(reps_value),
+                    memo_value,
+                )
+            )
+
+        if not set_rows:
+            return redirect(url_for("index"))
 
         db = get_db()
+        exercise_id = get_or_create_exercise(exercise_name)
         next_order = db.execute(
             "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
             (session["id"],),
         ).fetchone()[0]
-        db.execute(
-            """
-            INSERT INTO workout_sets (session_id, exercise_id, weight, reps, memo, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (session["id"], exercise_id, weight, reps, memo, next_order),
-        )
+        for offset, (weight, reps, memo) in enumerate(set_rows):
+            db.execute(
+                """
+                INSERT INTO workout_sets (session_id, exercise_id, weight, reps, memo, sort_order)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (session["id"], exercise_id, weight, reps, memo, next_order + offset),
+            )
         db.commit()
         return redirect(url_for("index"))
 
@@ -486,6 +505,12 @@ def sets_for_session(session_id: int) -> list[sqlite3.Row]:
 
 def current_local_date() -> str:
     return get_db().execute("SELECT date('now', 'localtime')").fetchone()[0]
+
+
+def value_at(values: list[str], index: int) -> str:
+    if index >= len(values):
+        return ""
+    return values[index] or ""
 
 
 def parse_float(value: str | None) -> float | None:
