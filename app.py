@@ -37,10 +37,19 @@ def create_app() -> Flask:
             sessions=sessions,
             exercises=exercises,
             meals=meals,
+            today_summary=get_day_summary(today_session["workout_date"]),
+            active_page="today",
+        )
+
+    @app.get("/summaries")
+    def summaries():
+        return render_template(
+            "summaries.html",
             daily_summary=list_daily_summary(),
             weekly_summary=list_weekly_summary(),
             monthly_summary=list_monthly_summary(),
             exercise_summary=list_exercise_summary(),
+            active_page="summaries",
         )
 
     @app.post("/sets")
@@ -235,6 +244,41 @@ def list_meals_for_date(meal_date: str) -> list[sqlite3.Row]:
         """,
         (meal_date,),
     ).fetchall()
+
+
+def get_day_summary(day: str) -> dict[str, float]:
+    db = get_db()
+    workout = db.execute(
+        """
+        SELECT
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        FROM workout_sessions s
+        LEFT JOIN workout_sets ws ON ws.session_id = s.id
+        WHERE s.workout_date = ?
+        """,
+        (day,),
+    ).fetchone()
+    meal = db.execute(
+        """
+        SELECT
+            COUNT(id) AS meal_count,
+            COALESCE(SUM(calories), 0) AS calories,
+            COALESCE(SUM(protein), 0) AS protein
+        FROM meal_entries
+        WHERE meal_date = ?
+        """,
+        (day,),
+    ).fetchone()
+    return {
+        "set_count": workout["set_count"],
+        "rep_count": workout["rep_count"],
+        "volume": workout["volume"],
+        "meal_count": meal["meal_count"],
+        "calories": meal["calories"],
+        "protein": meal["protein"],
+    }
 
 
 def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:

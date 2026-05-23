@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#101820">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>집계</title>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">데이터 집계</p>
+          <h1>주간 · 월간 리포트</h1>
+        </div>
+        <nav class="main-nav" aria-label="주요 메뉴">
+          <a class="nav-link" href="{{ url_for('index') }}">오늘 기록</a>
+          <a class="nav-link active" href="{{ url_for('summaries') }}">집계</a>
+        </nav>
+      </header>
+
+      <section class="summary-page-grid" aria-label="집계표">
+        <section class="section-block" aria-label="일간 집계">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Daily</p>
+              <h2>일간 집계</h2>
+            </div>
+          </div>
+          {% include "summary_table.html" with context %}
+        </section>
+
+        <section class="section-block" aria-label="주간 집계">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Weekly</p>
+              <h2>주간 집계</h2>
+            </div>
+          </div>
+          {% set period_rows = weekly_summary %}
+          {% set period_label = "주" %}
+          {% include "period_table.html" %}
+        </section>
+
+        <section class="section-block" aria-label="월간 집계">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Monthly</p>
+              <h2>월간 집계</h2>
+            </div>
+          </div>
+          {% set period_rows = monthly_summary %}
+          {% set period_label = "월" %}
+          {% include "period_table.html" %}
+        </section>
+
+        <section class="section-block" aria-label="운동별 횟수">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Exercise</p>
+              <h2>운동별 횟수</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>운동</th>
+                  <th>세트</th>
+                  <th>총 횟수</th>
+                  <th>볼륨</th>
+                  <th>최근</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in exercise_summary %}
+                  <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.set_count }}</td>
+                    <td>{{ item.rep_count }}</td>
+                    <td>{{ "%.0f"|format(item.volume) }} kg</td>
+                    <td>{{ item.last_date }}</td>
+                  </tr>
+                {% else %}
+                  <tr>
+                    <td colspan="5" class="empty-cell">운동 기록을 추가하면 집계됩니다.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
