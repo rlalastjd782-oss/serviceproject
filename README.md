@@ -1,7 +1,30 @@
 # serviceproject
 
-새 서비스 프로젝트 작업 공간입니다.
+Mobile-first workout tracker built as a Flask + SQLite PWA.
 
-## 시작
+## Run locally
 
-프로젝트 내용이 정해지면 여기에 실행 방법과 작업 메모를 정리합니다.
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app.py
+```
+
+Open `http://127.0.0.1:5000` on this computer.
+
+To use it from a phone on the same Wi-Fi, run:
+
+```powershell
+python app.py --host 0.0.0.0
+```
+
+Then open `http://YOUR_PC_IP:5000` from the phone browser and add it to the home screen.
+
+## Features
+
+- Save workout sessions by date
+- Add exercise sets with weight, reps, and memo
+- View recent workout history
+- SQLite database stored in `instance/workout.db`
+- PWA manifest and service worker for app-like mobile use
