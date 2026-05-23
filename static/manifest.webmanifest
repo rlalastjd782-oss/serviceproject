@@ -1,9 +1,9 @@
 {
-  "name": "운동관리",
-  "short_name": "운동관리",
+  "name": "운동 및 식단 관리",
+  "short_name": "운동식단",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6f7f4",
+  "background_color": "#f4f6f2",
   "theme_color": "#101820",
   "icons": [
     {

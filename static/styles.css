@@ -1,13 +1,14 @@
 :root {
   color-scheme: light;
-  --bg: #f6f7f4;
+  --bg: #f4f6f2;
   --surface: #ffffff;
   --ink: #101820;
-  --muted: #66736b;
-  --line: #dce2dc;
+  --muted: #637067;
+  --line: #dbe2dc;
   --accent: #0f7b6c;
   --accent-strong: #095f54;
   --warn: #b54f35;
+  --soft: #f9fbf8;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -22,12 +23,13 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
 .app-shell {
-  width: min(100%, 520px);
+  width: min(100%, 980px);
   min-height: 100vh;
   margin: 0 auto;
   padding: 18px 16px 36px;
@@ -73,6 +75,12 @@ h2 {
   background: var(--surface);
 }
 
+.entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .entry-panel,
 .section-block {
   background: var(--surface);
@@ -86,7 +94,7 @@ h2 {
   margin-top: 14px;
 }
 
-.set-form {
+.record-form {
   display: grid;
   gap: 12px;
 }
@@ -102,25 +110,35 @@ label span {
   font-weight: 700;
 }
 
-input {
+input,
+select {
   width: 100%;
   min-height: 46px;
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 0 12px;
-  background: #fbfcfa;
+  background: var(--soft);
   color: var(--ink);
 }
 
-input:focus {
+input:focus,
+select:focus {
   border-color: var(--accent);
   outline: 3px solid rgb(15 123 108 / 18%);
 }
 
-.input-grid {
+.input-grid,
+.macro-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.input-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.macro-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .primary-button {
@@ -149,7 +167,7 @@ input:focus {
   gap: 8px;
 }
 
-.set-row,
+.record-row,
 .history-row {
   display: flex;
   align-items: center;
@@ -158,20 +176,20 @@ input:focus {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
-  background: #fbfcfa;
+  background: var(--soft);
 }
 
-.set-row strong {
+.record-row strong {
   display: block;
   margin-bottom: 4px;
 }
 
-.set-row p,
-.set-row small {
+.record-row p,
+.record-row small {
   color: var(--muted);
 }
 
-.set-row small {
+.record-row small {
   display: block;
   margin-top: 4px;
 }
@@ -197,16 +215,73 @@ input:focus {
   margin-left: auto;
 }
 
-.empty-state {
-  border: 1px dashed var(--line);
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 18px;
+}
+
+table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+  background: var(--soft);
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  white-space: nowrap;
+}
+
+th:first-child,
+td:first-child {
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: #eef3ef;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.empty-state,
+.empty-cell {
   color: var(--muted);
   text-align: center;
 }
 
-@media (max-width: 380px) {
-  .input-grid {
+.empty-state {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.empty-cell {
+  padding: 18px;
+}
+
+@media (max-width: 760px) {
+  .entry-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell {
+    max-width: 560px;
+  }
+}
+
+@media (max-width: 430px) {
+  .input-grid,
+  .macro-grid {
     grid-template-columns: 1fr;
   }
 

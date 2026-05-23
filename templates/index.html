@@ -6,74 +6,215 @@
     <meta name="theme-color" content="#101820">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>운동관리</title>
+    <title>운동 및 식단 관리</title>
   </head>
   <body>
     <main class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">오늘의 운동</p>
+          <p class="eyebrow">오늘 기록</p>
           <h1>{{ session.workout_date }}</h1>
         </div>
-        <div class="status-pill">SQLite</div>
+        <div class="status-pill">운동 + 식단</div>
       </header>
 
-      <section class="entry-panel" aria-label="세트 추가">
-        <form method="post" action="{{ url_for('create_set') }}" class="set-form">
-          <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
-          <label>
-            <span>운동</span>
-            <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="벤치프레스" required>
-          </label>
-          <datalist id="exercise-list">
-            {% for exercise in exercises %}
-              <option value="{{ exercise.name }}"></option>
-            {% endfor %}
-          </datalist>
-          <div class="input-grid">
-            <label>
-              <span>무게 kg</span>
-              <input name="weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
-            </label>
-            <label>
-              <span>횟수</span>
-              <input name="reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
-            </label>
+      <section class="entry-grid" aria-label="기록 입력">
+        <article class="entry-panel">
+          <div class="section-head">
+            <h2>운동 입력</h2>
           </div>
-          <label>
-            <span>메모</span>
-            <input name="memo" autocomplete="off" placeholder="가볍게, 자세 좋음">
-          </label>
-          <button class="primary-button" type="submit">세트 추가</button>
-        </form>
+          <form method="post" action="{{ url_for('create_set') }}" class="record-form">
+            <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <label>
+              <span>운동명</span>
+              <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="벤치프레스" required>
+            </label>
+            <datalist id="exercise-list">
+              {% for exercise in exercises %}
+                <option value="{{ exercise.name }}"></option>
+              {% endfor %}
+            </datalist>
+            <div class="input-grid">
+              <label>
+                <span>무게 kg</span>
+                <input name="weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+              </label>
+              <label>
+                <span>횟수</span>
+                <input name="reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
+              </label>
+            </div>
+            <label>
+              <span>메모</span>
+              <input name="memo" autocomplete="off" placeholder="자세, 난이도, 컨디션">
+            </label>
+            <button class="primary-button" type="submit">운동 추가</button>
+          </form>
+        </article>
+
+        <article class="entry-panel">
+          <div class="section-head">
+            <h2>식단 입력</h2>
+          </div>
+          <form method="post" action="{{ url_for('create_meal') }}" class="record-form">
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <div class="input-grid">
+              <label>
+                <span>구분</span>
+                <select name="meal_type">
+                  <option value="아침">아침</option>
+                  <option value="점심">점심</option>
+                  <option value="저녁">저녁</option>
+                  <option value="간식">간식</option>
+                  <option value="기타">기타</option>
+                </select>
+              </label>
+              <label>
+                <span>음식</span>
+                <input name="food_name" autocomplete="off" placeholder="닭가슴살 샐러드" required>
+              </label>
+            </div>
+            <div class="macro-grid">
+              <label>
+                <span>kcal</span>
+                <input name="calories" type="number" min="0" step="1" inputmode="decimal" placeholder="420">
+              </label>
+              <label>
+                <span>단백질 g</span>
+                <input name="protein" type="number" min="0" step="0.1" inputmode="decimal" placeholder="35">
+              </label>
+              <label>
+                <span>탄수 g</span>
+                <input name="carbs" type="number" min="0" step="0.1" inputmode="decimal" placeholder="45">
+              </label>
+              <label>
+                <span>지방 g</span>
+                <input name="fat" type="number" min="0" step="0.1" inputmode="decimal" placeholder="12">
+              </label>
+            </div>
+            <label>
+              <span>메모</span>
+              <input name="memo" autocomplete="off" placeholder="외식, 보충제, 양 조절">
+            </label>
+            <button class="primary-button" type="submit">식단 추가</button>
+          </form>
+        </article>
       </section>
 
       <section class="section-block" aria-label="오늘 기록">
         <div class="section-head">
-          <h2>오늘 기록</h2>
+          <h2>오늘 운동</h2>
         </div>
         <div class="set-list">
           {% set today_sets = sets_for_session(session.id) %}
           {% if today_sets %}
             {% for item in today_sets %}
-              <article class="set-row">
+              <article class="record-row">
                 <div>
                   <strong>{{ item.exercise_name }}</strong>
                   <p>
                     {% if item.weight is not none %}{{ "%.1f"|format(item.weight) }} kg{% else %}- kg{% endif %}
-                    ·
+                    x
                     {% if item.reps is not none %}{{ item.reps }} 회{% else %}- 회{% endif %}
                   </p>
                   {% if item.memo %}<small>{{ item.memo }}</small>{% endif %}
                 </div>
                 <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}">
-                  <button class="icon-button" type="submit" aria-label="삭제">×</button>
+                  <button class="icon-button" type="submit" aria-label="운동 삭제">×</button>
                 </form>
               </article>
             {% endfor %}
           {% else %}
-            <p class="empty-state">아직 기록이 없습니다. 첫 세트를 추가해볼까요?</p>
+            <p class="empty-state">아직 운동 기록이 없습니다.</p>
           {% endif %}
+        </div>
+      </section>
+
+      <section class="section-block" aria-label="오늘 식단">
+        <div class="section-head">
+          <h2>오늘 식단</h2>
+        </div>
+        <div class="set-list">
+          {% if meals %}
+            {% for item in meals %}
+              <article class="record-row">
+                <div>
+                  <strong>{{ item.meal_type or "식사" }} · {{ item.food_name }}</strong>
+                  <p>
+                    {{ "%.0f"|format(item.calories or 0) }} kcal ·
+                    P {{ "%.1f"|format(item.protein or 0) }}g ·
+                    C {{ "%.1f"|format(item.carbs or 0) }}g ·
+                    F {{ "%.1f"|format(item.fat or 0) }}g
+                  </p>
+                  {% if item.memo %}<small>{{ item.memo }}</small>{% endif %}
+                </div>
+                <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}">
+                  <button class="icon-button" type="submit" aria-label="식단 삭제">×</button>
+                </form>
+              </article>
+            {% endfor %}
+          {% else %}
+            <p class="empty-state">아직 식단 기록이 없습니다.</p>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="section-block" aria-label="데이터 집계표">
+        <div class="section-head">
+          <h2>일간 집계</h2>
+        </div>
+        {% include "summary_table.html" with context %}
+      </section>
+
+      <section class="section-block" aria-label="주간 집계표">
+        <div class="section-head">
+          <h2>주간 집계</h2>
+        </div>
+        {% set period_rows = weekly_summary %}
+        {% set period_label = "주" %}
+        {% include "period_table.html" %}
+      </section>
+
+      <section class="section-block" aria-label="월간 집계표">
+        <div class="section-head">
+          <h2>월간 집계</h2>
+        </div>
+        {% set period_rows = monthly_summary %}
+        {% set period_label = "월" %}
+        {% include "period_table.html" %}
+      </section>
+
+      <section class="section-block" aria-label="운동별 횟수">
+        <div class="section-head">
+          <h2>운동별 횟수</h2>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>운동</th>
+                <th>세트</th>
+                <th>총 횟수</th>
+                <th>볼륨</th>
+                <th>최근</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in exercise_summary %}
+                <tr>
+                  <td>{{ item.name }}</td>
+                  <td>{{ item.set_count }}</td>
+                  <td>{{ item.rep_count }}</td>
+                  <td>{{ "%.0f"|format(item.volume) }} kg</td>
+                  <td>{{ item.last_date }}</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="5" class="empty-cell">운동 기록을 추가하면 집계됩니다.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </section>
 

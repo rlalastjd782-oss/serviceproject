@@ -1,0 +1,32 @@
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>날짜</th>
+        <th>세트</th>
+        <th>총 횟수</th>
+        <th>볼륨</th>
+        <th>식단</th>
+        <th>kcal</th>
+        <th>단백질</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in daily_summary %}
+        <tr>
+          <td>{{ item.period }}</td>
+          <td>{{ item.set_count }}</td>
+          <td>{{ item.rep_count }}</td>
+          <td>{{ "%.0f"|format(item.volume) }} kg</td>
+          <td>{{ item.meal_count }}</td>
+          <td>{{ "%.0f"|format(item.calories) }}</td>
+          <td>{{ "%.1f"|format(item.protein) }} g</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="7" class="empty-cell">기록을 추가하면 집계됩니다.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
