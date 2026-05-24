@@ -445,7 +445,7 @@ def create_app() -> Flask:
         payload = export_all_data()
         return Response(
             json.dumps(payload, ensure_ascii=False, indent=2),
-            mimetype="application/json; charset=utf-8",
+            content_type="application/json; charset=utf-8",
             headers={"Content-Disposition": "attachment; filename=health-tracker-export.json"},
         )
 
@@ -453,7 +453,7 @@ def create_app() -> Flask:
     def export_csv():
         return Response(
             export_workout_csv(),
-            mimetype="text/csv; charset=utf-8",
+            content_type="text/csv; charset=utf-8",
             headers={"Content-Disposition": "attachment; filename=health-tracker-workouts.csv"},
         )
 
@@ -2800,5 +2800,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=5000, type=int)
+    parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
-    app.run(host=args.host, port=args.port, debug=True)
+    app.run(host=args.host, port=args.port, debug=args.debug)
