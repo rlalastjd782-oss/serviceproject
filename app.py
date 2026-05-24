@@ -3098,6 +3098,7 @@ def list_body_part_summary(scope: str, limit: int = 30, date_text: str | None = 
         )
         if date_text:
             week_start = week_start_for_date(date_text)
+            period_expr = f"'{meal_week_label(week_start)}'"
             where_clause = "WHERE s.workout_date BETWEEN ? AND ?"
             params.extend([week_start, shift_date(week_start, 6)])
     else:
@@ -3127,7 +3128,18 @@ def list_body_part_summary(scope: str, limit: int = 30, date_text: str | None = 
         LEFT JOIN pr_events pe ON pe.set_id = ws.id
         {where_clause}
         GROUP BY period, body_part
-        ORDER BY MAX(s.workout_date) DESC, volume DESC, body_part
+        ORDER BY
+            CASE body_part
+                WHEN '하체' THEN 1
+                WHEN '등' THEN 2
+                WHEN '어깨' THEN 3
+                WHEN '가슴' THEN 4
+                WHEN '팔' THEN 5
+                WHEN '유산소' THEN 6
+                ELSE 7
+            END,
+            MAX(s.workout_date) DESC,
+            body_part
         LIMIT ?
         """,
         params,
@@ -3141,10 +3153,12 @@ def list_weekly_body_part_details(date_text: str | None = None) -> dict[str, lis
         week_start = week_start_for_date(date_text)
         where_clause = "WHERE s.workout_date BETWEEN ? AND ?"
         params.extend([week_start, shift_date(week_start, 6)])
-    period_expr = (
-        "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
-        "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
-    )
+        period_expr = f"'{meal_week_label(week_start)}'"
+    else:
+        period_expr = (
+            "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
+            "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
+        )
     rows = get_db().execute(
         f"""
         SELECT
