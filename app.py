@@ -55,7 +55,7 @@ def create_app() -> Flask:
 
     @app.get("/")
     def index():
-        selected_date = request.args.get("date") or current_local_date()
+        selected_date = normalize_date(request.args.get("date"))
         today_mode = request.args.get("mode", "overview")
         if today_mode not in {"overview", "workout", "meal"}:
             today_mode = "overview"
@@ -126,7 +126,7 @@ def create_app() -> Flask:
 
     @app.get("/summaries/weekly")
     def weekly_summary_page():
-        selected_week = request.args.get("week") or current_local_date()
+        selected_week = normalize_date(request.args.get("week"))
         week_start = week_start_for_date(selected_week)
         week_end = shift_date(week_start, 6)
         chart_rows = list_daily_summary(start_date=week_start, end_date=week_end)
@@ -222,7 +222,7 @@ def create_app() -> Flask:
 
     @app.get("/meals/weekly")
     def meal_weekly_page():
-        selected_week = request.args.get("week") or week_start_for_date(current_local_date())
+        selected_week = normalize_date(request.args.get("week"))
         week_start = week_start_for_date(selected_week)
         week_end = shift_date(week_start, 6)
         return render_template(
@@ -354,7 +354,7 @@ def create_app() -> Flask:
 
     @app.post("/routines/from-day")
     def create_routine_from_day():
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         mode = request.form.get("mode")
         routine_name = request.form.get("routine_name", "").strip() or f"{workout_date} 루틴"
         session = get_session_by_date(workout_date)
@@ -364,14 +364,14 @@ def create_app() -> Flask:
 
     @app.post("/routines/<int:routine_id>/apply")
     def apply_routine(routine_id: int):
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         mode = request.form.get("mode")
         apply_routine_template(routine_id, workout_date)
         return redirect(url_for("index", date=workout_date, mode=mode or None))
 
     @app.post("/routines/<int:routine_id>/update")
     def update_routine(routine_id: int):
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         mode = request.form.get("mode")
         name = request.form.get("routine_name", "").strip()
         if name:
@@ -380,14 +380,14 @@ def create_app() -> Flask:
 
     @app.post("/routines/<int:routine_id>/delete")
     def delete_routine(routine_id: int):
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         mode = request.form.get("mode")
         delete_routine_template(routine_id)
         return redirect(url_for("index", date=workout_date, mode=mode or None))
 
     @app.post("/plans")
     def create_plan_item_route():
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         body_part = request.form.get("body_part", "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", "").strip()
         target_sets = parse_int(request.form.get("target_sets")) or 3
@@ -397,13 +397,13 @@ def create_app() -> Flask:
 
     @app.post("/plans/<int:item_id>/delete")
     def delete_plan_item_route(item_id: int):
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         delete_workout_plan_item(item_id)
         return redirect(url_for("index", date=workout_date, mode="workout"))
 
     @app.post("/exercise-settings")
     def save_exercise_settings_route():
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         exercise_name = request.form.get("exercise_name", "").strip()
         if exercise_name:
             save_exercise_settings(
@@ -415,7 +415,7 @@ def create_app() -> Flask:
 
     @app.post("/sessions/<int:source_session_id>/apply")
     def apply_session(source_session_id: int):
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         mode = request.form.get("mode")
         apply_session_template(source_session_id, workout_date)
         return redirect(url_for("index", date=workout_date, mode=mode or None))
@@ -467,7 +467,7 @@ def create_app() -> Flask:
 
     @app.post("/goals")
     def update_goals():
-        target_date = request.form.get("target_date") or current_local_date()
+        target_date = normalize_date(request.form.get("target_date"))
         scope = request.form.get("scope", "today")
         if scope == "weekly":
             save_goal("weekly_workout_days", parse_int(request.form.get("weekly_workout_days")) or 0)
@@ -491,7 +491,7 @@ def create_app() -> Flask:
 
     @app.post("/exercise-notes")
     def update_exercise_note():
-        target_date = request.form.get("target_date") or current_local_date()
+        target_date = normalize_date(request.form.get("target_date"))
         mode = request.form.get("mode")
         exercise_name = request.form.get("exercise_name", "").strip()
         note = request.form.get("note", "").strip()
@@ -501,7 +501,7 @@ def create_app() -> Flask:
 
     @app.post("/body-metrics")
     def save_body_metric_route():
-        target_date = request.form.get("metric_date") or current_local_date()
+        target_date = normalize_date(request.form.get("metric_date"))
         save_body_metric(
             target_date,
             parse_float(request.form.get("body_weight")),
@@ -513,7 +513,7 @@ def create_app() -> Flask:
 
     @app.post("/body-photos")
     def save_body_photo_route():
-        photo_date = request.form.get("photo_date") or current_local_date()
+        photo_date = normalize_date(request.form.get("photo_date"))
         file = request.files.get("photo")
         if file and file.filename:
             save_body_photo(photo_date, file)
@@ -521,7 +521,7 @@ def create_app() -> Flask:
 
     @app.post("/meal-templates/from-day")
     def create_meal_template_from_day_route():
-        meal_date = request.form.get("meal_date") or current_local_date()
+        meal_date = normalize_date(request.form.get("meal_date"))
         mode = request.form.get("mode")
         template_name = request.form.get("template_name", "").strip() or f"{meal_date} 식단"
         create_meal_template_from_day(template_name, meal_date)
@@ -529,14 +529,14 @@ def create_app() -> Flask:
 
     @app.post("/meal-templates/<int:template_id>/apply")
     def apply_meal_template_route(template_id: int):
-        meal_date = request.form.get("meal_date") or current_local_date()
+        meal_date = normalize_date(request.form.get("meal_date"))
         mode = request.form.get("mode")
         apply_meal_template(template_id, meal_date)
         return redirect(url_for("index", date=meal_date, mode=mode or None))
 
     @app.post("/food-favorites")
     def save_food_favorite_route():
-        meal_date = request.form.get("meal_date") or current_local_date()
+        meal_date = normalize_date(request.form.get("meal_date"))
         food_name = request.form.get("food_name", "").strip()
         if food_name:
             save_food_favorite(
@@ -549,14 +549,14 @@ def create_app() -> Flask:
 
     @app.post("/food-favorites/<path:food_name>/delete")
     def delete_food_favorite_route(food_name: str):
-        meal_date = request.form.get("meal_date") or current_local_date()
+        meal_date = normalize_date(request.form.get("meal_date"))
         delete_food_favorite(food_name)
         return redirect(url_for("index", date=meal_date, mode="meal"))
 
     @app.post("/meals/copy-day")
     def copy_meal_day_route():
-        source_date = request.form.get("source_date", "").strip()
-        meal_date = request.form.get("meal_date") or current_local_date()
+        source_date = normalize_optional_date(request.form.get("source_date"))
+        meal_date = normalize_date(request.form.get("meal_date"))
         mode = request.form.get("mode")
         if source_date:
             copy_meals_from_day(source_date, meal_date)
@@ -564,7 +564,7 @@ def create_app() -> Flask:
 
     @app.post("/programs/apply")
     def apply_program_route():
-        workout_date = request.form.get("workout_date") or current_local_date()
+        workout_date = normalize_date(request.form.get("workout_date"))
         apply_default_program(request.form.get("program_name", ""), workout_date)
         return redirect(url_for("index", date=workout_date, mode=request.form.get("mode") or None))
 
@@ -594,7 +594,7 @@ def create_app() -> Flask:
 
     @app.post("/meals")
     def create_meal():
-        meal_date = request.form.get("meal_date") or current_local_date()
+        meal_date = normalize_date(request.form.get("meal_date"))
         mode = request.form.get("mode")
         meal_type = request.form.get("meal_type", "").strip()
         food_names = request.form.getlist("meal_food_name") or [request.form.get("food_name", "")]
@@ -967,7 +967,7 @@ def ensure_column(db: sqlite3.Connection, table: str, column: str, column_type: 
 
 def get_or_create_session(workout_date: str | None = None) -> sqlite3.Row:
     db = get_db()
-    date_value = workout_date or current_local_date()
+    date_value = normalize_date(workout_date)
     existing = db.execute(
         "SELECT * FROM workout_sessions WHERE workout_date = ?",
         (date_value,),
@@ -3206,6 +3206,25 @@ def current_local_date() -> str:
     return get_db().execute("SELECT date('now', 'localtime')").fetchone()[0]
 
 
+def normalize_date(date_text: str | None, max_future_days: int = 31) -> str:
+    today_text = current_local_date()
+    try:
+        date_value = datetime.strptime((date_text or "").strip(), "%Y-%m-%d")
+    except ValueError:
+        return today_text
+
+    today_value = datetime.strptime(today_text, "%Y-%m-%d")
+    if date_value > today_value + timedelta(days=max_future_days):
+        return today_text
+    return date_value.strftime("%Y-%m-%d")
+
+
+def normalize_optional_date(date_text: str | None, max_future_days: int = 31) -> str:
+    if not (date_text or "").strip():
+        return ""
+    return normalize_date(date_text, max_future_days=max_future_days)
+
+
 def shift_date(date_text: str, days: int) -> str:
     return (datetime.strptime(date_text, "%Y-%m-%d") + timedelta(days=days)).strftime("%Y-%m-%d")
 
@@ -3231,12 +3250,17 @@ def meal_day_label(date_text: str) -> str:
 
 
 def normalize_month(month_text: str) -> str:
+    today_month = datetime.strptime(current_local_date(), "%Y-%m-%d").replace(day=1)
     try:
         if len(month_text) == 7:
-            return datetime.strptime(f"{month_text}-01", "%Y-%m-%d").strftime("%Y-%m-%d")
-        return datetime.strptime(month_text, "%Y-%m-%d").strftime("%Y-%m-01")
+            month_value = datetime.strptime(f"{month_text}-01", "%Y-%m-%d")
+        else:
+            month_value = datetime.strptime(month_text, "%Y-%m-%d").replace(day=1)
     except ValueError:
-        return datetime.strptime(current_local_date(), "%Y-%m-%d").strftime("%Y-%m-01")
+        return today_month.strftime("%Y-%m-01")
+    if month_value > today_month + timedelta(days=62):
+        return today_month.strftime("%Y-%m-01")
+    return month_value.strftime("%Y-%m-%d")
 
 
 def shift_month(month_start: str, months: int) -> str:
