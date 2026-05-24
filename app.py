@@ -2069,7 +2069,9 @@ def list_recent_sessions(limit: int = 10) -> list[sqlite3.Row]:
             s.workout_date,
             COALESCE(s.duration_seconds, 0) AS duration_seconds,
             COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
+            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
         GROUP BY s.id, s.duration_seconds
