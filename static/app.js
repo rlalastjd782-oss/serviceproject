@@ -104,7 +104,7 @@ document.addEventListener("submit", (event) => {
   const hours = Number(durationForm.querySelector('input[name="duration_hours"]')?.value || 0);
   const minutes = Number(durationForm.querySelector('input[name="duration_minutes"]')?.value || 0);
   const durationSeconds = action === "reset" ? 0 : Math.max(0, hours * 3600 + minutes * 60);
-  saveWorkoutClock({ startedAt: null, elapsedMs: durationSeconds * 1000 });
+  saveWorkoutClock({ startedAt: null, elapsedMs: durationSeconds * 1000, manualStarted: false });
 });
 
 document.addEventListener("click", (event) => {
@@ -718,11 +718,11 @@ function initWorkoutClock() {
   }
   const state = readWorkoutClock();
   const initialElapsedMs = Number(workoutClockPanel.dataset.initialDuration || 0) * 1000;
-  if (!state.startedAt && (state.elapsedMs === undefined || Math.abs(Number(state.elapsedMs || 0) - initialElapsedMs) > 1000)) {
-    saveWorkoutClock({ startedAt: null, elapsedMs: initialElapsedMs });
+  if (state.startedAt && !state.manualStarted) {
+    saveWorkoutClock({ startedAt: null, elapsedMs: initialElapsedMs, manualStarted: false });
   }
-  if (workoutClockPanel.dataset.workoutMode === "1" && !readWorkoutClock().startedAt) {
-    startWorkoutClock(false);
+  if (!state.startedAt && (state.elapsedMs === undefined || Math.abs(Number(state.elapsedMs || 0) - initialElapsedMs) > 1000)) {
+    saveWorkoutClock({ startedAt: null, elapsedMs: initialElapsedMs, manualStarted: false });
   }
   updateWorkoutClockDisplay();
   clearInterval(workoutClockId);
@@ -741,7 +741,7 @@ function startWorkoutClock(shouldUpdate = true) {
   if (state.startedAt) {
     return;
   }
-  saveWorkoutClock({ startedAt: Date.now(), elapsedMs: Number(state.elapsedMs || 0) });
+  saveWorkoutClock({ startedAt: Date.now(), elapsedMs: Number(state.elapsedMs || 0), manualStarted: true });
   updateWorkoutClockStatus("측정 중");
   if (shouldUpdate) {
     updateWorkoutClockDisplay();
@@ -754,13 +754,13 @@ function pauseWorkoutClock() {
     return;
   }
   const elapsedMs = Number(state.elapsedMs || 0) + (Date.now() - Number(state.startedAt));
-  saveWorkoutClock({ startedAt: null, elapsedMs });
+  saveWorkoutClock({ startedAt: null, elapsedMs, manualStarted: true });
   updateWorkoutClockDisplay();
   persistWorkoutClock("일시정지 저장됨");
 }
 
 function resetWorkoutClock() {
-  saveWorkoutClock({ startedAt: null, elapsedMs: 0 });
+  saveWorkoutClock({ startedAt: null, elapsedMs: 0, manualStarted: false });
   updateWorkoutClockDisplay();
   persistWorkoutClock("시간 삭제됨");
 }
