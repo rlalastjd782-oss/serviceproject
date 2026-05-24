@@ -3151,10 +3151,11 @@ def list_weekly_body_part_details(date_text: str | None = None) -> dict[str, lis
             {period_expr} AS period,
             COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
             e.name AS exercise_name,
-            ws.weight AS weight,
-            ws.cardio_incline AS cardio_incline,
-            ws.cardio_speed AS cardio_speed,
-            ws.cardio_minutes AS cardio_minutes,
+            MIN(ws.weight) AS min_weight,
+            MAX(ws.weight) AS max_weight,
+            AVG(ws.cardio_incline) AS avg_cardio_incline,
+            AVG(ws.cardio_speed) AS avg_cardio_speed,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
             COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
@@ -3169,8 +3170,8 @@ def list_weekly_body_part_details(date_text: str | None = None) -> dict[str, lis
         JOIN exercises e ON e.id = ws.exercise_id
         LEFT JOIN pr_events pe ON pe.set_id = ws.id
         {where_clause}
-        GROUP BY period, body_part, e.name, ws.weight, ws.cardio_incline, ws.cardio_speed, ws.cardio_minutes
-        ORDER BY MAX(s.workout_date) DESC, body_part, e.name, ws.weight, ws.cardio_minutes
+        GROUP BY period, body_part, e.name
+        ORDER BY MAX(s.workout_date) DESC, body_part, e.name
         """,
         params,
     ).fetchall()

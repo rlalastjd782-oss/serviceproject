@@ -556,12 +556,18 @@
                   <span>
                     {% if item.body_part == "유산소" %}
                       {{ detail.set_count }}세트
-                      {% if detail.cardio_incline is not none %}· 인클라인 {{ "%.1f"|format(detail.cardio_incline) }}{% endif %}
-                      {% if detail.cardio_speed is not none %}· 속도 {{ "%.1f"|format(detail.cardio_speed) }}{% endif %}
+                      {% if detail.avg_cardio_incline is not none %}· 평균 인클라인 {{ "%.1f"|format(detail.avg_cardio_incline) }}{% endif %}
+                      {% if detail.avg_cardio_speed is not none %}· 평균 속도 {{ "%.1f"|format(detail.avg_cardio_speed) }}{% endif %}
                       {% if detail.cardio_minutes is not none and detail.cardio_minutes > 0 %}· {{ "%.0f"|format(detail.cardio_minutes) }}분{% endif %}
                       {% if detail.exercise_calories %}· 예상 {{ "%.0f"|format(detail.exercise_calories) }}kcal{% endif %}
                     {% else %}
-                      {% if detail.weight is not none %}{{ "%.1f"|format(detail.weight) }}kg{% else %}-kg{% endif %}
+                      {% if detail.min_weight is not none and detail.max_weight is not none %}
+                        {% if detail.min_weight == detail.max_weight %}
+                          {{ "%.1f"|format(detail.max_weight) }}kg
+                        {% else %}
+                          {{ "%.1f"|format(detail.min_weight) }}~{{ "%.1f"|format(detail.max_weight) }}kg
+                        {% endif %}
+                      {% else %}-kg{% endif %}
                       · {{ detail.set_count }}세트
                       · {{ detail.rep_count }}회
                       {% if detail.pr_count %}
