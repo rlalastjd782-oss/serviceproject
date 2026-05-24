@@ -206,6 +206,25 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("__TEST__", response.data.decode("utf-8-sig"))
 
+        response = self.client.get("/export.csv")
+        self.assertEqual(response.status_code, 200)
+        workout_csv = response.data.decode("utf-8-sig")
+        self.assertIn(strength_name, workout_csv)
+        self.assertIn("82.5", workout_csv)
+
+        response = self.client.get("/summaries/weekly", query_string={"week": workout_date})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("1시간 01분", response.data.decode("utf-8"))
+
+        response = self.client.post(
+            f"/sets/{set_id}/delete",
+            data={"mode": "workout"},
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            deleted = app_module.get_db().execute("SELECT id FROM workout_sets WHERE id = ?", (set_id,)).fetchone()
+            self.assertIsNone(deleted)
+
         response = self.client.post(
             "/rest-days",
             data={"rest_date": "2026-05-21", "rest_reason": "회복", "memo": "테스트 휴식"},
@@ -232,6 +251,18 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(meal["meal_count"], 150)
             self.assertEqual(sample["sets"], 325)
             self.assertEqual(sample["meals"], 150)
+
+    def test_dangerous_delete_requires_confirmation(self) -> None:
+        with self.app.app_context():
+            app_module.init_db()
+            app_module.create_may_sample_data()
+            before = app_module.get_data_counts()
+        response = self.client.post("/data/delete-all", data={"confirm_delete_all": "wrong"})
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            after = app_module.get_data_counts()
+            self.assertEqual(after["sets"], before["sets"])
+            self.assertEqual(after["meals"], before["meals"])
 
 
 if __name__ == "__main__":
