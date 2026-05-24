@@ -1751,6 +1751,38 @@ label span {
   gap: 9px;
 }
 
+.pr-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pr-dashboard-card {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 10px;
+  min-width: 0;
+}
+
+.pr-dashboard-card span,
+.pr-dashboard-card small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.pr-dashboard-card strong {
+  color: var(--text);
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
 .pr-rank-card {
   display: grid;
   gap: 9px;
@@ -2741,6 +2773,7 @@ tbody tr:last-child td {
   .routine-recommend-grid,
   .routine-step-card,
   .pr-card-grid,
+  .pr-dashboard-grid,
   .trend-card-grid,
   .pr-rank-metrics,
   .pr-best-grid {

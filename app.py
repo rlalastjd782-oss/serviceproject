@@ -1241,6 +1241,21 @@ def list_exercise_pr_summary(body_part: str = "", query: str = "", limit: int = 
     ).fetchall()
 
 
+def build_pr_dashboard(pr_rows: list[sqlite3.Row], recent_events: list[sqlite3.Row]) -> dict[str, object]:
+    best_weight = max(pr_rows, key=lambda row: float(row["best_weight"] or 0), default=None)
+    best_volume = max(pr_rows, key=lambda row: float(row["best_volume"] or 0), default=None)
+    best_1rm = max(pr_rows, key=lambda row: float(row["estimated_1rm"] or 0), default=None)
+    recent_30_dates = {row["workout_date"] for row in recent_events[:30]}
+    return {
+        "exercise_count": len(pr_rows),
+        "recent_event_count": len(recent_events),
+        "recent_day_count": len(recent_30_dates),
+        "best_weight": best_weight,
+        "best_volume": best_volume,
+        "best_1rm": best_1rm,
+    }
+
+
 def list_exercise_best_sets(exercise_id: int | None) -> list[dict[str, object]]:
     if not exercise_id:
         return []

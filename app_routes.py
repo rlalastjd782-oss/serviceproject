@@ -194,6 +194,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
         pr_rows = list_exercise_pr_summary(selected_part, search_query)
+        recent_pr_events = list_recent_pr_events(limit=30)
         selected_exercise = parse_int(request.args.get("exercise_id"))
         selected_exercise = selected_exercise or (int(pr_rows[0]["id"]) if pr_rows else None)
         return render_template(
@@ -202,11 +203,12 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             selected_part=selected_part,
             search_query=search_query,
             pr_rows=pr_rows,
+            pr_dashboard=build_pr_dashboard(pr_rows, recent_pr_events),
             selected_exercise_id=selected_exercise,
             selected_profile=get_exercise_profile(selected_exercise),
             selected_growth=build_exercise_growth_chart(selected_exercise, limit=10),
             selected_pr_sets=list_exercise_best_sets(selected_exercise),
-            recent_pr_events=list_recent_pr_events(limit=12),
+            recent_pr_events=recent_pr_events,
             active_page="pr",
         )
 

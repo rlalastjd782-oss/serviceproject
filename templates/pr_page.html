@@ -20,6 +20,38 @@
       <input name="q" value="{{ search_query }}" placeholder="운동명 검색">
       <button class="btn-small" type="submit">보기</button>
     </form>
+    <div class="pr-dashboard-grid">
+      <article class="pr-dashboard-card">
+        <span>운동 수</span>
+        <strong>{{ pr_dashboard.exercise_count }}</strong>
+        <small>PR 계산 가능 운동</small>
+      </article>
+      <article class="pr-dashboard-card">
+        <span>최근 갱신</span>
+        <strong>{{ pr_dashboard.recent_event_count }}</strong>
+        <small>{{ pr_dashboard.recent_day_count }}일에 발생</small>
+      </article>
+      <article class="pr-dashboard-card">
+        <span>최고 중량</span>
+        {% if pr_dashboard.best_weight %}
+          <strong>{{ "%.1f"|format(pr_dashboard.best_weight.best_weight) }}kg</strong>
+          <small>{{ pr_dashboard.best_weight.name }}</small>
+        {% else %}
+          <strong>-</strong>
+          <small>기록 없음</small>
+        {% endif %}
+      </article>
+      <article class="pr-dashboard-card">
+        <span>예상 1RM</span>
+        {% if pr_dashboard.best_1rm %}
+          <strong>{{ "%.1f"|format(pr_dashboard.best_1rm.estimated_1rm) }}kg</strong>
+          <small>{{ pr_dashboard.best_1rm.name }}</small>
+        {% else %}
+          <strong>-</strong>
+          <small>기록 없음</small>
+        {% endif %}
+      </article>
+    </div>
   </section>
 
   <section class="section">
