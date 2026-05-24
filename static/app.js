@@ -118,9 +118,30 @@ document.addEventListener("click", (event) => {
   const workoutClockPauseButton = event.target.closest("[data-workout-clock-pause]");
   const workoutClockSaveButton = event.target.closest("[data-workout-clock-save]");
   const workoutClockResetButton = event.target.closest("[data-workout-clock-reset]");
+  const mealFormToggleButton = event.target.closest("[data-toggle-meal-form]");
+  const mealFormCancelButton = event.target.closest("[data-cancel-meal-form]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
+  const mealForm = document.querySelector("[data-meal-form]");
+
+  if (mealFormToggleButton && mealForm) {
+    const isCollapsed = mealForm.classList.toggle("is-collapsed");
+    mealFormToggleButton.textContent = isCollapsed ? "입력 열기" : "입력 닫기";
+    if (!isCollapsed) {
+      mealForm.querySelector("input:not([type='hidden']), select")?.focus();
+    }
+    return;
+  }
+
+  if (mealFormCancelButton && mealForm && mealList) {
+    resetMealForm(mealForm, mealList);
+    const toggleButton = document.querySelector("[data-toggle-meal-form]");
+    if (toggleButton) {
+      toggleButton.textContent = "입력 열기";
+    }
+    return;
+  }
 
   if (quickExerciseButton && exerciseNameInput) {
     exerciseNameInput.value = quickExerciseButton.dataset.exerciseName || "";
@@ -509,6 +530,20 @@ function addRow(list, type) {
   list.append(row);
   row.querySelector("input").focus();
   return row;
+}
+
+function resetMealForm(form, mealList) {
+  form.reset();
+  mealList.querySelectorAll(".meal-entry-row").forEach((row, index) => {
+    if (index === 0) {
+      row.querySelectorAll("input").forEach((input) => {
+        input.value = "";
+      });
+    } else {
+      row.remove();
+    }
+  });
+  form.classList.add("is-collapsed");
 }
 
 function setRowHtml(index) {

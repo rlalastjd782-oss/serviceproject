@@ -708,6 +708,10 @@ label span {
   margin-top: 12px;
 }
 
+.meal-form.is-collapsed {
+  display: none;
+}
+
 .recommended-routine {
   border-color: #3b82f6;
 }
@@ -933,7 +937,7 @@ label span {
 }
 
 .meal-entry-row {
-  grid-template-columns: minmax(0, 1fr) 30px;
+  grid-template-columns: minmax(160px, 1fr) minmax(220px, 0.9fr) 34px;
   align-items: stretch;
 }
 
@@ -963,7 +967,7 @@ label span {
 
 .meal-compact-grid {
   grid-template-columns: 0.7fr 0.8fr 1fr;
-  grid-column: 1 / -1;
+  grid-column: 2;
 }
 
 .set-entry-row > input,
@@ -992,7 +996,7 @@ label span {
 }
 
 .meal-entry-row .row-remove-button {
-  grid-column: 2;
+  grid-column: 3;
   grid-row: 1;
   min-width: 30px;
 }
@@ -1000,6 +1004,12 @@ label span {
 .set-entry-row input,
 .meal-entry-row input {
   min-width: 0;
+}
+
+.form-action-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
 }
 
 .record-card {
@@ -1698,6 +1708,18 @@ tbody tr:last-child td {
 
   .duration-edit-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .meal-entry-row {
+    grid-template-columns: minmax(0, 1fr) 34px;
+  }
+
+  .meal-compact-grid {
+    grid-column: 1 / -1;
+  }
+
+  .meal-entry-row .row-remove-button {
+    grid-column: 2;
   }
 
   .focus-grid,

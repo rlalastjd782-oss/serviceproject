@@ -379,8 +379,9 @@
   <section class="section optional-section">
     <div class="section-header">
       <div class="section-title">🍱 식단 입력</div>
+      <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
     </div>
-    <form method="post" action="{{ url_for('create_meal') }}" class="record-form">
+    <form method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
       <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
       <select name="meal_type" class="meal-type-select" data-meal-type-select aria-label="식단 구분">
         <option value="아침" class="{{ meal_type_class('아침') }}">아침</option>
@@ -413,7 +414,10 @@
           <button class="btn-danger row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
         </div>
       </div>
-      <button class="btn-primary" type="submit">식단 저장</button>
+      <div class="form-action-row">
+        <button class="btn-primary" type="submit">식단 저장</button>
+        <button class="btn-small" type="button" data-cancel-meal-form>취소</button>
+      </div>
     </form>
     <div class="meal-template-panel">
       {% if meal_copy_sources %}
