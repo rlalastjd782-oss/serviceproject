@@ -180,6 +180,7 @@ def create_app() -> Flask:
             body_parts=body_part_options(),
             exercise_choices=exercise_choices,
             selected_exercise_id=selected_exercise,
+            selected_exercise_profile=get_exercise_profile(selected_exercise),
             exercise_growth=build_exercise_growth_chart(selected_exercise),
             search_query=search_query,
             search_results=search_workout_records(search_query) if search_query else [],
@@ -398,6 +399,8 @@ def create_app() -> Flask:
         save_goal("weekly_workout_days", parse_int(request.form.get("weekly_workout_days")) or 0)
         save_goal("weekly_meal_days", parse_int(request.form.get("weekly_meal_days")) or 0)
         save_goal("monthly_volume", parse_int(request.form.get("monthly_volume")) or 0)
+        save_goal("monthly_workout_days", parse_int(request.form.get("monthly_workout_days")) or 0)
+        save_goal("monthly_cardio_minutes", parse_int(request.form.get("monthly_cardio_minutes")) or 0)
         return redirect(url_for("index", date=target_date))
 
     @app.post("/exercise-notes")
@@ -1451,10 +1454,30 @@ def get_goal_progress(date_text: str) -> dict[str, dict[str, int | float | str]]
         """,
         (month_start, next_month),
     ).fetchone()["volume"]
+    monthly_workout_days = db.execute(
+        """
+        SELECT COUNT(DISTINCT s.workout_date) AS count
+        FROM workout_sessions s
+        JOIN workout_sets ws ON ws.session_id = s.id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+        """,
+        (month_start, next_month),
+    ).fetchone()["count"]
+    monthly_cardio_minutes = db.execute(
+        """
+        SELECT COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS minutes
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+        """,
+        (month_start, next_month),
+    ).fetchone()["minutes"]
     return {
         "weekly_workout_days": goal_item(int(weekly_workout_days), get_goal_value("weekly_workout_days", 3), "주간 운동일"),
         "weekly_meal_days": goal_item(int(weekly_meal_days), get_goal_value("weekly_meal_days", 5), "주간 식단일"),
         "monthly_volume": goal_item(float(monthly_volume), get_goal_value("monthly_volume", 10000), "월간 볼륨"),
+        "monthly_workout_days": goal_item(int(monthly_workout_days), get_goal_value("monthly_workout_days", 12), "월간 운동일"),
+        "monthly_cardio_minutes": goal_item(float(monthly_cardio_minutes), get_goal_value("monthly_cardio_minutes", 300), "월간 유산소"),
     }
 
 
@@ -1828,6 +1851,10 @@ def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
     weight_delta = 0.0
     if len(metrics) >= 2:
         weight_delta = float(metrics[-1]["body_weight"] or 0) - float(metrics[0]["body_weight"] or 0)
+    pr_count = db.execute(
+        "SELECT COUNT(id) AS count FROM pr_events WHERE workout_date >= ? AND workout_date < ?",
+        (month_start, next_month),
+    ).fetchone()["count"]
     balance = get_balance_score("monthly", base_date)
     return {
         "period": month_start[:7],
@@ -1840,6 +1867,7 @@ def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
         "weight_delta": weight_delta,
         "balance_score": balance["score"],
         "missing": balance["missing"],
+        "pr_count": int(pr_count or 0),
     }
 
 
@@ -2480,6 +2508,33 @@ def list_exercise_summary_by_body_part() -> dict[str, list[sqlite3.Row]]:
     return grouped
 
 
+def get_exercise_profile(exercise_id: int | None) -> dict[str, object] | None:
+    if not exercise_id:
+        return None
+    row = get_db().execute(
+        """
+        SELECT
+            e.name,
+            COALESCE(NULLIF(MAX(ws.body_part), ''), '기타') AS body_part,
+            COUNT(ws.id) AS set_count,
+            COUNT(DISTINCT s.workout_date) AS workout_days,
+            MAX(s.workout_date) AS last_date,
+            COALESCE(MAX(ws.weight), 0) AS best_weight,
+            COALESCE(MAX(ws.reps), 0) AS best_reps,
+            COALESCE(MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS best_volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
+            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
+        FROM exercises e
+        LEFT JOIN workout_sets ws ON ws.exercise_id = e.id
+        LEFT JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE e.id = ?
+        GROUP BY e.id, e.name
+        """,
+        (exercise_id,),
+    ).fetchone()
+    return dict(row) if row else None
+
+
 def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> list[dict[str, float | int | str]]:
     if not exercise_id:
         return []
@@ -2553,11 +2608,14 @@ def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
         SELECT
             s.workout_date,
             COALESCE(s.duration_seconds, 0) AS duration_seconds,
-            COUNT(ws.id) AS set_count
+            COALESCE(s.completed, 0) AS completed,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
         WHERE s.workout_date >= ? AND s.workout_date < ?
-        GROUP BY s.workout_date, s.duration_seconds
+        GROUP BY s.workout_date, s.duration_seconds, s.completed
         """,
         (month_start, next_month),
     ).fetchall()
@@ -2574,6 +2632,9 @@ def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
         row["workout_date"]: {
             "set_count": int(row["set_count"]),
             "duration_seconds": int(row["duration_seconds"] or 0),
+            "completed": bool(row["completed"]),
+            "volume": float(row["volume"] or 0),
+            "cardio_minutes": float(row["cardio_minutes"] or 0),
         }
         for row in workout_rows
     }
@@ -2591,6 +2652,9 @@ def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
                 "weekday": current.weekday(),
                 "set_count": workouts.get(key, {}).get("set_count", 0),
                 "duration_seconds": workouts.get(key, {}).get("duration_seconds", 0),
+                "completed": workouts.get(key, {}).get("completed", False),
+                "volume": workouts.get(key, {}).get("volume", 0),
+                "cardio_minutes": workouts.get(key, {}).get("cardio_minutes", 0),
                 "meal_count": meals.get(key, 0),
             }
         )

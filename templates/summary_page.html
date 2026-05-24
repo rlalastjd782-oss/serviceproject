@@ -158,14 +158,28 @@
             <div class="summary-value">{{ monthly_report.balance_score }}%</div>
             <div class="summary-label">부위 균형</div>
           </article>
-          {% if monthly_goals %}
-            <article class="summary-card goal-summary-card {% if monthly_goals.monthly_volume.percent >= 100 %}is-complete{% endif %}">
-              <div class="summary-value">{{ monthly_goals.monthly_volume.percent }}%</div>
-              <div class="summary-label">월간 볼륨 목표</div>
-              <div class="summary-foot">{{ "%.0f"|format(monthly_goals.monthly_volume.current) }} / {{ monthly_goals.monthly_volume.target }}kg</div>
-            </article>
-          {% endif %}
+          <article class="summary-card">
+            <div class="summary-value">{{ monthly_report.pr_count }}</div>
+            <div class="summary-label">신기록</div>
+          </article>
         </div>
+        {% if monthly_goals %}
+          <div class="goal-grid monthly-goal-grid">
+            {% for key in ["monthly_volume", "monthly_workout_days", "monthly_cardio_minutes"] %}
+              {% set goal = monthly_goals[key] %}
+              <article class="goal-card {% if goal.percent >= 100 %}is-complete{% endif %}">
+                <div class="goal-head">
+                  <strong>{{ goal.label }}</strong>
+                  <span>{{ goal.percent }}%</span>
+                </div>
+                <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
+                <div class="goal-meta">
+                  {{ "%.0f"|format(goal.current) }} / {{ goal.target }}{% if key == "monthly_volume" %}kg{% elif key == "monthly_cardio_minutes" %}분{% else %}일{% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        {% endif %}
         <div class="detail-list">
           <div class="detail-row">
             <strong>가장 많이 한 운동</strong>
@@ -285,6 +299,33 @@
         </select>
         <button class="btn-small" type="submit">보기</button>
       </form>
+      {% if selected_exercise_profile %}
+        <div class="summary-grid exercise-profile-grid">
+          <article class="summary-card">
+            <div class="summary-value">{{ selected_exercise_profile.set_count }}</div>
+            <div class="summary-label">누적 세트</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ selected_exercise_profile.workout_days }}</div>
+            <div class="summary-label">운동일</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ selected_exercise_profile.last_date or "-" }}</div>
+            <div class="summary-label">최근 기록</div>
+          </article>
+          {% if selected_exercise_profile.body_part == "유산소" %}
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.0f"|format(selected_exercise_profile.cardio_minutes) }}</div>
+              <div class="summary-label">유산소 분</div>
+            </article>
+          {% else %}
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.0f"|format(selected_exercise_profile.best_weight) }}kg</div>
+              <div class="summary-label">최고 중량</div>
+            </article>
+          {% endif %}
+        </div>
+      {% endif %}
       {% if exercise_growth %}
         <div class="progress-chart exercise-progress-chart" role="img" aria-label="운동 성장 그래프">
           {% for item in exercise_growth %}

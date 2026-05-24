@@ -34,16 +34,20 @@
             <div class="calendar-cell is-empty"></div>
           {% endfor %}
         {% endif %}
-        <a class="calendar-cell" href="{{ url_for('index', date=day.date) }}">
+        <a class="calendar-cell {% if day.completed %}is-complete{% endif %}" href="{{ url_for('index', date=day.date) }}">
           <strong>{{ day.day }}</strong>
           <div class="calendar-dots">
             {% if day.set_count or day.duration_seconds %}<span class="dot-workout" title="운동 {{ day.set_count }}개 · {{ format_duration(day.duration_seconds) }}"></span>{% endif %}
             {% if day.meal_count %}<span class="dot-meal" title="식단 {{ day.meal_count }}식"></span>{% endif %}
+            {% if day.cardio_minutes %}<span class="dot-cardio" title="유산소 {{ '%.0f'|format(day.cardio_minutes) }}분"></span>{% endif %}
+            {% if day.completed %}<span class="dot-complete" title="운동 완료"></span>{% endif %}
           </div>
           <small>
             {% if day.set_count %}운동 {{ day.set_count }}{% endif %}
             {% if day.duration_seconds %}{% if day.set_count %} · {% endif %}{{ format_duration(day.duration_seconds) }}{% endif %}
+            {% if day.volume %}{% if day.set_count or day.duration_seconds %} · {% endif %}{{ "%.0f"|format(day.volume) }}kg{% endif %}
             {% if day.meal_count %}{% if day.set_count or day.duration_seconds %} · {% endif %}식단 {{ day.meal_count }}{% endif %}
+            {% if day.completed %}<br>완료{% endif %}
           </small>
         </a>
       {% endfor %}

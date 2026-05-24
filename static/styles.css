@@ -388,6 +388,10 @@ label span {
   margin-bottom: 14px;
 }
 
+.exercise-profile-grid {
+  margin-top: 10px;
+}
+
 .summary-card {
   display: flex;
   flex-direction: column;
@@ -443,6 +447,15 @@ label span {
   border-radius: 10px;
   background: var(--panel-2);
   padding: 10px;
+}
+
+.goal-card.is-complete {
+  border-color: #22c55e;
+  background: #102018;
+}
+
+.monthly-goal-grid {
+  margin: 12px 0;
 }
 
 .goal-head,
@@ -686,7 +699,11 @@ label span {
 }
 
 .goal-form {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.goal-form button {
+  min-height: 38px;
 }
 
 .routine-load-row {
@@ -1095,6 +1112,11 @@ label span {
   padding: 7px;
 }
 
+.calendar-cell.is-complete {
+  border-color: #22c55e;
+  background: #102018;
+}
+
 .calendar-cell.is-empty {
   border-color: transparent;
   background: transparent;
@@ -1117,7 +1139,9 @@ label span {
 }
 
 .dot-workout,
-.dot-meal {
+.dot-meal,
+.dot-cardio,
+.dot-complete {
   width: 7px;
   height: 7px;
   border-radius: 999px;
@@ -1129,6 +1153,14 @@ label span {
 
 .dot-meal {
   background: #f59e0b;
+}
+
+.dot-cardio {
+  background: #38bdf8;
+}
+
+.dot-complete {
+  background: #22c55e;
 }
 
 .compact-empty {
