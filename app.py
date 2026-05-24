@@ -660,6 +660,11 @@ def create_app() -> Flask:
         delete_sample_data()
         return redirect(url_for("settings_page"))
 
+    @app.post("/samples/may")
+    def create_may_sample_data_route():
+        create_may_sample_data()
+        return redirect(url_for("settings_page"))
+
     @app.post("/data/delete-all")
     def delete_all_data_route():
         delete_all_data()
@@ -2825,6 +2830,76 @@ def delete_sample_data() -> None:
     db.execute("DELETE FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'")
     db.execute("DELETE FROM meal_entries WHERE food_name LIKE '샘플%'")
     delete_empty_workout_sessions()
+    db.commit()
+
+
+def create_may_sample_data() -> None:
+    delete_sample_data()
+    db = get_db()
+    body_part_exercises = {
+        "하체": ["샘플하체 스쿼트", "샘플하체 레그프레스", "샘플하체 런지", "샘플하체 레그컬"],
+        "가슴": ["샘플가슴 벤치프레스", "샘플가슴 인클라인프레스", "샘플가슴 덤벨프레스", "샘플가슴 케이블플라이"],
+        "등": ["샘플등 랫풀다운", "샘플등 바벨로우", "샘플등 시티드로우", "샘플등 풀업"],
+        "어깨": ["샘플어깨 숄더프레스", "샘플어깨 사이드레터럴", "샘플어깨 리어델트", "샘플어깨 업라이트로우"],
+        "팔": ["샘플팔 바벨컬", "샘플팔 해머컬", "샘플팔 케이블푸시다운", "샘플팔 딥스"],
+    }
+    parts = list(body_part_exercises.keys())
+    equipment_by_part = {
+        "하체": "바벨",
+        "가슴": "바벨",
+        "등": "머신",
+        "어깨": "덤벨",
+        "팔": "케이블",
+    }
+    for day in range(1, 26):
+        workout_date = f"2026-05-{day:02d}"
+        part = parts[(day - 1) % len(parts)]
+        session = get_or_create_session(workout_date)
+        db.execute(
+            "UPDATE workout_sessions SET completed = 1, duration_seconds = ? WHERE id = ?",
+            (90 * 60, session["id"]),
+        )
+        sort_order = 1
+        for exercise_index, exercise_name in enumerate(body_part_exercises[part]):
+            exercise_id = get_or_create_exercise(exercise_name)
+            save_exercise_equipment(exercise_name, equipment_by_part[part])
+            base_weight = 30 + (day % 5) * 2.5 + exercise_index * 5
+            for set_index in range(3):
+                reps = 12 - set_index
+                db.execute(
+                    """
+                    INSERT INTO workout_sets (
+                        session_id, exercise_id, weight, reps, memo, sort_order,
+                        body_part, set_type, rpe, equipment
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        session["id"],
+                        exercise_id,
+                        base_weight + set_index * 2.5,
+                        reps,
+                        "5월 샘플",
+                        sort_order,
+                        part,
+                        "본세트",
+                        7 + (set_index * 0.5),
+                        equipment_by_part[part],
+                    ),
+                )
+                sort_order += 1
+        cardio_id = get_or_create_exercise("샘플런닝 30분")
+        calories = estimate_exercise_calories("유산소", 5.0, 5.5, 30, workout_date)
+        db.execute(
+            """
+            INSERT INTO workout_sets (
+                session_id, exercise_id, cardio_incline, cardio_speed, cardio_minutes,
+                estimated_calories, memo, sort_order, body_part, set_type, rpe, equipment
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (session["id"], cardio_id, 5.0, 5.5, 30, calories, "5월 샘플", sort_order, "유산소", "유산소", 6, "런닝머신"),
+        )
     db.commit()
 
 
