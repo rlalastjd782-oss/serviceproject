@@ -906,7 +906,11 @@ function calculatePlates(perSide) {
 }
 
 function formatToolWeight(value) {
-  return Number(value).toFixed(value % 1 === 0 ? 0 : 2).replace(/\.?0+$/, "");
+  const numberValue = Number(value);
+  if (Number.isInteger(numberValue)) {
+    return String(numberValue);
+  }
+  return numberValue.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
 }
 
 window.addEventListener("visibilitychange", () => {
