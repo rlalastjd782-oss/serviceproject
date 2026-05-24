@@ -247,6 +247,7 @@ def create_app() -> Flask:
         mode = request.form.get("mode")
         body_part = request.form.get("body_part", "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", "").strip()
+        equipment = request.form.get("equipment", "").strip()
         if not exercise_name:
             return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
 
@@ -306,6 +307,8 @@ def create_app() -> Flask:
 
         db = get_db()
         exercise_id = get_or_create_exercise(exercise_name)
+        if equipment:
+            save_exercise_equipment(exercise_name, equipment)
         previous_records = get_exercise_record_values(exercise_id)
         next_order = db.execute(
             "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
@@ -1890,6 +1893,21 @@ def save_exercise_settings(exercise_name: str, rest_seconds: int, is_favorite: b
         (exercise_name, max(15, min(600, int(rest_seconds or 90))), 1 if is_favorite else 0, equipment[:20]),
     )
     get_db().commit()
+
+
+def save_exercise_equipment(exercise_name: str, equipment: str) -> None:
+    if not exercise_name or not equipment:
+        return
+    get_db().execute(
+        """
+        INSERT INTO exercise_settings (exercise_name, equipment, updated_at)
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(exercise_name) DO UPDATE SET
+            equipment = excluded.equipment,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (exercise_name, equipment[:20]),
+    )
 
 
 def get_exercise_rest_seconds(exercise_name: str) -> int:

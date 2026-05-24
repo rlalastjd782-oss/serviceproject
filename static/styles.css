@@ -342,12 +342,13 @@ label span {
 
 .ex-input-row {
   display: grid;
-  grid-template-columns: minmax(86px, 112px) minmax(0, 1fr);
+  grid-template-columns: minmax(86px, 112px) minmax(0, 1fr) minmax(80px, 104px);
   gap: 6px;
   margin-bottom: 8px;
 }
 
-.ex-input-row select {
+.ex-input-row select,
+.equipment-select {
   min-width: 0;
 }
 
@@ -1716,9 +1717,10 @@ label span {
 
 .editable-list-item.is-editing .inline-edit-form {
   display: grid;
+  grid-column: 1 / -1;
 }
 
-.editable-list-item.is-editing .item-actions > .btn-small {
+.editable-list-item.is-editing .item-actions {
   display: none;
 }
 
@@ -1730,19 +1732,24 @@ label span {
 }
 
 .set-edit-form {
-  grid-template-columns: 58px minmax(82px, 1fr) minmax(74px, 0.9fr) minmax(96px, 1fr) 64px auto;
-  align-items: stretch;
+  grid-template-columns: minmax(56px, 0.7fr) repeat(4, minmax(72px, 1fr));
+  align-items: end;
+  border: 1px solid #2b3a55;
+  border-radius: 12px;
+  background: #101827;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+  padding: 10px;
 }
 
 .edit-field {
   display: grid;
-  gap: 3px;
+  gap: 5px;
   min-width: 0;
 }
 
 .edit-field span {
-  color: var(--dim);
-  font-size: 10px;
+  color: var(--muted);
+  font-size: 11px;
   font-weight: 900;
 }
 
@@ -1750,6 +1757,9 @@ label span {
 .edit-field select {
   width: 100%;
   min-width: 0;
+  min-height: 40px;
+  border-color: #314260;
+  background: #0b1220;
 }
 
 .edit-field-small {
@@ -1758,6 +1768,17 @@ label span {
 
 .edit-field-type {
   min-width: 92px;
+}
+
+.edit-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  grid-column: 1 / -1;
+}
+
+.edit-actions button {
+  min-height: 40px;
 }
 
 .meal-edit-form,
@@ -2038,6 +2059,10 @@ tbody tr:last-child td {
     grid-template-columns: minmax(78px, 92px) minmax(0, 1fr);
   }
 
+  .ex-input-row .equipment-select {
+    grid-column: 1 / -1;
+  }
+
   .meal-edit-form,
   .inline-add-form,
   .meal-add-form {
@@ -2049,7 +2074,6 @@ tbody tr:last-child td {
     align-items: end;
     border: 1px solid var(--line);
     border-radius: 10px;
-    background: var(--bg);
     padding: 8px;
   }
 
@@ -2059,7 +2083,7 @@ tbody tr:last-child td {
     min-width: 0;
   }
 
-  .set-edit-form button {
+  .edit-actions {
     grid-column: 1 / -1;
   }
 
@@ -2234,6 +2258,20 @@ tbody tr:last-child td {
 
   .set-edit-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 8px;
+  }
+
+  .edit-field-type {
+    grid-column: 1 / -1;
+  }
+
+  .edit-field input,
+  .edit-field select {
+    min-height: 38px;
+  }
+
+  .edit-actions {
+    grid-template-columns: 1fr 0.8fr;
   }
 
   .record-toggle {

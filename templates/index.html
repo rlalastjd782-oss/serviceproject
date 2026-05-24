@@ -460,6 +460,12 @@
           {% endfor %}
         </select>
         <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="운동 이름" data-workout-exercise-input required>
+        <select name="equipment" class="equipment-select" aria-label="운동 장비">
+          <option value="">장비</option>
+          {% for option in equipment_options %}
+            <option value="{{ option }}">{{ option }}</option>
+          {% endfor %}
+        </select>
       </div>
       <div
         class="exercise-quick-panel"
@@ -778,7 +784,10 @@
                       <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="RPE">
                     </label>
                   {% endif %}
-                  <button type="submit" class="btn-small">저장</button>
+                  <div class="edit-actions">
+                    <button type="submit" class="btn-primary">저장</button>
+                    <button type="button" class="btn-small" data-cancel-edit>취소</button>
+                  </div>
                 </form>
                 <div class="item-actions">
                   <button type="button" class="btn-small" data-toggle-edit>수정</button>

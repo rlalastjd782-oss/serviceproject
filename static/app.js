@@ -119,6 +119,7 @@ document.addEventListener("click", (event) => {
   const removeMealButton = event.target.closest("[data-remove-meal-row]");
   const editButton = event.target.closest("[data-toggle-edit]");
   const openSetEditButton = event.target.closest("[data-open-set-edit]");
+  const cancelEditButton = event.target.closest("[data-cancel-edit]");
   const inlineAddButton = event.target.closest("[data-toggle-add]");
   const inlineAddCancelButton = event.target.closest("[data-cancel-inline-add]");
   const detailButton = event.target.closest("[data-toggle-detail]");
@@ -257,6 +258,12 @@ document.addEventListener("click", (event) => {
   if (editButton) {
     const item = editButton.closest(".editable-list-item");
     openInlineEdit(item);
+    return;
+  }
+
+  if (cancelEditButton) {
+    const item = cancelEditButton.closest(".editable-list-item");
+    item?.classList.remove("is-editing");
     return;
   }
 
