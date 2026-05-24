@@ -649,7 +649,7 @@ function setRowHtml(index) {
         <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30">
       </label>
     </div>
-    <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="RPE">
+    <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
     <input name="set_memo" autocomplete="off" placeholder="메모">
     <button class="row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
     <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>

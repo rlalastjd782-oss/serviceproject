@@ -24,7 +24,7 @@
     <div class="section-header">
       <div>
         <div class="section-title">운동 시간</div>
-        <div class="section-subtitle">{% if workout_mode %}운동 시작 모드에서 자동으로 측정됩니다.{% else %}운동 시작을 누르면 자동으로 시작됩니다.{% endif %}</div>
+        <div class="section-subtitle">시작을 누른 뒤 저장하면 운동시간에 반영됩니다.</div>
       </div>
       <div class="workout-clock-display" data-workout-clock-display>00:00:00</div>
     </div>
@@ -35,19 +35,22 @@
       <button class="btn-danger" type="button" data-workout-clock-reset>초기화</button>
     </div>
     <div class="workout-save-status" data-workout-clock-status>저장 대기</div>
-    <form method="post" action="{{ url_for('update_session_duration_route', session_id=session.id) }}" class="duration-edit-form">
-      <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
-      <label>
-        <span>운동 시간</span>
-        <input name="duration_hours" type="number" min="0" inputmode="numeric" value="{{ duration_hours(session.duration_seconds) }}" aria-label="운동 시간">
-      </label>
-      <label>
-        <span>분</span>
-        <input name="duration_minutes" type="number" min="0" max="59" inputmode="numeric" value="{{ duration_minutes(session.duration_seconds) }}" aria-label="운동 분">
-      </label>
-      <button class="btn-small" type="submit">수정</button>
-      <button class="btn-danger" type="submit" name="action" value="reset">시간 삭제</button>
-    </form>
+    <details class="duration-manual-edit">
+      <summary>시간 직접 수정</summary>
+      <form method="post" action="{{ url_for('update_session_duration_route', session_id=session.id) }}" class="duration-edit-form">
+        <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
+        <label>
+          <span>운동 시간</span>
+          <input name="duration_hours" type="number" min="0" inputmode="numeric" value="{{ duration_hours(session.duration_seconds) }}" aria-label="운동 시간">
+        </label>
+        <label>
+          <span>분</span>
+          <input name="duration_minutes" type="number" min="0" max="59" inputmode="numeric" value="{{ duration_minutes(session.duration_seconds) }}" aria-label="운동 분">
+        </label>
+        <button class="btn-small" type="submit">수정</button>
+        <button class="btn-danger" type="submit" name="action" value="reset">시간 삭제</button>
+      </form>
+    </details>
   </section>
 
   {% if workout_mode %}
@@ -566,7 +569,7 @@
             <option value="드롭세트">드롭세트</option>
             <option value="실패">실패</option>
           </select>
-          <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="RPE">
+          <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
           <input name="set_memo" autocomplete="off" placeholder="메모">
           <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
           <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
@@ -811,8 +814,8 @@
                       <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" value="{% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}{% endif %}" placeholder="분">
                     </label>
                     <label class="edit-field edit-field-small">
-                      <span>RPE</span>
-                      <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="RPE">
+                      <span>체감강도</span>
+                      <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="1~10">
                     </label>
                   {% else %}
                     <label class="edit-field">
@@ -832,8 +835,8 @@
                       </select>
                     </label>
                     <label class="edit-field edit-field-small">
-                      <span>RPE</span>
-                      <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="RPE">
+                      <span>체감강도</span>
+                      <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="1~10">
                     </label>
                   {% endif %}
                   <div class="edit-actions">

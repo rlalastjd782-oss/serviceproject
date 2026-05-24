@@ -2450,7 +2450,7 @@ def build_rpe_report(scope: str = "weekly", date_text: str | None = None) -> dic
     hard_sets = int(row["hard_sets"] or 0)
     easy_sets = int(row["easy_sets"] or 0)
     if not int(row["rpe_count"] or 0):
-        message = "RPE 기록이 아직 적습니다."
+        message = "체감강도 기록이 아직 적습니다."
     elif hard_sets >= 5:
         message = "고강도 세트가 많아 다음 운동은 회복을 우선하세요."
     elif easy_sets >= 5 and avg_rpe <= 7.2:
@@ -2804,7 +2804,7 @@ def export_all_data() -> dict[str, object]:
 def export_workout_csv() -> str:
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["date", "body_part", "exercise", "set_type", "weight", "reps", "incline", "speed", "minutes", "estimated_calories", "rpe"])
+    writer.writerow(["date", "body_part", "exercise", "set_type", "weight", "reps", "incline", "speed", "minutes", "estimated_calories", "effort_score"])
     rows = get_db().execute(
         """
         SELECT

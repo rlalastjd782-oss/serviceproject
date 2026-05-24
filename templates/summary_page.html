@@ -128,7 +128,7 @@
           {% endfor %}
           {% if rpe_report %}
             <div class="detail-row">
-              <strong>RPE 분석</strong>
+              <strong>체감강도 분석</strong>
               <span>평균 {{ "%.1f"|format(rpe_report.avg_rpe) }} · 고강도 {{ rpe_report.hard_sets }}세트 · {{ rpe_report.message }}</span>
             </div>
           {% endif %}
@@ -340,7 +340,10 @@
   {% elif table_kind == "exercise" %}
     <section class="section">
       <div class="section-header">
-        <div class="section-title">운동 성장 그래프</div>
+        <div>
+          <div class="section-title">운동 상세</div>
+          <div class="section-subtitle">운동을 선택하면 최근 기록, 목표, 그래프를 한 번에 봅니다.</div>
+        </div>
       </div>
       <form method="get" action="{{ url_for('exercise_summary_page') }}" class="tool-form">
         <select name="exercise_id" aria-label="운동 선택">
@@ -351,43 +354,39 @@
         <button class="btn-small" type="submit">보기</button>
       </form>
       {% if selected_exercise_profile %}
-        <div class="summary-grid exercise-profile-grid">
-          <article class="summary-card">
-            <div class="summary-value">{{ selected_exercise_profile.set_count }}</div>
-            <div class="summary-label">누적 세트</div>
-          </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ selected_exercise_profile.workout_days }}</div>
-            <div class="summary-label">운동일</div>
-          </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ selected_exercise_profile.last_date or "-" }}</div>
-            <div class="summary-label">최근 기록</div>
-          </article>
-          {% if selected_exercise_profile.body_part == "유산소" %}
-            <article class="summary-card">
-              <div class="summary-value">{{ "%.0f"|format(selected_exercise_profile.cardio_minutes) }}</div>
-              <div class="summary-label">유산소 분</div>
-            </article>
-          {% else %}
-            <article class="summary-card">
-              <div class="summary-value">{{ "%.0f"|format(selected_exercise_profile.best_weight) }}kg</div>
-              <div class="summary-label">최고 중량</div>
-            </article>
+        <div class="exercise-hero-card">
+          <div class="exercise-hero-head">
+            <div>
+              <span class="cat-badge {{ body_part_class(selected_exercise_profile.body_part) }}">{{ selected_exercise_profile.body_part }}</span>
+              <strong>{{ selected_exercise_profile.name }}</strong>
+              <small>최근 {{ selected_exercise_profile.last_date or "-" }}</small>
+            </div>
+            {% if selected_exercise_profile.body_part == "유산소" %}
+              <b>{{ "%.0f"|format(selected_exercise_profile.cardio_minutes) }}분</b>
+            {% else %}
+              <b>{{ "%.0f"|format(selected_exercise_profile.best_weight) }}kg</b>
+            {% endif %}
+          </div>
+          <div class="exercise-hero-stats">
+            <span>{{ selected_exercise_profile.set_count }}세트</span>
+            <span>{{ selected_exercise_profile.workout_days }}일</span>
+            {% if selected_exercise_profile.body_part == "유산소" %}
+              <span>{{ "%.0f"|format(selected_exercise_profile.exercise_calories) }}kcal</span>
+            {% else %}
+              <span>{{ selected_exercise_profile.best_reps }}회 PR</span>
+              <span>{{ "%.0f"|format(selected_exercise_profile.best_volume) }}kg 볼륨 PR</span>
+            {% endif %}
+          </div>
+          {% if selected_exercise_next_plan %}
+            <div class="next-plan-list">
+              {% for plan in selected_exercise_next_plan %}
+                <div>{{ plan }}</div>
+              {% endfor %}
+            </div>
           {% endif %}
         </div>
-        {% if selected_exercise_next_plan %}
-          <div class="detail-list compact-detail-list">
-            {% for plan in selected_exercise_next_plan %}
-              <div class="detail-row">
-                <strong>다음 목표</strong>
-                <span>{{ plan }}</span>
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
         {% if exercise_pr_history %}
-          <div class="detail-list compact-detail-list">
+          <div class="detail-list compact-detail-list exercise-pr-list">
             {% for event in exercise_pr_history %}
               <div class="detail-row">
                 <strong>{{ event.workout_date }} · {{ event.record_type }}</strong>
@@ -501,7 +500,7 @@
       {% endif %}
       <div class="record-list">
         {% for item in exercise_summary %}
-          <article class="ex-rank-item">
+          <a class="ex-rank-item {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">
             <span class="rank-num">{{ loop.index }}위</span>
             <div class="ex-rank-main">
               <strong>{{ item.name }}</strong>
@@ -517,7 +516,7 @@
                 {% endif %}
               </div>
             </div>
-          </article>
+          </a>
         {% else %}
           <div class="empty">운동 기록 없음</div>
         {% endfor %}
