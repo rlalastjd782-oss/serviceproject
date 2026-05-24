@@ -21,13 +21,24 @@ const mealTypeClassMap = {
   "기타": "meal-type-other",
 };
 
-document.querySelectorAll("[data-body-part-select]").forEach(applyBodyPartSelectColor);
+const exerciseQuickPanel = document.querySelector("[data-exercise-quick-panel]");
+const exerciseQuickList = document.querySelector("[data-exercise-quick-list]");
+const exerciseQuickEmpty = document.querySelector("[data-exercise-quick-empty]");
+const exerciseDatalist = document.querySelector("[data-exercise-datalist]");
+const exerciseNameInput = document.querySelector('input[name="exercise_name"]');
+const exercisesByBodyPart = parseExerciseQuickData();
+
+document.querySelectorAll("[data-body-part-select]").forEach((select) => {
+  applyBodyPartSelectColor(select);
+  renderExerciseQuickList(select.value);
+});
 document.querySelectorAll("[data-meal-type-select]").forEach(applyMealTypeSelectColor);
 
 document.addEventListener("change", (event) => {
   const bodyPartSelect = event.target.closest("[data-body-part-select]");
   if (bodyPartSelect) {
     applyBodyPartSelectColor(bodyPartSelect);
+    renderExerciseQuickList(bodyPartSelect.value);
     return;
   }
 
@@ -45,9 +56,16 @@ document.addEventListener("click", (event) => {
   const editButton = event.target.closest("[data-toggle-edit]");
   const inlineAddButton = event.target.closest("[data-toggle-add]");
   const detailButton = event.target.closest("[data-toggle-detail]");
+  const quickExerciseButton = event.target.closest("[data-exercise-name]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
+
+  if (quickExerciseButton && exerciseNameInput) {
+    exerciseNameInput.value = quickExerciseButton.dataset.exerciseName || "";
+    exerciseNameInput.focus();
+    return;
+  }
 
   if (removeSetButton && setList) {
     if (setList.querySelectorAll(".set-entry-row").length > 1) {
@@ -108,6 +126,51 @@ function applyBodyPartSelectColor(select) {
 function applyMealTypeSelectColor(select) {
   select.classList.remove(...Object.values(mealTypeClassMap));
   select.classList.add(mealTypeClassMap[select.value] || "meal-type-other");
+}
+
+function parseExerciseQuickData() {
+  if (!exerciseQuickPanel) {
+    return {};
+  }
+
+  try {
+    return JSON.parse(exerciseQuickPanel.dataset.exercisesByBodyPart || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function renderExerciseQuickList(bodyPart) {
+  if (!exerciseQuickPanel || !exerciseQuickList || !exerciseQuickEmpty) {
+    return;
+  }
+
+  const names = exercisesByBodyPart[bodyPart] || [];
+  exerciseQuickList.innerHTML = names
+    .map((name) => {
+      const safeName = escapeHtml(name);
+      return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}">${safeName}</button>`;
+    })
+    .join("");
+  if (exerciseDatalist) {
+    exerciseDatalist.innerHTML = names
+      .map((name) => `<option value="${escapeHtml(name)}"></option>`)
+      .join("");
+  }
+  exerciseQuickEmpty.hidden = names.length > 0;
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => {
+    const entities = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    };
+    return entities[char];
+  });
 }
 
 function addRow(list, type) {

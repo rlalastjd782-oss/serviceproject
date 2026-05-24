@@ -374,6 +374,43 @@ label span {
   gap: 8px;
 }
 
+.exercise-quick-panel {
+  display: grid;
+  gap: 7px;
+}
+
+.quick-panel-title {
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.exercise-quick-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.exercise-quick-button {
+  min-height: 30px;
+  border: 1px solid #293854;
+  border-radius: 999px;
+  background: #121a29;
+  color: #d8e7ff;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 0 11px;
+}
+
+.exercise-quick-button:active {
+  transform: translateY(1px);
+}
+
+.quick-empty {
+  color: var(--empty);
+  font-size: 11px;
+}
+
 .set-entry-row,
 .meal-entry-row {
   display: grid;

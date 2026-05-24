@@ -49,7 +49,16 @@
         </select>
         <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="운동 이름" required>
       </div>
-      <datalist id="exercise-list">
+      <div
+        class="exercise-quick-panel"
+        data-exercise-quick-panel
+        data-exercises-by-body-part='{{ exercises_by_body_part|tojson }}'
+      >
+        <div class="quick-panel-title">이전에 입력한 운동</div>
+        <div class="exercise-quick-list" data-exercise-quick-list></div>
+        <div class="quick-empty" data-exercise-quick-empty>선택한 부위의 이전 운동 기록이 없습니다.</div>
+      </div>
+      <datalist id="exercise-list" data-exercise-datalist>
         {% for exercise in exercises %}
           <option value="{{ exercise.name }}"></option>
         {% endfor %}

@@ -38,6 +38,7 @@ def create_app() -> Flask:
             session=today_session,
             sessions=sessions,
             exercises=exercises,
+            exercises_by_body_part=list_exercises_by_body_part(),
             meals=meals,
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
@@ -416,6 +417,28 @@ def get_or_create_exercise(name: str) -> int:
 
 def list_exercises() -> list[sqlite3.Row]:
     return get_db().execute("SELECT name FROM exercises ORDER BY name").fetchall()
+
+
+def list_exercises_by_body_part() -> dict[str, list[str]]:
+    rows = get_db().execute(
+        """
+        SELECT
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.name,
+            COUNT(ws.id) AS use_count,
+            MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        GROUP BY body_part, e.name
+        ORDER BY body_part, last_date DESC, use_count DESC, e.name
+        """
+    ).fetchall()
+    exercises_by_part = {part: [] for part in body_part_options()}
+    for row in rows:
+        part = row["body_part"] or "기타"
+        exercises_by_part.setdefault(part, []).append(row["name"])
+    return exercises_by_part
 
 
 def body_part_options() -> list[str]:
