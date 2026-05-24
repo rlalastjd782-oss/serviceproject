@@ -867,7 +867,7 @@ function renderWarmupCalculator() {
 }
 
 function calculatePlates(perSide) {
-  const available = [25, 20, 15, 10, 5, 2.5, 1.25];
+  const available = [20, 10, 5, 2.5];
   let remaining = Math.max(0, perSide);
   const result = [];
   available.forEach((weight) => {
