@@ -2148,9 +2148,13 @@ def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | 
             "workout_days": int(row["workout_days"]),
             "meal_count": int(row["meal_count"]),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
+            "volume_width": round(float(row["volume"]) / max_volume * 100),
             "grams_height": max(3, round(float(row["grams"]) / max_grams * 100)),
+            "grams_width": round(float(row["grams"]) / max_grams * 100),
             "exercise_calorie_height": max(3, round(float(row["exercise_calories"]) / max_exercise_calories * 100)),
+            "exercise_calorie_width": round(float(row["exercise_calories"]) / max_exercise_calories * 100),
             "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
+            "set_width": round(int(row["set_count"]) / max_sets * 100),
         }
         for row in ordered_rows
     ]
@@ -2172,9 +2176,13 @@ def build_daily_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | s
             "workout_days": 1 if int(row["set_count"]) > 0 else 0,
             "meal_count": int(row["meal_count"]),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
+            "volume_width": round(float(row["volume"]) / max_volume * 100),
             "grams_height": max(3, round(float(row["grams"]) / max_grams * 100)),
+            "grams_width": round(float(row["grams"]) / max_grams * 100),
             "exercise_calorie_height": max(3, round(float(row["exercise_calories"]) / max_exercise_calories * 100)),
+            "exercise_calorie_width": round(float(row["exercise_calories"]) / max_exercise_calories * 100),
             "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
+            "set_width": round(int(row["set_count"]) / max_sets * 100),
         }
         for row in ordered_rows
     ]
@@ -2238,7 +2246,8 @@ def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> lis
             s.workout_date AS period,
             MAX(COALESCE(ws.weight, 0)) AS max_weight,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         WHERE ws.exercise_id = ?
@@ -2251,14 +2260,19 @@ def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> lis
     ordered = list(reversed(rows))
     max_weight = max([float(row["max_weight"]) for row in ordered] + [1.0])
     max_volume = max([float(row["volume"]) for row in ordered] + [1.0])
+    max_1rm = max([float(row["estimated_1rm"]) for row in ordered] + [1.0])
     return [
         {
             "period": row["period"][5:],
             "max_weight": float(row["max_weight"]),
             "rep_count": int(row["rep_count"]),
             "volume": float(row["volume"]),
+            "estimated_1rm": float(row["estimated_1rm"]),
             "weight_height": max(3, round(float(row["max_weight"]) / max_weight * 100)),
+            "weight_width": round(float(row["max_weight"]) / max_weight * 100),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
+            "volume_width": round(float(row["volume"]) / max_volume * 100),
+            "estimated_1rm_width": round(float(row["estimated_1rm"]) / max_1rm * 100),
         }
         for row in ordered
     ]
