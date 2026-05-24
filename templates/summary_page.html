@@ -94,6 +94,12 @@
             <strong>가장 많이 한 부위</strong>
             <span>{{ weekly_report.top_part }}</span>
           </div>
+          {% for insight in report_insights %}
+            <div class="detail-row">
+              <strong>리포트</strong>
+              <span>{{ insight }}</span>
+            </div>
+          {% endfor %}
           {% for warning in balance_warnings %}
             <div class="detail-row">
               <strong>균형 체크</strong>
@@ -174,6 +180,12 @@
             <strong>가장 많이 한 운동</strong>
             <span>{{ monthly_report.top_exercise }}{% if monthly_report.top_exercise_sets %} · {{ monthly_report.top_exercise_sets }}세트{% endif %}</span>
           </div>
+          {% for insight in report_insights %}
+            <div class="detail-row">
+              <strong>리포트</strong>
+              <span>{{ insight }}</span>
+            </div>
+          {% endfor %}
           <div class="detail-row">
             <strong>체중 변화</strong>
             <span>{{ "%+.1f"|format(monthly_report.weight_delta) }}kg</span>

@@ -198,6 +198,13 @@ document.addEventListener("click", (event) => {
   }
 
   if (foodQuickButton && mealList) {
+    if (mealForm?.classList.contains("is-collapsed")) {
+      mealForm.classList.remove("is-collapsed");
+      const toggleButton = document.querySelector("[data-toggle-meal-form]");
+      if (toggleButton) {
+        toggleButton.textContent = "입력 닫기";
+      }
+    }
     loadFoodEntry(foodQuickButton, mealList);
     return;
   }

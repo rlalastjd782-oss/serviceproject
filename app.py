@@ -133,6 +133,7 @@ def create_app() -> Flask:
             body_part_details=list_weekly_body_part_details(week_start),
             weekly_report=build_weekly_report(week_start),
             weekly_goals=get_goal_progress(week_start),
+            report_insights=build_period_insights("weekly", week_start),
             balance_warnings=list_balance_warnings("weekly", week_start),
             selected_week=week_start,
             prev_week=shift_date(week_start, -7),
@@ -158,6 +159,7 @@ def create_app() -> Flask:
             body_part_summary=list_body_part_summary("monthly", date_text=month_start),
             monthly_report=build_monthly_report(month_start),
             monthly_goals=get_goal_progress(month_start),
+            report_insights=build_period_insights("monthly", month_start),
             selected_month=month_start[:7],
             prev_month=shift_month(month_start, -1)[:7],
             next_month=shift_month(month_start, 1)[:7],
@@ -220,6 +222,7 @@ def create_app() -> Flask:
             week_label=meal_week_label(week_start),
             selected_date=selected_week,
             meal_days=list_weekly_meal_days(week_start),
+            meal_summary=build_weekly_meal_summary(week_start),
             active_page="meals",
         )
 
@@ -1964,6 +1967,35 @@ def list_recovery_recommendations(date_text: str) -> list[str]:
     return messages[:2]
 
 
+def build_period_insights(scope: str, date_text: str) -> list[str]:
+    goals = get_goal_progress(date_text)
+    if scope == "weekly":
+        report = build_weekly_report(date_text)
+        messages = [
+            f"이번 주 운동일 목표는 {goals['weekly_workout_days']['percent']}% 달성했습니다.",
+            f"식단 기록 목표는 {goals['weekly_meal_days']['percent']}% 달성했습니다.",
+        ]
+        if int(report["set_count"] or 0) == 0:
+            messages.append("선택한 주에 운동 기록이 없습니다.")
+        elif report["top_part"] != "-":
+            messages.append(f"이번 주 가장 많이 한 부위는 {report['top_part']}입니다.")
+        if float(report["cardio_minutes"] or 0) == 0:
+            messages.append("이번 주 유산소 기록이 없습니다.")
+        return messages[:4]
+
+    report = build_monthly_report(date_text)
+    messages = [
+        f"월간 볼륨 목표는 {goals['monthly_volume']['percent']}% 달성했습니다.",
+        f"월간 운동일 목표는 {goals['monthly_workout_days']['percent']}% 달성했습니다.",
+        f"월간 유산소 목표는 {goals['monthly_cardio_minutes']['percent']}% 달성했습니다.",
+    ]
+    if int(report["pr_count"] or 0) > 0:
+        messages.append(f"이번 달 신기록이 {report['pr_count']}개 있습니다.")
+    if report["missing"]:
+        messages.append(f"보강하면 좋은 부위: {', '.join(report['missing'][:3])}")
+    return messages[:5]
+
+
 def export_all_data() -> dict[str, object]:
     db = get_db()
     tables = [
@@ -2199,6 +2231,44 @@ def list_weekly_meal_days(week_start: str) -> list[dict[str, object]]:
             }
         )
     return days
+
+
+def build_weekly_meal_summary(week_start: str) -> dict[str, object]:
+    week_end = shift_date(week_start, 6)
+    totals = get_db().execute(
+        """
+        SELECT
+            COUNT(DISTINCT meal_date) AS meal_days,
+            COUNT(id) AS meal_count,
+            COALESCE(SUM(calories), 0) AS calories,
+            COALESCE(SUM(grams), 0) AS grams
+        FROM meal_entries
+        WHERE meal_date BETWEEN ? AND ?
+        """,
+        (week_start, week_end),
+    ).fetchone()
+    top_food = get_db().execute(
+        """
+        SELECT food_name, COUNT(id) AS count
+        FROM meal_entries
+        WHERE meal_date BETWEEN ? AND ?
+        GROUP BY food_name
+        ORDER BY count DESC, food_name
+        LIMIT 1
+        """,
+        (week_start, week_end),
+    ).fetchone()
+    meal_days = int(totals["meal_days"] or 0)
+    calories = float(totals["calories"] or 0)
+    return {
+        "meal_days": meal_days,
+        "meal_count": int(totals["meal_count"] or 0),
+        "calories": calories,
+        "grams": float(totals["grams"] or 0),
+        "avg_calories": round(calories / meal_days) if meal_days else 0,
+        "top_food": top_food["food_name"] if top_food else "-",
+        "top_food_count": int(top_food["count"] or 0) if top_food else 0,
+    }
 
 
 def get_day_summary(day: str) -> dict[str, float]:
