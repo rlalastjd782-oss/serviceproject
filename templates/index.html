@@ -4,7 +4,7 @@
 {% block title %}오늘 기록{% endblock %}
 
 {% block content %}
-  <div class="{% if workout_mode %}workout-mode{% endif %}">
+  <div class="today-shell {% if workout_mode %}workout-mode{% elif meal_mode %}meal-mode{% endif %}">
   <div class="date-row">
     <a class="arrow-btn" href="{{ url_for('index', date=prev_date) }}" aria-label="이전 날짜">‹</a>
     <form method="get" action="{{ url_for('index') }}" class="date-picker-form">
@@ -14,12 +14,13 @@
     <a class="arrow-btn" href="{{ url_for('index', date=next_date) }}" aria-label="다음 날짜">›</a>
   </div>
 
-  <div class="mode-actions">
-    <a class="btn-primary mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동 시작</a>
-    <a class="btn-small mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체 보기</a>
+  <div class="mode-actions today-mode-actions">
+    <a class="{% if workout_mode %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동</a>
+    <a class="{% if meal_mode %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date, mode='meal') }}">식단</a>
+    <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체</a>
   </div>
 
-  <section class="section workout-clock-section" data-workout-clock data-workout-date="{{ session.workout_date }}" data-workout-mode="{% if workout_mode %}1{% else %}0{% endif %}" data-initial-duration="{{ session.duration_seconds or 0 }}" data-duration-url="{{ url_for('update_session_duration_route', session_id=session.id) }}">
+  <section class="section workout-clock-section workout-only" data-workout-clock data-workout-date="{{ session.workout_date }}" data-workout-mode="{% if workout_mode %}1{% else %}0{% endif %}" data-initial-duration="{{ session.duration_seconds or 0 }}" data-duration-url="{{ url_for('update_session_duration_route', session_id=session.id) }}">
     <div class="section-header">
       <div>
         <div class="section-title">운동 시간</div>
@@ -50,7 +51,7 @@
   </section>
 
   {% if workout_mode %}
-    <section class="section workout-focus-section">
+    <section class="section workout-focus-section workout-only">
       <div class="section-header">
         <div>
           <div class="section-title">운동 집중</div>
@@ -111,7 +112,7 @@
     </section>
   {% endif %}
 
-  <div class="summary-grid optional-section">
+  <div class="summary-grid overview-only">
     <article class="summary-card">
       <div class="summary-icon">⏱</div>
       <div class="summary-value">{{ format_duration(today_summary.duration_seconds) }}</div>
@@ -152,7 +153,7 @@
   </div>
 
   {% if pr_events %}
-    <section class="section">
+    <section class="section overview-only workout-only">
       <div class="section-header">
         <div class="section-title">신기록</div>
       </div>
@@ -170,10 +171,11 @@
     </section>
   {% endif %}
 
-  <section class="section">
+  <section class="section overview-only workout-only">
     <div class="section-header">
       <div class="section-title">오늘 상태</div>
       <form method="post" action="{{ url_for('toggle_session_complete', session_id=session.id) }}">
+        <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
         <input type="hidden" name="completed" value="{% if session.completed %}0{% else %}1{% endif %}">
         <button class="{% if session.completed %}btn-danger{% else %}btn-small{% endif %}" type="submit">
           {% if session.completed %}완료 취소{% else %}운동 완료{% endif %}
@@ -189,7 +191,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section overview-only workout-only">
     <div class="section-header">
       <div class="section-title">회복 추천</div>
     </div>
@@ -203,7 +205,7 @@
     </div>
   </section>
 
-  <section class="section" id="rest-timer">
+  <section class="section workout-only" id="rest-timer">
     <div class="section-header">
       <div class="section-title">휴식 타이머</div>
       <div class="timer-display" data-rest-timer-display>00:00</div>
@@ -252,7 +254,7 @@
     {% endif %}
   </section>
 
-  <section class="section">
+  <section class="section workout-only">
     <div class="section-header">
       <div class="section-title">루틴</div>
     </div>
@@ -262,6 +264,7 @@
         {% for item in recommended_sessions %}
           <form method="post" action="{{ url_for('apply_session', source_session_id=item.id) }}" class="routine-load-row recommended-routine">
             <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="workout">
             <span>{{ item.workout_date }} · {{ item.body_parts }} · {{ item.set_count }}세트 · {{ format_duration(item.duration_seconds) }}</span>
             <button class="btn-small" type="submit">불러오기</button>
           </form>
@@ -280,6 +283,7 @@
       </div>
       <form method="post" action="{{ url_for('create_routine_from_day') }}" class="routine-form">
         <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+        <input type="hidden" name="mode" value="workout">
         <input name="routine_name" placeholder="오늘 운동을 루틴으로 저장">
         <button class="btn-small" type="submit">저장</button>
       </form>
@@ -287,6 +291,7 @@
         {% for routine in routines %}
           <form method="post" action="{{ url_for('apply_routine', routine_id=routine.id) }}" class="routine-load-row">
             <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="workout">
             <span>{{ routine.name }} · {{ routine.item_count }}세트</span>
             <button class="btn-small" type="submit">불러오기</button>
           </form>
@@ -297,12 +302,13 @@
     </div>
   </section>
 
-  <section class="section" id="workout-input">
+  <section class="section workout-only" id="workout-input">
     <div class="section-header">
       <div class="section-title">🏃 운동 입력</div>
     </div>
     <form method="post" action="{{ url_for('create_set') }}" class="record-form workout-form" data-workout-form>
-      <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+     <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+      <input type="hidden" name="mode" value="workout">
       <div class="ex-input-row">
         <select name="body_part" class="body-part-select" data-body-part-select aria-label="운동 부위">
           {% for part in body_parts %}
@@ -378,13 +384,14 @@
     </form>
   </section>
 
-  <section class="section optional-section">
+  <section class="section meal-only">
     <div class="section-header">
       <div class="section-title">🍱 식단 입력</div>
       <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
     </div>
     <form method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
       <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+      <input type="hidden" name="mode" value="meal">
       <select name="meal_type" class="meal-type-select" data-meal-type-select aria-label="식단 구분">
         <option value="아침" class="{{ meal_type_class('아침') }}">아침</option>
         <option value="점심" class="{{ meal_type_class('점심') }}">점심</option>
@@ -427,6 +434,7 @@
         {% for day in meal_copy_sources %}
           <form method="post" action="{{ url_for('copy_meal_day_route') }}" class="routine-load-row">
             <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="meal">
             <input type="hidden" name="source_date" value="{{ day.meal_date }}">
             <span>{{ day.meal_date }} · {{ day.meal_count }}개 · {{ "%.0f"|format(day.calories) }}kcal</span>
             <button class="btn-small" type="submit">복사</button>
@@ -435,12 +443,14 @@
       {% endif %}
       <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+        <input type="hidden" name="mode" value="meal">
         <input name="template_name" placeholder="오늘 식단을 템플릿으로 저장">
         <button class="btn-small" type="submit">저장</button>
       </form>
       {% for template in meal_templates %}
         <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
-          <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+          <input type="hidden" name="mode" value="meal">
           <span>{{ template.name }} · {{ template.item_count }}개</span>
           <button class="btn-small" type="submit">불러오기</button>
         </form>
@@ -448,7 +458,7 @@
     </div>
   </section>
 
-  <section class="section" id="today-workout">
+  <section class="section workout-only" id="today-workout">
     <div class="section-header">
       <div class="section-title">📋 오늘 운동</div>
       <span class="badge">⏱ {{ format_duration(session.duration_seconds) }}</span>
@@ -457,13 +467,29 @@
       {% set workout_groups = grouped_sets_for_session(session.id) %}
       {% if workout_groups %}
         {% for group in workout_groups %}
-          <article class="record-card">
+          <article class="record-card workout-summary-card is-collapsed" data-collapsible-card>
             <div class="record-date workout-record-head">
-              <span class="cat-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>
-              <strong>{{ group.exercise_name }}</strong>
+              <button class="record-toggle" type="button" data-toggle-card aria-expanded="false">
+                <span class="cat-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>
+                <strong>{{ group.exercise_name }}</strong>
+                <span>{{ group.sets|length }}세트</span>
+              </button>
             </div>
+            <div class="compact-set-preview">
+              {% for item in group.sets[:4] %}
+                <span>
+                  {% if group.body_part == "유산소" %}
+                    {{ "%.0f"|format(item.cardio_minutes or 0) }}분
+                  {% else %}
+                    {{ "%.1f"|format(item.weight or 0) }}kg x {{ item.reps or 0 }}
+                  {% endif %}
+                </span>
+              {% endfor %}
+            </div>
+            <div class="record-card-detail">
             <form method="post" action="{{ url_for('update_exercise_note') }}" class="note-form">
               <input type="hidden" name="target_date" value="{{ session.workout_date }}">
+              <input type="hidden" name="mode" value="workout">
               <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
               <input name="note" value="{{ exercise_notes.get(group.exercise_name, '') }}" placeholder="운동 메모">
               <button class="btn-small" type="submit">저장</button>
@@ -489,6 +515,7 @@
                   </div>
                 </div>
                 <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
+                  <input type="hidden" name="mode" value="workout">
                   <input name="set_number" type="number" min="1" step="1" inputmode="numeric" value="{{ loop.index }}" aria-label="세트 번호" placeholder="세트">
                   {% if group.body_part == "유산소" %}
                     <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% endif %}" placeholder="인클라인">
@@ -521,6 +548,7 @@
                     data-cardio-minutes="{% if item.cardio_minutes is not none %}{{ item.cardio_minutes }}{% endif %}"
                   >복사</button>
                   <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}">
+                    <input type="hidden" name="mode" value="workout">
                     <button type="submit" class="btn-danger" aria-label="세트 삭제">×</button>
                   </form>
                 </div>
@@ -531,6 +559,7 @@
               <button type="button" class="btn-add" data-toggle-add>+ 세트 추가</button>
               <form method="post" action="{{ url_for('create_set') }}" class="inline-add-form">
                 <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+                <input type="hidden" name="mode" value="workout">
                 <input type="hidden" name="body_part" value="{{ group.body_part }}">
                 <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
                 {% if group.body_part == "유산소" %}
@@ -550,6 +579,7 @@
                 <button type="button" class="btn-small" data-cancel-inline-add>취소</button>
               </form>
             </div>
+            </div>
           </article>
         {% endfor %}
       {% else %}
@@ -558,7 +588,7 @@
     </div>
   </section>
 
-  <section class="section optional-section">
+  <section class="section meal-only">
     <div class="section-header">
       <div class="section-title">🍱 오늘 식단</div>
     </div>
@@ -580,6 +610,7 @@
                   </div>
                 </div>
                 <form method="post" action="{{ url_for('update_meal', meal_id=item.id) }}" class="inline-edit-form meal-edit-form">
+                  <input type="hidden" name="mode" value="meal">
                   <input name="food_name" value="{{ item.food_name }}" required>
                   <input name="quantity" type="number" min="0" step="1" inputmode="numeric" value="{% if item.quantity is not none %}{{ "%.0f"|format(item.quantity) }}{% endif %}" placeholder="개">
                   <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.grams is not none %}{{ "%.1f"|format(item.grams) }}{% endif %}" placeholder="g">
@@ -589,6 +620,7 @@
                 <div class="item-actions">
                   <button type="button" class="btn-small" data-toggle-edit>수정</button>
                   <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}">
+                    <input type="hidden" name="mode" value="meal">
                     <button type="submit" class="btn-danger" aria-label="식단 삭제">×</button>
                   </form>
                 </div>
@@ -598,6 +630,7 @@
               <button type="button" class="btn-add" data-toggle-add>+ 음식 추가</button>
               <form method="post" action="{{ url_for('create_meal') }}" class="inline-add-form meal-add-form">
                 <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+                <input type="hidden" name="mode" value="meal">
                 <input type="hidden" name="meal_type" value="{{ group.meal_type }}">
                 <input name="meal_food_name" placeholder="음식" required>
                 <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
@@ -615,7 +648,7 @@
     </div>
   </section>
 
-  <section class="section optional-section">
+  <section class="section overview-only">
     <div class="section-header">
       <div class="section-title">📅 최근 기록</div>
       <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주별 보기</a>

@@ -344,25 +344,46 @@
             <article class="progress-card">
               <div class="progress-head">
                 <strong>{{ item.period }}</strong>
-                <span>{{ item.rep_count }}회</span>
+                <span>{% if item.is_cardio %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}{{ item.rep_count }}회{% endif %}</span>
               </div>
               <div class="progress-metrics">
-                <span>최고 {{ "%.1f"|format(item.max_weight) }}kg</span>
-                <span>1RM {{ "%.1f"|format(item.estimated_1rm) }}kg</span>
+                {% if item.is_cardio %}
+                  <span>시간 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
+                  <span>속도 {{ "%.1f"|format(item.cardio_speed) }}</span>
+                  <span>인클라인 {{ "%.1f"|format(item.cardio_incline) }}</span>
+                {% else %}
+                  <span>최고 {{ "%.1f"|format(item.max_weight) }}kg</span>
+                  <span>1RM {{ "%.1f"|format(item.estimated_1rm) }}kg</span>
+                {% endif %}
               </div>
               <div class="progress-bars">
-                <div class="progress-line">
-                  <span class="line-label">볼륨</span>
-                  <span class="line-track"><i class="volume-bar" style="width: {{ item.volume_width }}%"></i></span>
-                </div>
-                <div class="progress-line">
-                  <span class="line-label">중량</span>
-                  <span class="line-track"><i class="set-bar" style="width: {{ item.weight_width }}%"></i></span>
-                </div>
-                <div class="progress-line">
-                  <span class="line-label">예상 1RM</span>
-                  <span class="line-track"><i class="burn-bar" style="width: {{ item.estimated_1rm_width }}%"></i></span>
-                </div>
+                {% if item.is_cardio %}
+                  <div class="progress-line">
+                    <span class="line-label">시간</span>
+                    <span class="line-track"><i class="duration-bar" style="width: {{ item.cardio_minutes_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">속도</span>
+                    <span class="line-track"><i class="set-bar" style="width: {{ item.cardio_speed_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">인클라인</span>
+                    <span class="line-track"><i class="burn-bar" style="width: {{ item.cardio_incline_width }}%"></i></span>
+                  </div>
+                {% else %}
+                  <div class="progress-line">
+                    <span class="line-label">볼륨</span>
+                    <span class="line-track"><i class="volume-bar" style="width: {{ item.volume_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">중량</span>
+                    <span class="line-track"><i class="set-bar" style="width: {{ item.weight_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">예상 1RM</span>
+                    <span class="line-track"><i class="burn-bar" style="width: {{ item.estimated_1rm_width }}%"></i></span>
+                  </div>
+                {% endif %}
               </div>
             </article>
           {% endfor %}

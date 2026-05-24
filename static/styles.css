@@ -126,6 +126,14 @@ a {
   display: none;
 }
 
+.today-shell:not(.workout-mode) .workout-only:not(.overview-only),
+.today-shell:not(.meal-mode) .meal-only,
+.workout-mode .overview-only:not(.workout-only),
+.meal-mode .overview-only,
+.meal-mode .workout-only {
+  display: none;
+}
+
 .date-row {
   display: flex;
   align-items: center;
@@ -173,6 +181,10 @@ a {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 12px;
+}
+
+.today-mode-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .mode-button {
@@ -1205,8 +1217,6 @@ label span {
 
 .workout-record-head {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
   gap: 7px;
 }
 
@@ -1214,6 +1224,54 @@ label span {
   min-width: 0;
   overflow-wrap: anywhere;
   word-break: keep-all;
+}
+
+.record-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.record-toggle strong {
+  color: var(--strong);
+  font-size: 14px;
+}
+
+.record-toggle > span:last-child {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.compact-set-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 4px;
+}
+
+.compact-set-preview span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+}
+
+.workout-summary-card.is-collapsed .record-card-detail {
+  display: none;
+}
+
+.workout-summary-card:not(.is-collapsed) .compact-set-preview {
+  margin-bottom: 9px;
 }
 
 .record-summary {
@@ -1279,6 +1337,10 @@ label span {
   min-width: 0;
   overflow-wrap: anywhere;
   word-break: keep-all;
+}
+
+.meal-only .ex-name {
+  display: block;
 }
 
 .blue-text {

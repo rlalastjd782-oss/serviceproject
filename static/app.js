@@ -121,10 +121,18 @@ document.addEventListener("click", (event) => {
   const workoutClockResetButton = event.target.closest("[data-workout-clock-reset]");
   const mealFormToggleButton = event.target.closest("[data-toggle-meal-form]");
   const mealFormCancelButton = event.target.closest("[data-cancel-meal-form]");
+  const cardToggleButton = event.target.closest("[data-toggle-card]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
   const mealForm = document.querySelector("[data-meal-form]");
+
+  if (cardToggleButton) {
+    const card = cardToggleButton.closest("[data-collapsible-card]");
+    const isCollapsed = card?.classList.toggle("is-collapsed");
+    cardToggleButton.setAttribute("aria-expanded", String(!isCollapsed));
+    return;
+  }
 
   if (mealFormToggleButton && mealForm) {
     const isCollapsed = mealForm.classList.toggle("is-collapsed");

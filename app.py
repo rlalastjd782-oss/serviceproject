@@ -56,7 +56,11 @@ def create_app() -> Flask:
     @app.get("/")
     def index():
         selected_date = request.args.get("date") or current_local_date()
-        workout_mode = request.args.get("mode") == "workout"
+        today_mode = request.args.get("mode", "overview")
+        if today_mode not in {"overview", "workout", "meal"}:
+            today_mode = "overview"
+        workout_mode = today_mode == "workout"
+        meal_mode = today_mode == "meal"
         today_session = get_or_create_session(selected_date)
         sessions = list_recent_sessions()
         exercises = list_exercises()
@@ -87,7 +91,9 @@ def create_app() -> Flask:
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
             recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
             meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
+            today_mode=today_mode,
             workout_mode=workout_mode,
+            meal_mode=meal_mode,
             body_parts=body_part_options(),
             prev_date=shift_date(today_session["workout_date"], -1),
             next_date=shift_date(today_session["workout_date"], 1),
@@ -235,10 +241,11 @@ def create_app() -> Flask:
     @app.post("/sets")
     def create_set():
         session = get_or_create_session(request.form.get("workout_date"))
+        mode = request.form.get("mode")
         body_part = request.form.get("body_part", "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", "").strip()
         if not exercise_name:
-            return redirect(url_for("index", date=session["workout_date"]))
+            return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
 
         set_weights = request.form.getlist("set_weight") or [request.form.get("weight", "")]
         set_reps = request.form.getlist("set_reps") or [request.form.get("reps", "")]
@@ -288,7 +295,7 @@ def create_app() -> Flask:
             )
 
         if not set_rows:
-            return redirect(url_for("index", date=session["workout_date"]))
+            return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
 
         db = get_db()
         exercise_id = get_or_create_exercise(exercise_name)
@@ -332,36 +339,40 @@ def create_app() -> Flask:
                 record_pr_events(cursor.lastrowid, session["workout_date"], exercise_id, exercise_name, weight, reps, previous_records)
                 previous_records = update_record_values(previous_records, weight, reps)
         db.commit()
-        return redirect(url_for("index", date=session["workout_date"]))
+        return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
 
     @app.post("/routines/from-day")
     def create_routine_from_day():
         workout_date = request.form.get("workout_date") or current_local_date()
+        mode = request.form.get("mode")
         routine_name = request.form.get("routine_name", "").strip() or f"{workout_date} 루틴"
         session = get_session_by_date(workout_date)
         if session and session["id"]:
             create_routine_template(routine_name, int(session["id"]))
-        return redirect(url_for("index", date=workout_date))
+        return redirect(url_for("index", date=workout_date, mode=mode or None))
 
     @app.post("/routines/<int:routine_id>/apply")
     def apply_routine(routine_id: int):
         workout_date = request.form.get("workout_date") or current_local_date()
+        mode = request.form.get("mode")
         apply_routine_template(routine_id, workout_date)
-        return redirect(url_for("index", date=workout_date))
+        return redirect(url_for("index", date=workout_date, mode=mode or None))
 
     @app.post("/sessions/<int:source_session_id>/apply")
     def apply_session(source_session_id: int):
         workout_date = request.form.get("workout_date") or current_local_date()
+        mode = request.form.get("mode")
         apply_session_template(source_session_id, workout_date)
-        return redirect(url_for("index", date=workout_date))
+        return redirect(url_for("index", date=workout_date, mode=mode or None))
 
     @app.post("/sessions/<int:session_id>/complete")
     def toggle_session_complete(session_id: int):
         session = get_session_by_id(session_id)
         if not session:
             return redirect(url_for("index"))
+        mode = request.form.get("mode")
         mark_session_completed(session_id, request.form.get("completed") == "1")
-        return redirect(url_for("index", date=session["workout_date"]))
+        return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
 
     @app.post("/sessions/<int:session_id>/duration")
     def update_session_duration_route(session_id: int):
@@ -423,11 +434,12 @@ def create_app() -> Flask:
     @app.post("/exercise-notes")
     def update_exercise_note():
         target_date = request.form.get("target_date") or current_local_date()
+        mode = request.form.get("mode")
         exercise_name = request.form.get("exercise_name", "").strip()
         note = request.form.get("note", "").strip()
         if exercise_name:
             save_exercise_note(exercise_name, note)
-        return redirect(url_for("index", date=target_date))
+        return redirect(url_for("index", date=target_date, mode=mode or None))
 
     @app.post("/body-metrics")
     def save_body_metric_route():
@@ -452,23 +464,26 @@ def create_app() -> Flask:
     @app.post("/meal-templates/from-day")
     def create_meal_template_from_day_route():
         meal_date = request.form.get("meal_date") or current_local_date()
+        mode = request.form.get("mode")
         template_name = request.form.get("template_name", "").strip() or f"{meal_date} 식단"
         create_meal_template_from_day(template_name, meal_date)
-        return redirect(url_for("index", date=meal_date))
+        return redirect(url_for("index", date=meal_date, mode=mode or None))
 
     @app.post("/meal-templates/<int:template_id>/apply")
     def apply_meal_template_route(template_id: int):
         meal_date = request.form.get("meal_date") or current_local_date()
+        mode = request.form.get("mode")
         apply_meal_template(template_id, meal_date)
-        return redirect(url_for("index", date=meal_date))
+        return redirect(url_for("index", date=meal_date, mode=mode or None))
 
     @app.post("/meals/copy-day")
     def copy_meal_day_route():
         source_date = request.form.get("source_date", "").strip()
         meal_date = request.form.get("meal_date") or current_local_date()
+        mode = request.form.get("mode")
         if source_date:
             copy_meals_from_day(source_date, meal_date)
-        return redirect(url_for("index", date=meal_date))
+        return redirect(url_for("index", date=meal_date, mode=mode or None))
 
     @app.post("/programs/apply")
     def apply_program_route():
@@ -503,6 +518,7 @@ def create_app() -> Flask:
     @app.post("/meals")
     def create_meal():
         meal_date = request.form.get("meal_date") or current_local_date()
+        mode = request.form.get("mode")
         meal_type = request.form.get("meal_type", "").strip()
         food_names = request.form.getlist("meal_food_name") or [request.form.get("food_name", "")]
         quantities = request.form.getlist("meal_quantity") or [request.form.get("amount", "")]
@@ -538,7 +554,7 @@ def create_app() -> Flask:
             )
 
         if not meal_rows:
-            return redirect(url_for("index", date=meal_date))
+            return redirect(url_for("index", date=meal_date, mode=mode or None))
 
         db = get_db()
         for food_name, quantity, grams, calories, memo in meal_rows:
@@ -551,13 +567,14 @@ def create_app() -> Flask:
                 (meal_date, meal_type, food_name, quantity, grams, calories, memo),
             )
         db.commit()
-        return redirect(url_for("index", date=meal_date))
+        return redirect(url_for("index", date=meal_date, mode=mode or None))
 
     @app.post("/meals/<int:meal_id>/update")
     def update_meal(meal_id: int):
         db = get_db()
         meal = db.execute("SELECT meal_date FROM meal_entries WHERE id = ?", (meal_id,)).fetchone()
         meal_date = meal["meal_date"] if meal else current_local_date()
+        mode = request.form.get("mode")
         food_name = request.form.get("food_name", "").strip()
         if food_name:
             db.execute(
@@ -575,15 +592,16 @@ def create_app() -> Flask:
                 ),
             )
             db.commit()
-        return redirect(url_for("index", date=meal_date))
+        return redirect(url_for("index", date=meal_date, mode=mode or None))
 
     @app.post("/meals/<int:meal_id>/delete")
     def delete_meal(meal_id: int):
         db = get_db()
         meal = db.execute("SELECT meal_date FROM meal_entries WHERE id = ?", (meal_id,)).fetchone()
+        mode = request.form.get("mode")
         db.execute("DELETE FROM meal_entries WHERE id = ?", (meal_id,))
         db.commit()
-        return redirect(url_for("index", date=meal["meal_date"] if meal else None))
+        return redirect(url_for("index", date=meal["meal_date"] if meal else None, mode=mode or None))
 
     @app.post("/sets/<int:set_id>/update")
     def update_set(set_id: int):
@@ -598,6 +616,7 @@ def create_app() -> Flask:
             (set_id,),
         ).fetchone()
         workout_date = workout["workout_date"] if workout else current_local_date()
+        mode = request.form.get("mode")
         if workout and workout["body_part"] == "유산소":
             cardio_incline = parse_float(request.form.get("cardio_incline"))
             cardio_speed = parse_float(request.form.get("cardio_speed"))
@@ -634,7 +653,7 @@ def create_app() -> Flask:
         if requested_set_number:
             reorder_set_within_exercise(db, set_id, requested_set_number)
         db.commit()
-        return redirect(url_for("index", date=workout_date))
+        return redirect(url_for("index", date=workout_date, mode=mode or None))
 
     @app.post("/sets/<int:set_id>/delete")
     def delete_set(set_id: int):
@@ -648,9 +667,10 @@ def create_app() -> Flask:
             """,
             (set_id,),
         ).fetchone()
+        mode = request.form.get("mode")
         db.execute("DELETE FROM workout_sets WHERE id = ?", (set_id,))
         db.commit()
-        return redirect(url_for("index", date=workout["workout_date"] if workout else None))
+        return redirect(url_for("index", date=workout["workout_date"] if workout else None, mode=mode or None))
 
     @app.get("/api/sessions")
     def api_sessions():
@@ -2686,6 +2706,8 @@ def build_exercise_next_plan(exercise_id: int | None) -> list[str]:
 def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> list[dict[str, float | int | str]]:
     if not exercise_id:
         return []
+    profile = get_exercise_profile(exercise_id)
+    is_cardio = bool(profile and profile.get("body_part") == "유산소")
     rows = get_db().execute(
         """
         SELECT
@@ -2693,7 +2715,10 @@ def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> lis
             MAX(COALESCE(ws.weight, 0)) AS max_weight,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
+            MAX(COALESCE(ws.cardio_speed, 0)) AS cardio_speed,
+            MAX(COALESCE(ws.cardio_incline, 0)) AS cardio_incline
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         WHERE ws.exercise_id = ?
@@ -2707,18 +2732,28 @@ def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> lis
     max_weight = max([float(row["max_weight"]) for row in ordered] + [1.0])
     max_volume = max([float(row["volume"]) for row in ordered] + [1.0])
     max_1rm = max([float(row["estimated_1rm"]) for row in ordered] + [1.0])
+    max_minutes = max([float(row["cardio_minutes"]) for row in ordered] + [1.0])
+    max_speed = max([float(row["cardio_speed"]) for row in ordered] + [1.0])
+    max_incline = max([float(row["cardio_incline"]) for row in ordered] + [1.0])
     return [
         {
             "period": row["period"][5:],
+            "is_cardio": is_cardio,
             "max_weight": float(row["max_weight"]),
             "rep_count": int(row["rep_count"]),
             "volume": float(row["volume"]),
             "estimated_1rm": float(row["estimated_1rm"]),
+            "cardio_minutes": float(row["cardio_minutes"]),
+            "cardio_speed": float(row["cardio_speed"]),
+            "cardio_incline": float(row["cardio_incline"]),
             "weight_height": max(3, round(float(row["max_weight"]) / max_weight * 100)),
             "weight_width": round(float(row["max_weight"]) / max_weight * 100),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
             "volume_width": round(float(row["volume"]) / max_volume * 100),
             "estimated_1rm_width": round(float(row["estimated_1rm"]) / max_1rm * 100),
+            "cardio_minutes_width": round(float(row["cardio_minutes"]) / max_minutes * 100),
+            "cardio_speed_width": round(float(row["cardio_speed"]) / max_speed * 100),
+            "cardio_incline_width": round(float(row["cardio_incline"]) / max_incline * 100),
         }
         for row in ordered
     ]
