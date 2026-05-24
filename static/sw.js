@@ -1,4 +1,4 @@
-const CACHE_NAME = "workout-pwa-v20";
+const CACHE_NAME = "workout-pwa-v21";
 const ASSETS = ["/", "/static/styles.css", "/static/app.js", "/static/manifest.webmanifest", "/static/icon.svg"];
 
 self.addEventListener("install", (event) => {

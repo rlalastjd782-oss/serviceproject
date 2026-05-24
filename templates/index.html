@@ -48,6 +48,68 @@
     </form>
   </section>
 
+  {% if workout_mode %}
+    <section class="section workout-focus-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">운동 집중</div>
+          <div class="section-subtitle">운동 중에는 입력, 이전 기록, 휴식만 빠르게 확인합니다.</div>
+        </div>
+        <a class="btn-small" href="#workout-input">입력</a>
+      </div>
+      <div class="focus-grid">
+        <article>
+          <strong>{{ today_summary.set_count }}</strong>
+          <span>오늘 세트</span>
+        </article>
+        <article>
+          <strong>{{ format_duration(session.duration_seconds) }}</strong>
+          <span>저장 시간</span>
+        </article>
+        <article>
+          <strong>{{ "%.0f"|format(today_summary.volume) }}</strong>
+          <span>볼륨 kg</span>
+        </article>
+      </div>
+      {% if workout_focus_recommendations %}
+        <div class="focus-suggestion-list">
+          {% for item in workout_focus_recommendations %}
+            <article class="focus-suggestion-card">
+              <div>
+                <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+                <strong>{{ item.exercise_name }}</strong>
+                <small>
+                  {{ item.reason }}
+                  {% if item.last_date %} · 최근 {{ item.last_date }}{% endif %}
+                  {% if item.last_weight is not none %} · {{ "%.1f"|format(item.last_weight) }}kg{% endif %}
+                  {% if item.last_reps is not none %} {{ item.last_reps }}회{% endif %}
+                  {% if item.last_cardio_minutes is not none %} · {{ "%.0f"|format(item.last_cardio_minutes) }}분{% endif %}
+                </small>
+              </div>
+              <button
+                type="button"
+                class="btn-small"
+                data-copy-saved-set
+                data-body-part="{{ item.body_part }}"
+                data-exercise-name="{{ item.exercise_name }}"
+                data-weight="{% if item.last_weight is not none %}{{ item.last_weight }}{% endif %}"
+                data-reps="{% if item.last_reps is not none %}{{ item.last_reps }}{% endif %}"
+                data-cardio-incline="{% if item.last_cardio_incline is not none %}{{ item.last_cardio_incline }}{% endif %}"
+                data-cardio-speed="{% if item.last_cardio_speed is not none %}{{ item.last_cardio_speed }}{% endif %}"
+                data-cardio-minutes="{% if item.last_cardio_minutes is not none %}{{ item.last_cardio_minutes }}{% endif %}"
+              >불러오기</button>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div class="focus-shortcuts">
+        <a class="btn-small" href="#today-workout">오늘 운동</a>
+        <a class="btn-small" href="#rest-timer">휴식 타이머</a>
+        <a class="btn-small" href="{{ url_for('index', date=session.workout_date) }}">전체 보기</a>
+      </div>
+    </section>
+  {% endif %}
+
   <div class="summary-grid optional-section">
     <article class="summary-card">
       <div class="summary-icon">⏱</div>
@@ -138,7 +200,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="rest-timer">
     <div class="section-header">
       <div class="section-title">휴식 타이머</div>
       <div class="timer-display" data-rest-timer-display>00:00</div>
@@ -249,7 +311,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section" id="workout-input">
     <div class="section-header">
       <div class="section-title">🏃 운동 입력</div>
     </div>
@@ -396,7 +458,7 @@
     </form>
   </section>
 
-  <section class="section">
+  <section class="section" id="today-workout">
     <div class="section-header">
       <div class="section-title">📋 오늘 운동</div>
       <span class="badge">⏱ {{ format_duration(session.duration_seconds) }}</span>

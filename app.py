@@ -75,6 +75,7 @@ def create_app() -> Flask:
             foods_by_meal_type=list_foods_by_meal_type(),
             routines=list_routines(),
             recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
+            workout_focus_recommendations=list_workout_focus_recommendations(today_session["workout_date"]),
             default_programs=DEFAULT_PROGRAMS.keys(),
             meal_templates=list_meal_templates(),
             body_metric=get_body_metric(today_session["workout_date"]),
@@ -1254,6 +1255,146 @@ def list_recommended_sessions(workout_date: str, limit: int = 3) -> list[dict[st
         if len(recommendations) >= limit:
             break
     return recommendations
+
+
+def list_workout_focus_recommendations(workout_date: str, limit: int = 5) -> list[dict[str, object]]:
+    recent_part_rows = get_db().execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date < ?
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') NOT IN ('기타')
+        GROUP BY body_part
+        """,
+        (workout_date,),
+    ).fetchall()
+    last_part_dates = {row["body_part"]: row["last_date"] for row in recent_part_rows}
+    today_parts = {
+        row["body_part"]
+        for row in get_db()
+        .execute(
+            """
+            SELECT DISTINCT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part
+            FROM workout_sets ws
+            JOIN workout_sessions s ON s.id = ws.session_id
+            WHERE s.workout_date = ?
+            """,
+            (workout_date,),
+        )
+        .fetchall()
+    }
+    rows = get_db().execute(
+        """
+        SELECT
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.id AS exercise_id,
+            e.name AS exercise_name,
+            COUNT(ws.id) AS set_count,
+            MAX(s.workout_date) AS last_date,
+            (
+                SELECT ws2.weight
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id
+                  AND s2.workout_date <= ?
+                  AND ws2.weight IS NOT NULL
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_weight,
+            (
+                SELECT ws2.reps
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id
+                  AND s2.workout_date <= ?
+                  AND ws2.reps IS NOT NULL
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_reps,
+            (
+                SELECT ws2.cardio_incline
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id
+                  AND s2.workout_date <= ?
+                  AND ws2.cardio_incline IS NOT NULL
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_cardio_incline,
+            (
+                SELECT ws2.cardio_speed
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id
+                  AND s2.workout_date <= ?
+                  AND ws2.cardio_speed IS NOT NULL
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_cardio_speed,
+            (
+                SELECT ws2.cardio_minutes
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id
+                  AND s2.workout_date <= ?
+                  AND ws2.cardio_minutes IS NOT NULL
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_cardio_minutes
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date <= ?
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') NOT IN ('기타')
+        GROUP BY body_part, e.id, e.name
+        ORDER BY last_date DESC, set_count DESC, e.name
+        """,
+        (workout_date, workout_date, workout_date, workout_date, workout_date, workout_date),
+    ).fetchall()
+    if not rows:
+        return []
+
+    date_value = datetime.strptime(workout_date, "%Y-%m-%d")
+    body_priority = {part: index for index, part in enumerate(body_part_options())}
+    candidates = []
+    for row in rows:
+        body_part = row["body_part"] or "기타"
+        last_date = last_part_dates.get(body_part) or row["last_date"]
+        days_since = 99
+        if last_date:
+            days_since = max(0, (date_value - datetime.strptime(last_date, "%Y-%m-%d")).days)
+        is_today = body_part in today_parts
+        if is_today:
+            reason = "오늘 이미 진행 중"
+        elif days_since >= 3:
+            reason = f"{days_since}일 쉬어서 우선 추천"
+        elif days_since >= 1:
+            reason = f"최근 {days_since}일 전 진행"
+        else:
+            reason = "최근 기록 기반 추천"
+        candidates.append(
+            {
+                "body_part": body_part,
+                "exercise_name": row["exercise_name"],
+                "set_count": int(row["set_count"] or 0),
+                "last_date": row["last_date"],
+                "last_weight": row["last_weight"],
+                "last_reps": row["last_reps"],
+                "last_cardio_incline": row["last_cardio_incline"],
+                "last_cardio_speed": row["last_cardio_speed"],
+                "last_cardio_minutes": row["last_cardio_minutes"],
+                "reason": reason,
+                "_score": (
+                    1 if is_today else 0,
+                    -days_since,
+                    body_priority.get(body_part, 99),
+                    -int(row["set_count"] or 0),
+                ),
+            }
+        )
+    candidates.sort(key=lambda item: item["_score"])
+    return [{key: value for key, value in item.items() if key != "_score"} for item in candidates[:limit]]
 
 
 def save_goal(key: str, value: int) -> None:

@@ -445,6 +445,73 @@ label span {
   color: #22c55e;
 }
 
+.workout-focus-section {
+  border-color: #22c55e;
+  background: linear-gradient(180deg, #102018, var(--panel));
+}
+
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.focus-grid article {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 10px;
+}
+
+.focus-grid strong {
+  color: var(--strong);
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.focus-grid span,
+.focus-suggestion-card small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.focus-suggestion-list,
+.focus-shortcuts {
+  display: grid;
+  gap: 7px;
+}
+
+.focus-suggestion-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #111827;
+  padding: 9px;
+}
+
+.focus-suggestion-card div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.focus-suggestion-card strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.focus-shortcuts {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
 .workout-save-status {
   color: var(--muted);
   font-size: 12px;
@@ -1543,6 +1610,15 @@ tbody tr:last-child td {
 
   .duration-edit-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .focus-grid,
+  .focus-shortcuts {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-suggestion-card {
+    grid-template-columns: 1fr;
   }
 
   .editable-list-item {
