@@ -10,6 +10,7 @@
   --bg: #0f0f14;
   --panel: #15151e;
   --panel-2: #1a1a24;
+  --panel-soft: #111827;
   --line: #1f2937;
   --line-strong: #374151;
   --text: #e5e7eb;
@@ -21,6 +22,8 @@
   --blue-strong: #1d4ed8;
   --green: #22c55e;
   --danger: #ef4444;
+  --radius: 8px;
+  --radius-soft: 10px;
   font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Pretendard", "Malgun Gothic", sans-serif;
 }
 
@@ -190,9 +193,14 @@ a {
 .section {
   margin-bottom: 11px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius-soft);
   padding: 13px;
   background: var(--panel);
+}
+
+.workout-mode .section {
+  margin-bottom: 9px;
+  padding: 11px;
 }
 
 .mode-actions {
@@ -286,9 +294,9 @@ a {
 }
 
 .section-title {
-  color: var(--muted);
+  color: var(--strong);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 900;
 }
 
 .section-subtitle {
@@ -367,7 +375,7 @@ input[type="month"],
 input:not([type]),
 select {
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--bg);
   color: var(--text);
   outline: none;
@@ -418,7 +426,7 @@ label span {
 
 .btn-primary {
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--blue-strong);
   color: #fff;
   cursor: pointer;
@@ -433,7 +441,7 @@ label span {
 .edit-chip,
 .detail-button {
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: #1f2937;
   color: var(--muted);
   cursor: pointer;
@@ -482,9 +490,9 @@ label span {
   align-items: center;
   gap: 3px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--panel);
-  padding: 13px 10px;
+  padding: 11px 9px;
   text-align: center;
 }
 
@@ -607,8 +615,8 @@ label span {
 }
 
 .workout-clock-section {
-  border-color: #2563eb;
-  background: linear-gradient(180deg, #121a29, var(--panel));
+  border-color: rgb(96 165 250 / 38%);
+  background: linear-gradient(180deg, #111827, var(--panel));
 }
 
 .workout-clock-section .section-header {
@@ -617,7 +625,7 @@ label span {
 
 .workout-clock-display {
   color: var(--strong);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 900;
   letter-spacing: 0;
   font-variant-numeric: tabular-nums;
@@ -628,8 +636,8 @@ label span {
 }
 
 .workout-focus-section {
-  border-color: #22c55e;
-  background: linear-gradient(180deg, #102018, var(--panel));
+  border-color: rgb(34 197 94 / 30%);
+  background: var(--panel);
 }
 
 .workout-action-dock {
@@ -676,7 +684,7 @@ label span {
   display: grid;
   gap: 3px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--panel-2);
   padding: 10px;
 }
@@ -706,8 +714,8 @@ label span {
   align-items: center;
   gap: 8px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: #111827;
+  border-radius: var(--radius);
+  background: var(--panel-soft);
   padding: 9px;
 }
 
@@ -809,7 +817,7 @@ label span {
   align-items: center;
   gap: 7px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--panel-2);
   padding: 8px;
 }
@@ -911,7 +919,7 @@ label span {
   display: grid;
   gap: 4px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--panel-2);
   padding: 10px;
   text-decoration: none;
@@ -949,9 +957,9 @@ label span {
 .session-flow-card,
 .missing-day-chip {
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 8px;
-  padding: 12px;
+  background: var(--panel-soft);
+  border-radius: var(--radius);
+  padding: 10px;
 }
 
 .session-flow-card {
@@ -965,7 +973,9 @@ label span {
 }
 
 .session-flow-card strong {
-  font-size: 1.05rem;
+  color: var(--strong);
+  font-size: 15px;
+  overflow-wrap: anywhere;
 }
 
 .missing-day-list {
@@ -1469,13 +1479,13 @@ label span {
   align-items: center;
   gap: 6px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: var(--bg);
   padding: 8px;
 }
 
 .set-entry-row {
-  grid-template-columns: minmax(0, 1fr) minmax(92px, 0.44fr) 92px;
+  grid-template-columns: minmax(0, 1fr) minmax(84px, 0.4fr) 88px;
 }
 
 .meal-entry-row {
@@ -2202,6 +2212,19 @@ label span {
   color: var(--muted);
   font-size: 11px;
   font-weight: 900;
+}
+
+.workout-form .btn-primary,
+.meal-form .btn-primary {
+  min-height: 42px;
+  font-weight: 900;
+}
+
+.record-card,
+.equipment-summary-card,
+.weekly-meal-day,
+.meal-week-card {
+  border-radius: var(--radius);
 }
 
 .daily-metric span {
@@ -2945,7 +2968,7 @@ tbody tr:last-child td {
   }
 
   .section {
-    border-radius: 10px;
+    border-radius: var(--radius);
     padding: 10px;
   }
 
@@ -2976,6 +2999,7 @@ tbody tr:last-child td {
 
   .set-row-actions {
     grid-template-columns: minmax(0, 1fr) 40px;
+    width: 100%;
   }
 
   .set-entry-row input,

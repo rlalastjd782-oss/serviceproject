@@ -158,31 +158,6 @@
   {% endif %}
 
   {% if workout_mode %}
-    <section class="section workout-quick-mode workout-only">
-      <div class="section-header">
-        <div>
-          <div class="section-title">운동 중 빠른 화면</div>
-          <div class="section-subtitle">헬스장에서 바로 쓰는 핵심 입력만 모았습니다.</div>
-        </div>
-      </div>
-      <div class="quick-workout-grid">
-        <a class="quick-workout-tile" href="#workout-input">
-          <strong>세트 입력</strong>
-          <span>운동명, 무게, 횟수</span>
-        </a>
-        <a class="quick-workout-tile" href="#rest-timer">
-          <strong>휴식 타이머</strong>
-          <span>60/90/120초</span>
-        </a>
-        <a class="quick-workout-tile" href="#today-workout">
-          <strong>오늘 기록</strong>
-          <span>{{ today_summary.set_count }}세트 · {{ format_duration(session.duration_seconds) }}</span>
-        </a>
-      </div>
-    </section>
-  {% endif %}
-
-  {% if workout_mode %}
     <section class="section workout-only session-flow-section">
       <div class="section-header">
         <div>
