@@ -112,6 +112,19 @@
     </section>
   {% endif %}
 
+  <section class="section workout-only" id="rest-timer">
+    <div class="section-header">
+      <div class="section-title">휴식 타이머</div>
+      <div class="timer-display" data-rest-timer-display>00:00</div>
+    </div>
+    <div class="timer-actions">
+      <button class="btn-small" type="button" data-rest-seconds="60">60초</button>
+      <button class="btn-small" type="button" data-rest-seconds="90">90초</button>
+      <button class="btn-small" type="button" data-rest-seconds="120">120초</button>
+      <button class="btn-danger" type="button" data-rest-stop>정지</button>
+    </div>
+  </section>
+
   <div class="summary-grid overview-only">
     <article class="summary-card">
       <div class="summary-icon">⏱</div>
@@ -202,19 +215,6 @@
           <span>{{ message }}</span>
         </div>
       {% endfor %}
-    </div>
-  </section>
-
-  <section class="section workout-only" id="rest-timer">
-    <div class="section-header">
-      <div class="section-title">휴식 타이머</div>
-      <div class="timer-display" data-rest-timer-display>00:00</div>
-    </div>
-    <div class="timer-actions">
-      <button class="btn-small" type="button" data-rest-seconds="60">60초</button>
-      <button class="btn-small" type="button" data-rest-seconds="90">90초</button>
-      <button class="btn-small" type="button" data-rest-seconds="120">120초</button>
-      <button class="btn-danger" type="button" data-rest-stop>정지</button>
     </div>
   </section>
 
