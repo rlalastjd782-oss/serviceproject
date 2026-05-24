@@ -2517,7 +2517,19 @@ def delete_sample_data() -> None:
     )
     db.execute("DELETE FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'")
     db.execute("DELETE FROM meal_entries WHERE food_name LIKE '샘플%'")
+    delete_empty_workout_sessions()
     db.commit()
+
+
+def delete_empty_workout_sessions() -> None:
+    get_db().execute(
+        """
+        DELETE FROM workout_sessions
+        WHERE COALESCE(completed, 0) = 0
+          AND id NOT IN (SELECT DISTINCT session_id FROM workout_sets)
+          AND workout_date NOT IN (SELECT DISTINCT meal_date FROM meal_entries)
+        """
+    )
 
 
 def delete_internal_test_data() -> None:
@@ -2670,6 +2682,7 @@ def list_recent_sessions(limit: int = 10) -> list[sqlite3.Row]:
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
         GROUP BY s.id, s.duration_seconds
+        HAVING COUNT(ws.id) > 0 OR COALESCE(s.completed, 0) = 1
         ORDER BY s.workout_date DESC
         LIMIT ?
         """,
@@ -2873,6 +2886,7 @@ def list_daily_summary(
             FROM workout_sessions s
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             GROUP BY s.workout_date
+            HAVING COUNT(ws.id) > 0 OR COALESCE(MAX(s.completed), 0) = 1
         ),
         meal AS (
             SELECT
