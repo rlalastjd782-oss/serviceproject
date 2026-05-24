@@ -136,8 +136,9 @@ def create_app() -> Flask:
 
     @app.get("/summaries/monthly")
     def monthly_summary_page():
-        period_rows = list_monthly_summary()
-        chart_rows = list_weekly_summary(limit=6)
+        selected_month = request.args.get("month") or current_local_date()[:7]
+        month_start = normalize_month(selected_month)
+        period_rows = list_weekly_summary(month_start=month_start, limit=6)
         return render_template(
             "summary_page.html",
             page_title="월간 집계",
@@ -145,11 +146,14 @@ def create_app() -> Flask:
             table_kind="period",
             period_rows=period_rows,
             period_label="기간",
-            chart_items=build_period_chart(chart_rows),
+            chart_items=build_period_chart(period_rows),
             chart_title="주간별 추이",
-            chart_note="최근 6주를 주간 단위로 표시합니다.",
-            body_part_summary=list_body_part_summary("monthly"),
-            monthly_report=build_monthly_report(),
+            chart_note="선택한 월을 주간 단위로 표시합니다.",
+            body_part_summary=list_body_part_summary("monthly", date_text=month_start),
+            monthly_report=build_monthly_report(month_start),
+            selected_month=month_start[:7],
+            prev_month=shift_month(month_start, -1)[:7],
+            next_month=shift_month(month_start, 1)[:7],
             active_page="monthly",
         )
 
@@ -2271,9 +2275,19 @@ def list_daily_summary(limit: int | None = None, days: int | None = None) -> lis
     ).fetchall()
 
 
-def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
+def list_weekly_summary(limit: int = 12, month_start: str | None = None) -> list[sqlite3.Row]:
+    workout_where = ""
+    meal_where = ""
+    params: list[object] = []
+    if month_start:
+        normalized_month = normalize_month(month_start)
+        next_month = shift_month(normalized_month, 1)
+        workout_where = "WHERE s.workout_date >= ? AND s.workout_date < ?"
+        meal_where = "WHERE meal_date >= ? AND meal_date < ?"
+        params.extend([normalized_month, next_month, normalized_month, next_month, normalized_month, next_month])
+    params.append(limit)
     return get_db().execute(
-        """
+        f"""
         WITH workout AS (
             SELECT
                 strftime('%Y-%m', s.workout_date) AS month_key,
@@ -2287,6 +2301,7 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
                 COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
             FROM workout_sessions s
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
+            {workout_where}
             GROUP BY month_key, week_of_month
         ),
         workout_time AS (
@@ -2296,6 +2311,7 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
                 ((CAST(strftime('%d', workout_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
                 COALESCE(SUM(duration_seconds), 0) AS duration_seconds
             FROM workout_sessions
+            {workout_where.replace("s.workout_date", "workout_date")}
             GROUP BY month_key, week_of_month
         ),
         meal AS (
@@ -2309,6 +2325,7 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
                 COALESCE(SUM(grams), 0) AS grams,
                 COALESCE(SUM(calories), 0) AS calories
             FROM meal_entries
+            {meal_where}
             GROUP BY month_key, week_of_month
         ),
         periods AS (
@@ -2341,7 +2358,7 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
         ORDER BY p.month_key DESC, p.week_of_month DESC
         LIMIT ?
         """,
-        (limit,),
+        params,
     ).fetchall()
 
 
@@ -2642,7 +2659,9 @@ def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
     return days
 
 
-def list_body_part_summary(scope: str, limit: int = 30) -> list[sqlite3.Row]:
+def list_body_part_summary(scope: str, limit: int = 30, date_text: str | None = None) -> list[sqlite3.Row]:
+    where_clause = ""
+    params: list[object] = []
     if scope == "daily":
         period_expr = "s.workout_date"
     elif scope == "weekly":
@@ -2652,6 +2671,11 @@ def list_body_part_summary(scope: str, limit: int = 30) -> list[sqlite3.Row]:
         )
     else:
         period_expr = "strftime('%Y-%m', s.workout_date)"
+        if date_text:
+            month_start = normalize_month(date_text)
+            where_clause = "WHERE s.workout_date >= ? AND s.workout_date < ?"
+            params.extend([month_start, shift_month(month_start, 1)])
+    params.append(limit)
 
     return get_db().execute(
         f"""
@@ -2665,11 +2689,12 @@ def list_body_part_summary(scope: str, limit: int = 30) -> list[sqlite3.Row]:
             COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
+        {where_clause}
         GROUP BY period, body_part
         ORDER BY MAX(s.workout_date) DESC, volume DESC, body_part
         LIMIT ?
         """,
-        (limit,),
+        params,
     ).fetchall()
 
 

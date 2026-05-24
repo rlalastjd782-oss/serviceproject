@@ -97,6 +97,21 @@
       <section class="section">
         <div class="section-header">
           <div>
+            <div class="section-title">월 선택</div>
+            <div class="section-subtitle">선택한 월 기준으로 리포트와 주간 그래프를 다시 계산합니다.</div>
+          </div>
+        </div>
+        <form method="get" action="{{ url_for('monthly_summary_page') }}" class="period-filter-form">
+          <a class="btn-small" href="{{ url_for('monthly_summary_page', month=prev_month) }}">이전 월</a>
+          <input name="month" type="month" value="{{ selected_month }}" aria-label="월 선택">
+          <button class="btn-primary" type="submit">보기</button>
+          <a class="btn-small" href="{{ url_for('monthly_summary_page', month=next_month) }}">다음 월</a>
+        </form>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
             <div class="section-title">월간 리포트</div>
             <div class="section-subtitle">{{ monthly_report.period }}</div>
           </div>
