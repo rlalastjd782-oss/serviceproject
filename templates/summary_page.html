@@ -14,6 +14,7 @@
             <span class="badge">💪 {{ item.rep_count }}회</span>
             <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
             <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
+            <span class="badge">🔥 소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>
             <span class="badge">🍱 {{ item.meal_count }}식</span>
             <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
           </div>
@@ -48,6 +49,10 @@
           <article class="summary-card">
             <div class="summary-value">{{ "%.0f"|format(weekly_report.cardio_minutes) }}</div>
             <div class="summary-label">유산소 분</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ "%.0f"|format(weekly_report.exercise_calories) }}</div>
+            <div class="summary-label">예상 소모 kcal</div>
           </article>
           <article class="summary-card">
             <div class="summary-value">{{ weekly_report.meal_days }}</div>
@@ -91,6 +96,7 @@
             <article class="chart-group">
               <div class="bar-stack">
                 <span class="chart-bar volume-bar" style="height: {{ item.volume_height }}%" title="볼륨 {{ '%.0f'|format(item.volume) }} kg"></span>
+                <span class="chart-bar burn-bar" style="height: {{ item.exercise_calorie_height }}%" title="예상 소모 {{ '%.0f'|format(item.exercise_calories) }} kcal"></span>
                 <span class="chart-bar calorie-bar" style="height: {{ item.grams_height }}%" title="총량 {{ '%.1f'|format(item.grams) }} g"></span>
                 <span class="chart-bar set-bar" style="height: {{ item.set_height }}%" title="세트 {{ item.set_count }}"></span>
               </div>
@@ -118,6 +124,7 @@
               <span class="badge">💪 {{ item.rep_count }}회</span>
               <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
               <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
+              <span class="badge">🔥 소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>
               <span class="badge">🍱 {{ item.meal_count }}식</span>
               <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
             </div>
@@ -177,6 +184,7 @@
                   인클라인 {% if result.cardio_incline is not none %}{{ "%.1f"|format(result.cardio_incline) }}{% else %}-{% endif %}
                   · 속도 {% if result.cardio_speed is not none %}{{ "%.1f"|format(result.cardio_speed) }}{% else %}-{% endif %}
                   · {% if result.cardio_minutes is not none %}{{ "%.0f"|format(result.cardio_minutes) }}분{% else %}-분{% endif %}
+                  {% if result.estimated_calories %} · 예상 {{ "%.0f"|format(result.estimated_calories) }}kcal{% endif %}
                 {% else %}
                   {% if result.weight is not none %}{{ "%.1f"|format(result.weight) }}kg{% else %}-kg{% endif %}
                   · {% if result.reps is not none %}{{ result.reps }}회{% else %}-회{% endif %}
@@ -206,6 +214,7 @@
                 <span class="badge">{{ item.rep_count }}회</span>
                 <span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>
                 <span class="badge">{{ "%.0f"|format(item.cardio_minutes) }}분</span>
+                <span class="badge">소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>
               </div>
             </div>
           </article>
@@ -244,7 +253,7 @@
               <div class="detail-row">
                 <strong>{{ exercise.name }}</strong>
                 <span>
-                  {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg · {{ "%.0f"|format(exercise.cardio_minutes) }}분
+                  {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg · {{ "%.0f"|format(exercise.cardio_minutes) }}분 · 소모 {{ "%.0f"|format(exercise.exercise_calories) }}kcal
                 </span>
               </div>
             {% else %}
@@ -269,7 +278,7 @@
             <div class="cat-stat-name {{ body_part_class(item.body_part) }}">{{ item.body_part }}</div>
             <div class="cat-stat-count">{{ item.set_count }}</div>
             <div class="cat-stat-unit">{{ item.period }}</div>
-            <div class="cat-stat-unit">{{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg · {{ "%.0f"|format(item.cardio_minutes) }}분</div>
+            <div class="cat-stat-unit">{{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg · {{ "%.0f"|format(item.cardio_minutes) }}분 · 소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</div>
             {% if active_page == "weekly" and detail_rows %}
               <button type="button" class="btn-small detail-inline-btn" data-toggle-detail data-detail-target="{{ detail_id }}" aria-expanded="false">상세</button>
             {% endif %}
@@ -288,6 +297,7 @@
                     · {{ detail.set_count }}세트
                     · {{ detail.rep_count }}회
                     {% if detail.cardio_minutes is not none and detail.cardio_minutes > 0 %}· {{ "%.0f"|format(detail.cardio_minutes) }}분{% endif %}
+                    {% if detail.exercise_calories %}· 예상 {{ "%.0f"|format(detail.exercise_calories) }}kcal{% endif %}
                   </span>
                 </div>
               {% endfor %}

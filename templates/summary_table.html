@@ -6,10 +6,11 @@
         <th>세트</th>
         <th>총 횟수</th>
         <th>볼륨</th>
+        <th>운동 kcal</th>
         <th>식단</th>
         <th>수량</th>
         <th>총량</th>
-        <th>칼로리</th>
+        <th>식단 kcal</th>
       </tr>
     </thead>
     <tbody>
@@ -19,6 +20,7 @@
           <td>{{ item.set_count }}</td>
           <td>{{ item.rep_count }}</td>
           <td>{{ "%.0f"|format(item.volume) }} kg</td>
+          <td>{{ "%.0f"|format(item.exercise_calories) }}</td>
           <td>{{ item.meal_count }}</td>
           <td>{{ "%.0f"|format(item.amount) }}</td>
           <td>{{ "%.1f"|format(item.grams) }} g</td>
@@ -26,7 +28,7 @@
         </tr>
       {% else %}
         <tr>
-          <td colspan="8" class="empty-cell">기록을 추가하면 집계됩니다.</td>
+          <td colspan="9" class="empty-cell">기록을 추가하면 집계됩니다.</td>
         </tr>
       {% endfor %}
     </tbody>
