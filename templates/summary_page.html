@@ -41,6 +41,24 @@
       <section class="section">
         <div class="section-header">
           <div>
+            <div class="section-title">주 선택</div>
+            <div class="section-subtitle">선택한 주 기준으로 리포트와 일별 그래프를 다시 계산합니다.</div>
+          </div>
+        </div>
+        <form method="get" action="{{ url_for('weekly_summary_page') }}" class="month-picker-form month-picker-form-wide">
+          <a class="arrow-btn" href="{{ url_for('weekly_summary_page', week=prev_week) }}" aria-label="이전 주">‹</a>
+          <label class="month-picker">
+            <span>기준 주</span>
+            <input name="week" type="date" value="{{ selected_week }}" aria-label="주 선택">
+          </label>
+          <button class="btn-primary" type="submit">보기</button>
+          <a class="arrow-btn" href="{{ url_for('weekly_summary_page', week=next_week) }}" aria-label="다음 주">›</a>
+        </form>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div>
             <div class="section-title">주간 리포트</div>
             <div class="section-subtitle">{{ weekly_report.period }}</div>
           </div>

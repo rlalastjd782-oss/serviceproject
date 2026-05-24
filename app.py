@@ -115,22 +115,27 @@ def create_app() -> Flask:
 
     @app.get("/summaries/weekly")
     def weekly_summary_page():
-        period_rows = list_weekly_summary()
-        chart_rows = list_daily_summary(limit=7)
+        selected_week = request.args.get("week") or current_local_date()
+        week_start = week_start_for_date(selected_week)
+        week_end = shift_date(week_start, 6)
+        chart_rows = list_daily_summary(start_date=week_start, end_date=week_end)
         return render_template(
             "summary_page.html",
             page_title="주간 집계",
             page_kicker="Weekly",
             table_kind="period",
-            period_rows=period_rows,
+            period_rows=list_weekly_summary(),
             period_label="기간",
             chart_items=build_daily_chart(chart_rows),
             chart_title="일별 추이",
-            chart_note="최근 기록일 7개를 일별로 표시합니다.",
-            body_part_summary=list_body_part_summary("weekly"),
-            body_part_details=list_weekly_body_part_details(),
-            weekly_report=build_weekly_report(),
-            balance_warnings=list_balance_warnings("weekly"),
+            chart_note="선택한 주를 일별로 표시합니다.",
+            body_part_summary=list_body_part_summary("weekly", date_text=week_start),
+            body_part_details=list_weekly_body_part_details(week_start),
+            weekly_report=build_weekly_report(week_start),
+            balance_warnings=list_balance_warnings("weekly", week_start),
+            selected_week=week_start,
+            prev_week=shift_date(week_start, -7),
+            next_week=shift_date(week_start, 7),
             active_page="weekly",
         )
 
@@ -1735,8 +1740,8 @@ def copy_meals_from_day(source_date: str, meal_date: str) -> None:
     get_db().commit()
 
 
-def build_weekly_report() -> dict[str, object]:
-    week_start = week_start_for_date(current_local_date())
+def build_weekly_report(date_text: str | None = None) -> dict[str, object]:
+    week_start = week_start_for_date(date_text or current_local_date())
     week_end = shift_date(week_start, 6)
     db = get_db()
     totals = db.execute(
@@ -1847,12 +1852,13 @@ def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
     }
 
 
-def list_balance_warnings(scope: str = "weekly") -> list[str]:
+def list_balance_warnings(scope: str = "weekly", date_text: str | None = None) -> list[str]:
+    base_date = date_text or current_local_date()
     if scope == "weekly":
-        start = week_start_for_date(current_local_date())
+        start = week_start_for_date(base_date)
         end = shift_date(start, 6)
     else:
-        start = normalize_month(current_local_date()[:7])
+        start = normalize_month(base_date[:7])
         end = shift_month(start, 1)
     rows = get_db().execute(
         """
@@ -2213,11 +2219,19 @@ def get_day_summary(day: str) -> dict[str, float]:
     }
 
 
-def list_daily_summary(limit: int | None = None, days: int | None = None) -> list[sqlite3.Row]:
+def list_daily_summary(
+    limit: int | None = None,
+    days: int | None = None,
+    start_date: str | None = None,
+    end_date: str | None = None,
+) -> list[sqlite3.Row]:
     where_clause = ""
     limit_clause = ""
     params: list[object] = []
-    if days is not None:
+    if start_date and end_date:
+        where_clause = "WHERE p.period BETWEEN ? AND ?"
+        params.extend([start_date, end_date])
+    elif days is not None:
         start_date = shift_date(current_local_date(), -(max(1, days) - 1))
         where_clause = "WHERE p.period >= ?"
         params.append(start_date)
@@ -2671,6 +2685,10 @@ def list_body_part_summary(scope: str, limit: int = 30, date_text: str | None = 
             "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
             "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
         )
+        if date_text:
+            week_start = week_start_for_date(date_text)
+            where_clause = "WHERE s.workout_date BETWEEN ? AND ?"
+            params.extend([week_start, shift_date(week_start, 6)])
     else:
         period_expr = "strftime('%Y-%m', s.workout_date)"
         if date_text:
@@ -2700,7 +2718,13 @@ def list_body_part_summary(scope: str, limit: int = 30, date_text: str | None = 
     ).fetchall()
 
 
-def list_weekly_body_part_details() -> dict[str, list[sqlite3.Row]]:
+def list_weekly_body_part_details(date_text: str | None = None) -> dict[str, list[sqlite3.Row]]:
+    where_clause = ""
+    params: list[object] = []
+    if date_text:
+        week_start = week_start_for_date(date_text)
+        where_clause = "WHERE s.workout_date BETWEEN ? AND ?"
+        params.extend([week_start, shift_date(week_start, 6)])
     period_expr = (
         "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
         "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
@@ -2723,9 +2747,11 @@ def list_weekly_body_part_details() -> dict[str, list[sqlite3.Row]]:
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         JOIN exercises e ON e.id = ws.exercise_id
+        {where_clause}
         GROUP BY period, body_part, e.name, ws.weight, ws.cardio_incline, ws.cardio_speed, ws.cardio_minutes
         ORDER BY MAX(s.workout_date) DESC, body_part, e.name, ws.weight, ws.cardio_minutes
         """,
+        params,
     ).fetchall()
 
     details: dict[str, list[sqlite3.Row]] = {}

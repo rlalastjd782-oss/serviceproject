@@ -260,7 +260,8 @@ a {
   pointer-events: none;
 }
 
-.month-picker input[type="month"] {
+.month-picker input[type="month"],
+.month-picker input[type="date"] {
   width: 100%;
   min-height: 44px;
   padding: 18px 12px 6px;
