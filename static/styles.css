@@ -1095,3 +1095,496 @@ tbody tr:last-child td {
     font-size: 1.45rem;
   }
 }
+
+/* health-tracker_10.html style reset */
+:root {
+  --bg: #0f0f14;
+  --panel: #15151e;
+  --panel-2: #1a1a24;
+  --panel-3: #0f0f14;
+  --ink: #e5e7eb;
+  --muted: #6b7280;
+  --line: #1f2937;
+  --line-strong: #374151;
+  --accent: #60a5fa;
+  --accent-strong: #1d4ed8;
+  --green: #22c55e;
+  --amber: #f59e0b;
+  --warn: #ef4444;
+  --shadow: none;
+  color-scheme: dark;
+  font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Pretendard", "Malgun Gothic", sans-serif;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  max-width: 480px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app-shell {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  padding: 0 14px 100px;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  gap: 0;
+  margin: 0 -14px 14px;
+  padding: 14px 18px 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  backdrop-filter: none;
+}
+
+.topbar > div {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 11px;
+}
+
+.eyebrow {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+h1 {
+  color: var(--ink);
+  font-size: 1.06rem;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.main-nav {
+  display: flex;
+  gap: 0;
+  margin: 0 -18px;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--bg);
+  overflow-x: auto;
+  box-shadow: none;
+}
+
+.nav-link {
+  flex: 1 0 auto;
+  min-width: 64px;
+  min-height: 42px;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.nav-link.active {
+  border-bottom-color: var(--accent);
+  background: transparent;
+  color: var(--accent);
+  box-shadow: none;
+}
+
+.date-panel,
+.hero-panel,
+.report-hero,
+.entry-panel,
+.section-block {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+  box-shadow: none;
+}
+
+.date-panel {
+  margin-bottom: 11px;
+  padding: 8px 12px;
+  background: var(--panel-2);
+}
+
+.date-form {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.date-form label span {
+  display: none;
+}
+
+.hero-panel,
+.report-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 11px;
+  padding: 13px;
+}
+
+.hero-panel > div:first-child,
+.report-hero > div:first-child,
+.report-hero > p {
+  display: none;
+}
+
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.metric-tile {
+  min-height: 86px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 8px;
+  background: var(--panel);
+  text-align: center;
+}
+
+.metric-tile span,
+.metric-tile small {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.metric-tile strong {
+  margin: 5px 0 4px;
+  color: #f3f4f6;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.metric-workout strong {
+  color: #93c5fd;
+}
+
+.metric-meal strong {
+  color: #fcd34d;
+}
+
+.metric-protein strong {
+  color: #86efac;
+}
+
+.entry-grid,
+.today-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 11px;
+}
+
+.entry-panel,
+.section-block {
+  margin-top: 0;
+  padding: 13px;
+}
+
+.section-block {
+  margin-bottom: 11px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.section-kicker {
+  margin-bottom: 3px;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: none;
+}
+
+h2 {
+  color: var(--ink);
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+
+.record-form {
+  display: grid;
+  gap: 10px;
+}
+
+label {
+  gap: 4px;
+}
+
+label span,
+.set-entry-head span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+input,
+select {
+  min-height: 38px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background-color: var(--panel-3);
+  color: var(--ink);
+  font-size: 0.86rem;
+}
+
+input:focus,
+select:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.input-grid {
+  grid-template-columns: minmax(104px, 0.7fr) minmax(0, 1.3fr);
+  gap: 8px;
+}
+
+.set-entry-head {
+  margin-top: 2px;
+}
+
+.primary-button {
+  min-height: 40px;
+  border-radius: 8px;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.secondary-button,
+.add-chip,
+.edit-chip,
+.save-chip,
+.detail-button {
+  min-height: 30px !important;
+  border: 1px solid var(--line-strong) !important;
+  border-radius: 8px !important;
+  background: #1f2937 !important;
+  color: var(--accent) !important;
+  font-size: 0.76rem;
+  font-weight: 750;
+  box-shadow: none !important;
+}
+
+.set-entry-list,
+.meal-entry-list,
+.set-list,
+.history-list,
+.vertical-item-list {
+  gap: 8px;
+}
+
+.set-entry-row,
+.meal-entry-row,
+.workout-group-row,
+.meal-group-row,
+.history-row,
+.record-row {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+}
+
+.set-entry-row,
+.meal-entry-row {
+  padding: 8px;
+}
+
+.set-entry-row {
+  grid-template-columns: 28px 1fr 1fr 1.1fr 32px;
+}
+
+.meal-entry-row {
+  grid-template-columns: 28px 1.25fr 0.72fr 0.78fr 0.82fr 32px;
+}
+
+.set-entry-row > strong,
+.meal-entry-row > strong {
+  min-height: 38px;
+  border-radius: 8px;
+  background: #1f2937;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.row-remove-button {
+  width: 32px;
+  height: 38px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--warn);
+}
+
+.workout-group-row,
+.meal-group-row {
+  padding: 10px 12px;
+}
+
+.workout-group-row > strong,
+.meal-group-row > strong {
+  min-height: 24px;
+  font-size: 0.88rem;
+}
+
+.body-part-badge,
+.meal-type-badge {
+  border-radius: 5px;
+  border: 1px solid currentColor;
+  background: transparent !important;
+  font-size: 0.68rem;
+}
+
+.vertical-list-item {
+  min-height: 34px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: 6px 0;
+  background: transparent;
+  color: var(--muted);
+}
+
+.vertical-list-item:last-child {
+  border-bottom: 0;
+}
+
+.editable-list-item {
+  grid-template-columns: 1fr auto;
+}
+
+.inline-add-form {
+  border: 1px dashed var(--line-strong);
+  background: var(--panel-3);
+}
+
+.empty-state {
+  border: 1px dashed var(--line-strong);
+  border-radius: 10px;
+  padding: 16px 0;
+  background: transparent;
+  color: #4b5563;
+  font-size: 0.82rem;
+}
+
+.history-row {
+  padding: 10px 12px;
+  font-size: 0.84rem;
+}
+
+.chart-block {
+  margin-bottom: 11px;
+}
+
+.chart-legend {
+  justify-content: flex-start;
+}
+
+.trend-chart {
+  min-height: 220px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background:
+    linear-gradient(to top, rgb(255 255 255 / 4%) 1px, transparent 1px),
+    var(--panel-3);
+  background-size: 100% 46px;
+}
+
+.bar-stack {
+  min-height: 150px;
+}
+
+.volume-bar {
+  background: linear-gradient(180deg, #93c5fd, #1d4ed8);
+  box-shadow: none;
+}
+
+.calorie-bar {
+  background: linear-gradient(180deg, #fde68a, #f59e0b);
+  box-shadow: none;
+}
+
+.set-bar {
+  background: linear-gradient(180deg, #86efac, #16a34a);
+  box-shadow: none;
+}
+
+.table-wrap {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--panel);
+}
+
+table {
+  min-width: 620px;
+}
+
+th,
+td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.detail-table-row td {
+  background: var(--panel-2);
+}
+
+.detail-list {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-3);
+}
+
+@media (max-width: 560px) {
+  .app-shell {
+    padding: 0 14px 100px;
+  }
+
+  .overview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .set-entry-row,
+  .meal-entry-row,
+  .set-edit-form,
+  .meal-edit-form,
+  .inline-add-form,
+  .meal-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .input-grid {
+    grid-template-columns: minmax(104px, 0.7fr) minmax(0, 1.3fr);
+  }
+}
