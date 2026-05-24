@@ -4,13 +4,12 @@ import argparse
 import csv
 import io
 import json
-import os
 import sqlite3
 from datetime import datetime, timedelta
-from pathlib import Path
 
 from flask import Flask, Response, g, jsonify, redirect, render_template, request, url_for
 
+from app_config import BASE_DIR, DATABASE, PHOTO_DIR
 from app_constants import (
     BODY_PART_CLASSES,
     BODY_PARTS,
@@ -20,12 +19,7 @@ from app_constants import (
     MEAL_TYPE_CLASSES,
     RECOMMENDED_EXERCISE_MAP,
 )
-
-
-BASE_DIR = Path(__file__).resolve().parent
-DATABASE = BASE_DIR / "instance" / "workout.db"
-PHOTO_DIR = BASE_DIR / "static" / "progress_photos"
-APP_VERSION = ""
+from app_meta import get_app_updated_at, get_app_version
 
 
 def create_app() -> Flask:
@@ -4582,38 +4576,7 @@ def recalculate_exercise_calories_for_date(workout_date: str) -> None:
         )
 
 
-def get_app_version() -> str:
-    env_version = os.environ.get("APP_VERSION", "").strip()
-    if env_version:
-        return env_version
-
-    head_path = BASE_DIR / ".git" / "HEAD"
-    try:
-        head_value = head_path.read_text(encoding="utf-8").strip()
-        if head_value.startswith("ref:"):
-            ref_path = BASE_DIR / ".git" / head_value.split(" ", 1)[1]
-            commit_hash = ref_path.read_text(encoding="utf-8").strip()
-        else:
-            commit_hash = head_value
-        if commit_hash:
-            return f"v-{commit_hash[:7]}"
-    except OSError:
-        pass
-    return "local"
-
-
-def get_app_updated_at() -> str:
-    ref_path = BASE_DIR / ".git" / "refs" / "heads" / "master"
-    fallback_path = BASE_DIR / "app.py"
-    target_path = ref_path if ref_path.exists() else fallback_path
-    try:
-        return datetime.fromtimestamp(target_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
-    except OSError:
-        return datetime.now().strftime("%Y-%m-%d %H:%M")
-
-
 app = create_app()
-APP_VERSION = get_app_version()
 app.jinja_env.globals["grouped_sets_for_session"] = grouped_sets_for_session
 app.jinja_env.globals["body_part_class"] = body_part_class
 app.jinja_env.globals["meal_type_class"] = meal_type_class
