@@ -675,13 +675,13 @@
             </div>
             <div class="compact-set-preview">
               {% for item in group.sets[:4] %}
-                <span>
+                <button type="button" data-open-set-edit data-set-id="{{ item.id }}" aria-label="{{ loop.index }}세트 수정">
                   {% if group.body_part == "유산소" %}
                     {{ "%.0f"|format(item.cardio_minutes or 0) }}분
                   {% else %}
-                    {{ "%.1f"|format(item.weight or 0) }}kg x {{ item.reps or 0 }}
+                    {{ "%.1f"|format(item.weight or 0) }}kg x {{ item.reps or 0 }}회
                   {% endif %}
-                </span>
+                </button>
               {% endfor %}
             </div>
             <div class="record-card-detail">
@@ -714,8 +714,8 @@
               <button class="btn-small" type="submit">설정</button>
             </form>
             {% for item in group.sets %}
-              <div class="ex-item editable-list-item">
-                <div class="item-read-view ex-item-info">
+              <div class="ex-item editable-list-item" data-set-item-id="{{ item.id }}">
+                <button type="button" class="item-read-view ex-item-info item-edit-trigger" data-toggle-edit aria-label="{{ loop.index }}세트 수정">
                   <div class="ex-name">
                     <span class="set-index">{{ loop.index }}세트</span>
                     <span class="set-result">
@@ -732,7 +732,7 @@
                     {% endif %}
                     </span>
                   </div>
-                </div>
+                </button>
                 <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
                   <input type="hidden" name="mode" value="workout">
                   <input name="set_number" type="number" min="1" step="1" inputmode="numeric" value="{{ loop.index }}" aria-label="세트 번호" placeholder="세트">

@@ -118,6 +118,7 @@ document.addEventListener("click", (event) => {
   const addMealButton = event.target.closest("[data-add-meal-row]");
   const removeMealButton = event.target.closest("[data-remove-meal-row]");
   const editButton = event.target.closest("[data-toggle-edit]");
+  const openSetEditButton = event.target.closest("[data-open-set-edit]");
   const inlineAddButton = event.target.closest("[data-toggle-add]");
   const inlineAddCancelButton = event.target.closest("[data-cancel-inline-add]");
   const detailButton = event.target.closest("[data-toggle-detail]");
@@ -255,8 +256,16 @@ document.addEventListener("click", (event) => {
 
   if (editButton) {
     const item = editButton.closest(".editable-list-item");
-    item?.classList.add("is-editing");
-    item?.querySelector("input")?.focus();
+    openInlineEdit(item);
+    return;
+  }
+
+  if (openSetEditButton) {
+    const card = openSetEditButton.closest("[data-collapsible-card]");
+    card?.classList.remove("is-collapsed");
+    card?.querySelector("[data-toggle-card]")?.setAttribute("aria-expanded", "true");
+    const item = card?.querySelector(`[data-set-item-id="${openSetEditButton.dataset.setId}"]`);
+    openInlineEdit(item);
     return;
   }
 
@@ -304,6 +313,14 @@ document.addEventListener("click", (event) => {
 function applyBodyPartSelectColor(select) {
   select.classList.remove(...Object.values(bodyPartClassMap));
   select.classList.add(bodyPartClassMap[select.value] || "body-part-other");
+}
+
+function openInlineEdit(item) {
+  if (!item) {
+    return;
+  }
+  item.classList.add("is-editing");
+  item.querySelector("input, select")?.focus();
 }
 
 function applyMealTypeSelectColor(select) {
