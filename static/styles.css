@@ -580,7 +580,7 @@ label span {
 
 .workout-tool-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 9px;
 }
 
@@ -594,9 +594,9 @@ label span {
 }
 
 .tool-card-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
 
@@ -617,13 +617,17 @@ label span {
   gap: 7px;
 }
 
+.tool-input-row input {
+  width: 100%;
+  min-width: 0;
+}
+
 .plate-result,
 .warmup-result {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 5px;
   min-height: 28px;
-  align-items: center;
 }
 
 .plate-result,
@@ -635,6 +639,13 @@ label span {
   font-size: 12px;
   font-weight: 900;
   padding: 5px 9px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.plate-result {
+  display: block;
 }
 
 .period-filter-form {
@@ -1854,8 +1865,11 @@ tbody tr:last-child td {
 
   .focus-grid,
   .focus-shortcuts,
-  .period-filter-form,
-  .workout-tool-grid {
+  .period-filter-form {
+    grid-template-columns: 1fr;
+  }
+
+  .tool-input-row {
     grid-template-columns: 1fr;
   }
 
