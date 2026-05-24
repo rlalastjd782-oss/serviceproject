@@ -200,6 +200,25 @@ def create_app() -> Flask:
             active_page="exercises",
         )
 
+    @app.get("/summaries/equipment")
+    def equipment_summary_page():
+        selected_equipment = request.args.get("equipment", "").strip()
+        selected_scope = request.args.get("scope", "month").strip() or "month"
+        equipment_rows = list_equipment_summary(selected_scope)
+        selected_equipment = selected_equipment or (equipment_rows[0]["equipment"] if equipment_rows else "")
+        return render_template(
+            "summary_page.html",
+            page_title="장비별 기록",
+            page_kicker="Equipment",
+            table_kind="equipment",
+            equipment_summary=equipment_rows,
+            equipment_detail=list_equipment_detail(selected_equipment, selected_scope) if selected_equipment else [],
+            equipment_daily=list_equipment_daily(selected_equipment, selected_scope) if selected_equipment else [],
+            selected_equipment=selected_equipment,
+            selected_scope=selected_scope,
+            active_page="equipment",
+        )
+
     @app.get("/calendar")
     def calendar_page():
         selected_month = request.args.get("month") or current_local_date()[:7]
@@ -326,9 +345,9 @@ def create_app() -> Flask:
                 """
                 INSERT INTO workout_sets (
                     session_id, exercise_id, weight, reps, cardio_incline, cardio_speed,
-                    cardio_minutes, estimated_calories, memo, sort_order, body_part, set_type, rpe
+                    cardio_minutes, estimated_calories, memo, sort_order, body_part, set_type, rpe, equipment
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     session["id"],
@@ -344,6 +363,7 @@ def create_app() -> Flask:
                     body_part,
                     set_type,
                     rpe,
+                    equipment[:20],
                 ),
             )
             if body_part != "유산소":
@@ -711,6 +731,7 @@ def create_app() -> Flask:
         ).fetchone()
         workout_date = workout["workout_date"] if workout else current_local_date()
         mode = request.form.get("mode")
+        equipment = request.form.get("equipment", "").strip()
         if workout and workout["body_part"] == "유산소":
             cardio_incline = parse_float(request.form.get("cardio_incline"))
             cardio_speed = parse_float(request.form.get("cardio_speed"))
@@ -718,7 +739,7 @@ def create_app() -> Flask:
             db.execute(
                 """
                 UPDATE workout_sets
-                SET cardio_incline = ?, cardio_speed = ?, cardio_minutes = ?, estimated_calories = ?, rpe = ?
+                SET cardio_incline = ?, cardio_speed = ?, cardio_minutes = ?, estimated_calories = ?, rpe = ?, equipment = ?
                 WHERE id = ?
                 """,
                 (
@@ -727,6 +748,7 @@ def create_app() -> Flask:
                     cardio_minutes,
                     estimate_exercise_calories("유산소", cardio_incline, cardio_speed, cardio_minutes, workout_date),
                     parse_float(request.form.get("rpe")),
+                    equipment[:20],
                     set_id,
                 ),
             )
@@ -734,7 +756,7 @@ def create_app() -> Flask:
             db.execute(
                 """
                 UPDATE workout_sets
-                SET weight = ?, reps = ?, set_type = ?, rpe = ?
+                SET weight = ?, reps = ?, set_type = ?, rpe = ?, equipment = ?
                 WHERE id = ?
                 """,
                 (
@@ -742,6 +764,7 @@ def create_app() -> Flask:
                     parse_int(request.form.get("reps")),
                     request.form.get("set_type", "본세트").strip() or "본세트",
                     parse_float(request.form.get("rpe")),
+                    equipment[:20],
                     set_id,
                 ),
             )
@@ -810,6 +833,7 @@ def init_db() -> None:
             set_type TEXT NOT NULL DEFAULT '본세트',
             weight REAL,
             reps INTEGER,
+            equipment TEXT NOT NULL DEFAULT '',
             cardio_incline REAL,
             cardio_speed REAL,
             cardio_minutes REAL,
@@ -853,6 +877,7 @@ def init_db() -> None:
             cardio_incline REAL,
             cardio_speed REAL,
             cardio_minutes REAL,
+            equipment TEXT NOT NULL DEFAULT '',
             sort_order INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (routine_id) REFERENCES routine_templates (id) ON DELETE CASCADE
         );
@@ -952,11 +977,13 @@ def init_db() -> None:
     ensure_column(db, "workout_sets", "cardio_minutes", "REAL")
     ensure_column(db, "workout_sets", "estimated_calories", "REAL")
     ensure_column(db, "workout_sets", "rpe", "REAL")
+    ensure_column(db, "workout_sets", "equipment", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "exercise_settings", "equipment", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "routine_items", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
     ensure_column(db, "routine_items", "cardio_incline", "REAL")
     ensure_column(db, "routine_items", "cardio_speed", "REAL")
     ensure_column(db, "routine_items", "cardio_minutes", "REAL")
+    ensure_column(db, "routine_items", "equipment", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "meal_entries", "quantity", "REAL")
     ensure_column(db, "meal_entries", "grams", "REAL")
     db.execute(
@@ -1263,6 +1290,7 @@ def create_routine_template(name: str, session_id: int) -> None:
             ws.cardio_incline,
             ws.cardio_speed,
             ws.cardio_minutes,
+            ws.equipment,
             ws.sort_order
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
@@ -1280,9 +1308,9 @@ def create_routine_template(name: str, session_id: int) -> None:
             """
             INSERT INTO routine_items (
                 routine_id, exercise_name, body_part, set_type, weight, reps,
-                cardio_incline, cardio_speed, cardio_minutes, sort_order
+                cardio_incline, cardio_speed, cardio_minutes, equipment, sort_order
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 routine_id,
@@ -1294,6 +1322,7 @@ def create_routine_template(name: str, session_id: int) -> None:
                 item["cardio_incline"],
                 item["cardio_speed"],
                 item["cardio_minutes"],
+                item["equipment"],
                 index,
             ),
         )
@@ -1324,9 +1353,9 @@ def apply_routine_template(routine_id: int, workout_date: str) -> None:
             """
             INSERT INTO workout_sets (
                 session_id, exercise_id, body_part, set_type, weight, reps,
-                cardio_incline, cardio_speed, cardio_minutes, estimated_calories, sort_order
+                cardio_incline, cardio_speed, cardio_minutes, estimated_calories, equipment, sort_order
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 session["id"],
@@ -1345,6 +1374,7 @@ def apply_routine_template(routine_id: int, workout_date: str) -> None:
                     item["cardio_minutes"],
                     workout_date,
                 ),
+                item["equipment"],
                 next_order + offset,
             ),
         )
@@ -1364,6 +1394,7 @@ def apply_session_template(source_session_id: int, workout_date: str) -> None:
             ws.cardio_incline,
             ws.cardio_speed,
             ws.cardio_minutes,
+            ws.equipment,
             ws.sort_order
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
@@ -1385,9 +1416,9 @@ def apply_session_template(source_session_id: int, workout_date: str) -> None:
             """
             INSERT INTO workout_sets (
                 session_id, exercise_id, body_part, set_type, weight, reps,
-                cardio_incline, cardio_speed, cardio_minutes, estimated_calories, sort_order
+                cardio_incline, cardio_speed, cardio_minutes, estimated_calories, equipment, sort_order
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 session["id"],
@@ -1406,6 +1437,7 @@ def apply_session_template(source_session_id: int, workout_date: str) -> None:
                     item["cardio_minutes"],
                     workout_date,
                 ),
+                item["equipment"],
                 next_order + offset,
             ),
         )
@@ -1460,11 +1492,11 @@ def apply_default_program(program_name: str, workout_date: str) -> None:
         db.execute(
             """
             INSERT INTO workout_sets (
-                session_id, exercise_id, body_part, set_type, weight, reps, sort_order
+                session_id, exercise_id, body_part, set_type, weight, reps, equipment, sort_order
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (session["id"], exercise_id, body_part, set_type, weight, reps, next_order + offset),
+            (session["id"], exercise_id, body_part, set_type, weight, reps, "", next_order + offset),
         )
     db.commit()
 
@@ -3076,6 +3108,92 @@ def list_exercise_summary_by_body_part() -> dict[str, list[sqlite3.Row]]:
     for row in rows:
         grouped.setdefault(row["body_part"] or "기타", []).append(row)
     return grouped
+
+
+def equipment_scope_clause(scope: str) -> tuple[str, tuple[str, ...]]:
+    today = current_local_date()
+    if scope == "week":
+        return "AND s.workout_date >= ? AND s.workout_date <= ?", (week_start_for_date(today), today)
+    if scope == "month":
+        month_start = f"{today[:7]}-01"
+        return "AND s.workout_date >= ? AND s.workout_date < ?", (month_start, shift_month(month_start, 1))
+    return "", ()
+
+
+def list_equipment_summary(scope: str = "month") -> list[sqlite3.Row]:
+    where_sql, params = equipment_scope_clause(scope)
+    return get_db().execute(
+        f"""
+        SELECT
+            COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') AS equipment,
+            COUNT(ws.id) AS set_count,
+            COUNT(DISTINCT s.workout_date) AS workout_days,
+            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
+            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
+            MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
+        WHERE 1 = 1 {where_sql}
+        GROUP BY 1
+        ORDER BY set_count DESC, volume DESC, last_date DESC, 1
+        """,
+        params,
+    ).fetchall()
+
+
+def list_equipment_detail(equipment: str, scope: str = "month") -> list[sqlite3.Row]:
+    where_sql, params = equipment_scope_clause(scope)
+    return get_db().execute(
+        f"""
+        SELECT
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.name AS exercise_name,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            MAX(ws.weight) AS best_weight,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
+            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
+            MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
+        WHERE COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') = ?
+          {where_sql}
+        GROUP BY body_part, e.name
+        ORDER BY set_count DESC, volume DESC, last_date DESC, exercise_name
+        """,
+        (equipment, *params),
+    ).fetchall()
+
+
+def list_equipment_daily(equipment: str, scope: str = "month") -> list[sqlite3.Row]:
+    where_sql, params = equipment_scope_clause(scope)
+    return get_db().execute(
+        f"""
+        SELECT
+            s.workout_date,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
+        WHERE COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') = ?
+          {where_sql}
+        GROUP BY s.workout_date
+        ORDER BY s.workout_date DESC
+        LIMIT 30
+        """,
+        (equipment, *params),
+    ).fetchall()
 
 
 def get_exercise_profile(exercise_id: int | None) -> dict[str, object] | None:

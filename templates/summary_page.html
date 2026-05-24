@@ -325,7 +325,7 @@
         {% endfor %}
       </div>
     </section>
-  {% else %}
+  {% elif table_kind == "exercise" %}
     <section class="section">
       <div class="section-header">
         <div class="section-title">운동 성장 그래프</div>
@@ -555,6 +555,97 @@
         {% endfor %}
       </div>
     </section>
+  {% elif table_kind == "equipment" %}
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">장비별 기록</div>
+          <div class="section-subtitle">각 세트에 저장된 장비 기준으로 집계합니다.</div>
+        </div>
+      </div>
+      <form method="get" action="{{ url_for('equipment_summary_page') }}" class="period-filter-form">
+        {% for value, label in [("week", "이번 주"), ("month", "이번 달"), ("all", "전체")] %}
+          <button class="{% if selected_scope == value %}btn-primary{% else %}btn-small{% endif %}" type="submit" name="scope" value="{{ value }}">{{ label }}</button>
+        {% endfor %}
+        {% if selected_equipment %}
+          <input type="hidden" name="equipment" value="{{ selected_equipment }}">
+        {% endif %}
+      </form>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">장비 요약</div>
+      </div>
+      <div class="record-list">
+        {% for item in equipment_summary %}
+          <a class="record-card equipment-summary-card {% if item.equipment == selected_equipment %}is-selected{% endif %}" href="{{ url_for('equipment_summary_page', scope=selected_scope, equipment=item.equipment) }}">
+            <div class="record-date">{{ item.equipment }}</div>
+            <div class="record-summary">
+              <span class="badge">{{ item.set_count }}세트</span>
+              {% if item.rep_count %}<span class="badge">{{ item.rep_count }}회</span>{% endif %}
+              {% if item.volume %}<span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
+              {% if item.cardio_minutes %}<span class="badge">유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+              <span class="badge">{{ item.workout_days }}일</span>
+              <span class="badge">최근 {{ item.last_date or "-" }}</span>
+            </div>
+          </a>
+        {% else %}
+          <div class="empty">장비 기록 없음</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    {% if selected_equipment %}
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">{{ selected_equipment }} 운동 상세</div>
+            <div class="section-subtitle">같은 운동명도 장비별로 따로 계산합니다.</div>
+          </div>
+        </div>
+        <div class="detail-list">
+          {% for item in equipment_detail %}
+            <div class="detail-row">
+              <strong>{{ item.exercise_name }}</strong>
+              <span>
+                {{ item.body_part }} · {{ item.set_count }}세트
+                {% if item.body_part == "유산소" %}
+                  {% if item.cardio_minutes %} · {{ "%.0f"|format(item.cardio_minutes) }}분{% endif %}
+                  {% if item.exercise_calories %} · {{ "%.0f"|format(item.exercise_calories) }}kcal{% endif %}
+                {% else %}
+                  · {{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg
+                  {% if item.best_weight %} · 최고 {{ "%.1f"|format(item.best_weight) }}kg{% endif %}
+                {% endif %}
+              </span>
+            </div>
+          {% else %}
+            <div class="empty">선택한 장비의 운동 기록이 없습니다.</div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <div class="section-title">{{ selected_equipment }} 날짜별 기록</div>
+        </div>
+        <div class="record-list">
+          {% for item in equipment_daily %}
+            <article class="record-card">
+              <div class="record-date">{{ item.workout_date }}</div>
+              <div class="record-summary">
+                <span class="badge">{{ item.set_count }}세트</span>
+                {% if item.rep_count %}<span class="badge">{{ item.rep_count }}회</span>{% endif %}
+                {% if item.volume %}<span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
+                {% if item.cardio_minutes %}<span class="badge">유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+              </div>
+            </article>
+          {% else %}
+            <div class="empty">날짜별 기록이 없습니다.</div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
   {% endif %}
 
   {% if body_part_summary %}
