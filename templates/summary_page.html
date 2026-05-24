@@ -385,6 +385,19 @@
             </div>
           {% endif %}
         </div>
+        {% if selected_exercise_trend %}
+          <div class="trend-card-grid">
+            {% for item in selected_exercise_trend %}
+              {% if item.current %}
+                <article class="trend-card {% if item.value > 0 %}is-up{% elif item.value < 0 %}is-down{% endif %}">
+                  <span>{{ item.label }}</span>
+                  <strong>{{ "%+.1f"|format(item.value) }}{{ item.unit }}</strong>
+                  <small>현재 {{ "%.1f"|format(item.current) }}{{ item.unit }}</small>
+                </article>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
         {% if exercise_pr_history %}
           <div class="detail-list compact-detail-list exercise-pr-list">
             {% for event in exercise_pr_history %}
@@ -448,6 +461,33 @@
         </div>
       {% else %}
         <div class="empty">그래프로 볼 운동 기록이 없습니다.</div>
+      {% endif %}
+      {% if exercise_recent_sets %}
+        <div class="detail-list exercise-recent-set-list">
+          <div class="detail-list-head">
+            <strong>최근 세트 기록</strong>
+            <span>{{ exercise_recent_sets|length }}개</span>
+          </div>
+          {% for item in exercise_recent_sets %}
+            <div class="detail-row">
+              <strong>{{ item.workout_date }}</strong>
+              <span>
+                {% if item.body_part == "유산소" %}
+                  {% if item.equipment %}{{ item.equipment }} · {% endif %}
+                  인클라인 {% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% else %}-{% endif %}
+                  · 속도 {% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% else %}-{% endif %}
+                  · {% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}-분{% endif %}
+                {% else %}
+                  {% if item.equipment %}{{ item.equipment }} · {% endif %}
+                  {{ item.set_type or "본세트" }} ·
+                  {% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}kg{% else %}-kg{% endif %}
+                  x {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
+                  {% if item.rpe %} · RPE {{ "%.1f"|format(item.rpe) }}{% endif %}
+                {% endif %}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
       {% endif %}
     </section>
 

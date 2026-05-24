@@ -198,7 +198,9 @@ def create_app() -> Flask:
             selected_exercise_id=selected_exercise,
             selected_exercise_profile=get_exercise_profile(selected_exercise),
             selected_exercise_next_plan=build_exercise_next_plan(selected_exercise),
+            selected_exercise_trend=build_exercise_trend_summary(selected_exercise),
             exercise_growth=build_exercise_growth_chart(selected_exercise),
+            exercise_recent_sets=list_exercise_recent_sets(selected_exercise),
             exercise_pr_history=list_exercise_pr_history(selected_exercise),
             recent_pr_events=list_recent_pr_events(limit=20),
             search_query=search_query,
@@ -3894,6 +3896,57 @@ def build_exercise_next_plan(exercise_id: int | None) -> list[str]:
     ]
 
 
+def build_exercise_trend_summary(exercise_id: int | None) -> list[dict[str, object]]:
+    if not exercise_id:
+        return []
+    rows = get_db().execute(
+        """
+        SELECT
+            s.workout_date,
+            MAX(COALESCE(ws.weight, 0)) AS max_weight,
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.exercise_id = ?
+        GROUP BY s.workout_date
+        ORDER BY s.workout_date ASC
+        """,
+        (exercise_id,),
+    ).fetchall()
+    if not rows:
+        return []
+    first = rows[0]
+    last = rows[-1]
+    return [
+        {
+            "label": "중량 변화",
+            "value": float(last["max_weight"] or 0) - float(first["max_weight"] or 0),
+            "unit": "kg",
+            "current": float(last["max_weight"] or 0),
+        },
+        {
+            "label": "1RM 변화",
+            "value": float(last["estimated_1rm"] or 0) - float(first["estimated_1rm"] or 0),
+            "unit": "kg",
+            "current": float(last["estimated_1rm"] or 0),
+        },
+        {
+            "label": "볼륨 변화",
+            "value": float(last["volume"] or 0) - float(first["volume"] or 0),
+            "unit": "kg",
+            "current": float(last["volume"] or 0),
+        },
+        {
+            "label": "유산소 변화",
+            "value": float(last["cardio_minutes"] or 0) - float(first["cardio_minutes"] or 0),
+            "unit": "분",
+            "current": float(last["cardio_minutes"] or 0),
+        },
+    ]
+
+
 def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> list[dict[str, float | int | str]]:
     if not exercise_id:
         return []
@@ -3948,6 +4001,33 @@ def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> lis
         }
         for row in ordered
     ]
+
+
+def list_exercise_recent_sets(exercise_id: int | None, limit: int = 12) -> list[sqlite3.Row]:
+    if not exercise_id:
+        return []
+    return get_db().execute(
+        """
+        SELECT
+            s.workout_date,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            ws.weight,
+            ws.reps,
+            ws.set_type,
+            ws.rpe,
+            ws.equipment,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            ws.estimated_calories
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.exercise_id = ?
+        ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
+        LIMIT ?
+        """,
+        (exercise_id, limit),
+    ).fetchall()
 
 
 def search_workout_records(query: str, limit: int = 50) -> list[sqlite3.Row]:
