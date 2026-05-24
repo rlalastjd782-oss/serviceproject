@@ -30,6 +30,10 @@ const exerciseDatalist = document.querySelector("[data-exercise-datalist]");
 const exerciseNameInput = document.querySelector('input[name="exercise_name"]');
 const exercisesByBodyPart = parseExerciseQuickData();
 const recentSetsByExercise = parseJsonData(exerciseQuickPanel, "recentSetsByExercise");
+const overloadSuggestions = parseJsonData(exerciseQuickPanel, "overloadSuggestions");
+const exerciseNotes = parseJsonData(exerciseQuickPanel, "exerciseNotes");
+const overloadSuggestionView = document.querySelector("[data-overload-suggestion]");
+const exerciseNoteView = document.querySelector("[data-exercise-note-view]");
 const foodQuickPanel = document.querySelector("[data-food-quick-panel]");
 const foodQuickList = document.querySelector("[data-food-quick-list]");
 const foodQuickEmpty = document.querySelector("[data-food-quick-empty]");
@@ -61,6 +65,7 @@ document.addEventListener("change", (event) => {
 
   if (event.target === exerciseNameInput) {
     renderRecentSetList(exerciseNameInput.value);
+    renderExerciseGuidance(exerciseNameInput.value);
   }
 });
 
@@ -75,6 +80,8 @@ document.addEventListener("click", (event) => {
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
   const foodQuickButton = event.target.closest("[data-food-entry]");
+  const restButton = event.target.closest("[data-rest-seconds]");
+  const restStopButton = event.target.closest("[data-rest-stop]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
@@ -82,7 +89,18 @@ document.addEventListener("click", (event) => {
   if (quickExerciseButton && exerciseNameInput) {
     exerciseNameInput.value = quickExerciseButton.dataset.exerciseName || "";
     renderRecentSetList(exerciseNameInput.value);
+    renderExerciseGuidance(exerciseNameInput.value);
     exerciseNameInput.focus();
+    return;
+  }
+
+  if (restButton) {
+    startRestTimer(Number(restButton.dataset.restSeconds || 0));
+    return;
+  }
+
+  if (restStopButton) {
+    stopRestTimer();
     return;
   }
 
@@ -207,6 +225,7 @@ function renderExerciseQuickList(bodyPart) {
   }
   exerciseQuickEmpty.hidden = names.length > 0;
   renderRecentSetList(exerciseNameInput?.value || "");
+  renderExerciseGuidance(exerciseNameInput?.value || "");
 }
 
 function renderRecentSetList(exerciseName) {
@@ -218,6 +237,19 @@ function renderRecentSetList(exerciseName) {
   recentSetList.innerHTML = sets.length
     ? `<button class="exercise-quick-button" type="button" data-load-recent-sets data-exercise-name="${escapeHtml(exerciseName)}">지난 세트 불러오기</button>`
     : "";
+}
+
+function renderExerciseGuidance(exerciseName) {
+  if (overloadSuggestionView) {
+    const suggestion = overloadSuggestions[exerciseName] || "";
+    overloadSuggestionView.textContent = suggestion;
+    overloadSuggestionView.hidden = !suggestion;
+  }
+  if (exerciseNoteView) {
+    const note = exerciseNotes[exerciseName] || "";
+    exerciseNoteView.textContent = note ? `메모: ${note}` : "";
+    exerciseNoteView.hidden = !note;
+  }
 }
 
 function renderFoodQuickList(mealType) {
@@ -295,6 +327,12 @@ function setRowHtml(index) {
         <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
       </label>
     </div>
+    <select name="set_type" aria-label="세트 타입">
+      <option value="본세트">본세트</option>
+      <option value="워밍업">워밍업</option>
+      <option value="드롭세트">드롭세트</option>
+      <option value="실패">실패</option>
+    </select>
     <input name="set_memo" autocomplete="off" placeholder="메모">
     <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
   `;
@@ -319,4 +357,41 @@ function renumberRows(list, selector) {
       number.textContent = index + 1;
     }
   });
+}
+
+let restTimerId = null;
+let restRemaining = 0;
+
+function startRestTimer(seconds) {
+  if (!seconds) {
+    return;
+  }
+  restRemaining = seconds;
+  updateRestTimerDisplay();
+  clearInterval(restTimerId);
+  restTimerId = setInterval(() => {
+    restRemaining -= 1;
+    updateRestTimerDisplay();
+    if (restRemaining <= 0) {
+      stopRestTimer();
+    }
+  }, 1000);
+}
+
+function stopRestTimer() {
+  clearInterval(restTimerId);
+  restTimerId = null;
+  restRemaining = 0;
+  updateRestTimerDisplay();
+}
+
+function updateRestTimerDisplay() {
+  const display = document.querySelector("[data-rest-timer-display]");
+  if (!display) {
+    return;
+  }
+  const minutes = Math.floor(restRemaining / 60);
+  const seconds = restRemaining % 60;
+  display.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  display.classList.toggle("is-running", restRemaining > 0);
 }

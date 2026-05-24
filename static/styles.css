@@ -396,13 +396,41 @@ label span {
   gap: 8px;
 }
 
+.timer-display {
+  color: var(--blue);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.timer-display.is-running {
+  color: #22c55e;
+}
+
+.timer-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.pr-card {
+  border-color: #f59e0b;
+  background: #1f1a10;
+}
+
 .routine-form,
 .routine-load-row,
 .tool-form,
-.goal-form {
+.goal-form,
+.body-metric-form,
+.note-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 6px;
+}
+
+.body-metric-form {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
 }
 
 .goal-form {
@@ -422,6 +450,15 @@ label span {
   color: var(--text);
   font-size: 12px;
   font-weight: 700;
+}
+
+.meal-template-panel {
+  display: grid;
+  gap: 7px;
+}
+
+.note-form {
+  margin-bottom: 6px;
 }
 
 .cat-stat-grid {
@@ -511,6 +548,16 @@ label span {
 .quick-empty {
   color: var(--empty);
   font-size: 11px;
+}
+
+.quick-note {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+  padding: 7px 8px;
 }
 
 .body-part-toggle-panel {
@@ -611,7 +658,8 @@ label span {
 }
 
 .set-entry-row > input,
-.meal-entry-row > input {
+.meal-entry-row > input,
+.set-entry-row > select {
   grid-column: 1;
 }
 
@@ -972,7 +1020,7 @@ label span {
 }
 
 .set-edit-form {
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr auto;
 }
 
 .meal-edit-form,
@@ -1164,8 +1212,14 @@ tbody tr:last-child td {
 
   .goal-form,
   .routine-form,
-  .tool-form {
+  .tool-form,
+  .body-metric-form,
+  .note-form {
     grid-template-columns: 1fr;
+  }
+
+  .timer-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .editable-list-item {

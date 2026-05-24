@@ -22,6 +22,48 @@
       {% endfor %}
     </div>
   {% elif table_kind == "period" %}
+    {% if active_page == "weekly" and weekly_report %}
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">주간 리포트</div>
+            <div class="section-subtitle">{{ weekly_report.period }}</div>
+          </div>
+          <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
+        </div>
+        <div class="summary-grid">
+          <article class="summary-card">
+            <div class="summary-value">{{ weekly_report.workout_days }}</div>
+            <div class="summary-label">운동일</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ weekly_report.set_count }}</div>
+            <div class="summary-label">세트</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ "%.0f"|format(weekly_report.volume) }}</div>
+            <div class="summary-label">볼륨 kg</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ weekly_report.meal_days }}</div>
+            <div class="summary-label">식단일</div>
+          </article>
+        </div>
+        <div class="detail-list">
+          <div class="detail-row">
+            <strong>가장 많이 한 부위</strong>
+            <span>{{ weekly_report.top_part }}</span>
+          </div>
+          {% for warning in balance_warnings %}
+            <div class="detail-row">
+              <strong>균형 체크</strong>
+              <span>{{ warning }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
     {% if chart_items %}
       <div class="summary-grid">
         {% for item in chart_items[-4:] %}

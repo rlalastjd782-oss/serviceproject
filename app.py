@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from flask import Flask, g, jsonify, redirect, render_template, request, url_for
+from flask import Flask, Response, g, jsonify, redirect, render_template, request, url_for
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -40,8 +41,13 @@ def create_app() -> Flask:
             exercises=exercises,
             exercises_by_body_part=list_exercises_by_body_part(),
             recent_sets_by_exercise=list_recent_sets_by_exercise(),
+            overload_suggestions=list_overload_suggestions(),
+            exercise_notes=list_exercise_notes(),
+            pr_events=list_pr_events(today_session["workout_date"]),
             foods_by_meal_type=list_foods_by_meal_type(),
             routines=list_routines(),
+            meal_templates=list_meal_templates(),
+            body_metric=get_body_metric(today_session["workout_date"]),
             goals=get_goal_progress(today_session["workout_date"]),
             meals=meals,
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
@@ -84,6 +90,8 @@ def create_app() -> Flask:
             chart_note="최근 기록일 7개를 일별로 표시합니다.",
             body_part_summary=list_body_part_summary("weekly"),
             body_part_details=list_weekly_body_part_details(),
+            weekly_report=build_weekly_report(),
+            balance_warnings=list_balance_warnings("weekly"),
             active_page="weekly",
         )
 
@@ -140,6 +148,7 @@ def create_app() -> Flask:
             next_month=shift_month(month_start, 1)[:7],
             calendar_days=list_month_calendar_days(month_start),
             goals=get_goal_progress(month_start),
+            body_metrics=list_body_metrics(month_start),
             active_page="calendar",
         )
 
@@ -171,12 +180,14 @@ def create_app() -> Flask:
         set_weights = request.form.getlist("set_weight") or [request.form.get("weight", "")]
         set_reps = request.form.getlist("set_reps") or [request.form.get("reps", "")]
         set_memos = request.form.getlist("set_memo") or [request.form.get("memo", "")]
-        set_count = max(len(set_weights), len(set_reps), len(set_memos))
+        set_types = request.form.getlist("set_type") or [request.form.get("set_type", "본세트")]
+        set_count = max(len(set_weights), len(set_reps), len(set_memos), len(set_types))
         set_rows = []
         for index in range(set_count):
             weight_value = value_at(set_weights, index)
             reps_value = value_at(set_reps, index)
             memo_value = value_at(set_memos, index).strip()
+            set_type = value_at(set_types, index).strip() or "본세트"
             if weight_value.strip() == "" and reps_value.strip() == "" and memo_value == "":
                 continue
             set_rows.append(
@@ -184,6 +195,7 @@ def create_app() -> Flask:
                     parse_float(weight_value),
                     parse_int(reps_value),
                     memo_value,
+                    set_type,
                 )
             )
 
@@ -192,18 +204,21 @@ def create_app() -> Flask:
 
         db = get_db()
         exercise_id = get_or_create_exercise(exercise_name)
+        previous_records = get_exercise_record_values(exercise_id)
         next_order = db.execute(
             "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
             (session["id"],),
         ).fetchone()[0]
-        for offset, (weight, reps, memo) in enumerate(set_rows):
-            db.execute(
+        for offset, (weight, reps, memo, set_type) in enumerate(set_rows):
+            cursor = db.execute(
                 """
-                INSERT INTO workout_sets (session_id, exercise_id, weight, reps, memo, sort_order, body_part)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO workout_sets (session_id, exercise_id, weight, reps, memo, sort_order, body_part, set_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (session["id"], exercise_id, weight, reps, memo, next_order + offset, body_part),
+                (session["id"], exercise_id, weight, reps, memo, next_order + offset, body_part, set_type),
             )
+            record_pr_events(cursor.lastrowid, session["workout_date"], exercise_id, exercise_name, weight, reps, previous_records)
+            previous_records = update_record_values(previous_records, weight, reps)
         db.commit()
         return redirect(url_for("index", date=session["workout_date"]))
 
@@ -229,6 +244,49 @@ def create_app() -> Flask:
         save_goal("weekly_meal_days", parse_int(request.form.get("weekly_meal_days")) or 0)
         save_goal("monthly_volume", parse_int(request.form.get("monthly_volume")) or 0)
         return redirect(url_for("index", date=target_date))
+
+    @app.post("/exercise-notes")
+    def update_exercise_note():
+        target_date = request.form.get("target_date") or current_local_date()
+        exercise_name = request.form.get("exercise_name", "").strip()
+        note = request.form.get("note", "").strip()
+        if exercise_name:
+            save_exercise_note(exercise_name, note)
+        return redirect(url_for("index", date=target_date))
+
+    @app.post("/body-metrics")
+    def save_body_metric_route():
+        target_date = request.form.get("metric_date") or current_local_date()
+        save_body_metric(
+            target_date,
+            parse_float(request.form.get("body_weight")),
+            parse_float(request.form.get("muscle_mass")),
+            parse_float(request.form.get("body_fat")),
+            parse_float(request.form.get("waist")),
+        )
+        return redirect(url_for("index", date=target_date))
+
+    @app.post("/meal-templates/from-day")
+    def create_meal_template_from_day_route():
+        meal_date = request.form.get("meal_date") or current_local_date()
+        template_name = request.form.get("template_name", "").strip() or f"{meal_date} 식단"
+        create_meal_template_from_day(template_name, meal_date)
+        return redirect(url_for("index", date=meal_date))
+
+    @app.post("/meal-templates/<int:template_id>/apply")
+    def apply_meal_template_route(template_id: int):
+        meal_date = request.form.get("meal_date") or current_local_date()
+        apply_meal_template(template_id, meal_date)
+        return redirect(url_for("index", date=meal_date))
+
+    @app.get("/export.json")
+    def export_json():
+        payload = export_all_data()
+        return Response(
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            mimetype="application/json; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=health-tracker-export.json"},
+        )
 
     @app.post("/meals")
     def create_meal():
@@ -331,12 +389,13 @@ def create_app() -> Flask:
         db.execute(
             """
             UPDATE workout_sets
-            SET weight = ?, reps = ?
+            SET weight = ?, reps = ?, set_type = ?
             WHERE id = ?
             """,
             (
                 parse_float(request.form.get("weight")),
                 parse_int(request.form.get("reps")),
+                request.form.get("set_type", "본세트").strip() or "본세트",
                 set_id,
             ),
         )
@@ -396,6 +455,7 @@ def init_db() -> None:
             session_id INTEGER NOT NULL,
             exercise_id INTEGER NOT NULL,
             body_part TEXT NOT NULL DEFAULT '기타',
+            set_type TEXT NOT NULL DEFAULT '본세트',
             weight REAL,
             reps INTEGER,
             memo TEXT NOT NULL DEFAULT '',
@@ -431,6 +491,7 @@ def init_db() -> None:
             routine_id INTEGER NOT NULL,
             exercise_name TEXT NOT NULL,
             body_part TEXT NOT NULL DEFAULT '기타',
+            set_type TEXT NOT NULL DEFAULT '본세트',
             weight REAL,
             reps INTEGER,
             sort_order INTEGER NOT NULL DEFAULT 0,
@@ -442,9 +503,56 @@ def init_db() -> None:
             value INTEGER NOT NULL DEFAULT 0,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+
+        CREATE TABLE IF NOT EXISTS exercise_notes (
+            exercise_name TEXT PRIMARY KEY,
+            note TEXT NOT NULL DEFAULT '',
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS pr_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            workout_date TEXT NOT NULL,
+            set_id INTEGER NOT NULL,
+            exercise_id INTEGER NOT NULL,
+            exercise_name TEXT NOT NULL,
+            record_type TEXT NOT NULL,
+            record_value REAL NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS body_metrics (
+            metric_date TEXT PRIMARY KEY,
+            body_weight REAL,
+            muscle_mass REAL,
+            body_fat REAL,
+            waist REAL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS meal_templates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS meal_template_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            template_id INTEGER NOT NULL,
+            meal_type TEXT NOT NULL DEFAULT '',
+            food_name TEXT NOT NULL,
+            quantity REAL,
+            grams REAL,
+            calories REAL,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY (template_id) REFERENCES meal_templates (id) ON DELETE CASCADE
+        );
         """
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
+    ensure_column(db, "workout_sets", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
+    ensure_column(db, "routine_items", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
     ensure_column(db, "meal_entries", "quantity", "REAL")
     ensure_column(db, "meal_entries", "grams", "REAL")
     db.execute(
@@ -617,7 +725,7 @@ def create_routine_template(name: str, session_id: int) -> None:
     db = get_db()
     items = db.execute(
         """
-        SELECT e.name AS exercise_name, ws.body_part, ws.weight, ws.reps, ws.sort_order
+        SELECT e.name AS exercise_name, ws.body_part, ws.set_type, ws.weight, ws.reps, ws.sort_order
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
         WHERE ws.session_id = ?
@@ -632,10 +740,10 @@ def create_routine_template(name: str, session_id: int) -> None:
     for index, item in enumerate(items, start=1):
         db.execute(
             """
-            INSERT INTO routine_items (routine_id, exercise_name, body_part, weight, reps, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO routine_items (routine_id, exercise_name, body_part, set_type, weight, reps, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (routine_id, item["exercise_name"], item["body_part"], item["weight"], item["reps"], index),
+            (routine_id, item["exercise_name"], item["body_part"], item["set_type"], item["weight"], item["reps"], index),
         )
     db.commit()
 
@@ -662,10 +770,10 @@ def apply_routine_template(routine_id: int, workout_date: str) -> None:
         exercise_id = get_or_create_exercise(item["exercise_name"])
         db.execute(
             """
-            INSERT INTO workout_sets (session_id, exercise_id, body_part, weight, reps, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO workout_sets (session_id, exercise_id, body_part, set_type, weight, reps, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-            (session["id"], exercise_id, item["body_part"], item["weight"], item["reps"], next_order + offset),
+            (session["id"], exercise_id, item["body_part"], item["set_type"], item["weight"], item["reps"], next_order + offset),
         )
     db.commit()
 
@@ -729,6 +837,305 @@ def get_goal_progress(date_text: str) -> dict[str, dict[str, int | float | str]]
 def goal_item(current: int | float, target: int, label: str) -> dict[str, int | float | str]:
     percent = 0 if target <= 0 else min(100, round(float(current) / target * 100))
     return {"current": current, "target": target, "label": label, "percent": percent}
+
+
+def get_exercise_record_values(exercise_id: int) -> dict[str, float]:
+    row = get_db().execute(
+        """
+        SELECT
+            COALESCE(MAX(weight), 0) AS max_weight,
+            COALESCE(MAX(reps), 0) AS max_reps,
+            COALESCE(MAX(COALESCE(weight, 0) * COALESCE(reps, 0)), 0) AS max_volume
+        FROM workout_sets
+        WHERE exercise_id = ?
+        """,
+        (exercise_id,),
+    ).fetchone()
+    return {
+        "max_weight": float(row["max_weight"] or 0),
+        "max_reps": float(row["max_reps"] or 0),
+        "max_volume": float(row["max_volume"] or 0),
+    }
+
+
+def update_record_values(records: dict[str, float], weight: float | None, reps: int | None) -> dict[str, float]:
+    volume = float(weight or 0) * float(reps or 0)
+    return {
+        "max_weight": max(records["max_weight"], float(weight or 0)),
+        "max_reps": max(records["max_reps"], float(reps or 0)),
+        "max_volume": max(records["max_volume"], volume),
+    }
+
+
+def record_pr_events(
+    set_id: int,
+    workout_date: str,
+    exercise_id: int,
+    exercise_name: str,
+    weight: float | None,
+    reps: int | None,
+    previous: dict[str, float],
+) -> None:
+    candidates = [
+        ("최고 중량", float(weight or 0), previous["max_weight"]),
+        ("최고 반복", float(reps or 0), previous["max_reps"]),
+        ("최고 볼륨", float(weight or 0) * float(reps or 0), previous["max_volume"]),
+    ]
+    for record_type, value, old_value in candidates:
+        if value > 0 and value > old_value:
+            get_db().execute(
+                """
+                INSERT INTO pr_events (workout_date, set_id, exercise_id, exercise_name, record_type, record_value)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (workout_date, set_id, exercise_id, exercise_name, record_type, value),
+            )
+
+
+def list_pr_events(workout_date: str) -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT *
+        FROM pr_events
+        WHERE workout_date = ?
+        ORDER BY id DESC
+        """,
+        (workout_date,),
+    ).fetchall()
+
+
+def list_overload_suggestions() -> dict[str, str]:
+    rows = get_db().execute(
+        """
+        SELECT e.name, ws.weight, ws.reps, s.workout_date
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.weight IS NOT NULL AND ws.reps IS NOT NULL
+        ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
+        """
+    ).fetchall()
+    suggestions: dict[str, str] = {}
+    for row in rows:
+        name = row["name"]
+        if name in suggestions:
+            continue
+        next_weight = float(row["weight"]) + 2.5
+        next_reps = int(row["reps"]) + 1
+        suggestions[name] = f"지난 기록 기준: {float(row['weight']):.1f}kg {int(row['reps'])}회 → {next_weight:.1f}kg 또는 {next_reps}회 도전"
+    return suggestions
+
+
+def list_exercise_notes() -> dict[str, str]:
+    rows = get_db().execute("SELECT exercise_name, note FROM exercise_notes").fetchall()
+    return {row["exercise_name"]: row["note"] for row in rows}
+
+
+def save_exercise_note(exercise_name: str, note: str) -> None:
+    get_db().execute(
+        """
+        INSERT INTO exercise_notes (exercise_name, note, updated_at)
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(exercise_name) DO UPDATE SET note = excluded.note, updated_at = CURRENT_TIMESTAMP
+        """,
+        (exercise_name, note),
+    )
+    get_db().commit()
+
+
+def get_body_metric(metric_date: str) -> sqlite3.Row | None:
+    return get_db().execute("SELECT * FROM body_metrics WHERE metric_date = ?", (metric_date,)).fetchone()
+
+
+def save_body_metric(
+    metric_date: str,
+    body_weight: float | None,
+    muscle_mass: float | None,
+    body_fat: float | None,
+    waist: float | None,
+) -> None:
+    get_db().execute(
+        """
+        INSERT INTO body_metrics (metric_date, body_weight, muscle_mass, body_fat, waist, updated_at)
+        VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(metric_date) DO UPDATE SET
+            body_weight = excluded.body_weight,
+            muscle_mass = excluded.muscle_mass,
+            body_fat = excluded.body_fat,
+            waist = excluded.waist,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (metric_date, body_weight, muscle_mass, body_fat, waist),
+    )
+    get_db().commit()
+
+
+def list_body_metrics(month_start: str) -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT *
+        FROM body_metrics
+        WHERE metric_date >= ? AND metric_date < ?
+        ORDER BY metric_date DESC
+        """,
+        (month_start, shift_month(month_start, 1)),
+    ).fetchall()
+
+
+def list_meal_templates() -> list[dict[str, object]]:
+    rows = get_db().execute(
+        """
+        SELECT mt.id, mt.name, COUNT(mti.id) AS item_count
+        FROM meal_templates mt
+        LEFT JOIN meal_template_items mti ON mti.template_id = mt.id
+        GROUP BY mt.id
+        ORDER BY mt.created_at DESC, mt.id DESC
+        """
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def create_meal_template_from_day(name: str, meal_date: str) -> None:
+    rows = get_db().execute(
+        """
+        SELECT *
+        FROM meal_entries
+        WHERE meal_date = ?
+        ORDER BY id
+        """,
+        (meal_date,),
+    ).fetchall()
+    if not rows:
+        return
+    cursor = get_db().execute("INSERT INTO meal_templates (name) VALUES (?)", (name,))
+    template_id = int(cursor.lastrowid)
+    for index, row in enumerate(rows, start=1):
+        get_db().execute(
+            """
+            INSERT INTO meal_template_items
+                (template_id, meal_type, food_name, quantity, grams, calories, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (template_id, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"], index),
+        )
+    get_db().commit()
+
+
+def apply_meal_template(template_id: int, meal_date: str) -> None:
+    rows = get_db().execute(
+        """
+        SELECT *
+        FROM meal_template_items
+        WHERE template_id = ?
+        ORDER BY sort_order, id
+        """,
+        (template_id,),
+    ).fetchall()
+    for row in rows:
+        get_db().execute(
+            """
+            INSERT INTO meal_entries (meal_date, meal_type, food_name, quantity, grams, calories)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (meal_date, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"]),
+        )
+    get_db().commit()
+
+
+def build_weekly_report() -> dict[str, object]:
+    week_start = week_start_for_date(current_local_date())
+    week_end = shift_date(week_start, 6)
+    db = get_db()
+    totals = db.execute(
+        """
+        SELECT
+            COUNT(DISTINCT s.workout_date) AS workout_days,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        FROM workout_sessions s
+        LEFT JOIN workout_sets ws ON ws.session_id = s.id
+        WHERE s.workout_date BETWEEN ? AND ?
+        """,
+        (week_start, week_end),
+    ).fetchone()
+    meal_days = db.execute(
+        "SELECT COUNT(DISTINCT meal_date) AS meal_days FROM meal_entries WHERE meal_date BETWEEN ? AND ?",
+        (week_start, week_end),
+    ).fetchone()["meal_days"]
+    top_part = db.execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date BETWEEN ? AND ?
+        GROUP BY body_part
+        ORDER BY set_count DESC
+        LIMIT 1
+        """,
+        (week_start, week_end),
+    ).fetchone()
+    return {
+        "period": f"{week_start} ~ {week_end}",
+        "workout_days": int(totals["workout_days"] or 0),
+        "set_count": int(totals["set_count"] or 0),
+        "volume": float(totals["volume"] or 0),
+        "meal_days": int(meal_days or 0),
+        "top_part": top_part["body_part"] if top_part else "-",
+    }
+
+
+def list_balance_warnings(scope: str = "weekly") -> list[str]:
+    if scope == "weekly":
+        start = week_start_for_date(current_local_date())
+        end = shift_date(start, 6)
+    else:
+        start = normalize_month(current_local_date()[:7])
+        end = shift_month(start, 1)
+    rows = get_db().execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date >= ? AND s.workout_date <= ?
+        GROUP BY body_part
+        """,
+        (start, end),
+    ).fetchall()
+    counts = {part: 0 for part in body_part_options()}
+    counts.update({row["body_part"]: int(row["set_count"]) for row in rows})
+    total = sum(counts.values())
+    warnings = []
+    if total == 0:
+        return ["이번 기간 운동 기록이 없습니다."]
+    for part, count in counts.items():
+        if part != "기타" and count == 0:
+            warnings.append(f"{part} 운동이 비어 있습니다.")
+    dominant = max(counts.items(), key=lambda item: item[1])
+    if dominant[1] / total >= 0.5 and total >= 4:
+        warnings.append(f"{dominant[0]} 비중이 높습니다. 다른 부위도 균형 있게 넣어보세요.")
+    return warnings[:4]
+
+
+def export_all_data() -> dict[str, object]:
+    db = get_db()
+    tables = [
+        "exercises",
+        "workout_sessions",
+        "workout_sets",
+        "meal_entries",
+        "routine_templates",
+        "routine_items",
+        "meal_templates",
+        "meal_template_items",
+        "user_goals",
+        "exercise_notes",
+        "pr_events",
+        "body_metrics",
+    ]
+    return {
+        "exported_at": datetime.now().isoformat(timespec="seconds"),
+        "tables": {table: [dict(row) for row in db.execute(f"SELECT * FROM {table}").fetchall()] for table in tables},
+    }
 
 
 def body_part_options() -> list[str]:

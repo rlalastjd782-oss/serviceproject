@@ -49,6 +49,7 @@
   <section class="section">
     <div class="section-header">
       <div class="section-title">목표 요약</div>
+      <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
     </div>
     <div class="goal-grid">
       {% for goal in goals.values() %}
@@ -60,6 +61,27 @@
           <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
           <div class="goal-meta">{{ "%.0f"|format(goal.current) }} / {{ goal.target }}</div>
         </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">체성분 기록</div>
+    </div>
+    <div class="detail-list">
+      {% for metric in body_metrics %}
+        <div class="detail-row">
+          <strong>{{ metric.metric_date }}</strong>
+          <span>
+            {% if metric.body_weight is not none %}체중 {{ "%.1f"|format(metric.body_weight) }}kg{% endif %}
+            {% if metric.muscle_mass is not none %} · 골격근 {{ "%.1f"|format(metric.muscle_mass) }}kg{% endif %}
+            {% if metric.body_fat is not none %} · 체지방 {{ "%.1f"|format(metric.body_fat) }}%{% endif %}
+            {% if metric.waist is not none %} · 허리 {{ "%.1f"|format(metric.waist) }}cm{% endif %}
+          </span>
+        </div>
+      {% else %}
+        <div class="empty">체성분 기록이 없습니다.</div>
       {% endfor %}
     </div>
   </section>
