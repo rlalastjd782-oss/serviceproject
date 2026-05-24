@@ -24,15 +24,25 @@ const mealTypeClassMap = {
 const exerciseQuickPanel = document.querySelector("[data-exercise-quick-panel]");
 const exerciseQuickList = document.querySelector("[data-exercise-quick-list]");
 const exerciseQuickEmpty = document.querySelector("[data-exercise-quick-empty]");
+const recentSetTitle = document.querySelector("[data-recent-set-title]");
+const recentSetList = document.querySelector("[data-recent-set-list]");
 const exerciseDatalist = document.querySelector("[data-exercise-datalist]");
 const exerciseNameInput = document.querySelector('input[name="exercise_name"]');
 const exercisesByBodyPart = parseExerciseQuickData();
+const recentSetsByExercise = parseJsonData(exerciseQuickPanel, "recentSetsByExercise");
+const foodQuickPanel = document.querySelector("[data-food-quick-panel]");
+const foodQuickList = document.querySelector("[data-food-quick-list]");
+const foodQuickEmpty = document.querySelector("[data-food-quick-empty]");
+const foodsByMealType = parseJsonData(foodQuickPanel, "foodsByMealType");
 
 document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   applyBodyPartSelectColor(select);
   renderExerciseQuickList(select.value);
 });
-document.querySelectorAll("[data-meal-type-select]").forEach(applyMealTypeSelectColor);
+document.querySelectorAll("[data-meal-type-select]").forEach((select) => {
+  applyMealTypeSelectColor(select);
+  renderFoodQuickList(select.value);
+});
 
 document.addEventListener("change", (event) => {
   const bodyPartSelect = event.target.closest("[data-body-part-select]");
@@ -45,6 +55,12 @@ document.addEventListener("change", (event) => {
   const mealTypeSelect = event.target.closest("[data-meal-type-select]");
   if (mealTypeSelect) {
     applyMealTypeSelectColor(mealTypeSelect);
+    renderFoodQuickList(mealTypeSelect.value);
+    return;
+  }
+
+  if (event.target === exerciseNameInput) {
+    renderRecentSetList(exerciseNameInput.value);
   }
 });
 
@@ -57,13 +73,26 @@ document.addEventListener("click", (event) => {
   const inlineAddButton = event.target.closest("[data-toggle-add]");
   const detailButton = event.target.closest("[data-toggle-detail]");
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
+  const recentSetButton = event.target.closest("[data-load-recent-sets]");
+  const foodQuickButton = event.target.closest("[data-food-entry]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
 
   if (quickExerciseButton && exerciseNameInput) {
     exerciseNameInput.value = quickExerciseButton.dataset.exerciseName || "";
+    renderRecentSetList(exerciseNameInput.value);
     exerciseNameInput.focus();
+    return;
+  }
+
+  if (recentSetButton && setList) {
+    loadRecentSets(recentSetButton.dataset.exerciseName || "", setList);
+    return;
+  }
+
+  if (foodQuickButton && mealList) {
+    loadFoodEntry(foodQuickButton, mealList);
     return;
   }
 
@@ -143,16 +172,20 @@ function applyMealTypeSelectColor(select) {
   select.classList.add(mealTypeClassMap[select.value] || "meal-type-other");
 }
 
-function parseExerciseQuickData() {
-  if (!exerciseQuickPanel) {
+function parseJsonData(element, key) {
+  if (!element) {
     return {};
   }
 
   try {
-    return JSON.parse(exerciseQuickPanel.dataset.exercisesByBodyPart || "{}");
+    return JSON.parse(element.dataset[key] || "{}");
   } catch {
     return {};
   }
+}
+
+function parseExerciseQuickData() {
+  return parseJsonData(exerciseQuickPanel, "exercisesByBodyPart");
 }
 
 function renderExerciseQuickList(bodyPart) {
@@ -173,6 +206,57 @@ function renderExerciseQuickList(bodyPart) {
       .join("");
   }
   exerciseQuickEmpty.hidden = names.length > 0;
+  renderRecentSetList(exerciseNameInput?.value || "");
+}
+
+function renderRecentSetList(exerciseName) {
+  if (!recentSetTitle || !recentSetList) {
+    return;
+  }
+  const sets = recentSetsByExercise[exerciseName] || [];
+  recentSetTitle.hidden = sets.length === 0;
+  recentSetList.innerHTML = sets.length
+    ? `<button class="exercise-quick-button" type="button" data-load-recent-sets data-exercise-name="${escapeHtml(exerciseName)}">지난 세트 불러오기</button>`
+    : "";
+}
+
+function renderFoodQuickList(mealType) {
+  if (!foodQuickList || !foodQuickEmpty) {
+    return;
+  }
+  const foods = foodsByMealType[mealType] || [];
+  foodQuickList.innerHTML = foods
+    .map((food) => {
+      const name = escapeHtml(food.food_name || "");
+      return `<button class="exercise-quick-button" type="button" data-food-entry data-food-name="${name}" data-food-quantity="${food.quantity ?? ""}" data-food-grams="${food.grams ?? ""}" data-food-calories="${food.calories ?? ""}">${name}</button>`;
+    })
+    .join("");
+  foodQuickEmpty.hidden = foods.length > 0;
+}
+
+function loadRecentSets(exerciseName, setList) {
+  const sets = recentSetsByExercise[exerciseName] || [];
+  if (!sets.length) {
+    return;
+  }
+  setList.innerHTML = "";
+  sets.forEach((set) => {
+    const row = document.createElement("div");
+    row.className = "set-entry-row";
+    row.innerHTML = setRowHtml(0);
+    row.querySelector('input[name="set_weight"]').value = set.weight ?? "";
+    row.querySelector('input[name="set_reps"]').value = set.reps ?? "";
+    setList.append(row);
+  });
+}
+
+function loadFoodEntry(button, mealList) {
+  const firstRow = mealList.querySelector(".meal-entry-row");
+  const row = firstRow && !firstRow.querySelector('input[name="meal_food_name"]').value ? firstRow : addRow(mealList, "meal");
+  row.querySelector('input[name="meal_food_name"]').value = button.dataset.foodName || "";
+  row.querySelector('input[name="meal_quantity"]').value = button.dataset.foodQuantity || "";
+  row.querySelector('input[name="meal_grams"]').value = button.dataset.foodGrams || "";
+  row.querySelector('input[name="meal_calories"]').value = button.dataset.foodCalories || "";
 }
 
 function escapeHtml(value) {
@@ -196,6 +280,7 @@ function addRow(list, type) {
   row.innerHTML = type === "set" ? setRowHtml(index) : mealRowHtml(index);
   list.append(row);
   row.querySelector("input").focus();
+  return row;
 }
 
 function setRowHtml(index) {

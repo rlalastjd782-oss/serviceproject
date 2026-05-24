@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}월간 달력{% endblock %}
+
+{% block content %}
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">월간 캘린더</div>
+        <div class="section-subtitle">{{ month_label }} 기록 현황</div>
+      </div>
+    </div>
+    <div class="week-control-row">
+      <a class="arrow-btn" href="{{ url_for('calendar_page', month=prev_month) }}" aria-label="이전 달">‹</a>
+      <form method="get" action="{{ url_for('calendar_page') }}" class="week-date-form">
+        <input name="month" type="month" value="{{ month }}" aria-label="월 선택">
+        <button type="submit" class="btn-small">보기</button>
+      </form>
+      <a class="arrow-btn" href="{{ url_for('calendar_page', month=next_month) }}" aria-label="다음 달">›</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="calendar-grid">
+      {% for label in ["월", "화", "수", "목", "금", "토", "일"] %}
+        <div class="calendar-weekday">{{ label }}</div>
+      {% endfor %}
+      {% for day in calendar_days %}
+        {% if loop.first %}
+          {% for _ in range(day.weekday) %}
+            <div class="calendar-cell is-empty"></div>
+          {% endfor %}
+        {% endif %}
+        <a class="calendar-cell" href="{{ url_for('index', date=day.date) }}">
+          <strong>{{ day.day }}</strong>
+          <div class="calendar-dots">
+            {% if day.set_count %}<span class="dot-workout" title="운동 {{ day.set_count }}세트"></span>{% endif %}
+            {% if day.meal_count %}<span class="dot-meal" title="식단 {{ day.meal_count }}식"></span>{% endif %}
+          </div>
+          <small>
+            {% if day.set_count %}운동 {{ day.set_count }}{% endif %}
+            {% if day.meal_count %}{% if day.set_count %} · {% endif %}식단 {{ day.meal_count }}{% endif %}
+          </small>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">목표 요약</div>
+    </div>
+    <div class="goal-grid">
+      {% for goal in goals.values() %}
+        <article class="goal-card">
+          <div class="goal-head">
+            <strong>{{ goal.label }}</strong>
+            <span>{{ goal.percent }}%</span>
+          </div>
+          <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
+          <div class="goal-meta">{{ "%.0f"|format(goal.current) }} / {{ goal.target }}</div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

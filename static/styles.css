@@ -348,6 +348,82 @@ label span {
   font-size: 11px;
 }
 
+.goal-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.goal-card {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 10px;
+}
+
+.goal-head,
+.goal-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.goal-head strong {
+  color: var(--text);
+}
+
+.goal-bar {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #111827;
+}
+
+.goal-bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #60a5fa);
+}
+
+.routine-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.routine-form,
+.routine-load-row,
+.tool-form,
+.goal-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.goal-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+}
+
+.routine-load-row {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 8px;
+}
+
+.routine-load-row span {
+  min-width: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .cat-stat-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -621,6 +697,67 @@ label span {
   font-size: 11px;
 }
 
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calendar-weekday {
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.calendar-cell {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-height: 64px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 7px;
+}
+
+.calendar-cell.is-empty {
+  border-color: transparent;
+  background: transparent;
+}
+
+.calendar-cell strong {
+  font-size: 13px;
+}
+
+.calendar-cell small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.calendar-dots {
+  display: flex;
+  gap: 4px;
+  min-height: 7px;
+}
+
+.dot-workout,
+.dot-meal {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+.dot-workout {
+  background: #60a5fa;
+}
+
+.dot-meal {
+  background: #f59e0b;
+}
+
 .compact-empty {
   padding: 4px 0 0;
   text-align: left;
@@ -880,6 +1017,11 @@ label span {
   padding: 12px;
 }
 
+.compact-chart {
+  min-height: 180px;
+  margin-top: 10px;
+}
+
 .chart-group {
   display: grid;
   grid-template-rows: 1fr auto auto;
@@ -893,6 +1035,10 @@ label span {
   align-items: end;
   gap: 4px;
   min-height: 150px;
+}
+
+.two-bars {
+  grid-template-columns: repeat(2, 1fr);
 }
 
 .chart-bar {
@@ -1013,6 +1159,12 @@ tbody tr:last-child td {
   .meal-edit-form,
   .inline-add-form,
   .meal-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-form,
+  .routine-form,
+  .tool-form {
     grid-template-columns: 1fr;
   }
 

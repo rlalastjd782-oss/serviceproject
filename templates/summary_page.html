@@ -82,6 +82,58 @@
   {% else %}
     <section class="section">
       <div class="section-header">
+        <div class="section-title">운동 성장 그래프</div>
+      </div>
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="tool-form">
+        <select name="exercise_id" aria-label="운동 선택">
+          {% for exercise in exercise_choices %}
+            <option value="{{ exercise.id }}" {% if exercise.id == selected_exercise_id %}selected{% endif %}>{{ exercise.name }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn-small" type="submit">보기</button>
+      </form>
+      {% if exercise_growth %}
+        <div class="trend-chart compact-chart" role="img" aria-label="운동 성장 그래프">
+          {% for item in exercise_growth %}
+            <article class="chart-group">
+              <div class="bar-stack two-bars">
+                <span class="chart-bar volume-bar" style="height: {{ item.volume_height }}%" title="볼륨 {{ '%.0f'|format(item.volume) }}kg"></span>
+                <span class="chart-bar set-bar" style="height: {{ item.weight_height }}%" title="최고 {{ '%.1f'|format(item.max_weight) }}kg"></span>
+              </div>
+              <strong>{{ item.period }}</strong>
+              <small>{{ "%.0f"|format(item.volume) }}kg · {{ "%.1f"|format(item.max_weight) }}kg</small>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">그래프로 볼 운동 기록이 없습니다.</div>
+      {% endif %}
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">운동 기록 검색</div>
+      </div>
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="tool-form">
+        <input name="q" value="{{ search_query }}" placeholder="운동명 또는 부위 검색">
+        <button class="btn-small" type="submit">검색</button>
+      </form>
+      {% if search_query %}
+        <div class="detail-list search-result-list">
+          {% for result in search_results %}
+            <div class="detail-row">
+              <strong>{{ result.workout_date }} · {{ result.exercise_name }}</strong>
+              <span>{{ result.body_part }} · {% if result.weight is not none %}{{ "%.1f"|format(result.weight) }}kg{% else %}-kg{% endif %} · {% if result.reps is not none %}{{ result.reps }}회{% else %}-회{% endif %}</span>
+            </div>
+          {% else %}
+            <div class="empty">검색 결과가 없습니다.</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="section">
+      <div class="section-header">
         <div class="section-title">🏆 운동별 기록</div>
       </div>
       <div class="record-list">
