@@ -42,6 +42,13 @@ def create_app() -> Flask:
         if db is not None:
             db.close()
 
+    @app.context_processor
+    def inject_app_meta() -> dict[str, str]:
+        return {
+            "app_version": get_app_version(),
+            "app_updated_at": get_app_updated_at(),
+        }
+
     @app.get("/")
     def index():
         selected_date = normalize_date(request.args.get("date"))
@@ -4595,6 +4602,16 @@ def get_app_version() -> str:
     return "local"
 
 
+def get_app_updated_at() -> str:
+    ref_path = BASE_DIR / ".git" / "refs" / "heads" / "master"
+    fallback_path = BASE_DIR / "app.py"
+    target_path = ref_path if ref_path.exists() else fallback_path
+    try:
+        return datetime.fromtimestamp(target_path.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    except OSError:
+        return datetime.now().strftime("%Y-%m-%d %H:%M")
+
+
 app = create_app()
 APP_VERSION = get_app_version()
 app.jinja_env.globals["grouped_sets_for_session"] = grouped_sets_for_session
@@ -4603,7 +4620,6 @@ app.jinja_env.globals["meal_type_class"] = meal_type_class
 app.jinja_env.globals["format_duration"] = format_duration
 app.jinja_env.globals["duration_hours"] = duration_hours
 app.jinja_env.globals["duration_minutes"] = duration_minutes
-app.jinja_env.globals["app_version"] = APP_VERSION
 
 
 if __name__ == "__main__":
