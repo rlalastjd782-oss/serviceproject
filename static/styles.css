@@ -716,6 +716,19 @@ label span {
   background: #1f1a10;
 }
 
+.pr-inline-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pr-badge {
+  border-color: rgb(245 158 11 / 45%);
+  background: #1f1a10;
+  color: #fbbf24;
+}
+
 .routine-form,
 .routine-load-row,
 .tool-form,

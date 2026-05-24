@@ -241,25 +241,6 @@
     {% endif %}
   </div>
 
-  {% if pr_events %}
-    <section class="section overview-only workout-only">
-      <div class="section-header">
-        <div class="section-title">신기록</div>
-      </div>
-      <div class="record-list">
-        {% for event in pr_events %}
-          <article class="record-card pr-card">
-            <div class="record-date">{{ event.exercise_name }}</div>
-            <div class="record-summary">
-              <span class="badge">PR {{ event.record_type }}</span>
-              <span class="badge">{{ "%.0f"|format(event.record_value) }}</span>
-            </div>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
-  {% endif %}
-
   <section class="section overview-only workout-only">
     <div class="section-header">
       <div class="section-title">오늘 상태</div>
@@ -594,12 +575,13 @@
       {% set workout_groups = grouped_sets_for_session(session.id) %}
       {% if workout_groups %}
         {% for group in workout_groups %}
+          {% set group_pr_events = pr_events | selectattr("exercise_name", "equalto", group.exercise_name) | list %}
           <article class="record-card workout-summary-card is-collapsed" data-collapsible-card>
             <div class="record-date workout-record-head">
               <button class="record-toggle" type="button" data-toggle-card aria-expanded="false">
                 <span class="cat-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>
                 <strong>{{ group.exercise_name }}</strong>
-                <span>{{ group.sets|length }}세트</span>
+                <span>{{ group.sets|length }}세트{% if group_pr_events %} · PR {{ group_pr_events|length }}{% endif %}</span>
               </button>
             </div>
             <div class="compact-set-preview">
@@ -614,6 +596,13 @@
               {% endfor %}
             </div>
             <div class="record-card-detail">
+            {% if group_pr_events %}
+              <div class="pr-inline-list">
+                {% for event in group_pr_events %}
+                  <span class="badge pr-badge">PR {{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
             <form method="post" action="{{ url_for('update_exercise_note') }}" class="note-form">
               <input type="hidden" name="target_date" value="{{ session.workout_date }}">
               <input type="hidden" name="mode" value="workout">
