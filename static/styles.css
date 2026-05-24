@@ -612,33 +612,42 @@ label span {
 }
 
 .recovery-grid,
-.routine-recommend-grid {
+.routine-recommend-grid,
+.quick-workout-grid {
   display: grid;
   gap: 8px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .recovery-chip,
-.routine-recommend-card {
+.routine-recommend-card,
+.quick-workout-tile {
   display: grid;
   gap: 4px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel-2);
   padding: 10px;
+  text-decoration: none;
 }
 
 .recovery-chip strong,
-.routine-recommend-card strong {
+.routine-recommend-card strong,
+.quick-workout-tile strong {
   color: var(--strong);
   font-size: 13px;
 }
 
 .recovery-chip span,
-.routine-recommend-card span {
+.routine-recommend-card span,
+.quick-workout-tile span {
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
+}
+
+.quick-workout-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .recovery-chip.state-가능 {
@@ -2019,6 +2028,12 @@ tbody tr:last-child td {
   }
 
   .focus-suggestion-card {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-workout-grid,
+  .recovery-grid,
+  .routine-recommend-grid {
     grid-template-columns: 1fr;
   }
 

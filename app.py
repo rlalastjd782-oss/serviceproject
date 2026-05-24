@@ -410,6 +410,16 @@ def create_app() -> Flask:
         delete_workout_plan_item(item_id)
         return redirect(url_for("index", date=workout_date, mode="workout"))
 
+    @app.post("/plans/from-recommendation")
+    def add_recommendation_plan_route():
+        workout_date = normalize_date(request.form.get("workout_date"))
+        body_part = request.form.get("body_part", "").strip() or "기타"
+        for exercise_name in request.form.getlist("exercise_name"):
+            exercise_name = exercise_name.strip()
+            if exercise_name:
+                create_workout_plan_item(workout_date, body_part, exercise_name, 3)
+        return redirect(url_for("index", date=workout_date, mode="workout"))
+
     @app.post("/exercise-settings")
     def save_exercise_settings_route():
         workout_date = normalize_date(request.form.get("workout_date"))
