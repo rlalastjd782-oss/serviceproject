@@ -1248,7 +1248,7 @@ label span {
 }
 
 .set-edit-form {
-  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-template-columns: 0.7fr 1fr 1fr 1fr auto;
 }
 
 .meal-edit-form,

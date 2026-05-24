@@ -437,6 +437,7 @@
                   </div>
                 </div>
                 <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
+                  <input name="set_number" type="number" min="1" step="1" inputmode="numeric" value="{{ loop.index }}" aria-label="세트 번호" placeholder="세트">
                   {% if group.body_part == "유산소" %}
                     <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% endif %}" placeholder="인클라인">
                     <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% endif %}" placeholder="속도">

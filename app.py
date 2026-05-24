@@ -594,6 +594,9 @@ def create_app() -> Flask:
                     set_id,
                 ),
             )
+        requested_set_number = parse_int(request.form.get("set_number"))
+        if requested_set_number:
+            reorder_set_within_exercise(db, set_id, requested_set_number)
         db.commit()
         return redirect(url_for("index", date=workout_date))
 
@@ -850,6 +853,43 @@ def update_session_duration(session_id: int, duration_seconds: int) -> None:
         (max(0, int(duration_seconds or 0)), session_id),
     )
     get_db().commit()
+
+
+def reorder_set_within_exercise(db: sqlite3.Connection, set_id: int, requested_set_number: int) -> None:
+    current = db.execute(
+        """
+        SELECT session_id, exercise_id, COALESCE(NULLIF(body_part, ''), '기타') AS body_part
+        FROM workout_sets
+        WHERE id = ?
+        """,
+        (set_id,),
+    ).fetchone()
+    if not current:
+        return
+
+    rows = db.execute(
+        """
+        SELECT id, sort_order
+        FROM workout_sets
+        WHERE session_id = ?
+          AND exercise_id = ?
+          AND COALESCE(NULLIF(body_part, ''), '기타') = ?
+        ORDER BY sort_order, id
+        """,
+        (current["session_id"], current["exercise_id"], current["body_part"]),
+    ).fetchall()
+    if len(rows) <= 1:
+        return
+
+    ordered_ids = [int(row["id"]) for row in rows]
+    if set_id not in ordered_ids:
+        return
+    ordered_ids.remove(set_id)
+    target_index = min(max(requested_set_number, 1), len(rows)) - 1
+    ordered_ids.insert(target_index, set_id)
+    sort_orders = [int(row["sort_order"] or 0) for row in rows]
+    for new_order, row_id in zip(sort_orders, ordered_ids):
+        db.execute("UPDATE workout_sets SET sort_order = ? WHERE id = ?", (new_order, row_id))
 
 
 def get_or_create_exercise(name: str) -> int:
