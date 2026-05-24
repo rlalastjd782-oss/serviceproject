@@ -61,7 +61,7 @@ a {
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: 14px 18px 12px;
   border-bottom: 1px solid var(--line);
   background: var(--bg);
@@ -179,6 +179,10 @@ a {
   color: var(--muted);
   font-size: 13px;
   font-weight: 700;
+}
+
+.page-title {
+  margin-bottom: 12px;
 }
 
 input[type="number"],
@@ -318,6 +322,49 @@ label span {
   font-size: 11px;
 }
 
+.cat-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cat-stat-card {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 9px 8px;
+  text-align: center;
+  opacity: 0.55;
+}
+
+.cat-stat-card.active {
+  opacity: 1;
+}
+
+.cat-stat-name {
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cat-stat-count {
+  color: var(--strong);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.cat-stat-unit {
+  color: var(--dim);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.detail-inline-btn {
+  justify-self: center;
+  margin-top: 4px;
+}
+
 .set-entry-list,
 .meal-entry-list,
 .record-list,
@@ -370,6 +417,38 @@ label span {
   cursor: pointer;
   margin-bottom: 8px;
   padding: 12px 13px;
+}
+
+.ex-rank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding: 9px 0;
+}
+
+.ex-rank-item:last-child {
+  border-bottom: 0;
+}
+
+.rank-num {
+  flex: 0 0 auto;
+  min-width: 34px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ex-rank-main {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ex-rank-main strong {
+  color: var(--text);
+  font-size: 13px;
 }
 
 .record-date {
@@ -692,6 +771,10 @@ tbody tr:last-child td {
   border-radius: 10px;
   background: var(--bg);
   padding: 10px;
+}
+
+.full-detail-list {
+  grid-column: 1 / -1;
 }
 
 .detail-list-head,
