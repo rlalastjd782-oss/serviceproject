@@ -4,7 +4,19 @@
 
 {% block content %}
   {% if table_kind == "daily" %}
-    <div class="section-title page-title">📅 날짜별 기록</div>
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">📅 날짜별 기록</div>
+          <div class="section-subtitle">최근 {{ selected_days }}일 안에 기록이 있는 날짜만 표시합니다.</div>
+        </div>
+      </div>
+      <form method="get" action="{{ url_for('daily_summary_page') }}" class="period-filter-form">
+        {% for option in [7, 14, 30, 90] %}
+          <button class="{% if selected_days == option %}btn-primary{% else %}btn-small{% endif %}" type="submit" name="days" value="{{ option }}">{{ option }}일</button>
+        {% endfor %}
+      </form>
+    </section>
     <div class="record-list">
       {% for item in daily_summary %}
         <article class="record-card">
@@ -13,8 +25,8 @@
             <span class="badge">⏱ {{ format_duration(item.duration_seconds) }}</span>
             <span class="badge">🏃 {{ item.set_count }}세트</span>
             <span class="badge">💪 {{ item.rep_count }}회</span>
-            <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
-            <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
+            {% if item.volume %}<span class="badge">🏋 웨이트 {{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
+            {% if item.cardio_minutes %}<span class="badge">🚶 유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
             {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
             <span class="badge">🍱 {{ item.meal_count }}식</span>
             <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
@@ -49,7 +61,7 @@
           </article>
           <article class="summary-card">
             <div class="summary-value">{{ "%.0f"|format(weekly_report.volume) }}</div>
-            <div class="summary-label">볼륨 kg</div>
+            <div class="summary-label">웨이트 kg</div>
           </article>
           <article class="summary-card">
             <div class="summary-value">{{ "%.0f"|format(weekly_report.cardio_minutes) }}</div>
@@ -104,7 +116,7 @@
           </article>
           <article class="summary-card">
             <div class="summary-value">{{ "%.0f"|format(monthly_report.volume) }}</div>
-            <div class="summary-label">볼륨 kg</div>
+            <div class="summary-label">웨이트 kg</div>
           </article>
           <article class="summary-card">
             <div class="summary-value">{{ monthly_report.balance_score }}%</div>
@@ -156,7 +168,8 @@
               </div>
               <div class="progress-metrics">
                 <span>운동 {{ format_duration(item.duration_seconds) }}</span>
-                <span>볼륨 {{ "%.0f"|format(item.volume) }}kg</span>
+                <span>웨이트 {{ "%.0f"|format(item.volume) }}kg</span>
+                {% if item.cardio_minutes %}<span>유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
                 <span>세트 {{ item.set_count }}</span>
               </div>
               <div class="progress-bars">
@@ -165,7 +178,7 @@
                   <span class="line-track"><i class="duration-bar" style="width: {{ item.duration_width }}%"></i></span>
                 </div>
                 <div class="progress-line">
-                  <span class="line-label">볼륨</span>
+                  <span class="line-label">웨이트</span>
                   <span class="line-track"><i class="volume-bar" style="width: {{ item.volume_width }}%"></i></span>
                 </div>
                 <div class="progress-line">
@@ -204,8 +217,8 @@
               <span class="badge">운동 {{ item.workout_days }}일</span>
               <span class="badge">🏃 {{ item.set_count }}세트</span>
               <span class="badge">💪 {{ item.rep_count }}회</span>
-              <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
-              <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
+              {% if item.volume %}<span class="badge">🏋 웨이트 {{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
+              {% if item.cardio_minutes %}<span class="badge">🚶 유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
               {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
               <span class="badge">🍱 {{ item.meal_count }}식</span>
               <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>

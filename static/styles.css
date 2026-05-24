@@ -512,6 +512,12 @@ label span {
   margin-top: 10px;
 }
 
+.period-filter-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
 .workout-save-status {
   color: var(--muted);
   font-size: 12px;
@@ -1613,7 +1619,8 @@ tbody tr:last-child td {
   }
 
   .focus-grid,
-  .focus-shortcuts {
+  .focus-shortcuts,
+  .period-filter-form {
     grid-template-columns: 1fr;
   }
 

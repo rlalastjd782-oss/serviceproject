@@ -100,12 +100,15 @@ def create_app() -> Flask:
 
     @app.get("/summaries/daily")
     def daily_summary_page():
+        days = parse_int(request.args.get("days")) or 14
+        days = min(max(days, 7), 90)
         return render_template(
             "summary_page.html",
             page_title="일간 집계",
             page_kicker="Daily",
             table_kind="daily",
-            daily_summary=list_daily_summary(),
+            daily_summary=list_daily_summary(days=days),
+            selected_days=days,
             body_part_summary=list_body_part_summary("daily"),
             active_page="daily",
         )
@@ -2202,9 +2205,19 @@ def get_day_summary(day: str) -> dict[str, float]:
     }
 
 
-def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
+def list_daily_summary(limit: int | None = None, days: int | None = None) -> list[sqlite3.Row]:
+    where_clause = ""
+    limit_clause = ""
+    params: list[object] = []
+    if days is not None:
+        start_date = shift_date(current_local_date(), -(max(1, days) - 1))
+        where_clause = "WHERE p.period >= ?"
+        params.append(start_date)
+    elif limit is not None:
+        limit_clause = "LIMIT ?"
+        params.append(limit)
     return get_db().execute(
-        """
+        f"""
         WITH workout AS (
             SELECT
                 s.workout_date AS period,
@@ -2248,10 +2261,11 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
         FROM periods p
         LEFT JOIN workout w ON w.period = p.period
         LEFT JOIN meal m ON m.period = p.period
+        {where_clause}
         ORDER BY p.period DESC
-        LIMIT ?
+        {limit_clause}
         """,
-        (limit,),
+        params,
     ).fetchall()
 
 
