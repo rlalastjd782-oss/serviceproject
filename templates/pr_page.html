@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}운동 PR{% endblock %}
+
+{% block content %}
+  <section class="section pr-hero-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">운동별 최고 PR</div>
+        <div class="section-subtitle">저장된 세트 기준으로 운동별 최고 중량, 반복, 볼륨, 예상 1RM을 계산합니다.</div>
+      </div>
+    </div>
+    <form method="get" action="{{ url_for('pr_summary_page') }}" class="tool-form pr-filter-form">
+      <select name="part" aria-label="운동부위">
+        <option value="">전체 부위</option>
+        {% for part in body_parts %}
+          <option value="{{ part }}" {% if selected_part == part %}selected{% endif %}>{{ part }}</option>
+        {% endfor %}
+      </select>
+      <input name="q" value="{{ search_query }}" placeholder="운동명 검색">
+      <button class="btn-small" type="submit">보기</button>
+    </form>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">PR 랭킹</div>
+        <div class="section-subtitle">운동을 누르면 아래에 상세 기록과 변화 그래프가 나옵니다.</div>
+      </div>
+    </div>
+    <div class="pr-rank-grid">
+      {% for item in pr_rows %}
+        <a class="pr-rank-card {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('pr_summary_page', part=selected_part, q=search_query, exercise_id=item.id) }}">
+          <div class="pr-rank-head">
+            <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+            <strong>{{ item.name }}</strong>
+          </div>
+          <div class="pr-rank-metrics">
+            <span>중량 <b>{{ "%.1f"|format(item.best_weight) }}kg</b></span>
+            <span>반복 <b>{{ "%.0f"|format(item.best_reps) }}회</b></span>
+            <span>볼륨 <b>{{ "%.0f"|format(item.best_volume) }}kg</b></span>
+            <span>1RM <b>{{ "%.1f"|format(item.estimated_1rm) }}kg</b></span>
+          </div>
+          <div class="record-summary">
+            <span class="badge">{{ item.workout_days }}일</span>
+            <span class="badge">{{ item.set_count }}세트</span>
+            <span class="badge">최근 {{ item.last_date }}</span>
+          </div>
+        </a>
+      {% else %}
+        <div class="empty">PR을 계산할 웨이트 기록이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if selected_profile %}
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">{{ selected_profile.name }} 상세 PR</div>
+          <div class="section-subtitle">{{ selected_profile.body_part }} · 최근 {{ selected_profile.last_date or "-" }}</div>
+        </div>
+        <a class="btn-small" href="{{ url_for('exercise_summary_page', exercise_id=selected_exercise_id) }}">운동 상세</a>
+      </div>
+      <div class="pr-best-grid">
+        {% for item in selected_pr_sets %}
+          <article class="summary-card pr-best-card">
+            <div class="summary-label">{{ item.label }}</div>
+            <div class="summary-value">
+              {% if item.unit == "kg" %}{{ "%.1f"|format(item.value) }}{% else %}{{ "%.0f"|format(item.value) }}{% endif %}{{ item.unit }}
+            </div>
+            <div class="summary-label">{{ item.workout_date }}</div>
+            <div class="record-summary">
+              {% if item.body_part == "유산소" %}
+                <span class="badge">속도 {{ "%.1f"|format(item.cardio_speed or 0) }}</span>
+                <span class="badge">인클라인 {{ "%.1f"|format(item.cardio_incline or 0) }}</span>
+              {% else %}
+                <span class="badge">{{ "%.1f"|format(item.weight or 0) }}kg</span>
+                <span class="badge">{{ item.reps or 0 }}회</span>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+      {% if selected_growth %}
+        <div class="progress-chart exercise-progress-chart pr-growth-chart" role="img" aria-label="운동 PR 변화">
+          {% for item in selected_growth %}
+            <article class="progress-card">
+              <div class="progress-head">
+                <strong>{{ item.period }}</strong>
+                <span>{{ "%.1f"|format(item.max_weight) }}kg</span>
+              </div>
+              <div class="progress-line">
+                <span class="line-label">중량</span>
+                <span class="line-track"><i class="set-bar" style="width: {{ item.weight_width }}%"></i></span>
+              </div>
+              <div class="progress-line">
+                <span class="line-label">볼륨</span>
+                <span class="line-track"><i class="volume-bar" style="width: {{ item.volume_width }}%"></i></span>
+              </div>
+              <div class="progress-line">
+                <span class="line-label">1RM</span>
+                <span class="line-track"><i class="burn-bar" style="width: {{ item.estimated_1rm_width }}%"></i></span>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">최근 갱신 이벤트</div>
+    </div>
+    <div class="detail-list compact-detail-list">
+      {% for event in recent_pr_events %}
+        <div class="detail-row">
+          <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
+          <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
+        </div>
+      {% else %}
+        <div class="empty compact-empty">최근 PR 이벤트가 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

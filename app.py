@@ -225,6 +225,27 @@ def create_app() -> Flask:
             active_page="equipment",
         )
 
+    @app.get("/summaries/pr")
+    def pr_summary_page():
+        selected_part = request.args.get("part", "").strip()
+        search_query = request.args.get("q", "").strip()
+        pr_rows = list_exercise_pr_summary(selected_part, search_query)
+        selected_exercise = parse_int(request.args.get("exercise_id"))
+        selected_exercise = selected_exercise or (int(pr_rows[0]["id"]) if pr_rows else None)
+        return render_template(
+            "pr_page.html",
+            body_parts=body_part_options(),
+            selected_part=selected_part,
+            search_query=search_query,
+            pr_rows=pr_rows,
+            selected_exercise_id=selected_exercise,
+            selected_profile=get_exercise_profile(selected_exercise),
+            selected_growth=build_exercise_growth_chart(selected_exercise, limit=10),
+            selected_pr_sets=list_exercise_best_sets(selected_exercise),
+            recent_pr_events=list_recent_pr_events(limit=12),
+            active_page="pr",
+        )
+
     @app.get("/calendar")
     def calendar_page():
         selected_month = request.args.get("month") or current_local_date()[:7]
@@ -1977,6 +1998,120 @@ def list_exercise_pr_history(exercise_id: int | None, limit: int = 12) -> list[s
         """,
         (exercise_id, limit),
     ).fetchall()
+
+
+def list_exercise_pr_summary(body_part: str = "", query: str = "", limit: int = 80) -> list[sqlite3.Row]:
+    filters = ["ws.weight IS NOT NULL", "ws.reps IS NOT NULL"]
+    params: list[object] = []
+    if body_part:
+        filters.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
+        params.append(body_part)
+    if query:
+        filters.append("e.name LIKE ?")
+        params.append(f"%{query}%")
+    where_clause = " AND ".join(filters)
+    params.append(limit)
+    return get_db().execute(
+        f"""
+        SELECT
+            e.id,
+            e.name,
+            COALESCE(NULLIF(MAX(ws.body_part), ''), '기타') AS body_part,
+            COUNT(ws.id) AS set_count,
+            COUNT(DISTINCT s.workout_date) AS workout_days,
+            MAX(s.workout_date) AS last_date,
+            COALESCE(MAX(ws.weight), 0) AS best_weight,
+            COALESCE(MAX(ws.reps), 0) AS best_reps,
+            COALESCE(MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS best_volume,
+            COALESCE(MAX(ws.weight * (1 + ws.reps / 30.0)), 0) AS estimated_1rm
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE {where_clause}
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') != '유산소'
+        GROUP BY e.id, e.name
+        ORDER BY best_weight DESC, best_volume DESC, last_date DESC, e.name
+        LIMIT ?
+        """,
+        params,
+    ).fetchall()
+
+
+def list_exercise_best_sets(exercise_id: int | None) -> list[dict[str, object]]:
+    if not exercise_id:
+        return []
+    rows = get_db().execute(
+        """
+        WITH base AS (
+            SELECT
+                ws.id,
+                s.workout_date,
+                e.name AS exercise_name,
+                COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+                ws.weight,
+                ws.reps,
+                COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0) AS volume,
+                COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0) AS estimated_1rm,
+                ws.cardio_incline,
+                ws.cardio_speed,
+                ws.cardio_minutes,
+                ws.estimated_calories
+            FROM workout_sets ws
+            JOIN workout_sessions s ON s.id = ws.session_id
+            JOIN exercises e ON e.id = ws.exercise_id
+            WHERE ws.exercise_id = ?
+        ),
+        ranked AS (
+            SELECT
+                *,
+                ROW_NUMBER() OVER (ORDER BY weight DESC, workout_date DESC, id DESC) AS rn_weight,
+                ROW_NUMBER() OVER (ORDER BY reps DESC, workout_date DESC, id DESC) AS rn_reps,
+                ROW_NUMBER() OVER (ORDER BY volume DESC, workout_date DESC, id DESC) AS rn_volume,
+                ROW_NUMBER() OVER (ORDER BY estimated_1rm DESC, workout_date DESC, id DESC) AS rn_1rm,
+                ROW_NUMBER() OVER (ORDER BY cardio_minutes DESC, workout_date DESC, id DESC) AS rn_cardio_minutes,
+                ROW_NUMBER() OVER (ORDER BY cardio_speed DESC, workout_date DESC, id DESC) AS rn_cardio_speed
+            FROM base
+        )
+        SELECT * FROM ranked
+        WHERE rn_weight = 1
+           OR rn_reps = 1
+           OR rn_volume = 1
+           OR rn_1rm = 1
+           OR rn_cardio_minutes = 1
+           OR rn_cardio_speed = 1
+        ORDER BY workout_date DESC, id DESC
+        """,
+        (exercise_id,),
+    ).fetchall()
+    best_items: list[dict[str, object]] = []
+    seen: set[str] = set()
+    for row in rows:
+        candidates = [
+            ("최고 중량", row["weight"], "kg", row["rn_weight"]),
+            ("최고 반복", row["reps"], "회", row["rn_reps"]),
+            ("최고 볼륨", row["volume"], "kg", row["rn_volume"]),
+            ("예상 1RM", row["estimated_1rm"], "kg", row["rn_1rm"]),
+            ("최장 유산소", row["cardio_minutes"], "분", row["rn_cardio_minutes"]),
+            ("최고 속도", row["cardio_speed"], "", row["rn_cardio_speed"]),
+        ]
+        for label, value, unit, rank in candidates:
+            if rank == 1 and value and label not in seen:
+                seen.add(label)
+                best_items.append(
+                    {
+                        "label": label,
+                        "value": float(value),
+                        "unit": unit,
+                        "workout_date": row["workout_date"],
+                        "weight": row["weight"],
+                        "reps": row["reps"],
+                        "body_part": row["body_part"],
+                        "cardio_incline": row["cardio_incline"],
+                        "cardio_speed": row["cardio_speed"],
+                        "cardio_minutes": row["cardio_minutes"],
+                    }
+                )
+    return best_items
 
 
 def list_overload_suggestions() -> dict[str, str]:
