@@ -60,4 +60,22 @@
       <button class="btn-danger" type="submit">샘플 데이터 제거</button>
     </form>
   </section>
+
+  <section class="section danger-zone">
+    <div class="section-header">
+      <div>
+        <div class="section-title">전체 데이터 삭제</div>
+        <div class="section-subtitle">삭제 직전 instance/delete_backups에 JSON 백업을 남긴 뒤 전부 삭제합니다.</div>
+      </div>
+    </div>
+    <div class="detail-list compact-detail-list">
+      <div class="detail-row">
+        <strong>주의</strong>
+        <span>삭제 후에는 백업 파일이 없으면 복구할 수 없습니다.</span>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('delete_all_data_route') }}" class="settings-action-row" data-confirm-submit="전체 데이터를 모두 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.">
+      <button class="btn-danger" type="submit">모두 삭제</button>
+    </form>
+  </section>
 {% endblock %}

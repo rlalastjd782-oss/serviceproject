@@ -629,6 +629,11 @@ def create_app() -> Flask:
         delete_sample_data()
         return redirect(url_for("settings_page"))
 
+    @app.post("/data/delete-all")
+    def delete_all_data_route():
+        delete_all_data()
+        return redirect(url_for("settings_page"))
+
     @app.post("/meals")
     def create_meal():
         meal_date = normalize_date(request.form.get("meal_date"))
@@ -2530,6 +2535,34 @@ def delete_empty_workout_sessions() -> None:
           AND workout_date NOT IN (SELECT DISTINCT meal_date FROM meal_entries)
         """
     )
+
+
+def delete_all_data() -> None:
+    db = get_db()
+    backup_dir = BASE_DIR / "instance" / "delete_backups"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    backup_path = backup_dir / f"before-delete-all-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+    backup_path.write_text(json.dumps(export_all_data(), ensure_ascii=False, indent=2), encoding="utf-8")
+    for table in [
+        "meal_template_items",
+        "meal_templates",
+        "routine_items",
+        "routine_templates",
+        "workout_plan_items",
+        "pr_events",
+        "workout_sets",
+        "workout_sessions",
+        "meal_entries",
+        "body_photos",
+        "body_metrics",
+        "exercise_notes",
+        "exercise_settings",
+        "food_favorites",
+        "user_goals",
+        "exercises",
+    ]:
+        db.execute(f"DELETE FROM {table}")
+    db.commit()
 
 
 def delete_internal_test_data() -> None:

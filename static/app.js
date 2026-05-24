@@ -97,6 +97,11 @@ document.addEventListener("input", (event) => {
 
 document.addEventListener("submit", (event) => {
   const form = event.target.closest("form");
+  const confirmMessage = form?.dataset.confirmSubmit;
+  if (confirmMessage && !window.confirm(confirmMessage)) {
+    event.preventDefault();
+    return;
+  }
   if (form?.method?.toLowerCase() === "post" && !form.dataset.noScrollRestore) {
     saveScrollPosition();
   }

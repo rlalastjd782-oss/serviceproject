@@ -934,6 +934,11 @@ label span {
   margin-top: 8px;
 }
 
+.danger-zone {
+  border-color: rgb(239 68 68 / 45%);
+  background: #1f1115;
+}
+
 .note-form {
   margin-bottom: 6px;
 }
