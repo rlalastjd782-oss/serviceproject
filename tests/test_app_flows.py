@@ -155,6 +155,18 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(len(meals), 2)
             self.assertEqual(meals[0]["calories"], 180)
 
+        response = self.client.get(f"/?date={workout_date}&mode=workout")
+        html = response.data.decode("utf-8")
+        self.assertIn('list="exercise-list"', html)
+        self.assertIn(f'value="{strength_name}"', html)
+        self.assertIn(f'value="{cardio_name}"', html)
+
+        response = self.client.get("/summaries/exercises")
+        self.assertIn('list="exercise-search-list"', response.data.decode("utf-8"))
+
+        response = self.client.get("/summaries/pr")
+        self.assertIn('list="pr-exercise-list"', response.data.decode("utf-8"))
+
     def test_sample_data_aggregates(self) -> None:
         with self.app.app_context():
             app_module.init_db()

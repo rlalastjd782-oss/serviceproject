@@ -368,11 +368,6 @@ function renderExerciseQuickList(bodyPart) {
       return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}">${safeName}</button>`;
     })
     .join("");
-  if (exerciseDatalist) {
-    exerciseDatalist.innerHTML = names
-      .map((name) => `<option value="${escapeHtml(name)}"></option>`)
-      .join("");
-  }
   exerciseQuickEmpty.hidden = names.length > 0;
   renderRecentSetList(exerciseNameInput?.value || "");
   renderExerciseGuidance(exerciseNameInput?.value || "");

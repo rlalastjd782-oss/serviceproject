@@ -496,9 +496,14 @@
         <div class="section-title">운동 기록 검색</div>
       </div>
       <form method="get" action="{{ url_for('exercise_summary_page') }}" class="tool-form">
-        <input name="q" value="{{ search_query }}" placeholder="운동명 또는 부위 검색">
+        <input list="exercise-search-list" name="q" value="{{ search_query }}" autocomplete="off" placeholder="운동명 또는 부위 검색">
         <button class="btn-small" type="submit">검색</button>
       </form>
+      <datalist id="exercise-search-list">
+        {% for exercise in exercise_choices %}
+          <option value="{{ exercise.name }}"></option>
+        {% endfor %}
+      </datalist>
       {% if search_query %}
         <div class="detail-list search-result-list">
           {% for result in search_results %}

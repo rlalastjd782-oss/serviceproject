@@ -200,6 +200,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         return render_template(
             "pr_page.html",
             body_parts=body_part_options(),
+            exercise_choices=list_exercises(),
             selected_part=selected_part,
             search_query=search_query,
             pr_rows=pr_rows,

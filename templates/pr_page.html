@@ -17,9 +17,14 @@
           <option value="{{ part }}" {% if selected_part == part %}selected{% endif %}>{{ part }}</option>
         {% endfor %}
       </select>
-      <input name="q" value="{{ search_query }}" placeholder="운동명 검색">
+      <input list="pr-exercise-list" name="q" value="{{ search_query }}" autocomplete="off" placeholder="운동명 검색">
       <button class="btn-small" type="submit">보기</button>
     </form>
+    <datalist id="pr-exercise-list">
+      {% for exercise in exercise_choices %}
+        <option value="{{ exercise.name }}"></option>
+      {% endfor %}
+    </datalist>
     <div class="pr-dashboard-grid">
       <article class="pr-dashboard-card">
         <span>운동 수</span>

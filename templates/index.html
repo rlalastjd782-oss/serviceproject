@@ -348,7 +348,7 @@
           <option value="{{ part }}" class="{{ body_part_class(part) }}">{{ part }}</option>
         {% endfor %}
       </select>
-      <input name="exercise_name" placeholder="운동명" required>
+      <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="운동명" required>
       <input name="target_sets" type="number" min="1" step="1" value="3" aria-label="목표 세트">
       <button class="btn-small" type="submit">추가</button>
     </form>
