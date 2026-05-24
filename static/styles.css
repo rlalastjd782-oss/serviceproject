@@ -24,12 +24,15 @@
   --danger: #ef4444;
   --radius: 8px;
   --radius-soft: 10px;
-  font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Pretendard", "Malgun Gothic", sans-serif;
+  --font-main: "Pretendard", "Noto Sans KR", "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
+  --font-number: "Pretendard", "Noto Sans KR", "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-main);
 }
 
 html {
   background: var(--bg);
   scroll-padding-top: 150px;
+  font-family: var(--font-main);
 }
 
 body {
@@ -38,17 +41,26 @@ body {
   margin: 0 auto;
   background: var(--bg);
   color: var(--text);
+  font-family: var(--font-main);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
 }
 
 button,
 input,
-select {
-  font: inherit;
+select,
+textarea {
+  font-family: var(--font-main);
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: 0;
 }
 
 button,
 a {
   cursor: pointer;
+  font-family: var(--font-main);
 }
 
 a {
@@ -57,6 +69,26 @@ a {
 
 #app {
   min-height: 100vh;
+  font-family: var(--font-main);
+}
+
+.summary-value,
+.workout-clock-display,
+.timer-display,
+.app-version,
+.goal-head span,
+.goal-meta,
+.badge,
+.cat-stat-count,
+.progress-metrics,
+.record-summary,
+.set-result,
+.trend-snapshot-row,
+input[type="number"],
+input[type="date"],
+input[type="month"] {
+  font-family: var(--font-number);
+  font-variant-numeric: tabular-nums;
 }
 
 .header {
@@ -74,7 +106,8 @@ a {
 .header-title {
   grid-column: 2;
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 
 .app-version {
@@ -130,7 +163,7 @@ a {
   background: none;
   color: var(--dim);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
   transition: all 0.2s;
 }
@@ -343,14 +376,16 @@ a {
 .section-title {
   color: var(--strong);
   font-size: 13px;
-  font-weight: 900;
+  font-weight: 800;
+  letter-spacing: 0;
 }
 
 .section-subtitle {
   margin-top: 3px;
   color: var(--dim);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0;
 }
 
 .week-control-row {
@@ -478,7 +513,7 @@ label span {
   color: #fff;
   cursor: pointer;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 800;
   padding: 8px 14px;
 }
 
@@ -493,7 +528,7 @@ label span {
   color: var(--muted);
   cursor: pointer;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   padding: 6px 12px;
 }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "workout-pwa-v28";
+const CACHE_NAME = "workout-pwa-v29";
 const ASSETS = [
   "/",
   "/?mode=workout",
