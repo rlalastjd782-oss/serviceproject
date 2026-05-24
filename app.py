@@ -2189,7 +2189,7 @@ def build_weekly_report(date_text: str | None = None) -> dict[str, object]:
     totals = db.execute(
         """
         SELECT
-            COUNT(DISTINCT s.workout_date) AS workout_days,
+            COUNT(DISTINCT CASE WHEN ws.id IS NOT NULL THEN s.workout_date END) AS workout_days,
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
             COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
@@ -2205,7 +2205,12 @@ def build_weekly_report(date_text: str | None = None) -> dict[str, object]:
         (week_start, week_end),
     ).fetchone()["meal_days"]
     duration_seconds = db.execute(
-        "SELECT COALESCE(SUM(duration_seconds), 0) AS duration_seconds FROM workout_sessions WHERE workout_date BETWEEN ? AND ?",
+        """
+        SELECT COALESCE(SUM(s.duration_seconds), 0) AS duration_seconds
+        FROM workout_sessions s
+        WHERE s.workout_date BETWEEN ? AND ?
+          AND EXISTS (SELECT 1 FROM workout_sets ws WHERE ws.session_id = s.id)
+        """,
         (week_start, week_end),
     ).fetchone()["duration_seconds"]
     top_part = db.execute(
@@ -2241,7 +2246,7 @@ def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
     totals = db.execute(
         """
         SELECT
-            COUNT(DISTINCT s.workout_date) AS workout_days,
+            COUNT(DISTINCT CASE WHEN ws.id IS NOT NULL THEN s.workout_date END) AS workout_days,
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
         FROM workout_sessions s
@@ -2264,7 +2269,12 @@ def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
         (month_start, next_month),
     ).fetchone()
     duration_seconds = db.execute(
-        "SELECT COALESCE(SUM(duration_seconds), 0) AS duration_seconds FROM workout_sessions WHERE workout_date >= ? AND workout_date < ?",
+        """
+        SELECT COALESCE(SUM(s.duration_seconds), 0) AS duration_seconds
+        FROM workout_sessions s
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+          AND EXISTS (SELECT 1 FROM workout_sets ws WHERE ws.session_id = s.id)
+        """,
         (month_start, next_month),
     ).fetchone()["duration_seconds"]
     metrics = db.execute(
@@ -3182,7 +3192,7 @@ def list_weekly_summary(limit: int = 12, month_start: str | None = None) -> list
                 strftime('%Y-%m', s.workout_date) AS month_key,
                 CAST(strftime('%m', s.workout_date) AS INTEGER) AS month_number,
                 ((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
-                COUNT(DISTINCT s.workout_date) AS workout_days,
+                COUNT(DISTINCT CASE WHEN ws.id IS NOT NULL THEN s.workout_date END) AS workout_days,
                 COUNT(ws.id) AS set_count,
                 COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
                 COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
@@ -3192,6 +3202,7 @@ def list_weekly_summary(limit: int = 12, month_start: str | None = None) -> list
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             {workout_where}
             GROUP BY month_key, week_of_month
+            HAVING COUNT(ws.id) > 0
         ),
         workout_time AS (
             SELECT
@@ -3199,8 +3210,9 @@ def list_weekly_summary(limit: int = 12, month_start: str | None = None) -> list
                 CAST(strftime('%m', workout_date) AS INTEGER) AS month_number,
                 ((CAST(strftime('%d', workout_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
                 COALESCE(SUM(duration_seconds), 0) AS duration_seconds
-            FROM workout_sessions
+            FROM workout_sessions s
             {workout_where.replace("s.workout_date", "workout_date")}
+              {"AND" if workout_where else "WHERE"} EXISTS (SELECT 1 FROM workout_sets ws WHERE ws.session_id = s.id)
             GROUP BY month_key, week_of_month
         ),
         meal AS (
