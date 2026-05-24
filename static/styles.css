@@ -727,6 +727,21 @@ label span {
   gap: 6px;
 }
 
+.routine-manage-form {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  margin-top: -4px;
+}
+
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .body-metric-form {
   grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
 }
@@ -1831,6 +1846,7 @@ tbody tr:last-child td {
 
   .goal-form,
   .routine-form,
+  .routine-manage-form,
   .tool-form,
   .body-metric-form,
   .body-photo-form,

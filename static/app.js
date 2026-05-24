@@ -50,6 +50,7 @@ let workoutClockSyncId = null;
 initWorkoutClock();
 restoreSavedScrollPosition();
 initWorkoutTools();
+startRestTimerFromUrl();
 
 document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   applyBodyPartSelectColor(select);
@@ -451,6 +452,7 @@ function copySetRow(sourceRow, setList) {
   copyFieldValue(sourceRow, row, 'input[name="cardio_incline"]');
   copyFieldValue(sourceRow, row, 'input[name="cardio_speed"]');
   copyFieldValue(sourceRow, row, 'input[name="cardio_minutes"]');
+  copyFieldValue(sourceRow, row, 'input[name="set_rpe"]');
   copyFieldValue(sourceRow, row, 'input[name="set_memo"]');
   applyWorkoutInputMode(document.querySelector("[data-body-part-select]")?.value || "");
 }
@@ -609,6 +611,7 @@ function setRowHtml(index) {
         <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30">
       </label>
     </div>
+    <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="RPE">
     <input name="set_memo" autocomplete="off" placeholder="메모">
     <button class="row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
     <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
@@ -668,6 +671,17 @@ function updateRestTimerDisplay() {
   const seconds = restRemaining % 60;
   display.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   display.classList.toggle("is-running", restRemaining > 0);
+}
+
+function startRestTimerFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const restSeconds = Number(params.get("rest") || 0);
+  if (restSeconds > 0) {
+    startRestTimer(restSeconds);
+    params.delete("rest");
+    const nextUrl = `${window.location.pathname}?${params.toString()}`.replace(/\?$/, "");
+    window.history.replaceState({}, "", nextUrl);
+  }
 }
 
 function workoutClockKey() {

@@ -75,9 +75,13 @@ def create_app() -> Flask:
             exercise_stats_by_name=list_exercise_stats_by_name(),
             overload_suggestions=list_overload_suggestions(),
             exercise_notes=list_exercise_notes(),
+            exercise_settings=list_exercise_settings(),
             pr_events=list_pr_events(today_session["workout_date"]),
             foods_by_meal_type=list_foods_by_meal_type(),
+            favorite_foods=list_favorite_foods(),
+            favorite_exercises=list_favorite_exercises(),
             routines=list_routines(),
+            workout_plan=list_workout_plan(today_session["workout_date"]),
             recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
             workout_focus_recommendations=list_workout_focus_recommendations(today_session["workout_date"]),
             default_programs=DEFAULT_PROGRAMS.keys(),
@@ -88,6 +92,7 @@ def create_app() -> Flask:
             meals=meals,
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
+            daily_calorie_goal=get_goal_value("daily_calories", 2200),
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
             recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
             meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
@@ -254,6 +259,7 @@ def create_app() -> Flask:
         cardio_minutes = request.form.getlist("cardio_minutes") or [request.form.get("cardio_minutes", "")]
         set_memos = request.form.getlist("set_memo") or [request.form.get("memo", "")]
         set_types = request.form.getlist("set_type") or [request.form.get("set_type", "본세트")]
+        set_rpes = request.form.getlist("set_rpe") or [request.form.get("rpe", "")]
         set_count = max(
             len(set_weights),
             len(set_reps),
@@ -262,6 +268,7 @@ def create_app() -> Flask:
             len(cardio_minutes),
             len(set_memos),
             len(set_types),
+            len(set_rpes),
         )
         set_rows = []
         for index in range(set_count):
@@ -272,6 +279,7 @@ def create_app() -> Flask:
             minutes_value = value_at(cardio_minutes, index)
             memo_value = value_at(set_memos, index).strip()
             set_type = value_at(set_types, index).strip() or "본세트"
+            rpe_value = value_at(set_rpes, index)
             is_cardio = body_part == "유산소"
             if (
                 weight_value.strip() == ""
@@ -291,6 +299,7 @@ def create_app() -> Flask:
                     parse_float(minutes_value) if is_cardio else None,
                     memo_value,
                     "유산소" if is_cardio else set_type,
+                    parse_float(rpe_value),
                 )
             )
 
@@ -304,7 +313,7 @@ def create_app() -> Flask:
             "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
             (session["id"],),
         ).fetchone()[0]
-        for offset, (weight, reps, cardio_incline, cardio_speed, cardio_minutes_value, memo, set_type) in enumerate(set_rows):
+        for offset, (weight, reps, cardio_incline, cardio_speed, cardio_minutes_value, memo, set_type, rpe) in enumerate(set_rows):
             estimated_calories = estimate_exercise_calories(
                 body_part,
                 cardio_incline,
@@ -316,9 +325,9 @@ def create_app() -> Flask:
                 """
                 INSERT INTO workout_sets (
                     session_id, exercise_id, weight, reps, cardio_incline, cardio_speed,
-                    cardio_minutes, estimated_calories, memo, sort_order, body_part, set_type
+                    cardio_minutes, estimated_calories, memo, sort_order, body_part, set_type, rpe
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     session["id"],
@@ -333,13 +342,15 @@ def create_app() -> Flask:
                     next_order + offset,
                     body_part,
                     set_type,
+                    rpe,
                 ),
             )
             if body_part != "유산소":
                 record_pr_events(cursor.lastrowid, session["workout_date"], exercise_id, exercise_name, weight, reps, previous_records)
                 previous_records = update_record_values(previous_records, weight, reps)
         db.commit()
-        return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
+        rest_seconds = get_exercise_rest_seconds(exercise_name)
+        return redirect(url_for("index", date=session["workout_date"], mode=mode or None, rest=rest_seconds if mode == "workout" else None))
 
     @app.post("/routines/from-day")
     def create_routine_from_day():
@@ -357,6 +368,50 @@ def create_app() -> Flask:
         mode = request.form.get("mode")
         apply_routine_template(routine_id, workout_date)
         return redirect(url_for("index", date=workout_date, mode=mode or None))
+
+    @app.post("/routines/<int:routine_id>/update")
+    def update_routine(routine_id: int):
+        workout_date = request.form.get("workout_date") or current_local_date()
+        mode = request.form.get("mode")
+        name = request.form.get("routine_name", "").strip()
+        if name:
+            rename_routine_template(routine_id, name)
+        return redirect(url_for("index", date=workout_date, mode=mode or None))
+
+    @app.post("/routines/<int:routine_id>/delete")
+    def delete_routine(routine_id: int):
+        workout_date = request.form.get("workout_date") or current_local_date()
+        mode = request.form.get("mode")
+        delete_routine_template(routine_id)
+        return redirect(url_for("index", date=workout_date, mode=mode or None))
+
+    @app.post("/plans")
+    def create_plan_item_route():
+        workout_date = request.form.get("workout_date") or current_local_date()
+        body_part = request.form.get("body_part", "").strip() or "기타"
+        exercise_name = request.form.get("exercise_name", "").strip()
+        target_sets = parse_int(request.form.get("target_sets")) or 3
+        if exercise_name:
+            create_workout_plan_item(workout_date, body_part, exercise_name, target_sets)
+        return redirect(url_for("index", date=workout_date, mode="workout"))
+
+    @app.post("/plans/<int:item_id>/delete")
+    def delete_plan_item_route(item_id: int):
+        workout_date = request.form.get("workout_date") or current_local_date()
+        delete_workout_plan_item(item_id)
+        return redirect(url_for("index", date=workout_date, mode="workout"))
+
+    @app.post("/exercise-settings")
+    def save_exercise_settings_route():
+        workout_date = request.form.get("workout_date") or current_local_date()
+        exercise_name = request.form.get("exercise_name", "").strip()
+        if exercise_name:
+            save_exercise_settings(
+                exercise_name,
+                parse_int(request.form.get("rest_seconds")) or 90,
+                request.form.get("is_favorite") == "1",
+            )
+        return redirect(url_for("index", date=workout_date, mode="workout"))
 
     @app.post("/sessions/<int:source_session_id>/apply")
     def apply_session(source_session_id: int):
@@ -424,6 +479,9 @@ def create_app() -> Flask:
             save_goal("weekly_meal_days", parse_int(request.form.get("weekly_meal_days")) or 0)
             save_goal("weekly_calories", parse_int(request.form.get("weekly_calories")) or 0)
             return redirect(url_for("meal_weekly_page", week=target_date))
+        if scope == "daily_meals":
+            save_goal("daily_calories", parse_int(request.form.get("daily_calories")) or 0)
+            return redirect(url_for("index", date=target_date, mode="meal"))
         if scope == "monthly":
             save_goal("monthly_volume", parse_int(request.form.get("monthly_volume")) or 0)
             save_goal("monthly_workout_days", parse_int(request.form.get("monthly_workout_days")) or 0)
@@ -475,6 +533,25 @@ def create_app() -> Flask:
         mode = request.form.get("mode")
         apply_meal_template(template_id, meal_date)
         return redirect(url_for("index", date=meal_date, mode=mode or None))
+
+    @app.post("/food-favorites")
+    def save_food_favorite_route():
+        meal_date = request.form.get("meal_date") or current_local_date()
+        food_name = request.form.get("food_name", "").strip()
+        if food_name:
+            save_food_favorite(
+                food_name,
+                parse_float(request.form.get("quantity")),
+                parse_float(request.form.get("grams")),
+                parse_float(request.form.get("calories")),
+            )
+        return redirect(url_for("index", date=meal_date, mode="meal"))
+
+    @app.post("/food-favorites/<path:food_name>/delete")
+    def delete_food_favorite_route(food_name: str):
+        meal_date = request.form.get("meal_date") or current_local_date()
+        delete_food_favorite(food_name)
+        return redirect(url_for("index", date=meal_date, mode="meal"))
 
     @app.post("/meals/copy-day")
     def copy_meal_day_route():
@@ -624,7 +701,7 @@ def create_app() -> Flask:
             db.execute(
                 """
                 UPDATE workout_sets
-                SET cardio_incline = ?, cardio_speed = ?, cardio_minutes = ?, estimated_calories = ?
+                SET cardio_incline = ?, cardio_speed = ?, cardio_minutes = ?, estimated_calories = ?, rpe = ?
                 WHERE id = ?
                 """,
                 (
@@ -632,6 +709,7 @@ def create_app() -> Flask:
                     cardio_speed,
                     cardio_minutes,
                     estimate_exercise_calories("유산소", cardio_incline, cardio_speed, cardio_minutes, workout_date),
+                    parse_float(request.form.get("rpe")),
                     set_id,
                 ),
             )
@@ -639,13 +717,14 @@ def create_app() -> Flask:
             db.execute(
                 """
                 UPDATE workout_sets
-                SET weight = ?, reps = ?, set_type = ?
+                SET weight = ?, reps = ?, set_type = ?, rpe = ?
                 WHERE id = ?
                 """,
                 (
                     parse_float(request.form.get("weight")),
                     parse_int(request.form.get("reps")),
                     request.form.get("set_type", "본세트").strip() or "본세트",
+                    parse_float(request.form.get("rpe")),
                     set_id,
                 ),
             )
@@ -773,6 +852,32 @@ def init_db() -> None:
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS exercise_settings (
+            exercise_name TEXT PRIMARY KEY,
+            rest_seconds INTEGER NOT NULL DEFAULT 90,
+            is_favorite INTEGER NOT NULL DEFAULT 0,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS food_favorites (
+            food_name TEXT PRIMARY KEY,
+            quantity REAL,
+            grams REAL,
+            calories REAL,
+            is_favorite INTEGER NOT NULL DEFAULT 1,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS workout_plan_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            workout_date TEXT NOT NULL,
+            body_part TEXT NOT NULL DEFAULT '기타',
+            exercise_name TEXT NOT NULL,
+            target_sets INTEGER NOT NULL DEFAULT 3,
+            sort_order INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
         CREATE TABLE IF NOT EXISTS pr_events (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             workout_date TEXT NOT NULL,
@@ -828,6 +933,7 @@ def init_db() -> None:
     ensure_column(db, "workout_sets", "cardio_speed", "REAL")
     ensure_column(db, "workout_sets", "cardio_minutes", "REAL")
     ensure_column(db, "workout_sets", "estimated_calories", "REAL")
+    ensure_column(db, "workout_sets", "rpe", "REAL")
     ensure_column(db, "routine_items", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
     ensure_column(db, "routine_items", "cardio_incline", "REAL")
     ensure_column(db, "routine_items", "cardio_speed", "REAL")
@@ -1066,6 +1172,39 @@ def list_foods_by_meal_type(limit: int = 12) -> dict[str, list[dict[str, float |
     return grouped
 
 
+def list_favorite_foods() -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT food_name, quantity, grams, calories
+        FROM food_favorites
+        WHERE is_favorite = 1
+        ORDER BY updated_at DESC, food_name
+        """
+    ).fetchall()
+
+
+def save_food_favorite(food_name: str, quantity: float | None, grams: float | None, calories: float | None) -> None:
+    get_db().execute(
+        """
+        INSERT INTO food_favorites (food_name, quantity, grams, calories, is_favorite, updated_at)
+        VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+        ON CONFLICT(food_name) DO UPDATE SET
+            quantity = excluded.quantity,
+            grams = excluded.grams,
+            calories = excluded.calories,
+            is_favorite = 1,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (food_name, quantity, grams, calories),
+    )
+    get_db().commit()
+
+
+def delete_food_favorite(food_name: str) -> None:
+    get_db().execute("DELETE FROM food_favorites WHERE food_name = ?", (food_name,))
+    get_db().commit()
+
+
 def list_routines() -> list[dict[str, object]]:
     rows = get_db().execute(
         """
@@ -1077,6 +1216,18 @@ def list_routines() -> list[dict[str, object]]:
         """
     ).fetchall()
     return [dict(row) for row in rows]
+
+
+def rename_routine_template(routine_id: int, name: str) -> None:
+    get_db().execute("UPDATE routine_templates SET name = ? WHERE id = ?", (name, routine_id))
+    get_db().commit()
+
+
+def delete_routine_template(routine_id: int) -> None:
+    db = get_db()
+    db.execute("DELETE FROM routine_items WHERE routine_id = ?", (routine_id,))
+    db.execute("DELETE FROM routine_templates WHERE id = ?", (routine_id,))
+    db.commit()
 
 
 def create_routine_template(name: str, session_id: int) -> None:
@@ -1239,6 +1390,39 @@ def apply_session_template(source_session_id: int, workout_date: str) -> None:
             ),
         )
     db.commit()
+
+
+def list_workout_plan(workout_date: str) -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT *
+        FROM workout_plan_items
+        WHERE workout_date = ?
+        ORDER BY sort_order, id
+        """,
+        (workout_date,),
+    ).fetchall()
+
+
+def create_workout_plan_item(workout_date: str, body_part: str, exercise_name: str, target_sets: int) -> None:
+    db = get_db()
+    next_order = db.execute(
+        "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_plan_items WHERE workout_date = ?",
+        (workout_date,),
+    ).fetchone()[0]
+    db.execute(
+        """
+        INSERT INTO workout_plan_items (workout_date, body_part, exercise_name, target_sets, sort_order)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (workout_date, body_part, exercise_name, max(1, target_sets), next_order),
+    )
+    db.commit()
+
+
+def delete_workout_plan_item(item_id: int) -> None:
+    get_db().execute("DELETE FROM workout_plan_items WHERE id = ?", (item_id,))
+    get_db().commit()
 
 
 def apply_default_program(program_name: str, workout_date: str) -> None:
@@ -1634,6 +1818,51 @@ def save_exercise_note(exercise_name: str, note: str) -> None:
         (exercise_name, note),
     )
     get_db().commit()
+
+
+def list_exercise_settings() -> dict[str, dict[str, int | bool]]:
+    rows = get_db().execute("SELECT * FROM exercise_settings").fetchall()
+    return {
+        row["exercise_name"]: {
+            "rest_seconds": int(row["rest_seconds"] or 90),
+            "is_favorite": bool(row["is_favorite"]),
+        }
+        for row in rows
+    }
+
+
+def save_exercise_settings(exercise_name: str, rest_seconds: int, is_favorite: bool) -> None:
+    get_db().execute(
+        """
+        INSERT INTO exercise_settings (exercise_name, rest_seconds, is_favorite, updated_at)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(exercise_name) DO UPDATE SET
+            rest_seconds = excluded.rest_seconds,
+            is_favorite = excluded.is_favorite,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (exercise_name, max(15, min(600, int(rest_seconds or 90))), 1 if is_favorite else 0),
+    )
+    get_db().commit()
+
+
+def get_exercise_rest_seconds(exercise_name: str) -> int:
+    row = get_db().execute(
+        "SELECT rest_seconds FROM exercise_settings WHERE exercise_name = ?",
+        (exercise_name,),
+    ).fetchone()
+    return int(row["rest_seconds"]) if row else 90
+
+
+def list_favorite_exercises() -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT exercise_name, rest_seconds
+        FROM exercise_settings
+        WHERE is_favorite = 1
+        ORDER BY updated_at DESC, exercise_name
+        """
+    ).fetchall()
 
 
 def get_body_metric(metric_date: str) -> sqlite3.Row | None:
@@ -2046,6 +2275,9 @@ def export_all_data() -> dict[str, object]:
         "meal_template_items",
         "user_goals",
         "exercise_notes",
+        "exercise_settings",
+        "food_favorites",
+        "workout_plan_items",
         "pr_events",
         "body_metrics",
         "body_photos",
@@ -2059,7 +2291,7 @@ def export_all_data() -> dict[str, object]:
 def export_workout_csv() -> str:
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["date", "body_part", "exercise", "set_type", "weight", "reps", "incline", "speed", "minutes", "estimated_calories"])
+    writer.writerow(["date", "body_part", "exercise", "set_type", "weight", "reps", "incline", "speed", "minutes", "estimated_calories", "rpe"])
     rows = get_db().execute(
         """
         SELECT
@@ -2072,7 +2304,8 @@ def export_workout_csv() -> str:
             ws.cardio_incline,
             ws.cardio_speed,
             ws.cardio_minutes,
-            ws.estimated_calories
+            ws.estimated_calories,
+            ws.rpe
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         JOIN exercises e ON e.id = ws.exercise_id
@@ -2092,6 +2325,7 @@ def export_workout_csv() -> str:
                 row["cardio_speed"],
                 row["cardio_minutes"],
                 row["estimated_calories"],
+                row["rpe"],
             ]
         )
     return "\ufeff" + output.getvalue()
@@ -2112,11 +2346,18 @@ def import_all_data(payload: dict[str, object]) -> None:
         "meal_template_items",
         "user_goals",
         "exercise_notes",
+        "exercise_settings",
+        "food_favorites",
+        "workout_plan_items",
         "pr_events",
         "body_metrics",
         "body_photos",
     ]
     db = get_db()
+    backup_dir = BASE_DIR / "instance" / "restore_backups"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    backup_path = backup_dir / f"before-import-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+    backup_path.write_text(json.dumps(export_all_data(), ensure_ascii=False, indent=2), encoding="utf-8")
     for table in reversed(ordered_tables):
         db.execute(f"DELETE FROM {table}")
     for table in ordered_tables:
