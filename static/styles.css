@@ -578,6 +578,65 @@ label span {
   margin-top: 10px;
 }
 
+.workout-tool-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.tool-card {
+  display: grid;
+  gap: 9px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 10px;
+}
+
+.tool-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tool-card-head strong {
+  color: var(--strong);
+  font-size: 13px;
+}
+
+.tool-card-head span {
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tool-input-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.plate-result,
+.warmup-result {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 28px;
+  align-items: center;
+}
+
+.plate-result,
+.warmup-result span {
+  border: 1px solid #293854;
+  border-radius: 999px;
+  background: #121a29;
+  color: #d8e7ff;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 5px 9px;
+}
+
 .period-filter-form {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1795,7 +1854,8 @@ tbody tr:last-child td {
 
   .focus-grid,
   .focus-shortcuts,
-  .period-filter-form {
+  .period-filter-form,
+  .workout-tool-grid {
     grid-template-columns: 1fr;
   }
 

@@ -125,6 +125,51 @@
     </div>
   </section>
 
+  <section class="section workout-only">
+    <div class="section-header">
+      <div>
+        <div class="section-title">운동 도구</div>
+        <div class="section-subtitle">중량 세팅과 워밍업을 빠르게 계산합니다.</div>
+      </div>
+    </div>
+    <div class="workout-tool-grid">
+      <div class="tool-card" data-plate-tool>
+        <div class="tool-card-head">
+          <strong>원판 계산기</strong>
+          <span>한쪽 기준</span>
+        </div>
+        <div class="tool-input-row">
+          <label>
+            <span>목표 kg</span>
+            <input type="number" min="0" step="0.5" inputmode="decimal" value="60" data-plate-target>
+          </label>
+          <label>
+            <span>봉 kg</span>
+            <input type="number" min="0" step="0.5" inputmode="decimal" value="20" data-plate-bar>
+          </label>
+        </div>
+        <div class="plate-result" data-plate-result>20kg x 1</div>
+      </div>
+      <div class="tool-card" data-warmup-tool>
+        <div class="tool-card-head">
+          <strong>워밍업</strong>
+          <span>40 / 60 / 80%</span>
+        </div>
+        <div class="tool-input-row">
+          <label>
+            <span>본세트 kg</span>
+            <input type="number" min="0" step="0.5" inputmode="decimal" value="60" data-warmup-target>
+          </label>
+          <label>
+            <span>반올림</span>
+            <input type="number" min="0.5" step="0.5" inputmode="decimal" value="2.5" data-warmup-step>
+          </label>
+        </div>
+        <div class="warmup-result" data-warmup-result></div>
+      </div>
+    </div>
+  </section>
+
   <div class="summary-grid overview-only">
     <article class="summary-card">
       <div class="summary-icon">⏱</div>
