@@ -13,12 +13,27 @@ const bodyPartClassMap = {
   "기타": "body-part-other",
 };
 
+const mealTypeClassMap = {
+  "아침": "meal-type-breakfast",
+  "점심": "meal-type-lunch",
+  "저녁": "meal-type-dinner",
+  "간식": "meal-type-snack",
+  "기타": "meal-type-other",
+};
+
 document.querySelectorAll("[data-body-part-select]").forEach(applyBodyPartSelectColor);
+document.querySelectorAll("[data-meal-type-select]").forEach(applyMealTypeSelectColor);
 
 document.addEventListener("change", (event) => {
   const bodyPartSelect = event.target.closest("[data-body-part-select]");
   if (bodyPartSelect) {
     applyBodyPartSelectColor(bodyPartSelect);
+    return;
+  }
+
+  const mealTypeSelect = event.target.closest("[data-meal-type-select]");
+  if (mealTypeSelect) {
+    applyMealTypeSelectColor(mealTypeSelect);
   }
 });
 
@@ -87,6 +102,11 @@ document.addEventListener("click", (event) => {
 function applyBodyPartSelectColor(select) {
   select.classList.remove(...Object.values(bodyPartClassMap));
   select.classList.add(bodyPartClassMap[select.value] || "body-part-other");
+}
+
+function applyMealTypeSelectColor(select) {
+  select.classList.remove(...Object.values(mealTypeClassMap));
+  select.classList.add(mealTypeClassMap[select.value] || "meal-type-other");
 }
 
 function addRow(list, type) {

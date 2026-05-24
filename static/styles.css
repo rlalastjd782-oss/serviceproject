@@ -633,6 +633,66 @@ select:focus {
   --part-line: rgb(155 168 184 / 30%);
 }
 
+.meal-type-badge,
+.meal-type-select {
+  --meal-bg: rgb(103 168 255 / 12%);
+  --meal-fg: var(--accent-2);
+  --meal-line: rgb(103 168 255 / 28%);
+}
+
+.meal-type-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  border-radius: 999px;
+  padding: 0 8px;
+  background: var(--meal-bg);
+  color: var(--meal-fg);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.meal-type-select {
+  border-color: var(--meal-line);
+  background-color: rgb(10 15 23);
+  box-shadow: inset 3px 0 0 var(--meal-fg);
+}
+
+.meal-type-select:focus {
+  border-color: var(--meal-fg);
+  outline-color: var(--meal-bg);
+}
+
+.meal-type-breakfast {
+  --meal-bg: rgb(255 203 107 / 15%);
+  --meal-fg: #ffcb6b;
+  --meal-line: rgb(255 203 107 / 34%);
+}
+
+.meal-type-lunch {
+  --meal-bg: rgb(63 242 177 / 13%);
+  --meal-fg: #3ff2b1;
+  --meal-line: rgb(63 242 177 / 34%);
+}
+
+.meal-type-dinner {
+  --meal-bg: rgb(184 139 255 / 15%);
+  --meal-fg: #b88bff;
+  --meal-line: rgb(184 139 255 / 34%);
+}
+
+.meal-type-snack {
+  --meal-bg: rgb(255 107 107 / 14%);
+  --meal-fg: #ff7b7b;
+  --meal-line: rgb(255 107 107 / 34%);
+}
+
+.meal-type-other {
+  --meal-bg: rgb(155 168 184 / 14%);
+  --meal-fg: #9ba8b8;
+  --meal-line: rgb(155 168 184 / 30%);
+}
+
 .vertical-item-list {
   display: grid;
   gap: 7px;

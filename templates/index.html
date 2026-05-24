@@ -107,12 +107,12 @@
         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
         <label>
           <span>구분</span>
-          <select name="meal_type">
-            <option value="아침">아침</option>
-            <option value="점심">점심</option>
-            <option value="저녁">저녁</option>
-            <option value="간식">간식</option>
-            <option value="기타">기타</option>
+          <select name="meal_type" class="meal-type-select" data-meal-type-select>
+            <option value="아침" class="{{ meal_type_class('아침') }}">아침</option>
+            <option value="점심" class="{{ meal_type_class('점심') }}">점심</option>
+            <option value="저녁" class="{{ meal_type_class('저녁') }}">저녁</option>
+            <option value="간식" class="{{ meal_type_class('간식') }}">간식</option>
+            <option value="기타" class="{{ meal_type_class('기타') }}">기타</option>
           </select>
         </label>
         <div class="set-entry-head">
@@ -220,7 +220,7 @@
         {% if meal_groups %}
           {% for group in meal_groups %}
             <article class="meal-group-row">
-              <strong>{{ group.meal_type }}</strong>
+              <strong><span class="meal-type-badge {{ meal_type_class(group.meal_type) }}">{{ group.meal_type }}</span></strong>
               <div class="vertical-item-list">
                 {% for item in group.entries %}
                   <div class="vertical-list-item editable-list-item meal-edit-item">

@@ -431,6 +431,17 @@ def body_part_class(body_part: str | None) -> str:
     return class_names.get((body_part or "기타").strip(), "body-part-other")
 
 
+def meal_type_class(meal_type: str | None) -> str:
+    class_names = {
+        "아침": "meal-type-breakfast",
+        "점심": "meal-type-lunch",
+        "저녁": "meal-type-dinner",
+        "간식": "meal-type-snack",
+        "기타": "meal-type-other",
+    }
+    return class_names.get((meal_type or "기타").strip(), "meal-type-other")
+
+
 def list_recent_sessions(limit: int = 10) -> list[sqlite3.Row]:
     return get_db().execute(
         """
@@ -871,6 +882,7 @@ app = create_app()
 app.jinja_env.globals["sets_for_session"] = sets_for_session
 app.jinja_env.globals["grouped_sets_for_session"] = grouped_sets_for_session
 app.jinja_env.globals["body_part_class"] = body_part_class
+app.jinja_env.globals["meal_type_class"] = meal_type_class
 
 
 if __name__ == "__main__":
