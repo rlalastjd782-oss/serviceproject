@@ -1,49 +1,26 @@
-# PythonAnywhere 배포 안내
+# PythonAnywhere 배포/운영 체크리스트
 
-이 앱은 Flask + SQLite 앱입니다. PythonAnywhere에서는 Flask 앱을 Web 탭의 WSGI 설정으로 실행합니다.
+이 앱은 Flask + SQLite 앱입니다. 운영 데이터는 GitHub가 아니라 PythonAnywhere 서버의 `instance/workout.db`에 저장됩니다.
 
-## 1. PythonAnywhere에서 저장소 받기
-
-PythonAnywhere Bash 콘솔에서 실행합니다.
+## 최초 배포
 
 ```bash
 git clone https://github.com/rlalastjd782-oss/serviceproject.git
 cd serviceproject
-```
-
-## 2. 가상환경 만들기
-
-```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## 3. Web 앱 생성
-
-PythonAnywhere 상단 메뉴에서 `Web`으로 이동합니다.
-
-1. `Add a new web app`
-2. 도메인은 기본값 사용
-3. `Manual configuration` 선택
-4. Python 버전 선택
-
-## 4. Virtualenv 설정
-
-Web 탭의 `Virtualenv` 항목에 아래 경로를 입력합니다.
+PythonAnywhere `Web` 탭에서 Manual configuration 앱을 만들고 Virtualenv를 아래처럼 지정합니다.
 
 ```text
 /home/YOUR_PYTHONANYWHERE_USERNAME/serviceproject/.venv
 ```
 
-`YOUR_PYTHONANYWHERE_USERNAME`은 PythonAnywhere 계정명으로 바꿔야 합니다.
-
-## 5. WSGI 파일 수정
-
-Web 탭에서 `WSGI configuration file`을 엽니다. 기존 내용을 지우고 아래처럼 입력합니다.
+WSGI 파일은 아래 형태로 맞춥니다.
 
 ```python
-import os
 import sys
 
 PROJECT_DIR = "/home/YOUR_PYTHONANYWHERE_USERNAME/serviceproject"
@@ -54,33 +31,58 @@ if PROJECT_DIR not in sys.path:
 from app import app as application
 ```
 
-계정명을 실제 PythonAnywhere 계정명으로 바꿉니다.
-
-## 6. 정적 파일 설정
-
-Web 탭의 `Static files`에 아래 항목을 추가합니다.
+Static files 설정:
 
 ```text
 URL: /static/
 Directory: /home/YOUR_PYTHONANYWHERE_USERNAME/serviceproject/static
 ```
 
-## 7. Reload
+## 업데이트 배포
 
-Web 탭에서 `Reload`를 누릅니다.
+로컬에서 작업 후 push가 끝난 상태에서 PythonAnywhere Bash 콘솔에서 실행합니다.
 
-이후 아래 주소로 접속합니다.
-
-```text
-https://YOUR_PYTHONANYWHERE_USERNAME.pythonanywhere.com
+```bash
+cd ~/serviceproject
+git pull origin master
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-## 데이터 저장 위치
+그다음 PythonAnywhere `Web` 탭에서 `Reload`를 누릅니다.
 
-SQLite DB는 서버의 아래 파일에 저장됩니다.
+## 배포 전 확인
+
+- 로컬에서 `python -m unittest discover -s tests` 통과
+- 로컬에서 `node --check static/app.js` 통과
+- GitHub에 최신 커밋 push 완료
+- 설정 화면에서 JSON 백업 다운로드
+- PythonAnywhere에서 `git pull` 후 Web Reload
+- 모바일에서 새로고침 후 버전 표시 변경 확인
+
+## 데이터 백업 위치
+
+운영 DB:
 
 ```text
 /home/YOUR_PYTHONANYWHERE_USERNAME/serviceproject/instance/workout.db
 ```
 
-이 파일은 GitHub에 올라가지 않습니다. 운영 데이터는 PythonAnywhere 서버 안에만 남습니다.
+앱 설정 화면에서 받을 수 있는 백업:
+
+- JSON 전체 백업
+- 운동 CSV
+- 식단 CSV
+
+삭제/복원 작업 전에는 앱이 `instance/delete_backups` 또는 `instance/restore_backups`에 백업을 남기도록 되어 있습니다.
+
+## 모바일 캐시 주의
+
+앱은 PWA 캐시를 사용합니다. 배포 후 화면이 예전 버전처럼 보이면 아래 순서로 확인합니다.
+
+1. 브라우저 새로고침
+2. 모바일 브라우저 탭 닫고 다시 접속
+3. 홈 화면에 설치한 앱이면 앱을 완전히 종료 후 재실행
+4. 그래도 안 바뀌면 홈 화면 바로가기를 삭제 후 다시 설치
+
+헤더의 버전 표시가 최신 커밋으로 바뀌면 새 코드가 반영된 상태입니다.
