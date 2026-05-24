@@ -603,6 +603,22 @@ def sets_for_session(session_id: int) -> list[sqlite3.Row]:
     return list_sets_for_session(session_id)
 
 
+def grouped_sets_for_session(session_id: int | None) -> list[dict[str, object]]:
+    if session_id is None:
+        return []
+
+    groups: list[dict[str, object]] = []
+    group_by_name: dict[str, dict[str, object]] = {}
+    for item in list_sets_for_session(int(session_id)):
+        exercise_name = item["exercise_name"]
+        if exercise_name not in group_by_name:
+            group = {"exercise_name": exercise_name, "sets": []}
+            group_by_name[exercise_name] = group
+            groups.append(group)
+        group_by_name[exercise_name]["sets"].append(item)
+    return groups
+
+
 def current_local_date() -> str:
     return get_db().execute("SELECT date('now', 'localtime')").fetchone()[0]
 
@@ -627,6 +643,7 @@ def parse_int(value: str | None) -> int | None:
 
 app = create_app()
 app.jinja_env.globals["sets_for_session"] = sets_for_session
+app.jinja_env.globals["grouped_sets_for_session"] = grouped_sets_for_session
 
 
 if __name__ == "__main__":

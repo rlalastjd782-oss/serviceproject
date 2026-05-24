@@ -139,22 +139,23 @@
         </div>
       </div>
       <div class="set-list">
-        {% set today_sets = sets_for_session(session.id) %}
-        {% if today_sets %}
-          {% for item in today_sets %}
-            <article class="record-row">
-              <div>
-                <strong>{{ item.exercise_name }}</strong>
-                <p>
-                  {% if item.weight is not none %}{{ "%.1f"|format(item.weight) }} kg{% else %}- kg{% endif %}
-                  x
-                  {% if item.reps is not none %}{{ item.reps }} 회{% else %}- 회{% endif %}
-                </p>
-                {% if item.memo %}<small>{{ item.memo }}</small>{% endif %}
+        {% set workout_groups = grouped_sets_for_session(session.id) %}
+        {% if workout_groups %}
+          {% for group in workout_groups %}
+            <article class="workout-group-row">
+              <strong>{{ group.exercise_name }}</strong>
+              <div class="compact-set-list">
+                {% for item in group.sets %}
+                  <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}" class="compact-set-item">
+                    <span>
+                      {% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}kg{% else %}-kg{% endif %}
+                      x
+                      {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
+                    </span>
+                    <button type="submit" aria-label="세트 삭제">×</button>
+                  </form>
+                {% endfor %}
               </div>
-              <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}">
-                <button class="icon-button" type="submit" aria-label="운동 삭제">×</button>
-              </form>
             </article>
           {% endfor %}
         {% else %}

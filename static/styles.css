@@ -536,6 +536,49 @@ select:focus {
   margin-top: 4px;
 }
 
+.workout-group-row {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #0b1018;
+}
+
+.workout-group-row > strong {
+  font-size: 1rem;
+}
+
+.compact-set-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.compact-set-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 6px 0 10px;
+  background: rgb(255 255 255 / 3%);
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 750;
+}
+
+.compact-set-item button {
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 107 107 / 12%);
+  color: var(--warn);
+  line-height: 1;
+}
+
 .icon-button {
   width: 36px;
   height: 36px;
