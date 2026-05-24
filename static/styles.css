@@ -226,6 +226,52 @@ a {
   text-align: center;
 }
 
+.month-control-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 8px;
+}
+
+.month-picker-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 7px;
+}
+
+.month-picker-form-wide {
+  grid-template-columns: 34px minmax(0, 1fr) auto 34px;
+}
+
+.month-picker {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+.month-picker span {
+  position: absolute;
+  left: 12px;
+  top: 6px;
+  color: var(--dim);
+  font-size: 10px;
+  font-weight: 800;
+  pointer-events: none;
+}
+
+.month-picker input[type="month"] {
+  width: 100%;
+  min-height: 44px;
+  padding: 18px 12px 6px;
+  border-color: var(--line);
+  background: var(--panel-2);
+  color: var(--strong);
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
 .page-title {
   margin-bottom: 12px;
 }
@@ -233,6 +279,7 @@ a {
 input[type="number"],
 input[type="text"],
 input[type="date"],
+input[type="month"],
 input:not([type]),
 select {
   border: 1px solid var(--line-strong);

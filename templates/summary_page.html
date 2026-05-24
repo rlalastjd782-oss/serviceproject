@@ -101,11 +101,14 @@
             <div class="section-subtitle">선택한 월 기준으로 리포트와 주간 그래프를 다시 계산합니다.</div>
           </div>
         </div>
-        <form method="get" action="{{ url_for('monthly_summary_page') }}" class="period-filter-form">
-          <a class="btn-small" href="{{ url_for('monthly_summary_page', month=prev_month) }}">이전 월</a>
-          <input name="month" type="month" value="{{ selected_month }}" aria-label="월 선택">
+        <form method="get" action="{{ url_for('monthly_summary_page') }}" class="month-picker-form month-picker-form-wide">
+          <a class="arrow-btn" href="{{ url_for('monthly_summary_page', month=prev_month) }}" aria-label="이전 월">‹</a>
+          <label class="month-picker">
+            <span>기준 월</span>
+            <input name="month" type="month" value="{{ selected_month }}" aria-label="월 선택">
+          </label>
           <button class="btn-primary" type="submit">보기</button>
-          <a class="btn-small" href="{{ url_for('monthly_summary_page', month=next_month) }}">다음 월</a>
+          <a class="arrow-btn" href="{{ url_for('monthly_summary_page', month=next_month) }}" aria-label="다음 월">›</a>
         </form>
       </section>
 
