@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import csv
+import io
 import json
 import sqlite3
 from datetime import datetime, timedelta
@@ -11,7 +13,30 @@ from flask import Flask, Response, g, jsonify, redirect, render_template, reques
 
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE = BASE_DIR / "instance" / "workout.db"
+PHOTO_DIR = BASE_DIR / "static" / "progress_photos"
 DEFAULT_BODY_WEIGHT_KG = 70.0
+DEFAULT_PROGRAMS = {
+    "5x5": [
+        ("하체", "스쿼트", "본세트", None, 5),
+        ("가슴", "벤치프레스", "본세트", None, 5),
+        ("등", "바벨로우", "본세트", None, 5),
+        ("어깨", "오버헤드프레스", "본세트", None, 5),
+        ("등", "데드리프트", "본세트", None, 5),
+    ],
+    "상체/하체": [
+        ("가슴", "벤치프레스", "본세트", None, 8),
+        ("등", "랫풀다운", "본세트", None, 10),
+        ("하체", "스쿼트", "본세트", None, 8),
+        ("하체", "레그프레스", "본세트", None, 12),
+    ],
+    "푸쉬/풀/레그": [
+        ("가슴", "벤치프레스", "본세트", None, 8),
+        ("어깨", "숄더프레스", "본세트", None, 10),
+        ("등", "시티드로우", "본세트", None, 10),
+        ("팔", "바벨컬", "본세트", None, 12),
+        ("하체", "스쿼트", "본세트", None, 8),
+    ],
+}
 
 
 def create_app() -> Flask:
@@ -31,6 +56,7 @@ def create_app() -> Flask:
     @app.get("/")
     def index():
         selected_date = request.args.get("date") or current_local_date()
+        workout_mode = request.args.get("mode") == "workout"
         today_session = get_session_for_date(selected_date)
         sessions = list_recent_sessions()
         exercises = list_exercises()
@@ -49,13 +75,18 @@ def create_app() -> Flask:
             foods_by_meal_type=list_foods_by_meal_type(),
             routines=list_routines(),
             recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
+            default_programs=DEFAULT_PROGRAMS.keys(),
             meal_templates=list_meal_templates(),
             body_metric=get_body_metric(today_session["workout_date"]),
+            body_photos=list_body_photos(today_session["workout_date"]),
             goals=get_goal_progress(today_session["workout_date"]),
             meals=meals,
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
+            recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
+            meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
+            workout_mode=workout_mode,
             body_parts=body_part_options(),
             prev_date=shift_date(today_session["workout_date"], -1),
             next_date=shift_date(today_session["workout_date"], 1),
@@ -114,6 +145,7 @@ def create_app() -> Flask:
             chart_title="주간별 추이",
             chart_note="최근 6주를 주간 단위로 표시합니다.",
             body_part_summary=list_body_part_summary("monthly"),
+            monthly_report=build_monthly_report(),
             active_page="monthly",
         )
 
@@ -337,6 +369,14 @@ def create_app() -> Flask:
         )
         return redirect(url_for("index", date=target_date))
 
+    @app.post("/body-photos")
+    def save_body_photo_route():
+        photo_date = request.form.get("photo_date") or current_local_date()
+        file = request.files.get("photo")
+        if file and file.filename:
+            save_body_photo(photo_date, file)
+        return redirect(url_for("index", date=photo_date))
+
     @app.post("/meal-templates/from-day")
     def create_meal_template_from_day_route():
         meal_date = request.form.get("meal_date") or current_local_date()
@@ -350,6 +390,20 @@ def create_app() -> Flask:
         apply_meal_template(template_id, meal_date)
         return redirect(url_for("index", date=meal_date))
 
+    @app.post("/meals/copy-day")
+    def copy_meal_day_route():
+        source_date = request.form.get("source_date", "").strip()
+        meal_date = request.form.get("meal_date") or current_local_date()
+        if source_date:
+            copy_meals_from_day(source_date, meal_date)
+        return redirect(url_for("index", date=meal_date))
+
+    @app.post("/programs/apply")
+    def apply_program_route():
+        workout_date = request.form.get("workout_date") or current_local_date()
+        apply_default_program(request.form.get("program_name", ""), workout_date)
+        return redirect(url_for("index", date=workout_date, mode=request.form.get("mode") or None))
+
     @app.get("/export.json")
     def export_json():
         payload = export_all_data()
@@ -357,6 +411,14 @@ def create_app() -> Flask:
             json.dumps(payload, ensure_ascii=False, indent=2),
             mimetype="application/json; charset=utf-8",
             headers={"Content-Disposition": "attachment; filename=health-tracker-export.json"},
+        )
+
+    @app.get("/export.csv")
+    def export_csv():
+        return Response(
+            export_workout_csv(),
+            mimetype="text/csv; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=health-tracker-workouts.csv"},
         )
 
     @app.post("/import.json")
@@ -634,6 +696,13 @@ def init_db() -> None:
             waist REAL,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS body_photos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            photo_date TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
         CREATE TABLE IF NOT EXISTS meal_templates (
@@ -1040,6 +1109,30 @@ def apply_session_template(source_session_id: int, workout_date: str) -> None:
     db.commit()
 
 
+def apply_default_program(program_name: str, workout_date: str) -> None:
+    rows = DEFAULT_PROGRAMS.get(program_name)
+    if not rows:
+        return
+    session = get_or_create_session(workout_date)
+    db = get_db()
+    next_order = db.execute(
+        "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
+        (session["id"],),
+    ).fetchone()[0]
+    for offset, (body_part, exercise_name, set_type, weight, reps) in enumerate(rows):
+        exercise_id = get_or_create_exercise(exercise_name)
+        db.execute(
+            """
+            INSERT INTO workout_sets (
+                session_id, exercise_id, body_part, set_type, weight, reps, sort_order
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (session["id"], exercise_id, body_part, set_type, weight, reps, next_order + offset),
+        )
+    db.commit()
+
+
 def list_recommended_sessions(workout_date: str, limit: int = 3) -> list[dict[str, object]]:
     weekday = datetime.strptime(workout_date, "%Y-%m-%d").weekday()
     rows = get_db().execute(
@@ -1280,6 +1373,35 @@ def list_body_metrics(month_start: str) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def save_body_photo(photo_date: str, file) -> None:
+    PHOTO_DIR.mkdir(parents=True, exist_ok=True)
+    suffix = Path(file.filename).suffix.lower()
+    if suffix not in {".jpg", ".jpeg", ".png", ".webp"}:
+        suffix = ".jpg"
+    filename = f"{photo_date}-{datetime.now().strftime('%H%M%S')}{suffix}"
+    target = PHOTO_DIR / filename
+    file.save(target)
+    relative_path = f"progress_photos/{filename}"
+    get_db().execute(
+        "INSERT INTO body_photos (photo_date, file_path) VALUES (?, ?)",
+        (photo_date, relative_path),
+    )
+    get_db().commit()
+
+
+def list_body_photos(photo_date: str, limit: int = 3) -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT *
+        FROM body_photos
+        WHERE photo_date <= ?
+        ORDER BY photo_date DESC, id DESC
+        LIMIT ?
+        """,
+        (photo_date, limit),
+    ).fetchall()
+
+
 def list_meal_templates() -> list[dict[str, object]]:
     rows = get_db().execute(
         """
@@ -1340,6 +1462,41 @@ def apply_meal_template(template_id: int, meal_date: str) -> None:
     get_db().commit()
 
 
+def list_recent_meal_days(target_date: str, limit: int = 3) -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT meal_date, COUNT(id) AS meal_count, COALESCE(SUM(calories), 0) AS calories
+        FROM meal_entries
+        WHERE meal_date < ?
+        GROUP BY meal_date
+        ORDER BY meal_date DESC
+        LIMIT ?
+        """,
+        (target_date, limit),
+    ).fetchall()
+
+
+def copy_meals_from_day(source_date: str, meal_date: str) -> None:
+    rows = get_db().execute(
+        """
+        SELECT meal_type, food_name, quantity, grams, calories, memo
+        FROM meal_entries
+        WHERE meal_date = ?
+        ORDER BY id
+        """,
+        (source_date,),
+    ).fetchall()
+    for row in rows:
+        get_db().execute(
+            """
+            INSERT INTO meal_entries (meal_date, meal_type, food_name, quantity, grams, calories, memo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (meal_date, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"], row["memo"]),
+        )
+    get_db().commit()
+
+
 def build_weekly_report() -> dict[str, object]:
     week_start = week_start_for_date(current_local_date())
     week_end = shift_date(week_start, 6)
@@ -1383,6 +1540,62 @@ def build_weekly_report() -> dict[str, object]:
         "exercise_calories": float(totals["exercise_calories"] or 0),
         "meal_days": int(meal_days or 0),
         "top_part": top_part["body_part"] if top_part else "-",
+    }
+
+
+def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
+    base_date = date_text or current_local_date()
+    month_start = normalize_month(base_date[:7])
+    next_month = shift_month(month_start, 1)
+    db = get_db()
+    totals = db.execute(
+        """
+        SELECT
+            COUNT(DISTINCT s.workout_date) AS workout_days,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        FROM workout_sessions s
+        LEFT JOIN workout_sets ws ON ws.session_id = s.id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+        """,
+        (month_start, next_month),
+    ).fetchone()
+    top_exercise = db.execute(
+        """
+        SELECT e.name, COUNT(ws.id) AS set_count
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+        GROUP BY e.name
+        ORDER BY set_count DESC, e.name
+        LIMIT 1
+        """,
+        (month_start, next_month),
+    ).fetchone()
+    metrics = db.execute(
+        """
+        SELECT metric_date, body_weight
+        FROM body_metrics
+        WHERE metric_date >= ? AND metric_date < ? AND body_weight IS NOT NULL
+        ORDER BY metric_date ASC
+        """,
+        (month_start, next_month),
+    ).fetchall()
+    weight_delta = 0.0
+    if len(metrics) >= 2:
+        weight_delta = float(metrics[-1]["body_weight"] or 0) - float(metrics[0]["body_weight"] or 0)
+    balance = get_balance_score("monthly", base_date)
+    return {
+        "period": month_start[:7],
+        "workout_days": int(totals["workout_days"] or 0),
+        "set_count": int(totals["set_count"] or 0),
+        "volume": float(totals["volume"] or 0),
+        "top_exercise": top_exercise["name"] if top_exercise else "-",
+        "top_exercise_sets": int(top_exercise["set_count"] or 0) if top_exercise else 0,
+        "weight_delta": weight_delta,
+        "balance_score": balance["score"],
+        "missing": balance["missing"],
     }
 
 
@@ -1446,6 +1659,32 @@ def get_balance_score(scope: str = "weekly", date_text: str | None = None) -> di
     return {"score": score, "counts": counts, "missing": missing, "period": f"{start} ~ {end}"}
 
 
+def list_recovery_recommendations(date_text: str) -> list[str]:
+    start = shift_date(date_text, -2)
+    rows = get_db().execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') NOT IN ('기타', '유산소')
+        GROUP BY body_part
+        ORDER BY set_count DESC
+        """,
+        (start, date_text),
+    ).fetchall()
+    if not rows:
+        return ["최근 48시간 근력 기록이 적습니다. 원하는 부위를 진행해도 좋습니다."]
+    overloaded = [row["body_part"] for row in rows if int(row["set_count"]) >= 4]
+    rested = [part for part in ["하체", "가슴", "등", "어깨", "팔"] if part not in [row["body_part"] for row in rows]]
+    messages = []
+    if overloaded:
+        messages.append(f"{', '.join(overloaded[:2])}는 최근 사용량이 많습니다.")
+    if rested:
+        messages.append(f"오늘 추천 부위: {', '.join(rested[:2])}")
+    return messages[:2]
+
+
 def export_all_data() -> dict[str, object]:
     db = get_db()
     tables = [
@@ -1461,11 +1700,53 @@ def export_all_data() -> dict[str, object]:
         "exercise_notes",
         "pr_events",
         "body_metrics",
+        "body_photos",
     ]
     return {
         "exported_at": datetime.now().isoformat(timespec="seconds"),
         "tables": {table: [dict(row) for row in db.execute(f"SELECT * FROM {table}").fetchall()] for table in tables},
     }
+
+
+def export_workout_csv() -> str:
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["date", "body_part", "exercise", "set_type", "weight", "reps", "incline", "speed", "minutes", "estimated_calories"])
+    rows = get_db().execute(
+        """
+        SELECT
+            s.workout_date,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.name AS exercise_name,
+            ws.set_type,
+            ws.weight,
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            ws.estimated_calories
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        ORDER BY s.workout_date DESC, ws.sort_order ASC, ws.id ASC
+        """
+    ).fetchall()
+    for row in rows:
+        writer.writerow(
+            [
+                row["workout_date"],
+                row["body_part"],
+                row["exercise_name"],
+                row["set_type"],
+                row["weight"],
+                row["reps"],
+                row["cardio_incline"],
+                row["cardio_speed"],
+                row["cardio_minutes"],
+                row["estimated_calories"],
+            ]
+        )
+    return "\ufeff" + output.getvalue()
 
 
 def import_all_data(payload: dict[str, object]) -> None:
@@ -1485,6 +1766,7 @@ def import_all_data(payload: dict[str, object]) -> None:
         "exercise_notes",
         "pr_events",
         "body_metrics",
+        "body_photos",
     ]
     db = get_db()
     for table in reversed(ordered_tables):

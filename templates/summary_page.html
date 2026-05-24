@@ -76,6 +76,51 @@
       </section>
     {% endif %}
 
+    {% if active_page == "monthly" and monthly_report %}
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">월간 리포트</div>
+            <div class="section-subtitle">{{ monthly_report.period }}</div>
+          </div>
+        </div>
+        <div class="summary-grid">
+          <article class="summary-card">
+            <div class="summary-value">{{ monthly_report.workout_days }}</div>
+            <div class="summary-label">운동일</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ monthly_report.set_count }}</div>
+            <div class="summary-label">세트</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ "%.0f"|format(monthly_report.volume) }}</div>
+            <div class="summary-label">볼륨 kg</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ monthly_report.balance_score }}%</div>
+            <div class="summary-label">부위 균형</div>
+          </article>
+        </div>
+        <div class="detail-list">
+          <div class="detail-row">
+            <strong>가장 많이 한 운동</strong>
+            <span>{{ monthly_report.top_exercise }}{% if monthly_report.top_exercise_sets %} · {{ monthly_report.top_exercise_sets }}세트{% endif %}</span>
+          </div>
+          <div class="detail-row">
+            <strong>체중 변화</strong>
+            <span>{{ "%+.1f"|format(monthly_report.weight_delta) }}kg</span>
+          </div>
+          {% if monthly_report.missing %}
+            <div class="detail-row">
+              <strong>부족 부위</strong>
+              <span>{{ monthly_report.missing[:4]|join(", ") }}</span>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    {% endif %}
+
     {% if chart_items %}
       <div class="summary-grid">
         {% for item in chart_items[-4:] %}

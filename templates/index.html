@@ -3,6 +3,7 @@
 {% block title %}오늘 기록{% endblock %}
 
 {% block content %}
+  <div class="{% if workout_mode %}workout-mode{% endif %}">
   <div class="date-row">
     <a class="arrow-btn" href="{{ url_for('index', date=prev_date) }}" aria-label="이전 날짜">‹</a>
     <form method="get" action="{{ url_for('index') }}" class="date-picker-form">
@@ -12,7 +13,12 @@
     <a class="arrow-btn" href="{{ url_for('index', date=next_date) }}" aria-label="다음 날짜">›</a>
   </div>
 
-  <div class="summary-grid">
+  <div class="mode-actions">
+    <a class="btn-primary mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동 시작</a>
+    <a class="btn-small mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체 보기</a>
+  </div>
+
+  <div class="summary-grid optional-section">
     <article class="summary-card">
       <div class="summary-icon">🏃</div>
       <div class="summary-value">{{ today_summary.set_count }}</div>
@@ -84,6 +90,20 @@
 
   <section class="section">
     <div class="section-header">
+      <div class="section-title">회복 추천</div>
+    </div>
+    <div class="detail-list compact-detail-list">
+      {% for message in recovery_recommendations %}
+        <div class="detail-row">
+          <strong>추천</strong>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
       <div class="section-title">휴식 타이머</div>
       <div class="timer-display" data-rest-timer-display>00:00</div>
     </div>
@@ -95,7 +115,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section optional-section">
     <div class="section-header">
       <div class="section-title">목표 달성률</div>
     </div>
@@ -122,7 +142,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section optional-section">
     <div class="section-header">
       <div class="section-title">체성분</div>
     </div>
@@ -134,6 +154,18 @@
       <input name="waist" type="number" min="0" step="0.1" value="{% if body_metric and body_metric.waist is not none %}{{ body_metric.waist }}{% endif %}" placeholder="허리 cm">
       <button class="btn-small" type="submit">저장</button>
     </form>
+    <form method="post" action="{{ url_for('save_body_photo_route') }}" enctype="multipart/form-data" class="body-photo-form">
+      <input type="hidden" name="photo_date" value="{{ session.workout_date }}">
+      <input name="photo" type="file" accept="image/*">
+      <button class="btn-small" type="submit">사진 저장</button>
+    </form>
+    {% if body_photos %}
+      <div class="photo-strip">
+        {% for photo in body_photos %}
+          <img src="{{ url_for('static', filename=photo.file_path) }}" alt="{{ photo.photo_date }} 몸 사진">
+        {% endfor %}
+      </div>
+    {% endif %}
   </section>
 
   <section class="section">
@@ -151,6 +183,17 @@
           </form>
         {% endfor %}
       {% endif %}
+      <div class="quick-panel-title">기본 프로그램</div>
+      <div class="program-chip-list">
+        {% for program in default_programs %}
+          <form method="post" action="{{ url_for('apply_program_route') }}">
+            <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
+            <input type="hidden" name="program_name" value="{{ program }}">
+            <button class="exercise-quick-button" type="submit">{{ program }}</button>
+          </form>
+        {% endfor %}
+      </div>
       <form method="post" action="{{ url_for('create_routine_from_day') }}" class="routine-form">
         <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
         <input name="routine_name" placeholder="오늘 운동을 루틴으로 저장">
@@ -251,7 +294,7 @@
     </form>
   </section>
 
-  <section class="section">
+  <section class="section optional-section">
     <div class="section-header">
       <div class="section-title">🍱 식단 입력</div>
     </div>
@@ -274,6 +317,17 @@
         <div class="quick-empty" data-food-quick-empty>선택한 식사의 음식 기록이 없습니다.</div>
       </div>
       <div class="meal-template-panel">
+        {% if meal_copy_sources %}
+          <div class="quick-panel-title">지난 식단 복사</div>
+          {% for day in meal_copy_sources %}
+            <form method="post" action="{{ url_for('copy_meal_day_route') }}" class="routine-load-row">
+              <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+              <input type="hidden" name="source_date" value="{{ day.meal_date }}">
+              <span>{{ day.meal_date }} · {{ day.meal_count }}개 · {{ "%.0f"|format(day.calories) }}kcal</span>
+              <button class="btn-small" type="submit">복사</button>
+            </form>
+          {% endfor %}
+        {% endif %}
         <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
           <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
           <input name="template_name" placeholder="오늘 식단을 템플릿으로 저장">
@@ -413,7 +467,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section optional-section">
     <div class="section-header">
       <div class="section-title">🍱 오늘 식단</div>
     </div>
@@ -469,7 +523,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section optional-section">
     <div class="section-header">
       <div class="section-title">📅 최근 기록</div>
       <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주별 보기</a>
@@ -486,4 +540,5 @@
       <div class="empty">최근 기록 없음</div>
     {% endfor %}
   </section>
+  </div>
 {% endblock %}
