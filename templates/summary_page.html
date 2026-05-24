@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import goal_cards, period_picker %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -45,15 +46,7 @@
             <div class="section-subtitle">선택한 주 기준으로 리포트와 일별 그래프를 다시 계산합니다.</div>
           </div>
         </div>
-        <form method="get" action="{{ url_for('weekly_summary_page') }}" class="month-picker-form month-picker-form-wide">
-          <a class="arrow-btn" href="{{ url_for('weekly_summary_page', week=prev_week) }}" aria-label="이전 주">‹</a>
-          <label class="month-picker">
-            <span>기준 주</span>
-            <input name="week" type="date" value="{{ selected_week }}" aria-label="주 선택">
-          </label>
-          <button class="btn-primary" type="submit">보기</button>
-          <a class="arrow-btn" href="{{ url_for('weekly_summary_page', week=next_week) }}" aria-label="다음 주">›</a>
-        </form>
+        {{ period_picker(url_for('weekly_summary_page'), url_for('weekly_summary_page', week=prev_week), url_for('weekly_summary_page', week=next_week), "week", selected_week, "date", "기준 주", "이전 주", "다음 주") }}
       </section>
 
       <section class="section">
@@ -109,19 +102,7 @@
           {% endfor %}
         </div>
         {% if weekly_goals %}
-          <div class="goal-grid monthly-goal-grid">
-            {% for key in ["weekly_workout_days", "weekly_meal_days"] %}
-              {% set goal = weekly_goals[key] %}
-              <article class="goal-card {% if goal.percent >= 100 %}is-complete{% endif %}">
-                <div class="goal-head">
-                  <strong>{{ goal.label }}</strong>
-                  <span>{{ goal.percent }}%</span>
-                </div>
-                <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
-                <div class="goal-meta">{{ "%.0f"|format(goal.current) }} / {{ goal.target }}일</div>
-              </article>
-            {% endfor %}
-          </div>
+          {{ goal_cards(weekly_goals, ["weekly_workout_days", "weekly_meal_days"], {"weekly_workout_days": "일", "weekly_meal_days": "일"}) }}
           <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
             <input type="hidden" name="scope" value="weekly">
             <input type="hidden" name="target_date" value="{{ selected_week }}">
@@ -141,15 +122,7 @@
             <div class="section-subtitle">선택한 월 기준으로 리포트와 주간 그래프를 다시 계산합니다.</div>
           </div>
         </div>
-        <form method="get" action="{{ url_for('monthly_summary_page') }}" class="month-picker-form month-picker-form-wide">
-          <a class="arrow-btn" href="{{ url_for('monthly_summary_page', month=prev_month) }}" aria-label="이전 월">‹</a>
-          <label class="month-picker">
-            <span>기준 월</span>
-            <input name="month" type="month" value="{{ selected_month }}" aria-label="월 선택">
-          </label>
-          <button class="btn-primary" type="submit">보기</button>
-          <a class="arrow-btn" href="{{ url_for('monthly_summary_page', month=next_month) }}" aria-label="다음 월">›</a>
-        </form>
+        {{ period_picker(url_for('monthly_summary_page'), url_for('monthly_summary_page', month=prev_month), url_for('monthly_summary_page', month=next_month), "month", selected_month, "month", "기준 월", "이전 월", "다음 월") }}
       </section>
 
       <section class="section">
@@ -186,21 +159,7 @@
           </article>
         </div>
         {% if monthly_goals %}
-          <div class="goal-grid monthly-goal-grid">
-            {% for key in ["monthly_volume", "monthly_workout_days", "monthly_cardio_minutes"] %}
-              {% set goal = monthly_goals[key] %}
-              <article class="goal-card {% if goal.percent >= 100 %}is-complete{% endif %}">
-                <div class="goal-head">
-                  <strong>{{ goal.label }}</strong>
-                  <span>{{ goal.percent }}%</span>
-                </div>
-                <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
-                <div class="goal-meta">
-                  {{ "%.0f"|format(goal.current) }} / {{ goal.target }}{% if key == "monthly_volume" %}kg{% elif key == "monthly_cardio_minutes" %}분{% else %}일{% endif %}
-                </div>
-              </article>
-            {% endfor %}
-          </div>
+          {{ goal_cards(monthly_goals, ["monthly_volume", "monthly_workout_days", "monthly_cardio_minutes"], {"monthly_volume": "kg", "monthly_workout_days": "일", "monthly_cardio_minutes": "분"}) }}
           <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
             <input type="hidden" name="scope" value="monthly">
             <input type="hidden" name="target_date" value="{{ selected_month }}-01">

@@ -226,13 +226,6 @@ a {
   text-align: center;
 }
 
-.month-control-row {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 34px;
-  align-items: center;
-  gap: 8px;
-}
-
 .month-picker-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -417,22 +410,6 @@ label span {
 .summary-label {
   color: var(--dim);
   font-size: 11px;
-}
-
-.summary-foot {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.goal-summary-card {
-  border-color: #3b82f6;
-}
-
-.goal-summary-card.is-complete {
-  border-color: #22c55e;
-  background: #102018;
 }
 
 .goal-grid {

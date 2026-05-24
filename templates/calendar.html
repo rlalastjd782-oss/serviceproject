@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import goal_cards, period_picker %}
 
 {% block title %}월간 달력{% endblock %}
 
@@ -10,17 +11,7 @@
         <div class="section-subtitle">{{ month_label }} 기록 현황</div>
       </div>
     </div>
-    <div class="month-control-row">
-      <a class="arrow-btn" href="{{ url_for('calendar_page', month=prev_month) }}" aria-label="이전 달">‹</a>
-      <form method="get" action="{{ url_for('calendar_page') }}" class="month-picker-form">
-        <label class="month-picker">
-          <span>기준 월</span>
-          <input name="month" type="month" value="{{ month }}" aria-label="월 선택">
-        </label>
-        <button type="submit" class="btn-primary">보기</button>
-      </form>
-      <a class="arrow-btn" href="{{ url_for('calendar_page', month=next_month) }}" aria-label="다음 달">›</a>
-    </div>
+    {{ period_picker(url_for('calendar_page'), url_for('calendar_page', month=prev_month), url_for('calendar_page', month=next_month), "month", month, "month", "기준 월", "이전 달", "다음 달") }}
   </section>
 
   <section class="section">
@@ -59,18 +50,7 @@
       <div class="section-title">목표 요약</div>
       <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
     </div>
-    <div class="goal-grid">
-      {% for goal in goals.values() %}
-        <article class="goal-card">
-          <div class="goal-head">
-            <strong>{{ goal.label }}</strong>
-            <span>{{ goal.percent }}%</span>
-          </div>
-          <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
-          <div class="goal-meta">{{ "%.0f"|format(goal.current) }} / {{ goal.target }}</div>
-        </article>
-      {% endfor %}
-    </div>
+    {{ goal_cards(goals) }}
   </section>
 
   <section class="section">

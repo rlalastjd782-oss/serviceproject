@@ -1,0 +1,27 @@
+{% macro goal_cards(goals, keys=None, units=None) %}
+  {% set units = units or {} %}
+  <div class="goal-grid monthly-goal-grid">
+    {% for key, goal in goals.items() if keys is none or key in keys %}
+      <article class="goal-card {% if goal.percent >= 100 %}is-complete{% endif %}">
+        <div class="goal-head">
+          <strong>{{ goal.label }}</strong>
+          <span>{{ goal.percent }}%</span>
+        </div>
+        <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
+        <div class="goal-meta">{{ "%.0f"|format(goal.current) }} / {{ goal.target }}{{ units.get(key, "") }}</div>
+      </article>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+{% macro period_picker(action, prev_href, next_href, name, value, input_type, label, prev_label, next_label) %}
+  <form method="get" action="{{ action }}" class="month-picker-form month-picker-form-wide">
+    <a class="arrow-btn" href="{{ prev_href }}" aria-label="{{ prev_label }}">‹</a>
+    <label class="month-picker">
+      <span>{{ label }}</span>
+      <input name="{{ name }}" type="{{ input_type }}" value="{{ value }}" aria-label="{{ label }}">
+    </label>
+    <button class="btn-primary" type="submit">보기</button>
+    <a class="arrow-btn" href="{{ next_href }}" aria-label="{{ next_label }}">›</a>
+  </form>
+{% endmacro %}
