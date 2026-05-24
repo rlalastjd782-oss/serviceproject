@@ -54,6 +54,15 @@
   </section>
 
   {% if workout_mode %}
+    <nav class="workout-action-dock" aria-label="운동 중 빠른 이동">
+      <a href="#workout-input">입력</a>
+      <a href="#today-workout">기록</a>
+      <a href="#rest-timer">휴식</a>
+      <button type="button" data-workout-clock-start>시작</button>
+    </nav>
+  {% endif %}
+
+  {% if workout_mode %}
     <section class="section workout-focus-section workout-only">
       <div class="section-header">
         <div>
@@ -110,7 +119,7 @@
       <div class="focus-shortcuts">
         <a class="btn-small" href="#today-workout">오늘 운동</a>
         <a class="btn-small" href="#rest-timer">휴식 타이머</a>
-        <a class="btn-small" href="{{ url_for('index', date=session.workout_date) }}">전체 보기</a>
+        <a class="btn-small" href="#workout-plan">루틴 진행</a>
       </div>
     </section>
   {% endif %}
@@ -195,6 +204,34 @@
             <strong>추천</strong>
             <span>{{ message }}</span>
           </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if workout_mode and workout_plan %}
+    <section class="section workout-only" id="workout-plan">
+      <div class="section-header">
+        <div>
+          <div class="section-title">루틴 진행</div>
+          <div class="section-subtitle">{{ workout_completion_summary.plan_done }} / {{ workout_completion_summary.plan_total }}개 완료 · {{ workout_completion_summary.plan_percent }}%</div>
+        </div>
+      </div>
+      <div class="plan-progress-bar"><span style="width: {{ workout_completion_summary.plan_percent }}%"></span></div>
+      <div class="routine-step-list">
+        {% for item in workout_plan %}
+          <article class="routine-step-card {% if item.completed_sets >= item.target_sets %}is-done{% endif %}">
+            <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+            <strong>{{ item.exercise_name }}</strong>
+            <span>{{ item.completed_sets }} / {{ item.target_sets }}세트</span>
+            <button
+              type="button"
+              class="btn-small"
+              data-copy-saved-set
+              data-body-part="{{ item.body_part }}"
+              data-exercise-name="{{ item.exercise_name }}"
+            >입력</button>
+          </article>
         {% endfor %}
       </div>
     </section>
@@ -357,7 +394,7 @@
     {% endif %}
   </div>
 
-  <section class="section overview-only workout-only">
+  <section class="section overview-only workout-only workout-finish-section">
     <div class="section-header">
       <div class="section-title">오늘 상태</div>
       <form method="post" action="{{ url_for('toggle_session_complete', session_id=session.id) }}">
@@ -375,6 +412,37 @@
       {% if pr_events %}<span>오늘 신기록 {{ pr_events|length }}개</span>{% endif %}
       <span>주간 균형 {{ balance_score.score }}%{% if balance_score.missing %} · 부족: {{ balance_score.missing[:3]|join(", ") }}{% endif %}</span>
     </div>
+    {% if session.completed or today_summary.set_count or pr_cards %}
+      <div class="finish-summary-grid">
+        <article>
+          <strong>{{ today_summary.set_count }}</strong>
+          <span>총 세트</span>
+        </article>
+        <article>
+          <strong>{{ "%.0f"|format(today_summary.volume) }}</strong>
+          <span>총 볼륨 kg</span>
+        </article>
+        <article>
+          <strong>{{ pr_cards|length }}</strong>
+          <span>신기록</span>
+        </article>
+      </div>
+      {% if workout_completion_summary.body_parts %}
+        <div class="finish-part-list">
+          {% for part in workout_completion_summary.body_parts %}
+            <span class="cat-badge {{ body_part_class(part.body_part) }}">{{ part.body_part }} {{ part.set_count }}세트</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if workout_completion_summary.top_exercise %}
+        <div class="detail-list compact-detail-list">
+          <div class="detail-row">
+            <strong>대표 운동</strong>
+            <span>{{ workout_completion_summary.top_exercise.name }} · {{ workout_completion_summary.top_exercise.set_count }}세트</span>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
   </section>
 
   <section class="section overview-only workout-only">
@@ -700,6 +768,26 @@
             <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
             <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
           </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if workout_mode and pr_cards %}
+    <section class="section workout-only pr-card-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">오늘 PR 카드</div>
+          <div class="section-subtitle">오늘 갱신한 기록만 모았습니다.</div>
+        </div>
+      </div>
+      <div class="pr-card-grid">
+        {% for card in pr_cards[:6] %}
+          <article class="pr-share-card">
+            <span>{{ card.record_type }}</span>
+            <strong>{{ card.exercise_name }}</strong>
+            <b>{{ "%.0f"|format(card.record_value) }}{{ card.unit }}</b>
+          </article>
         {% endfor %}
       </div>
     </section>

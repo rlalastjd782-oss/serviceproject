@@ -72,6 +72,8 @@ def create_app() -> Flask:
             favorite_exercises=list_favorite_exercises(),
             routines=list_routines(),
             workout_plan=list_workout_plan(today_session["workout_date"]),
+            workout_completion_summary=build_workout_completion_summary(today_session["workout_date"]),
+            pr_cards=build_pr_cards(today_session["workout_date"]),
             weekly_routine_recommendations=list_weekly_routine_recommendations(today_session["workout_date"]),
             recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
             workout_focus_recommendations=list_workout_focus_recommendations(today_session["workout_date"]),
@@ -1486,13 +1488,64 @@ def apply_session_template(source_session_id: int, workout_date: str) -> None:
 def list_workout_plan(workout_date: str) -> list[sqlite3.Row]:
     return get_db().execute(
         """
-        SELECT *
-        FROM workout_plan_items
-        WHERE workout_date = ?
-        ORDER BY sort_order, id
+        SELECT
+            wpi.*,
+            COALESCE((
+                SELECT COUNT(ws.id)
+                FROM workout_sets ws
+                JOIN workout_sessions s ON s.id = ws.session_id
+                JOIN exercises e ON e.id = ws.exercise_id
+                WHERE s.workout_date = wpi.workout_date
+                  AND e.name = wpi.exercise_name
+            ), 0) AS completed_sets
+        FROM workout_plan_items wpi
+        WHERE wpi.workout_date = ?
+        ORDER BY wpi.sort_order, wpi.id
         """,
         (workout_date,),
     ).fetchall()
+
+
+def build_workout_completion_summary(workout_date: str) -> dict[str, object]:
+    db = get_db()
+    session = get_or_create_session(workout_date)
+    by_part = db.execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date = ?
+        GROUP BY body_part
+        ORDER BY set_count DESC, body_part
+        """,
+        (workout_date,),
+    ).fetchall()
+    top_exercise = db.execute(
+        """
+        SELECT e.name, COUNT(ws.id) AS set_count,
+               COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE s.workout_date = ?
+        GROUP BY e.name
+        ORDER BY set_count DESC, volume DESC, e.name
+        LIMIT 1
+        """,
+        (workout_date,),
+    ).fetchone()
+    plan_rows = list_workout_plan(workout_date)
+    plan_total = len(plan_rows)
+    plan_done = sum(1 for row in plan_rows if int(row["completed_sets"] or 0) >= int(row["target_sets"] or 1))
+    return {
+        "completed": bool(session["completed"]),
+        "duration_seconds": int(session["duration_seconds"] or 0),
+        "body_parts": [dict(row) for row in by_part],
+        "top_exercise": dict(top_exercise) if top_exercise else None,
+        "plan_total": plan_total,
+        "plan_done": plan_done,
+        "plan_percent": 0 if plan_total == 0 else round(plan_done / plan_total * 100),
+    }
 
 
 def create_workout_plan_item(workout_date: str, body_part: str, exercise_name: str, target_sets: int) -> None:
@@ -1870,6 +1923,22 @@ def list_pr_events(workout_date: str) -> list[sqlite3.Row]:
         """,
         (workout_date,),
     ).fetchall()
+
+
+def build_pr_cards(workout_date: str) -> list[dict[str, object]]:
+    rows = list_pr_events(workout_date)
+    cards: list[dict[str, object]] = []
+    for row in rows:
+        unit = "kg" if row["record_type"] in {"최고 중량", "최고 볼륨"} else "회"
+        cards.append(
+            {
+                "exercise_name": row["exercise_name"],
+                "record_type": row["record_type"],
+                "record_value": float(row["record_value"] or 0),
+                "unit": unit,
+            }
+        )
+    return cards
 
 
 def list_recent_pr_events(limit: int = 12) -> list[sqlite3.Row]:
