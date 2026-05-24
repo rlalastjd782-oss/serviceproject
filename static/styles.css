@@ -667,6 +667,23 @@ select:focus {
   background: rgb(103 168 255 / 5%);
 }
 
+.inline-add-panel {
+  display: grid;
+  gap: 7px;
+}
+
+.inline-add-panel .inline-add-form {
+  display: none;
+}
+
+.inline-add-panel.is-adding .inline-add-form {
+  display: grid;
+}
+
+.inline-add-panel.is-adding .add-chip {
+  display: none;
+}
+
 .meal-add-form {
   grid-template-columns: minmax(120px, 1.4fr) minmax(58px, 0.55fr) minmax(66px, 0.65fr) minmax(72px, 0.7fr) auto;
 }
@@ -712,6 +729,18 @@ select:focus {
   background: rgb(103 168 255 / 10%) !important;
   color: var(--accent-2) !important;
   font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.add-chip {
+  justify-self: start;
+  min-height: 30px;
+  border: 1px solid rgb(103 168 255 / 26%);
+  border-radius: 999px;
+  padding: 0 12px;
+  background: rgb(103 168 255 / 9%);
+  color: var(--accent-2);
+  font-size: 0.78rem;
   font-weight: 850;
 }
 

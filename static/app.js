@@ -10,6 +10,7 @@ document.addEventListener("click", (event) => {
   const addMealButton = event.target.closest("[data-add-meal-row]");
   const removeMealButton = event.target.closest("[data-remove-meal-row]");
   const editButton = event.target.closest("[data-toggle-edit]");
+  const inlineAddButton = event.target.closest("[data-toggle-add]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
@@ -44,6 +45,13 @@ document.addEventListener("click", (event) => {
     const item = editButton.closest(".editable-list-item");
     item?.classList.add("is-editing");
     item?.querySelector("input")?.focus();
+    return;
+  }
+
+  if (inlineAddButton) {
+    const panel = inlineAddButton.closest(".inline-add-panel");
+    panel?.classList.add("is-adding");
+    panel?.querySelector("input:not([type='hidden'])")?.focus();
   }
 });
 

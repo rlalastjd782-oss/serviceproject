@@ -189,14 +189,17 @@
                     </div>
                   </div>
                 {% endfor %}
-                <form method="post" action="{{ url_for('create_set') }}" class="inline-add-form">
-                  <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
-                  <input type="hidden" name="body_part" value="{{ group.body_part }}">
-                  <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
-                  <input name="set_weight" type="number" min="0" step="0.1" inputmode="decimal" placeholder="kg">
-                  <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="회">
-                  <button type="submit" class="save-chip">세트 추가</button>
-                </form>
+                <div class="inline-add-panel">
+                  <button type="button" class="add-chip" data-toggle-add>세트 추가</button>
+                  <form method="post" action="{{ url_for('create_set') }}" class="inline-add-form">
+                    <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+                    <input type="hidden" name="body_part" value="{{ group.body_part }}">
+                    <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
+                    <input name="set_weight" type="number" min="0" step="0.1" inputmode="decimal" placeholder="kg">
+                    <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="회">
+                    <button type="submit" class="save-chip">저장</button>
+                  </form>
+                </div>
               </div>
             </article>
           {% endfor %}
@@ -253,15 +256,18 @@
                     </div>
                   </div>
                 {% endfor %}
-                <form method="post" action="{{ url_for('create_meal') }}" class="inline-add-form meal-add-form">
-                  <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-                  <input type="hidden" name="meal_type" value="{{ group.meal_type }}">
-                  <input name="meal_food_name" placeholder="음식" required>
-                  <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
-                  <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
-                  <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
-                  <button type="submit" class="save-chip">음식 추가</button>
-                </form>
+                <div class="inline-add-panel">
+                  <button type="button" class="add-chip" data-toggle-add>음식 추가</button>
+                  <form method="post" action="{{ url_for('create_meal') }}" class="inline-add-form meal-add-form">
+                    <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+                    <input type="hidden" name="meal_type" value="{{ group.meal_type }}">
+                    <input name="meal_food_name" placeholder="음식" required>
+                    <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
+                    <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
+                    <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+                    <button type="submit" class="save-chip">저장</button>
+                  </form>
+                </div>
               </div>
             </article>
           {% endfor %}
