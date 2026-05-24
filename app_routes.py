@@ -72,7 +72,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/daily")
     def daily_summary_page():
-        days = parse_int(request.args.get("days")) or 14
+        days = parse_int(request.args.get("days")) or 7
         days = min(max(days, 7), 90)
         return render_template(
             "summary_page.html",
@@ -651,8 +651,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/records/search")
     def record_search_page():
-        selected_start = normalize_optional_date(request.args.get("start"), max_future_days=365) or ""
-        selected_end = normalize_optional_date(request.args.get("end"), max_future_days=365) or ""
+        selected_end = normalize_optional_date(request.args.get("end"), max_future_days=365) or current_local_date()
+        selected_start = normalize_optional_date(request.args.get("start"), max_future_days=365) or shift_date(selected_end, -6)
         selected_part = request.args.get("part", "").strip()
         selected_equipment = request.args.get("equipment", "").strip()
         query = request.args.get("q", "").strip()

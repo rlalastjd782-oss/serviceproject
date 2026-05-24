@@ -173,6 +173,14 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(strength_name, response.data.decode("utf-8"))
 
+        response = self.client.get("/summaries/daily")
+        self.assertIn("최근 7일", response.data.decode("utf-8"))
+
+        response = self.client.get("/records/search")
+        search_html = response.data.decode("utf-8")
+        self.assertIn('name="start"', search_html)
+        self.assertIn('name="end"', search_html)
+
         response = self.client.post(
             "/rest-days",
             data={"rest_date": "2026-05-21", "rest_reason": "회복", "memo": "테스트 휴식"},
