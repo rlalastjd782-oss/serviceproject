@@ -522,7 +522,7 @@ label span {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
   gap: 8px;
   margin-bottom: 12px;
 }
@@ -539,7 +539,8 @@ label span {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--panel);
-  padding: 11px 9px;
+  min-height: 72px;
+  padding: 10px 8px;
   text-align: center;
 }
 
@@ -551,6 +552,10 @@ label span {
   margin-top: 10px;
 }
 
+.trend-snapshot-section .section-subtitle {
+  display: none;
+}
+
 .trend-snapshot-list {
   display: grid;
   gap: 7px;
@@ -558,7 +563,7 @@ label span {
 
 .trend-snapshot-row {
   display: grid;
-  grid-template-columns: minmax(72px, 0.9fr) repeat(5, minmax(0, 1fr));
+  grid-template-columns: minmax(76px, 0.9fr) repeat(4, minmax(0, 1fr));
   align-items: center;
   gap: 7px;
   border: 1px solid var(--line);
@@ -580,15 +585,22 @@ label span {
   line-height: 1.3;
 }
 
+.trend-snapshot-row span:nth-of-type(n + 5) {
+  display: none;
+}
+
 .summary-value {
   color: var(--strong);
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.15;
 }
 
 .summary-label {
   color: var(--dim);
   font-size: 11px;
+  font-weight: 800;
+  line-height: 1.25;
 }
 
 .goal-grid {
@@ -2786,11 +2798,11 @@ tbody tr:last-child td {
 
 .detail-list {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--bg);
-  padding: 10px;
+  border-radius: var(--radius);
+  background: rgb(15 15 20 / 52%);
+  padding: 8px;
 }
 
 .full-detail-list {
@@ -2812,13 +2824,14 @@ tbody tr:last-child td {
 .detail-list-head strong,
 .detail-row strong {
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .detail-list-head span,
 .detail-row span {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
+  text-align: right;
 }
 
 @media (max-width: 560px) {

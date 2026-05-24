@@ -18,7 +18,7 @@ def build_period_chart_from_rows(rows: list[sqlite3.Row]) -> list[dict[str, floa
             "exercise_calories": float(row["exercise_calories"]),
             "duration_seconds": int(row["duration_seconds"]),
             "set_count": int(row["set_count"]),
-            "workout_days": int(row["workout_days"]),
+            "workout_days": int(row["workout_days"]) if "workout_days" in row.keys() else (1 if int(row["set_count"]) > 0 else 0),
             "meal_count": int(row["meal_count"]),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
             "volume_width": round(float(row["volume"]) / max_volume * 100),
