@@ -413,6 +413,39 @@ label span {
   font-size: 20px;
 }
 
+.trend-snapshot-section {
+  margin-top: 10px;
+}
+
+.trend-snapshot-list {
+  display: grid;
+  gap: 7px;
+}
+
+.trend-snapshot-row {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.9fr) repeat(5, minmax(0, 1fr));
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  padding: 9px 10px;
+}
+
+.trend-snapshot-row strong {
+  color: var(--strong);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.trend-snapshot-row span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
 .summary-value {
   color: var(--strong);
   font-size: 17px;
@@ -1907,6 +1940,14 @@ tbody tr:last-child td {
 
   .focus-suggestion-card {
     grid-template-columns: 1fr;
+  }
+
+  .trend-snapshot-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trend-snapshot-row strong {
+    grid-column: 1 / -1;
   }
 
   .editable-list-item {

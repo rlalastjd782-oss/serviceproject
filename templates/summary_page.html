@@ -202,15 +202,26 @@
     {% endif %}
 
     {% if chart_items %}
-      <div class="summary-grid">
-        {% for item in chart_items[-4:] %}
-          <article class="summary-card">
-            <div class="summary-icon">📊</div>
-            <div class="summary-value">{{ item.set_count }}</div>
-            <div class="summary-label">{{ item.period }} · {{ format_duration(item.duration_seconds) }}</div>
-          </article>
-        {% endfor %}
-      </div>
+      <section class="section trend-snapshot-section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">기간 요약</div>
+            <div class="section-subtitle">그래프에 들어가는 데이터를 먼저 숫자로 확인합니다.</div>
+          </div>
+        </div>
+        <div class="trend-snapshot-list">
+          {% for item in chart_items %}
+            <article class="trend-snapshot-row">
+              <strong>{{ item.period }}</strong>
+              <span>세트 {{ item.set_count }}</span>
+              <span>운동 {{ format_duration(item.duration_seconds) }}</span>
+              <span>웨이트 {{ "%.0f"|format(item.volume) }}kg</span>
+              {% if item.cardio_minutes %}<span>유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+              <span>식단 {{ item.meal_count }}</span>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
     {% endif %}
 
     <section class="section">
