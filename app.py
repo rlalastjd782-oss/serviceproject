@@ -57,7 +57,7 @@ def create_app() -> Flask:
     def index():
         selected_date = request.args.get("date") or current_local_date()
         workout_mode = request.args.get("mode") == "workout"
-        today_session = get_session_for_date(selected_date)
+        today_session = get_or_create_session(selected_date)
         sessions = list_recent_sessions()
         exercises = list_exercises()
         meals = list_meals_for_date(today_session["workout_date"])
@@ -340,6 +340,42 @@ def create_app() -> Flask:
         mark_session_completed(session_id, request.form.get("completed") == "1")
         return redirect(url_for("index", date=session["workout_date"]))
 
+    @app.post("/sessions/<int:session_id>/duration")
+    def update_session_duration_route(session_id: int):
+        session = get_session_by_id(session_id)
+        if not session:
+            if request.is_json:
+                return jsonify({"ok": False, "error": "session_not_found"}), 404
+            return redirect(url_for("index"))
+
+        if request.is_json:
+            payload = request.get_json(silent=True) or {}
+            duration_seconds = parse_int(str(payload.get("duration_seconds", ""))) or 0
+        else:
+            if request.form.get("action") == "reset":
+                duration_seconds = 0
+            else:
+                duration_seconds = parse_duration_seconds(
+                    request.form.get("duration_hours"),
+                    request.form.get("duration_minutes"),
+                )
+
+        duration_seconds = max(0, duration_seconds)
+        update_session_duration(session_id, duration_seconds)
+        if request.is_json:
+            return jsonify(
+                {
+                    "ok": True,
+                    "duration_seconds": duration_seconds,
+                    "duration_text": format_duration(duration_seconds),
+                }
+            )
+        mode = request.form.get("mode")
+        route_args = {"date": session["workout_date"]}
+        if mode:
+            route_args["mode"] = mode
+        return redirect(url_for("index", **route_args))
+
     @app.post("/goals")
     def update_goals():
         target_date = request.form.get("target_date") or current_local_date()
@@ -607,6 +643,7 @@ def init_db() -> None:
             workout_date TEXT NOT NULL UNIQUE,
             note TEXT NOT NULL DEFAULT '',
             completed INTEGER NOT NULL DEFAULT 0,
+            duration_seconds INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -726,6 +763,7 @@ def init_db() -> None:
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
     ensure_column(db, "workout_sessions", "completed", "INTEGER NOT NULL DEFAULT 0")
+    ensure_column(db, "workout_sessions", "duration_seconds", "INTEGER NOT NULL DEFAULT 0")
     ensure_column(db, "workout_sets", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
     ensure_column(db, "workout_sets", "cardio_incline", "REAL")
     ensure_column(db, "workout_sets", "cardio_speed", "REAL")
@@ -803,6 +841,14 @@ def get_session_by_id(session_id: int) -> sqlite3.Row | None:
 
 def mark_session_completed(session_id: int, completed: bool) -> None:
     get_db().execute("UPDATE workout_sessions SET completed = ? WHERE id = ?", (1 if completed else 0, session_id))
+    get_db().commit()
+
+
+def update_session_duration(session_id: int, duration_seconds: int) -> None:
+    get_db().execute(
+        "UPDATE workout_sessions SET duration_seconds = ? WHERE id = ?",
+        (max(0, int(duration_seconds or 0)), session_id),
+    )
     get_db().commit()
 
 
@@ -1519,6 +1565,10 @@ def build_weekly_report() -> dict[str, object]:
         "SELECT COUNT(DISTINCT meal_date) AS meal_days FROM meal_entries WHERE meal_date BETWEEN ? AND ?",
         (week_start, week_end),
     ).fetchone()["meal_days"]
+    duration_seconds = db.execute(
+        "SELECT COALESCE(SUM(duration_seconds), 0) AS duration_seconds FROM workout_sessions WHERE workout_date BETWEEN ? AND ?",
+        (week_start, week_end),
+    ).fetchone()["duration_seconds"]
     top_part = db.execute(
         """
         SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
@@ -1538,6 +1588,7 @@ def build_weekly_report() -> dict[str, object]:
         "volume": float(totals["volume"] or 0),
         "cardio_minutes": float(totals["cardio_minutes"] or 0),
         "exercise_calories": float(totals["exercise_calories"] or 0),
+        "duration_seconds": int(duration_seconds or 0),
         "meal_days": int(meal_days or 0),
         "top_part": top_part["body_part"] if top_part else "-",
     }
@@ -1573,6 +1624,10 @@ def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
         """,
         (month_start, next_month),
     ).fetchone()
+    duration_seconds = db.execute(
+        "SELECT COALESCE(SUM(duration_seconds), 0) AS duration_seconds FROM workout_sessions WHERE workout_date >= ? AND workout_date < ?",
+        (month_start, next_month),
+    ).fetchone()["duration_seconds"]
     metrics = db.execute(
         """
         SELECT metric_date, body_weight
@@ -1591,6 +1646,7 @@ def build_monthly_report(date_text: str | None = None) -> dict[str, object]:
         "workout_days": int(totals["workout_days"] or 0),
         "set_count": int(totals["set_count"] or 0),
         "volume": float(totals["volume"] or 0),
+        "duration_seconds": int(duration_seconds or 0),
         "top_exercise": top_exercise["name"] if top_exercise else "-",
         "top_exercise_sets": int(top_exercise["set_count"] or 0) if top_exercise else 0,
         "weight_delta": weight_delta,
@@ -1928,7 +1984,8 @@ def get_day_summary(day: str) -> dict[str, float]:
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
             COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
+            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
+            COALESCE(MAX(s.duration_seconds), 0) AS duration_seconds
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
         WHERE s.workout_date = ?
@@ -1953,6 +2010,7 @@ def get_day_summary(day: str) -> dict[str, float]:
         "volume": workout["volume"],
         "cardio_minutes": workout["cardio_minutes"],
         "exercise_calories": workout["exercise_calories"],
+        "duration_seconds": workout["duration_seconds"],
         "meal_count": meal["meal_count"],
         "amount": meal["amount"],
         "grams": meal["grams"],
@@ -1970,7 +2028,8 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
                 COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
                 COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
                 COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-                COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
+                COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
+                COALESCE(MAX(s.duration_seconds), 0) AS duration_seconds
             FROM workout_sessions s
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             GROUP BY s.workout_date
@@ -1997,6 +2056,7 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
             COALESCE(w.volume, 0) AS volume,
             COALESCE(w.cardio_minutes, 0) AS cardio_minutes,
             COALESCE(w.exercise_calories, 0) AS exercise_calories,
+            COALESCE(w.duration_seconds, 0) AS duration_seconds,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
             COALESCE(m.grams, 0) AS grams,
@@ -2029,6 +2089,15 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             GROUP BY month_key, week_of_month
         ),
+        workout_time AS (
+            SELECT
+                strftime('%Y-%m', workout_date) AS month_key,
+                CAST(strftime('%m', workout_date) AS INTEGER) AS month_number,
+                ((CAST(strftime('%d', workout_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
+                COALESCE(SUM(duration_seconds), 0) AS duration_seconds
+            FROM workout_sessions
+            GROUP BY month_key, week_of_month
+        ),
         meal AS (
             SELECT
                 strftime('%Y-%m', meal_date) AS month_key,
@@ -2056,6 +2125,7 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
             COALESCE(w.volume, 0) AS volume,
             COALESCE(w.cardio_minutes, 0) AS cardio_minutes,
             COALESCE(w.exercise_calories, 0) AS exercise_calories,
+            COALESCE(wt.duration_seconds, 0) AS duration_seconds,
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
@@ -2064,6 +2134,8 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
         FROM periods p
         LEFT JOIN workout w
             ON w.month_key = p.month_key AND w.week_of_month = p.week_of_month
+        LEFT JOIN workout_time wt
+            ON wt.month_key = p.month_key AND wt.week_of_month = p.week_of_month
         LEFT JOIN meal m
             ON m.month_key = p.month_key AND m.week_of_month = p.week_of_month
         ORDER BY p.month_key DESC, p.week_of_month DESC
@@ -2093,6 +2165,13 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             GROUP BY strftime(?, s.workout_date)
         ),
+        workout_time AS (
+            SELECT
+                strftime(?, workout_date) AS period,
+                COALESCE(SUM(duration_seconds), 0) AS duration_seconds
+            FROM workout_sessions
+            GROUP BY strftime(?, workout_date)
+        ),
         meal AS (
             SELECT
                 strftime(?, meal_date) AS period,
@@ -2117,6 +2196,7 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
             COALESCE(w.volume, 0) AS volume,
             COALESCE(w.cardio_minutes, 0) AS cardio_minutes,
             COALESCE(w.exercise_calories, 0) AS exercise_calories,
+            COALESCE(wt.duration_seconds, 0) AS duration_seconds,
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
@@ -2124,11 +2204,12 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
             COALESCE(m.calories, 0) AS calories
         FROM periods p
         LEFT JOIN workout w ON w.period = p.period
+        LEFT JOIN workout_time wt ON wt.period = p.period
         LEFT JOIN meal m ON m.period = p.period
         ORDER BY p.period DESC
         LIMIT ?
         """,
-        (period_format, period_format, period_format, period_format, limit),
+        (period_format, period_format, period_format, period_format, period_format, period_format, limit),
     ).fetchall()
 
 
@@ -2138,12 +2219,14 @@ def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | 
     max_grams = max([float(row["grams"]) for row in ordered_rows] + [1.0])
     max_exercise_calories = max([float(row["exercise_calories"]) for row in ordered_rows] + [1.0])
     max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
+    max_duration = max([int(row["duration_seconds"]) for row in ordered_rows] + [1])
     return [
         {
             "period": row["period"],
             "volume": float(row["volume"]),
             "grams": float(row["grams"]),
             "exercise_calories": float(row["exercise_calories"]),
+            "duration_seconds": int(row["duration_seconds"]),
             "set_count": int(row["set_count"]),
             "workout_days": int(row["workout_days"]),
             "meal_count": int(row["meal_count"]),
@@ -2155,6 +2238,7 @@ def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | 
             "exercise_calorie_width": round(float(row["exercise_calories"]) / max_exercise_calories * 100),
             "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
             "set_width": round(int(row["set_count"]) / max_sets * 100),
+            "duration_width": round(int(row["duration_seconds"]) / max_duration * 100),
         }
         for row in ordered_rows
     ]
@@ -2166,12 +2250,14 @@ def build_daily_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | s
     max_grams = max([float(row["grams"]) for row in ordered_rows] + [1.0])
     max_exercise_calories = max([float(row["exercise_calories"]) for row in ordered_rows] + [1.0])
     max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
+    max_duration = max([int(row["duration_seconds"]) for row in ordered_rows] + [1])
     return [
         {
             "period": row["period"],
             "volume": float(row["volume"]),
             "grams": float(row["grams"]),
             "exercise_calories": float(row["exercise_calories"]),
+            "duration_seconds": int(row["duration_seconds"]),
             "set_count": int(row["set_count"]),
             "workout_days": 1 if int(row["set_count"]) > 0 else 0,
             "meal_count": int(row["meal_count"]),
@@ -2183,6 +2269,7 @@ def build_daily_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | s
             "exercise_calorie_width": round(float(row["exercise_calories"]) / max_exercise_calories * 100),
             "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
             "set_width": round(int(row["set_count"]) / max_sets * 100),
+            "duration_width": round(int(row["duration_seconds"]) / max_duration * 100),
         }
         for row in ordered_rows
     ]
@@ -2519,6 +2606,30 @@ def parse_int(value: str | None) -> int | None:
         return None
 
 
+def parse_duration_seconds(hours: str | None, minutes: str | None, seconds: str | None = None) -> int:
+    hour_value = parse_int(hours) or 0
+    minute_value = parse_int(minutes) or 0
+    second_value = parse_int(seconds) or 0
+    return max(0, hour_value * 3600 + minute_value * 60 + second_value)
+
+
+def format_duration(seconds: int | float | None) -> str:
+    total_seconds = max(0, int(seconds or 0))
+    hours = total_seconds // 3600
+    minutes = (total_seconds % 3600) // 60
+    if hours:
+        return f"{hours}시간 {minutes:02d}분"
+    return f"{minutes}분"
+
+
+def duration_hours(seconds: int | float | None) -> int:
+    return max(0, int(seconds or 0)) // 3600
+
+
+def duration_minutes(seconds: int | float | None) -> int:
+    return (max(0, int(seconds or 0)) % 3600) // 60
+
+
 def get_body_weight_for_date(metric_date: str) -> float:
     row = get_db().execute(
         """
@@ -2624,6 +2735,9 @@ app.jinja_env.globals["sets_for_session"] = sets_for_session
 app.jinja_env.globals["grouped_sets_for_session"] = grouped_sets_for_session
 app.jinja_env.globals["body_part_class"] = body_part_class
 app.jinja_env.globals["meal_type_class"] = meal_type_class
+app.jinja_env.globals["format_duration"] = format_duration
+app.jinja_env.globals["duration_hours"] = duration_hours
+app.jinja_env.globals["duration_minutes"] = duration_minutes
 
 
 if __name__ == "__main__":

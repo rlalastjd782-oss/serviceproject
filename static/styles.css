@@ -455,6 +455,27 @@ label span {
   gap: 6px;
 }
 
+.duration-edit-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: end;
+  margin-top: 10px;
+}
+
+.duration-edit-form label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.duration-edit-form input {
+  width: 100%;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 .completion-card {
   display: grid;
   gap: 4px;
@@ -1389,6 +1410,10 @@ label span {
   background: #22c55e;
 }
 
+.duration-bar {
+  background: #a78bfa;
+}
+
 .chart-group strong,
 .chart-group small {
   display: block;
@@ -1507,6 +1532,10 @@ tbody tr:last-child td {
   }
 
   .timer-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .duration-edit-form {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

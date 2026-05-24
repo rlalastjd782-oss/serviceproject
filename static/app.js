@@ -45,6 +45,7 @@ const workoutClockPanel = document.querySelector("[data-workout-clock]");
 let restTimerId = null;
 let restRemaining = 0;
 let workoutClockId = null;
+let workoutClockSyncId = null;
 
 initWorkoutClock();
 
@@ -78,6 +79,18 @@ document.addEventListener("change", (event) => {
     renderRecentSetList(exerciseNameInput.value);
     renderExerciseGuidance(exerciseNameInput.value);
   }
+});
+
+document.addEventListener("submit", (event) => {
+  const durationForm = event.target.closest(".duration-edit-form");
+  if (!durationForm || !workoutClockPanel) {
+    return;
+  }
+  const action = event.submitter?.getAttribute("value");
+  const hours = Number(durationForm.querySelector('input[name="duration_hours"]')?.value || 0);
+  const minutes = Number(durationForm.querySelector('input[name="duration_minutes"]')?.value || 0);
+  const durationSeconds = action === "reset" ? 0 : Math.max(0, hours * 3600 + minutes * 60);
+  saveWorkoutClock({ startedAt: null, elapsedMs: durationSeconds * 1000 });
 });
 
 document.addEventListener("click", (event) => {
@@ -567,21 +580,34 @@ function initWorkoutClock() {
     return;
   }
   const state = readWorkoutClock();
-  if (workoutClockPanel.dataset.workoutMode === "1" && !state.startedAt && !state.elapsedMs) {
-    saveWorkoutClock({ startedAt: Date.now(), elapsedMs: 0 });
+  const initialElapsedMs = Number(workoutClockPanel.dataset.initialDuration || 0) * 1000;
+  if (!state.startedAt && (state.elapsedMs === undefined || Math.abs(Number(state.elapsedMs || 0) - initialElapsedMs) > 1000)) {
+    saveWorkoutClock({ startedAt: null, elapsedMs: initialElapsedMs });
+  }
+  if (workoutClockPanel.dataset.workoutMode === "1" && !readWorkoutClock().startedAt) {
+    startWorkoutClock(false);
   }
   updateWorkoutClockDisplay();
   clearInterval(workoutClockId);
   workoutClockId = setInterval(updateWorkoutClockDisplay, 1000);
+  clearInterval(workoutClockSyncId);
+  workoutClockSyncId = setInterval(() => {
+    const currentState = readWorkoutClock();
+    if (currentState.startedAt) {
+      persistWorkoutClock();
+    }
+  }, 15000);
 }
 
-function startWorkoutClock() {
+function startWorkoutClock(shouldUpdate = true) {
   const state = readWorkoutClock();
   if (state.startedAt) {
     return;
   }
   saveWorkoutClock({ startedAt: Date.now(), elapsedMs: Number(state.elapsedMs || 0) });
-  updateWorkoutClockDisplay();
+  if (shouldUpdate) {
+    updateWorkoutClockDisplay();
+  }
 }
 
 function pauseWorkoutClock() {
@@ -592,11 +618,47 @@ function pauseWorkoutClock() {
   const elapsedMs = Number(state.elapsedMs || 0) + (Date.now() - Number(state.startedAt));
   saveWorkoutClock({ startedAt: null, elapsedMs });
   updateWorkoutClockDisplay();
+  persistWorkoutClock();
 }
 
 function resetWorkoutClock() {
   saveWorkoutClock({ startedAt: null, elapsedMs: 0 });
   updateWorkoutClockDisplay();
+  persistWorkoutClock();
+}
+
+function currentWorkoutElapsedMs() {
+  const state = readWorkoutClock();
+  return Number(state.elapsedMs || 0) + (state.startedAt ? Date.now() - Number(state.startedAt) : 0);
+}
+
+function currentWorkoutSeconds() {
+  return Math.max(0, Math.floor(currentWorkoutElapsedMs() / 1000));
+}
+
+function persistWorkoutClock() {
+  const url = workoutClockPanel?.dataset.durationUrl;
+  if (!url) {
+    return;
+  }
+  fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ duration_seconds: currentWorkoutSeconds() }),
+    keepalive: true,
+  }).catch(() => {});
+}
+
+function sendWorkoutClockBeacon() {
+  const url = workoutClockPanel?.dataset.durationUrl;
+  if (!url || !navigator.sendBeacon) {
+    persistWorkoutClock();
+    return;
+  }
+  const payload = new Blob([JSON.stringify({ duration_seconds: currentWorkoutSeconds() })], {
+    type: "application/json",
+  });
+  navigator.sendBeacon(url, payload);
 }
 
 function updateWorkoutClockDisplay() {
@@ -605,11 +667,22 @@ function updateWorkoutClockDisplay() {
     return;
   }
   const state = readWorkoutClock();
-  const elapsedMs = Number(state.elapsedMs || 0) + (state.startedAt ? Date.now() - Number(state.startedAt) : 0);
-  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
+  const totalSeconds = currentWorkoutSeconds();
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   display.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   display.classList.toggle("is-running", Boolean(state.startedAt));
 }
+
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden" && workoutClockPanel) {
+    sendWorkoutClockBeacon();
+  }
+});
+
+window.addEventListener("beforeunload", () => {
+  if (workoutClockPanel) {
+    sendWorkoutClockBeacon();
+  }
+});

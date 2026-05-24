@@ -18,7 +18,7 @@
     <a class="btn-small mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체 보기</a>
   </div>
 
-  <section class="section workout-clock-section" data-workout-clock data-workout-date="{{ session.workout_date }}" data-workout-mode="{% if workout_mode %}1{% else %}0{% endif %}">
+  <section class="section workout-clock-section" data-workout-clock data-workout-date="{{ session.workout_date }}" data-workout-mode="{% if workout_mode %}1{% else %}0{% endif %}" data-initial-duration="{{ session.duration_seconds or 0 }}" data-duration-url="{{ url_for('update_session_duration_route', session_id=session.id) }}">
     <div class="section-header">
       <div>
         <div class="section-title">운동 시간</div>
@@ -31,9 +31,27 @@
       <button class="btn-small" type="button" data-workout-clock-pause>일시정지</button>
       <button class="btn-danger" type="button" data-workout-clock-reset>초기화</button>
     </div>
+    <form method="post" action="{{ url_for('update_session_duration_route', session_id=session.id) }}" class="duration-edit-form">
+      <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
+      <label>
+        <span>운동 시간</span>
+        <input name="duration_hours" type="number" min="0" inputmode="numeric" value="{{ duration_hours(session.duration_seconds) }}" aria-label="운동 시간">
+      </label>
+      <label>
+        <span>분</span>
+        <input name="duration_minutes" type="number" min="0" max="59" inputmode="numeric" value="{{ duration_minutes(session.duration_seconds) }}" aria-label="운동 분">
+      </label>
+      <button class="btn-small" type="submit">수정</button>
+      <button class="btn-danger" type="submit" name="action" value="reset">시간 삭제</button>
+    </form>
   </section>
 
   <div class="summary-grid optional-section">
+    <article class="summary-card">
+      <div class="summary-icon">⏱</div>
+      <div class="summary-value">{{ format_duration(today_summary.duration_seconds) }}</div>
+      <div class="summary-label">운동 시간</div>
+    </article>
     <article class="summary-card">
       <div class="summary-icon">🏃</div>
       <div class="summary-value">{{ today_summary.set_count }}</div>
