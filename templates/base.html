@@ -2,29 +2,34 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <meta name="theme-color" content="#080b12">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f14">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>{% block title %}운동 및 식단 관리{% endblock %}</title>
+    <title>{% block title %}헬스 트래커{% endblock %}</title>
   </head>
   <body>
-    <main class="app-shell">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">{% block eyebrow %}Fitness Log{% endblock %}</p>
-          <h1>{% block heading %}오늘의 기록{% endblock %}</h1>
+    <div id="app">
+      <header class="header">
+        <div class="header-title">🏋️ 헬스 트래커</div>
+        <div class="save-dot" aria-label="저장 상태">
+          <span class="dot"></span>
+          <span class="save-text">저장됨</span>
         </div>
-        <nav class="main-nav" aria-label="주요 메뉴">
-          <a class="nav-link {% if active_page == 'today' %}active{% endif %}" href="{{ url_for('index') }}">오늘</a>
-          <a class="nav-link {% if active_page == 'daily' %}active{% endif %}" href="{{ url_for('daily_summary_page') }}">일간</a>
-          <a class="nav-link {% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주간</a>
-          <a class="nav-link {% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월간</a>
-          <a class="nav-link {% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동별</a>
-        </nav>
       </header>
-      {% block content %}{% endblock %}
-    </main>
+      <nav class="tabs" aria-label="주요 메뉴">
+        <a class="tab-btn {% if active_page == 'today' %}active{% endif %}" href="{{ url_for('index') }}">오늘</a>
+        <a class="tab-btn {% if active_page == 'daily' %}active{% endif %}" href="{{ url_for('daily_summary_page') }}">기록</a>
+        <a class="tab-btn {% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주별</a>
+        <a class="tab-btn {% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월별</a>
+        <a class="tab-btn {% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>
+      </nav>
+      <main class="content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>
 </html>

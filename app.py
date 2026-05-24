@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import sqlite3
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import Flask, g, jsonify, redirect, render_template, request, url_for
@@ -41,6 +42,8 @@ def create_app() -> Flask:
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
             body_parts=body_part_options(),
+            prev_date=shift_date(today_session["workout_date"], -1),
+            next_date=shift_date(today_session["workout_date"], 1),
             active_page="today",
         )
 
@@ -858,6 +861,10 @@ def grouped_sets_for_session(session_id: int | None) -> list[dict[str, object]]:
 
 def current_local_date() -> str:
     return get_db().execute("SELECT date('now', 'localtime')").fetchone()[0]
+
+
+def shift_date(date_text: str, days: int) -> str:
+    return (datetime.strptime(date_text, "%Y-%m-%d") + timedelta(days=days)).strftime("%Y-%m-%d")
 
 
 def value_at(values: list[str], index: int) -> str:
