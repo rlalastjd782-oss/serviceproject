@@ -122,7 +122,6 @@ function addRow(list, type) {
 
 function setRowHtml(index) {
   return `
-    <strong>${index}</strong>
     <div class="compact-field-grid">
       <label>
         <span>무게 kg</span>
@@ -140,7 +139,6 @@ function setRowHtml(index) {
 
 function mealRowHtml(index) {
   return `
-    <strong>${index}</strong>
     <input name="meal_food_name" autocomplete="off" placeholder="음식" required>
     <div class="compact-field-grid meal-compact-grid">
       <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
@@ -153,6 +151,9 @@ function mealRowHtml(index) {
 
 function renumberRows(list, selector) {
   list.querySelectorAll(selector).forEach((row, index) => {
-    row.querySelector("strong").textContent = index + 1;
+    const number = row.querySelector("strong");
+    if (number) {
+      number.textContent = index + 1;
+    }
   });
 }
