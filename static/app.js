@@ -557,7 +557,7 @@ function mealRowHtml(index) {
       <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
       <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
     </div>
-    <button class="row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
+    <button class="btn-danger row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
   `;
 }
 

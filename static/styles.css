@@ -705,6 +705,7 @@ label span {
 .meal-template-panel {
   display: grid;
   gap: 7px;
+  margin-top: 12px;
 }
 
 .recommended-routine {
@@ -932,7 +933,8 @@ label span {
 }
 
 .meal-entry-row {
-  grid-template-columns: minmax(0, 1fr) 28px;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  align-items: stretch;
 }
 
 .set-entry-row > strong,
@@ -961,6 +963,7 @@ label span {
 
 .meal-compact-grid {
   grid-template-columns: 0.7fr 0.8fr 1fr;
+  grid-column: 1 / -1;
 }
 
 .set-entry-row > input,
@@ -990,6 +993,8 @@ label span {
 
 .meal-entry-row .row-remove-button {
   grid-column: 2;
+  grid-row: 1;
+  min-width: 30px;
 }
 
 .set-entry-row input,

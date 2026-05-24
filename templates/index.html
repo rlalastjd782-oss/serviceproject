@@ -398,31 +398,6 @@
         <div class="exercise-quick-list" data-food-quick-list></div>
         <div class="quick-empty" data-food-quick-empty>선택한 식사의 음식 기록이 없습니다.</div>
       </div>
-      <div class="meal-template-panel">
-        {% if meal_copy_sources %}
-          <div class="quick-panel-title">지난 식단 복사</div>
-          {% for day in meal_copy_sources %}
-            <form method="post" action="{{ url_for('copy_meal_day_route') }}" class="routine-load-row">
-              <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-              <input type="hidden" name="source_date" value="{{ day.meal_date }}">
-              <span>{{ day.meal_date }} · {{ day.meal_count }}개 · {{ "%.0f"|format(day.calories) }}kcal</span>
-              <button class="btn-small" type="submit">복사</button>
-            </form>
-          {% endfor %}
-        {% endif %}
-        <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
-          <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-          <input name="template_name" placeholder="오늘 식단을 템플릿으로 저장">
-          <button class="btn-small" type="submit">저장</button>
-        </form>
-        {% for template in meal_templates %}
-          <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
-            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-            <span>{{ template.name }} · {{ template.item_count }}개</span>
-            <button class="btn-small" type="submit">불러오기</button>
-          </form>
-        {% endfor %}
-      </div>
       <div class="section-header compact-header">
         <div class="section-title">음식</div>
         <button class="btn-small" type="button" data-add-meal-row>+ 음식 추가</button>
@@ -440,6 +415,31 @@
       </div>
       <button class="btn-primary" type="submit">식단 저장</button>
     </form>
+    <div class="meal-template-panel">
+      {% if meal_copy_sources %}
+        <div class="quick-panel-title">지난 식단 복사</div>
+        {% for day in meal_copy_sources %}
+          <form method="post" action="{{ url_for('copy_meal_day_route') }}" class="routine-load-row">
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="source_date" value="{{ day.meal_date }}">
+            <span>{{ day.meal_date }} · {{ day.meal_count }}개 · {{ "%.0f"|format(day.calories) }}kcal</span>
+            <button class="btn-small" type="submit">복사</button>
+          </form>
+        {% endfor %}
+      {% endif %}
+      <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
+        <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+        <input name="template_name" placeholder="오늘 식단을 템플릿으로 저장">
+        <button class="btn-small" type="submit">저장</button>
+      </form>
+      {% for template in meal_templates %}
+        <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
+          <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+          <span>{{ template.name }} · {{ template.item_count }}개</span>
+          <button class="btn-small" type="submit">불러오기</button>
+        </form>
+      {% endfor %}
+    </div>
   </section>
 
   <section class="section" id="today-workout">
