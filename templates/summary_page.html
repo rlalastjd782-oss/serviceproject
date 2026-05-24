@@ -116,6 +116,7 @@
           <thead>
             <tr>
               <th>기간</th>
+              {% if active_page == "weekly" %}<th>상세</th>{% endif %}
               <th>부위</th>
               <th>세트</th>
               <th>총 횟수</th>
@@ -126,6 +127,30 @@
             {% for item in body_part_summary %}
               <tr>
                 <td>{{ item.period }}</td>
+                {% if active_page == "weekly" %}
+                  <td>
+                    {% set detail_rows = body_part_details.get(item.period ~ "::" ~ item.body_part, []) %}
+                    {% if detail_rows %}
+                      <details class="detail-toggle">
+                        <summary>상세</summary>
+                        <div class="detail-list">
+                          {% for detail in detail_rows %}
+                            <div class="detail-row">
+                              <strong>{{ detail.exercise_name }}</strong>
+                              <span>
+                                {% if detail.weight is not none %}{{ "%.1f"|format(detail.weight) }}kg{% else %}-kg{% endif %}
+                                · {{ detail.set_count }}세트
+                                · {{ detail.rep_count }}회
+                              </span>
+                            </div>
+                          {% endfor %}
+                        </div>
+                      </details>
+                    {% else %}
+                      -
+                    {% endif %}
+                  </td>
+                {% endif %}
                 <td>{{ item.body_part }}</td>
                 <td>{{ item.set_count }}</td>
                 <td>{{ item.rep_count }}</td>
@@ -133,7 +158,7 @@
               </tr>
             {% else %}
               <tr>
-                <td colspan="5" class="empty-cell">운동 기록을 추가하면 부위별로 집계됩니다.</td>
+                <td colspan="{% if active_page == 'weekly' %}6{% else %}5{% endif %}" class="empty-cell">운동 기록을 추가하면 부위별로 집계됩니다.</td>
               </tr>
             {% endfor %}
           </tbody>

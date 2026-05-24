@@ -75,6 +75,7 @@ def create_app() -> Flask:
             chart_title="일별 추이",
             chart_note="최근 기록일 7개를 일별로 표시합니다.",
             body_part_summary=list_body_part_summary("weekly"),
+            body_part_details=list_weekly_body_part_details(),
             active_page="weekly",
         )
 
@@ -765,6 +766,36 @@ def list_body_part_summary(scope: str, limit: int = 30) -> list[sqlite3.Row]:
         """,
         (limit,),
     ).fetchall()
+
+
+def list_weekly_body_part_details() -> dict[str, list[sqlite3.Row]]:
+    period_expr = (
+        "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
+        "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
+    )
+    rows = get_db().execute(
+        f"""
+        SELECT
+            {period_expr} AS period,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.name AS exercise_name,
+            ws.weight AS weight,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        GROUP BY period, body_part, e.name, ws.weight
+        ORDER BY MAX(s.workout_date) DESC, body_part, e.name, ws.weight
+        """,
+    ).fetchall()
+
+    details: dict[str, list[sqlite3.Row]] = {}
+    for row in rows:
+        details.setdefault(f"{row['period']}::{row['body_part']}", []).append(row)
+    return details
 
 
 def list_sets_for_session(session_id: int) -> list[sqlite3.Row]:

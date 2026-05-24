@@ -820,6 +820,57 @@ tbody tr:last-child td {
   text-align: center;
 }
 
+.detail-toggle {
+  position: relative;
+}
+
+.detail-toggle summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid rgb(103 168 255 / 28%);
+  border-radius: 999px;
+  padding: 0 11px;
+  background: rgb(103 168 255 / 10%);
+  color: var(--accent-2);
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 850;
+  list-style: none;
+}
+
+.detail-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.detail-list {
+  display: grid;
+  gap: 7px;
+  min-width: 220px;
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px;
+  background: #080d14;
+}
+
+.detail-row {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.detail-row strong {
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.detail-row span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
 .empty-state {
   border: 1px dashed var(--line);
   border-radius: 8px;
