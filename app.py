@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 from flask import Flask, Response, g, jsonify, redirect, render_template, request, url_for
 
+from app_admin_service import build_app_health_status
 from app_config import BASE_DIR, DATABASE, PHOTO_DIR
 from app_constants import (
     BODY_PART_CLASSES,
@@ -36,6 +37,8 @@ from app_meal_service import (
     list_weekly_meal_days_from_db,
 )
 from app_meta import get_app_updated_at, get_app_version
+from app_pr_service import build_pr_cards_from_rows, build_pr_dashboard_from_rows
+from app_summary_service import build_daily_chart_from_rows, build_period_chart_from_rows
 from app_utils import (
     duration_hours,
     duration_minutes,
@@ -1282,19 +1285,7 @@ def list_pr_events(workout_date: str) -> list[sqlite3.Row]:
 
 
 def build_pr_cards(workout_date: str) -> list[dict[str, object]]:
-    rows = list_pr_events(workout_date)
-    cards: list[dict[str, object]] = []
-    for row in rows:
-        unit = "kg" if row["record_type"] in {"최고 중량", "최고 볼륨"} else "회"
-        cards.append(
-            {
-                "exercise_name": row["exercise_name"],
-                "record_type": row["record_type"],
-                "record_value": float(row["record_value"] or 0),
-                "unit": unit,
-            }
-        )
-    return cards
+    return build_pr_cards_from_rows(list_pr_events(workout_date))
 
 
 def list_recent_pr_events(limit: int = 12) -> list[sqlite3.Row]:
@@ -1362,18 +1353,7 @@ def list_exercise_pr_summary(body_part: str = "", query: str = "", limit: int = 
 
 
 def build_pr_dashboard(pr_rows: list[sqlite3.Row], recent_events: list[sqlite3.Row]) -> dict[str, object]:
-    best_weight = max(pr_rows, key=lambda row: float(row["best_weight"] or 0), default=None)
-    best_volume = max(pr_rows, key=lambda row: float(row["best_volume"] or 0), default=None)
-    best_1rm = max(pr_rows, key=lambda row: float(row["estimated_1rm"] or 0), default=None)
-    recent_30_dates = {row["workout_date"] for row in recent_events[:30]}
-    return {
-        "exercise_count": len(pr_rows),
-        "recent_event_count": len(recent_events),
-        "recent_day_count": len(recent_30_dates),
-        "best_weight": best_weight,
-        "best_volume": best_volume,
-        "best_1rm": best_1rm,
-    }
+    return build_pr_dashboard_from_rows(pr_rows, recent_events)
 
 
 def list_exercise_best_sets(exercise_id: int | None) -> list[dict[str, object]]:
@@ -2394,36 +2374,7 @@ def get_sample_data_counts() -> dict[str, int]:
 
 
 def get_app_health_status() -> list[dict[str, str]]:
-    counts = get_data_counts()
-    sample_counts = get_sample_data_counts()
-    backup_status = get_backup_status()
-    database_exists = DATABASE.exists()
-    return [
-        {
-            "label": "DB 파일",
-            "value": "정상" if database_exists else "없음",
-            "note": str(DATABASE),
-            "state": "ok" if database_exists else "warn",
-        },
-        {
-            "label": "저장 데이터",
-            "value": f"운동 {counts['workouts']}일 · 식단 {counts['meals']}개",
-            "note": f"세트 {counts['sets']}개 · 빈 기록 {counts['empty_workouts']}개",
-            "state": "warn" if counts["empty_workouts"] else "ok",
-        },
-        {
-            "label": "샘플 데이터",
-            "value": f"세트 {sample_counts['sets']}개 · 식단 {sample_counts['meals']}개",
-            "note": "화면 확인용 데이터입니다.",
-            "state": "info" if sample_counts["sets"] or sample_counts["meals"] else "ok",
-        },
-        {
-            "label": "백업",
-            "value": f"{backup_status['count']}개",
-            "note": f"최근 {backup_status['last_backup']}",
-            "state": "ok" if backup_status["count"] != "0" else "warn",
-        },
-    ]
+    return build_app_health_status(DATABASE, get_data_counts(), get_sample_data_counts(), get_backup_status())
 
 
 def delete_sample_data() -> None:
@@ -2937,65 +2888,11 @@ def list_weekly_summary(limit: int = 12, month_start: str | None = None) -> list
 
 
 def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
-    ordered_rows = list(reversed(rows))
-    max_volume = max([float(row["volume"]) for row in ordered_rows] + [1.0])
-    max_grams = max([float(row["grams"]) for row in ordered_rows] + [1.0])
-    max_exercise_calories = max([float(row["exercise_calories"]) for row in ordered_rows] + [1.0])
-    max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
-    max_duration = max([int(row["duration_seconds"]) for row in ordered_rows] + [1])
-    return [
-        {
-            "period": row["period"],
-            "volume": float(row["volume"]),
-            "grams": float(row["grams"]),
-            "exercise_calories": float(row["exercise_calories"]),
-            "duration_seconds": int(row["duration_seconds"]),
-            "set_count": int(row["set_count"]),
-            "workout_days": int(row["workout_days"]),
-            "meal_count": int(row["meal_count"]),
-            "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
-            "volume_width": round(float(row["volume"]) / max_volume * 100),
-            "grams_height": max(3, round(float(row["grams"]) / max_grams * 100)),
-            "grams_width": round(float(row["grams"]) / max_grams * 100),
-            "exercise_calorie_height": max(3, round(float(row["exercise_calories"]) / max_exercise_calories * 100)),
-            "exercise_calorie_width": round(float(row["exercise_calories"]) / max_exercise_calories * 100),
-            "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
-            "set_width": round(int(row["set_count"]) / max_sets * 100),
-            "duration_width": round(int(row["duration_seconds"]) / max_duration * 100),
-        }
-        for row in ordered_rows
-    ]
+    return build_period_chart_from_rows(rows)
 
 
 def build_daily_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
-    ordered_rows = list(reversed(rows))
-    max_volume = max([float(row["volume"]) for row in ordered_rows] + [1.0])
-    max_grams = max([float(row["grams"]) for row in ordered_rows] + [1.0])
-    max_exercise_calories = max([float(row["exercise_calories"]) for row in ordered_rows] + [1.0])
-    max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
-    max_duration = max([int(row["duration_seconds"]) for row in ordered_rows] + [1])
-    return [
-        {
-            "period": row["period"],
-            "volume": float(row["volume"]),
-            "grams": float(row["grams"]),
-            "exercise_calories": float(row["exercise_calories"]),
-            "duration_seconds": int(row["duration_seconds"]),
-            "set_count": int(row["set_count"]),
-            "workout_days": 1 if int(row["set_count"]) > 0 else 0,
-            "meal_count": int(row["meal_count"]),
-            "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
-            "volume_width": round(float(row["volume"]) / max_volume * 100),
-            "grams_height": max(3, round(float(row["grams"]) / max_grams * 100)),
-            "grams_width": round(float(row["grams"]) / max_grams * 100),
-            "exercise_calorie_height": max(3, round(float(row["exercise_calories"]) / max_exercise_calories * 100)),
-            "exercise_calorie_width": round(float(row["exercise_calories"]) / max_exercise_calories * 100),
-            "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
-            "set_width": round(int(row["set_count"]) / max_sets * 100),
-            "duration_width": round(int(row["duration_seconds"]) / max_duration * 100),
-        }
-        for row in ordered_rows
-    ]
+    return build_daily_chart_from_rows(rows)
 
 
 def list_exercise_summary(limit: int = 20) -> list[sqlite3.Row]:
