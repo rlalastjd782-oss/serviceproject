@@ -780,6 +780,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 """,
                 (meal_date, meal_type, food_name, quantity, grams, calories, memo),
             )
+            save_food_favorite(food_name, quantity, grams, calories)
         db.commit()
         return redirect(url_for("index", date=meal_date, mode=mode or None))
 

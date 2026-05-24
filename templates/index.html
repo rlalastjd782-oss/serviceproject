@@ -642,7 +642,7 @@
           <form method="post" action="{{ url_for('apply_routine', routine_id=routine.id) }}" class="routine-load-row">
             <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
             <input type="hidden" name="mode" value="workout">
-            <span>{{ routine.name }} · {{ routine.item_count }}세트</span>
+            <span>{{ routine.name }} · {{ routine.item_count }}세트 · 약 {{ routine.estimated_minutes }}분{% if routine.body_parts %} · {{ routine.body_parts }}{% endif %}</span>
             <button class="btn-small" type="submit">불러오기</button>
           </form>
           <form method="post" action="{{ url_for('update_routine', routine_id=routine.id) }}" class="routine-form routine-manage-form">

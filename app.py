@@ -542,14 +542,30 @@ def delete_food_favorite(food_name: str) -> None:
 def list_routines() -> list[dict[str, object]]:
     rows = get_db().execute(
         """
-        SELECT rt.id, rt.name, COUNT(ri.id) AS item_count
+        SELECT
+            rt.id,
+            rt.name,
+            COUNT(ri.id) AS item_count,
+            GROUP_CONCAT(DISTINCT COALESCE(NULLIF(ri.body_part, ''), '기타')) AS body_parts,
+            COALESCE(SUM(COALESCE(ri.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM routine_templates rt
         LEFT JOIN routine_items ri ON ri.routine_id = rt.id
         GROUP BY rt.id
         ORDER BY rt.created_at DESC, rt.id DESC
         """
     ).fetchall()
-    return [dict(row) for row in rows]
+    routines = []
+    for row in rows:
+        item_count = int(row["item_count"] or 0)
+        cardio_minutes = float(row["cardio_minutes"] or 0)
+        routines.append(
+            {
+                **dict(row),
+                "body_parts": (row["body_parts"] or "").replace(",", " · "),
+                "estimated_minutes": round(item_count * 3 + cardio_minutes),
+            }
+        )
+    return routines
 
 
 def rename_routine_template(routine_id: int, name: str) -> None:

@@ -182,6 +182,31 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn('name="end"', search_html)
 
         response = self.client.post(
+            "/exercise-settings",
+            data={
+                "workout_date": workout_date,
+                "exercise_name": strength_name,
+                "rest_seconds": "120",
+                "is_favorite": "1",
+                "equipment": "諛붾꺼",
+                "target_weight": "90",
+                "target_reps": "8",
+                "target_sets": "4",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            setting = app_module.list_exercise_settings()[strength_name]
+            self.assertEqual(setting["rest_seconds"], 120)
+            self.assertEqual(setting["target_weight"], 90)
+            self.assertEqual(setting["target_reps"], 8)
+            self.assertEqual(setting["target_sets"], 4)
+
+        response = self.client.get("/export-meals.csv")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("__TEST__", response.data.decode("utf-8-sig"))
+
+        response = self.client.post(
             "/rest-days",
             data={"rest_date": "2026-05-21", "rest_reason": "회복", "memo": "테스트 휴식"},
         )
