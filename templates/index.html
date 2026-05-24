@@ -119,6 +119,7 @@
     </div>
     <div class="completion-card {% if session.completed %}is-complete{% endif %}">
       <strong>{% if session.completed %}오늘 운동 완료{% else %}아직 완료 전{% endif %}</strong>
+      <span>저장된 운동 시간 {{ format_duration(session.duration_seconds) }}</span>
       <span>주간 균형 {{ balance_score.score }}%{% if balance_score.missing %} · 부족: {{ balance_score.missing[:3]|join(", ") }}{% endif %}</span>
     </div>
   </section>
@@ -213,7 +214,7 @@
         {% for item in recommended_sessions %}
           <form method="post" action="{{ url_for('apply_session', source_session_id=item.id) }}" class="routine-load-row recommended-routine">
             <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
-            <span>{{ item.workout_date }} · {{ item.body_parts }} · {{ item.set_count }}세트</span>
+            <span>{{ item.workout_date }} · {{ item.body_parts }} · {{ item.set_count }}세트 · {{ format_duration(item.duration_seconds) }}</span>
             <button class="btn-small" type="submit">불러오기</button>
           </form>
         {% endfor %}
@@ -398,6 +399,7 @@
   <section class="section">
     <div class="section-header">
       <div class="section-title">📋 오늘 운동</div>
+      <span class="badge">⏱ {{ format_duration(session.duration_seconds) }}</span>
     </div>
     <div class="record-list">
       {% set workout_groups = grouped_sets_for_session(session.id) %}
@@ -567,6 +569,7 @@
       <article class="record-card">
         <div class="record-date">{{ item.workout_date }}</div>
         <div class="record-summary">
+          <span class="badge">⏱ {{ format_duration(item.duration_seconds) }}</span>
           <span class="badge">🏃 {{ item.set_count }}세트</span>
           <span class="badge">💪 {{ "%.0f"|format(item.volume) }} kg</span>
         </div>

@@ -1186,12 +1186,13 @@ def list_recommended_sessions(workout_date: str, limit: int = 3) -> list[dict[st
         SELECT
             s.id,
             s.workout_date,
+            COALESCE(s.duration_seconds, 0) AS duration_seconds,
             COUNT(ws.id) AS set_count,
             GROUP_CONCAT(DISTINCT COALESCE(NULLIF(ws.body_part, ''), '기타')) AS body_parts
         FROM workout_sessions s
         JOIN workout_sets ws ON ws.session_id = s.id
         WHERE s.workout_date < ?
-        GROUP BY s.id, s.workout_date
+        GROUP BY s.id, s.workout_date, s.duration_seconds
         ORDER BY s.workout_date DESC
         LIMIT 30
         """,
@@ -1205,6 +1206,7 @@ def list_recommended_sessions(workout_date: str, limit: int = 3) -> list[dict[st
             {
                 "id": row["id"],
                 "workout_date": row["workout_date"],
+                "duration_seconds": int(row["duration_seconds"] or 0),
                 "set_count": row["set_count"],
                 "body_parts": (row["body_parts"] or "").replace(",", " · "),
             }
@@ -1881,11 +1883,12 @@ def list_recent_sessions(limit: int = 10) -> list[sqlite3.Row]:
         SELECT
             s.id,
             s.workout_date,
+            COALESCE(s.duration_seconds, 0) AS duration_seconds,
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
-        GROUP BY s.id
+        GROUP BY s.id, s.duration_seconds
         ORDER BY s.workout_date DESC
         LIMIT ?
         """,
@@ -2394,11 +2397,14 @@ def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
     next_month = shift_month(month_start, 1)
     workout_rows = get_db().execute(
         """
-        SELECT s.workout_date, COUNT(ws.id) AS set_count
+        SELECT
+            s.workout_date,
+            COALESCE(s.duration_seconds, 0) AS duration_seconds,
+            COUNT(ws.id) AS set_count
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
         WHERE s.workout_date >= ? AND s.workout_date < ?
-        GROUP BY s.workout_date
+        GROUP BY s.workout_date, s.duration_seconds
         """,
         (month_start, next_month),
     ).fetchall()
@@ -2411,7 +2417,13 @@ def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
         """,
         (month_start, next_month),
     ).fetchall()
-    workouts = {row["workout_date"]: int(row["set_count"]) for row in workout_rows}
+    workouts = {
+        row["workout_date"]: {
+            "set_count": int(row["set_count"]),
+            "duration_seconds": int(row["duration_seconds"] or 0),
+        }
+        for row in workout_rows
+    }
     meals = {row["meal_date"]: int(row["meal_count"]) for row in meal_rows}
     start = datetime.strptime(month_start, "%Y-%m-%d")
     next_start = datetime.strptime(next_month, "%Y-%m-%d")
@@ -2424,7 +2436,8 @@ def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
                 "date": key,
                 "day": current.day,
                 "weekday": current.weekday(),
-                "set_count": workouts.get(key, 0),
+                "set_count": workouts.get(key, {}).get("set_count", 0),
+                "duration_seconds": workouts.get(key, {}).get("duration_seconds", 0),
                 "meal_count": meals.get(key, 0),
             }
         )
@@ -2617,9 +2630,12 @@ def format_duration(seconds: int | float | None) -> str:
     total_seconds = max(0, int(seconds or 0))
     hours = total_seconds // 3600
     minutes = (total_seconds % 3600) // 60
+    remaining_seconds = total_seconds % 60
     if hours:
-        return f"{hours}시간 {minutes:02d}분"
-    return f"{minutes}분"
+        return f"{hours}시간 {minutes:02d}분 {remaining_seconds:02d}초"
+    if minutes:
+        return f"{minutes}분 {remaining_seconds:02d}초"
+    return f"{remaining_seconds}초"
 
 
 def duration_hours(seconds: int | float | None) -> int:

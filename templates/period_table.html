@@ -3,6 +3,7 @@
     <thead>
       <tr>
         <th>{{ period_label }}</th>
+        <th>운동시간</th>
         <th>운동일</th>
         <th>세트</th>
         <th>총 횟수</th>
@@ -19,6 +20,7 @@
       {% for item in period_rows %}
         <tr>
           <td>{{ item.period }}</td>
+          <td>{{ format_duration(item.duration_seconds) }}</td>
           <td>{{ item.workout_days }}</td>
           <td>{{ item.set_count }}</td>
           <td>{{ item.rep_count }}</td>
@@ -32,7 +34,7 @@
         </tr>
       {% else %}
         <tr>
-          <td colspan="11" class="empty-cell">기록을 추가하면 집계됩니다.</td>
+          <td colspan="12" class="empty-cell">기록을 추가하면 집계됩니다.</td>
         </tr>
       {% endfor %}
     </tbody>

@@ -136,7 +136,7 @@
           <article class="summary-card">
             <div class="summary-icon">📊</div>
             <div class="summary-value">{{ item.set_count }}</div>
-            <div class="summary-label">{{ item.period }} · 세트</div>
+            <div class="summary-label">{{ item.period }} · {{ format_duration(item.duration_seconds) }}</div>
           </article>
         {% endfor %}
       </div>

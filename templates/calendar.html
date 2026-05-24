@@ -34,12 +34,13 @@
         <a class="calendar-cell" href="{{ url_for('index', date=day.date) }}">
           <strong>{{ day.day }}</strong>
           <div class="calendar-dots">
-            {% if day.set_count %}<span class="dot-workout" title="운동 {{ day.set_count }}개"></span>{% endif %}
+            {% if day.set_count or day.duration_seconds %}<span class="dot-workout" title="운동 {{ day.set_count }}개 · {{ format_duration(day.duration_seconds) }}"></span>{% endif %}
             {% if day.meal_count %}<span class="dot-meal" title="식단 {{ day.meal_count }}식"></span>{% endif %}
           </div>
           <small>
             {% if day.set_count %}운동 {{ day.set_count }}{% endif %}
-            {% if day.meal_count %}{% if day.set_count %} · {% endif %}식단 {{ day.meal_count }}{% endif %}
+            {% if day.duration_seconds %}{% if day.set_count %} · {% endif %}{{ format_duration(day.duration_seconds) }}{% endif %}
+            {% if day.meal_count %}{% if day.set_count or day.duration_seconds %} · {% endif %}식단 {{ day.meal_count }}{% endif %}
           </small>
         </a>
       {% endfor %}
