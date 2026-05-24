@@ -28,7 +28,8 @@ const exerciseQuickEmpty = document.querySelector("[data-exercise-quick-empty]")
 const recentSetTitle = document.querySelector("[data-recent-set-title]");
 const recentSetList = document.querySelector("[data-recent-set-list]");
 const exerciseDatalist = document.querySelector("[data-exercise-datalist]");
-const exerciseNameInput = document.querySelector('input[name="exercise_name"]');
+const workoutForm = document.querySelector("[data-workout-form]");
+const exerciseNameInput = workoutForm?.querySelector("[data-workout-exercise-input]");
 const exercisesByBodyPart = parseExerciseQuickData();
 const recentSetsByExercise = parseJsonData(exerciseQuickPanel, "recentSetsByExercise");
 const exerciseStatsByName = parseJsonData(exerciseQuickPanel, "exerciseStatsByName");
@@ -54,8 +55,10 @@ startRestTimerFromUrl();
 
 document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   applyBodyPartSelectColor(select);
-  renderExerciseQuickList(select.value);
-  applyWorkoutInputMode(select.value);
+  if (select.closest("[data-workout-form]")) {
+    renderExerciseQuickList(select.value);
+    applyWorkoutInputMode(select.value);
+  }
 });
 document.querySelectorAll("[data-meal-type-select]").forEach((select) => {
   applyMealTypeSelectColor(select);
@@ -66,8 +69,10 @@ document.addEventListener("change", (event) => {
   const bodyPartSelect = event.target.closest("[data-body-part-select]");
   if (bodyPartSelect) {
     applyBodyPartSelectColor(bodyPartSelect);
-    renderExerciseQuickList(bodyPartSelect.value);
-    applyWorkoutInputMode(bodyPartSelect.value);
+    if (bodyPartSelect.closest("[data-workout-form]")) {
+      renderExerciseQuickList(bodyPartSelect.value);
+      applyWorkoutInputMode(bodyPartSelect.value);
+    }
     return;
   }
 
@@ -160,14 +165,6 @@ document.addEventListener("click", (event) => {
     return;
   }
 
-  if (quickExerciseButton && exerciseNameInput) {
-    exerciseNameInput.value = quickExerciseButton.dataset.exerciseName || "";
-    renderRecentSetList(exerciseNameInput.value);
-    renderExerciseGuidance(exerciseNameInput.value);
-    exerciseNameInput.focus();
-    return;
-  }
-
   if (restButton) {
     startRestTimer(Number(restButton.dataset.restSeconds || 0));
     return;
@@ -200,6 +197,11 @@ document.addEventListener("click", (event) => {
 
   if (recentSetButton && setList) {
     loadRecentSets(recentSetButton.dataset.exerciseName || "", setList);
+    return;
+  }
+
+  if (quickExerciseButton && exerciseNameInput) {
+    setWorkoutExerciseName(quickExerciseButton.dataset.exerciseName || "");
     return;
   }
 
@@ -349,7 +351,6 @@ function renderExerciseQuickList(bodyPart) {
 
 function applyWorkoutInputMode(bodyPart) {
   const isCardio = bodyPart === "유산소";
-  const workoutForm = document.querySelector("[data-workout-form]");
   workoutForm?.classList.toggle("is-cardio", isCardio);
   workoutForm?.classList.toggle("is-strength", !isCardio);
 
@@ -410,6 +411,16 @@ function renderExerciseGuidance(exerciseName) {
   }
 }
 
+function setWorkoutExerciseName(exerciseName) {
+  if (!exerciseNameInput) {
+    return;
+  }
+  exerciseNameInput.value = exerciseName;
+  renderRecentSetList(exerciseNameInput.value);
+  renderExerciseGuidance(exerciseNameInput.value);
+  exerciseNameInput.focus();
+}
+
 function renderFoodQuickList(mealType) {
   if (!foodQuickList || !foodQuickEmpty) {
     return;
@@ -438,7 +449,7 @@ function loadRecentSets(exerciseName, setList) {
     row.querySelector('input[name="set_reps"]').value = set.reps ?? "";
     setList.append(row);
   });
-  applyWorkoutInputMode(document.querySelector("[data-body-part-select]")?.value || "");
+  applyWorkoutInputMode(workoutForm?.querySelector("[data-body-part-select]")?.value || "");
 }
 
 function copySetRow(sourceRow, setList) {
@@ -454,11 +465,11 @@ function copySetRow(sourceRow, setList) {
   copyFieldValue(sourceRow, row, 'input[name="cardio_minutes"]');
   copyFieldValue(sourceRow, row, 'input[name="set_rpe"]');
   copyFieldValue(sourceRow, row, 'input[name="set_memo"]');
-  applyWorkoutInputMode(document.querySelector("[data-body-part-select]")?.value || "");
+  applyWorkoutInputMode(workoutForm?.querySelector("[data-body-part-select]")?.value || "");
 }
 
 function copySavedSet(button, setList) {
-  const bodyPartSelect = document.querySelector("[data-body-part-select]");
+  const bodyPartSelect = workoutForm?.querySelector("[data-body-part-select]");
   const bodyPart = button.dataset.bodyPart || "기타";
   if (bodyPartSelect) {
     bodyPartSelect.value = bodyPart;
@@ -467,9 +478,7 @@ function copySavedSet(button, setList) {
     applyWorkoutInputMode(bodyPart);
   }
   if (exerciseNameInput) {
-    exerciseNameInput.value = button.dataset.exerciseName || "";
-    renderRecentSetList(exerciseNameInput.value);
-    renderExerciseGuidance(exerciseNameInput.value);
+    setWorkoutExerciseName(button.dataset.exerciseName || "");
   }
   const firstRow = setList.querySelector(".set-entry-row");
   const hasValue = firstRow && [...firstRow.querySelectorAll("input")].some((input) => input.value);

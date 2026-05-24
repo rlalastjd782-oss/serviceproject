@@ -1903,10 +1903,24 @@ def get_exercise_rest_seconds(exercise_name: str) -> int:
 def list_favorite_exercises() -> list[sqlite3.Row]:
     return get_db().execute(
         """
-        SELECT exercise_name, rest_seconds
-        FROM exercise_settings
-        WHERE is_favorite = 1
-        ORDER BY updated_at DESC, exercise_name
+        SELECT
+            es.exercise_name,
+            es.rest_seconds,
+            COALESCE(
+                (
+                    SELECT ws.body_part
+                    FROM workout_sets ws
+                    JOIN exercises e ON e.id = ws.exercise_id
+                    JOIN workout_sessions s ON s.id = ws.session_id
+                    WHERE e.name = es.exercise_name
+                    ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
+                    LIMIT 1
+                ),
+                '기타'
+            ) AS body_part
+        FROM exercise_settings es
+        WHERE es.is_favorite = 1
+        ORDER BY es.updated_at DESC, es.exercise_name
         """
     ).fetchall()
 
