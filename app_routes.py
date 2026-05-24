@@ -55,6 +55,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             recovery_checkin=get_recovery_checkin(today_session["workout_date"]),
             recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
             daily_coaching=list_daily_coaching(today_session["workout_date"]),
+            workout_session_flow=build_workout_session_flow(today_session["workout_date"]),
+            record_gaps=list_record_gaps(today_session["workout_date"]),
             meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
             equipment_options=equipment_options(),
             today_mode=today_mode,
@@ -488,6 +490,9 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 parse_int(request.form.get("rest_seconds")) or 90,
                 request.form.get("is_favorite") == "1",
                 request.form.get("equipment", "").strip(),
+                parse_float(request.form.get("target_weight")),
+                parse_int(request.form.get("target_reps")),
+                parse_int(request.form.get("target_sets")),
             )
         return redirect(url_for("index", date=workout_date, mode="workout"))
 
@@ -690,6 +695,14 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             export_workout_csv(),
             content_type="text/csv; charset=utf-8",
             headers={"Content-Disposition": "attachment; filename=health-tracker-workouts.csv"},
+        )
+
+    @app.get("/export-meals.csv")
+    def export_meal_csv_route():
+        return Response(
+            export_meal_csv(),
+            content_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=health-tracker-meals.csv"},
         )
 
     @app.post("/import.json")

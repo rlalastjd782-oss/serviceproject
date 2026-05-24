@@ -35,9 +35,11 @@ const recentSetsByExercise = parseJsonData(exerciseQuickPanel, "recentSetsByExer
 const exerciseStatsByName = parseJsonData(exerciseQuickPanel, "exerciseStatsByName");
 const overloadSuggestions = parseJsonData(exerciseQuickPanel, "overloadSuggestions");
 const exerciseNotes = parseJsonData(exerciseQuickPanel, "exerciseNotes");
+const exerciseSettings = parseJsonData(exerciseQuickPanel, "exerciseSettings");
 const overloadSuggestionView = document.querySelector("[data-overload-suggestion]");
 const exerciseStatView = document.querySelector("[data-exercise-stat-view]");
 const exerciseNoteView = document.querySelector("[data-exercise-note-view]");
+const exerciseTargetView = document.querySelector("[data-exercise-target-view]");
 const foodQuickPanel = document.querySelector("[data-food-quick-panel]");
 const foodQuickList = document.querySelector("[data-food-quick-list]");
 const foodQuickEmpty = document.querySelector("[data-food-quick-empty]");
@@ -437,6 +439,21 @@ function renderExerciseGuidance(exerciseName) {
     const note = exerciseNotes[exerciseName] || "";
     exerciseNoteView.textContent = note ? `메모: ${note}` : "";
     exerciseNoteView.hidden = !note;
+  }
+  if (exerciseTargetView) {
+    const setting = exerciseSettings[exerciseName] || {};
+    const parts = [];
+    if (setting.target_weight) {
+      parts.push(`${Number(setting.target_weight).toFixed(1)}kg`);
+    }
+    if (setting.target_reps) {
+      parts.push(`${Number(setting.target_reps)}회`);
+    }
+    if (setting.target_sets) {
+      parts.push(`${Number(setting.target_sets)}세트`);
+    }
+    exerciseTargetView.textContent = parts.length ? `목표: ${parts.join(" · ")}` : "";
+    exerciseTargetView.hidden = parts.length === 0;
   }
 }
 

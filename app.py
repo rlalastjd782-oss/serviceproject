@@ -165,6 +165,9 @@ def init_db() -> None:
             rest_seconds INTEGER NOT NULL DEFAULT 90,
             is_favorite INTEGER NOT NULL DEFAULT 0,
             equipment TEXT NOT NULL DEFAULT '',
+            target_weight REAL,
+            target_reps INTEGER,
+            target_sets INTEGER,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -258,6 +261,9 @@ def init_db() -> None:
     ensure_column(db, "workout_sets", "rpe", "REAL")
     ensure_column(db, "workout_sets", "equipment", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "exercise_settings", "equipment", "TEXT NOT NULL DEFAULT ''")
+    ensure_column(db, "exercise_settings", "target_weight", "REAL")
+    ensure_column(db, "exercise_settings", "target_reps", "INTEGER")
+    ensure_column(db, "exercise_settings", "target_sets", "INTEGER")
     ensure_column(db, "routine_items", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
     ensure_column(db, "routine_items", "cardio_incline", "REAL")
     ensure_column(db, "routine_items", "cardio_speed", "REAL")
@@ -786,6 +792,88 @@ def build_workout_completion_summary(workout_date: str) -> dict[str, object]:
         "plan_done": plan_done,
         "plan_percent": 0 if plan_total == 0 else round(plan_done / plan_total * 100),
     }
+
+
+def build_workout_session_flow(workout_date: str) -> dict[str, object]:
+    plan_rows = list_workout_plan(workout_date)
+    next_item = None
+    for row in plan_rows:
+        if int(row["completed_sets"] or 0) < int(row["target_sets"] or 1):
+            next_item = dict(row)
+            break
+    if next_item is None and plan_rows:
+        next_item = dict(plan_rows[-1])
+
+    last_set = get_db().execute(
+        """
+        SELECT
+            e.name AS exercise_name,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            ws.weight,
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            ws.equipment,
+            ws.set_type
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date = ?
+        ORDER BY ws.sort_order DESC, ws.id DESC
+        LIMIT 1
+        """,
+        (workout_date,),
+    ).fetchone()
+    rest_seconds = get_exercise_rest_seconds(last_set["exercise_name"]) if last_set else 90
+    return {
+        "next_item": next_item,
+        "last_set": dict(last_set) if last_set else None,
+        "rest_seconds": rest_seconds,
+        "has_plan": bool(plan_rows),
+    }
+
+
+def list_record_gaps(date_text: str, days: int = 7) -> list[dict[str, object]]:
+    start = shift_date(date_text, -(days - 1))
+    db = get_db()
+    workout_dates = {
+        row["workout_date"]
+        for row in db.execute(
+            """
+            SELECT DISTINCT s.workout_date
+            FROM workout_sessions s
+            JOIN workout_sets ws ON ws.session_id = s.id
+            WHERE s.workout_date BETWEEN ? AND ?
+            """,
+            (start, date_text),
+        ).fetchall()
+    }
+    meal_dates = {
+        row["meal_date"]
+        for row in db.execute(
+            "SELECT DISTINCT meal_date FROM meal_entries WHERE meal_date BETWEEN ? AND ?",
+            (start, date_text),
+        ).fetchall()
+    }
+    rest_dates = {
+        row["checkin_date"]
+        for row in db.execute(
+            """
+            SELECT checkin_date
+            FROM recovery_checkins
+            WHERE checkin_date BETWEEN ? AND ? AND is_rest_day = 1
+            """,
+            (start, date_text),
+        ).fetchall()
+    }
+    gaps = []
+    for offset in range(days):
+        day = shift_date(start, offset)
+        if day in workout_dates or day in meal_dates or day in rest_dates:
+            continue
+        gaps.append({"date": day, "label": "기록 없음"})
+    return gaps
 
 
 def create_workout_plan_item(workout_date: str, body_part: str, exercise_name: str, target_sets: int) -> None:
@@ -1376,30 +1464,55 @@ def save_exercise_note(exercise_name: str, note: str) -> None:
     get_db().commit()
 
 
-def list_exercise_settings() -> dict[str, dict[str, int | bool]]:
+def list_exercise_settings() -> dict[str, dict[str, int | float | bool | str | None]]:
     rows = get_db().execute("SELECT * FROM exercise_settings").fetchall()
     return {
         row["exercise_name"]: {
             "rest_seconds": int(row["rest_seconds"] or 90),
             "is_favorite": bool(row["is_favorite"]),
             "equipment": row["equipment"] or "",
+            "target_weight": row["target_weight"],
+            "target_reps": row["target_reps"],
+            "target_sets": row["target_sets"],
         }
         for row in rows
     }
 
 
-def save_exercise_settings(exercise_name: str, rest_seconds: int, is_favorite: bool, equipment: str = "") -> None:
+def save_exercise_settings(
+    exercise_name: str,
+    rest_seconds: int,
+    is_favorite: bool,
+    equipment: str = "",
+    target_weight: float | None = None,
+    target_reps: int | None = None,
+    target_sets: int | None = None,
+) -> None:
     get_db().execute(
         """
-        INSERT INTO exercise_settings (exercise_name, rest_seconds, is_favorite, equipment, updated_at)
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO exercise_settings (
+            exercise_name, rest_seconds, is_favorite, equipment,
+            target_weight, target_reps, target_sets, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(exercise_name) DO UPDATE SET
             rest_seconds = excluded.rest_seconds,
             is_favorite = excluded.is_favorite,
             equipment = excluded.equipment,
+            target_weight = excluded.target_weight,
+            target_reps = excluded.target_reps,
+            target_sets = excluded.target_sets,
             updated_at = CURRENT_TIMESTAMP
         """,
-        (exercise_name, max(15, min(600, int(rest_seconds or 90))), 1 if is_favorite else 0, equipment[:20]),
+        (
+            exercise_name,
+            max(15, min(600, int(rest_seconds or 90))),
+            1 if is_favorite else 0,
+            equipment[:20],
+            target_weight,
+            target_reps,
+            target_sets,
+        ),
     )
     get_db().commit()
 
@@ -2535,6 +2648,32 @@ def export_workout_csv() -> str:
                 row["cardio_minutes"],
                 row["estimated_calories"],
                 row["rpe"],
+            ]
+        )
+    return "\ufeff" + output.getvalue()
+
+
+def export_meal_csv() -> str:
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["date", "meal_type", "food", "quantity", "grams", "calories", "memo"])
+    rows = get_db().execute(
+        """
+        SELECT meal_date, meal_type, food_name, quantity, grams, calories, memo
+        FROM meal_entries
+        ORDER BY meal_date DESC, meal_type, id
+        """
+    ).fetchall()
+    for row in rows:
+        writer.writerow(
+            [
+                row["meal_date"],
+                row["meal_type"],
+                row["food_name"],
+                row["quantity"],
+                row["grams"],
+                row["calories"],
+                row["memo"],
             ]
         )
     return "\ufeff" + output.getvalue()

@@ -936,6 +936,47 @@ label span {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.session-flow-grid,
+.missing-day-list {
+  display: grid;
+  gap: 10px;
+}
+
+.session-flow-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.session-flow-card,
+.missing-day-chip {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.session-flow-card {
+  display: grid;
+  gap: 4px;
+}
+
+.session-flow-card span,
+.session-flow-card small {
+  color: var(--muted);
+}
+
+.session-flow-card strong {
+  font-size: 1.05rem;
+}
+
+.missing-day-list {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.missing-day-chip {
+  color: var(--text);
+  text-decoration: none;
+}
+
 .recovery-chip.state-가능 {
   border-color: rgb(34 197 94 / 35%);
 }
