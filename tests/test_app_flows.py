@@ -257,6 +257,60 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(sample["sets"], 325)
             self.assertEqual(sample["meals"], 150)
 
+    def test_update_set_can_rename_exercise_and_body_part(self) -> None:
+        parts = app_module.body_part_options()
+        first_part = parts[0]
+        second_part = parts[1]
+        workout_date = "2026-05-22"
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": workout_date,
+                "mode": "workout",
+                "body_part": first_part,
+                "exercise_name": "__TEST__ original",
+                "set_weight": ["50"],
+                "set_reps": ["8"],
+                "set_type": ["main"],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            db = app_module.get_db()
+            row = db.execute("SELECT id FROM workout_sets").fetchone()
+            set_id = row["id"]
+
+        response = self.client.post(
+            f"/sets/{set_id}/update",
+            data={
+                "mode": "workout",
+                "body_part": second_part,
+                "exercise_name": "__TEST__ renamed",
+                "weight": "55",
+                "reps": "9",
+                "set_type": "main",
+                "equipment": "test-rack",
+                "set_number": "1",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            db = app_module.get_db()
+            changed = db.execute(
+                """
+                SELECT ws.body_part, ws.weight, ws.reps, ws.equipment, e.name AS exercise_name
+                FROM workout_sets ws
+                JOIN exercises e ON e.id = ws.exercise_id
+                WHERE ws.id = ?
+                """,
+                (set_id,),
+            ).fetchone()
+            self.assertEqual(changed["body_part"], second_part)
+            self.assertEqual(changed["exercise_name"], "__TEST__ renamed")
+            self.assertEqual(changed["weight"], 55)
+            self.assertEqual(changed["reps"], 9)
+            self.assertEqual(changed["equipment"], "test-rack")
+
     def test_dangerous_delete_requires_confirmation(self) -> None:
         with self.app.app_context():
             app_module.init_db()
