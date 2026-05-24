@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}설정{% endblock %}
+
+{% block content %}
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">백업</div>
+        <div class="section-subtitle">운동, 식단, 루틴, 목표, 체성분 데이터를 저장합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('export_json') }}">다운로드</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">복원</div>
+        <div class="section-subtitle">백업 파일 기준으로 현재 데이터를 교체합니다.</div>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('import_json') }}" enctype="multipart/form-data" class="import-form">
+      <input name="backup_file" type="file" accept="application/json,.json" required>
+      <button class="btn-danger" type="submit">복원 실행</button>
+    </form>
+  </section>
+{% endblock %}

@@ -68,6 +68,22 @@
 
   <section class="section">
     <div class="section-header">
+      <div class="section-title">오늘 상태</div>
+      <form method="post" action="{{ url_for('toggle_session_complete', session_id=session.id) }}">
+        <input type="hidden" name="completed" value="{% if session.completed %}0{% else %}1{% endif %}">
+        <button class="{% if session.completed %}btn-danger{% else %}btn-small{% endif %}" type="submit">
+          {% if session.completed %}완료 취소{% else %}운동 완료{% endif %}
+        </button>
+      </form>
+    </div>
+    <div class="completion-card {% if session.completed %}is-complete{% endif %}">
+      <strong>{% if session.completed %}오늘 운동 완료{% else %}아직 완료 전{% endif %}</strong>
+      <span>주간 균형 {{ balance_score.score }}%{% if balance_score.missing %} · 부족: {{ balance_score.missing[:3]|join(", ") }}{% endif %}</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
       <div class="section-title">휴식 타이머</div>
       <div class="timer-display" data-rest-timer-display>00:00</div>
     </div>
@@ -125,6 +141,16 @@
       <div class="section-title">루틴</div>
     </div>
     <div class="routine-actions">
+      {% if recommended_sessions %}
+        <div class="quick-panel-title">같은 요일 추천</div>
+        {% for item in recommended_sessions %}
+          <form method="post" action="{{ url_for('apply_session', source_session_id=item.id) }}" class="routine-load-row recommended-routine">
+            <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <span>{{ item.workout_date }} · {{ item.body_parts }} · {{ item.set_count }}세트</span>
+            <button class="btn-small" type="submit">불러오기</button>
+          </form>
+        {% endfor %}
+      {% endif %}
       <form method="post" action="{{ url_for('create_routine_from_day') }}" class="routine-form">
         <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
         <input name="routine_name" placeholder="오늘 운동을 루틴으로 저장">
@@ -163,6 +189,7 @@
         data-exercise-quick-panel
         data-exercises-by-body-part='{{ exercises_by_body_part|tojson }}'
         data-recent-sets-by-exercise='{{ recent_sets_by_exercise|tojson }}'
+        data-exercise-stats-by-name='{{ exercise_stats_by_name|tojson }}'
         data-overload-suggestions='{{ overload_suggestions|tojson }}'
         data-exercise-notes='{{ exercise_notes|tojson }}'
       >
@@ -171,6 +198,7 @@
         <div class="quick-empty" data-exercise-quick-empty>선택한 부위의 이전 운동 기록이 없습니다.</div>
         <div class="quick-panel-title" data-recent-set-title hidden>지난 세트</div>
         <div class="exercise-quick-list" data-recent-set-list></div>
+        <div class="quick-note" data-exercise-stat-view hidden></div>
         <div class="quick-note" data-overload-suggestion hidden></div>
         <div class="quick-note" data-exercise-note-view hidden></div>
       </div>
@@ -215,6 +243,7 @@
             <option value="실패">실패</option>
           </select>
           <input name="set_memo" autocomplete="off" placeholder="메모">
+          <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
           <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
         </div>
       </div>
@@ -334,6 +363,19 @@
                 </form>
                 <div class="item-actions">
                   <button type="button" class="btn-small" data-toggle-edit>수정</button>
+                  <button
+                    type="button"
+                    class="btn-small"
+                    data-copy-saved-set
+                    data-body-part="{{ group.body_part }}"
+                    data-exercise-name="{{ group.exercise_name }}"
+                    data-weight="{% if item.weight is not none %}{{ item.weight }}{% endif %}"
+                    data-reps="{% if item.reps is not none %}{{ item.reps }}{% endif %}"
+                    data-set-type="{{ item.set_type or '본세트' }}"
+                    data-cardio-incline="{% if item.cardio_incline is not none %}{{ item.cardio_incline }}{% endif %}"
+                    data-cardio-speed="{% if item.cardio_speed is not none %}{{ item.cardio_speed }}{% endif %}"
+                    data-cardio-minutes="{% if item.cardio_minutes is not none %}{{ item.cardio_minutes }}{% endif %}"
+                  >복사</button>
                   <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}">
                     <button type="submit" class="btn-danger" aria-label="세트 삭제">×</button>
                   </form>

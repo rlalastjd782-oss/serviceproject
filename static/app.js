@@ -31,9 +31,11 @@ const exerciseDatalist = document.querySelector("[data-exercise-datalist]");
 const exerciseNameInput = document.querySelector('input[name="exercise_name"]');
 const exercisesByBodyPart = parseExerciseQuickData();
 const recentSetsByExercise = parseJsonData(exerciseQuickPanel, "recentSetsByExercise");
+const exerciseStatsByName = parseJsonData(exerciseQuickPanel, "exerciseStatsByName");
 const overloadSuggestions = parseJsonData(exerciseQuickPanel, "overloadSuggestions");
 const exerciseNotes = parseJsonData(exerciseQuickPanel, "exerciseNotes");
 const overloadSuggestionView = document.querySelector("[data-overload-suggestion]");
+const exerciseStatView = document.querySelector("[data-exercise-stat-view]");
 const exerciseNoteView = document.querySelector("[data-exercise-note-view]");
 const foodQuickPanel = document.querySelector("[data-food-quick-panel]");
 const foodQuickList = document.querySelector("[data-food-quick-list]");
@@ -82,6 +84,8 @@ document.addEventListener("click", (event) => {
   const detailButton = event.target.closest("[data-toggle-detail]");
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
+  const copySetButton = event.target.closest("[data-copy-set-row]");
+  const copySavedSetButton = event.target.closest("[data-copy-saved-set]");
   const foodQuickButton = event.target.closest("[data-food-entry]");
   const restButton = event.target.closest("[data-rest-seconds]");
   const restStopButton = event.target.closest("[data-rest-stop]");
@@ -109,6 +113,16 @@ document.addEventListener("click", (event) => {
 
   if (recentSetButton && setList) {
     loadRecentSets(recentSetButton.dataset.exerciseName || "", setList);
+    return;
+  }
+
+  if (copySetButton && setList) {
+    copySetRow(copySetButton.closest(".set-entry-row"), setList);
+    return;
+  }
+
+  if (copySavedSetButton && setList) {
+    copySavedSet(copySavedSetButton, setList);
     return;
   }
 
@@ -269,6 +283,19 @@ function renderRecentSetList(exerciseName) {
 }
 
 function renderExerciseGuidance(exerciseName) {
+  if (exerciseStatView) {
+    const stats = exerciseStatsByName[exerciseName];
+    if (stats) {
+      const bestWeight = stats.best_weight ? `${Number(stats.best_weight).toFixed(1)}kg` : "-kg";
+      const bestReps = stats.best_reps ? `${Number(stats.best_reps)}회` : "-회";
+      const bestVolume = stats.best_volume ? `${Number(stats.best_volume).toFixed(0)}kg` : "-kg";
+      exerciseStatView.textContent = `최근: ${stats.recent || "-"} · 최고: ${bestWeight} / ${bestReps} / 볼륨 ${bestVolume}`;
+      exerciseStatView.hidden = false;
+    } else {
+      exerciseStatView.textContent = "";
+      exerciseStatView.hidden = true;
+    }
+  }
   if (overloadSuggestionView) {
     const suggestion = overloadSuggestions[exerciseName] || "";
     overloadSuggestionView.textContent = suggestion;
@@ -310,6 +337,59 @@ function loadRecentSets(exerciseName, setList) {
     setList.append(row);
   });
   applyWorkoutInputMode(document.querySelector("[data-body-part-select]")?.value || "");
+}
+
+function copySetRow(sourceRow, setList) {
+  if (!sourceRow || !setList) {
+    return;
+  }
+  const row = addRow(setList, "set");
+  copyFieldValue(sourceRow, row, 'input[name="set_weight"]');
+  copyFieldValue(sourceRow, row, 'input[name="set_reps"]');
+  copyFieldValue(sourceRow, row, 'select[name="set_type"]');
+  copyFieldValue(sourceRow, row, 'input[name="cardio_incline"]');
+  copyFieldValue(sourceRow, row, 'input[name="cardio_speed"]');
+  copyFieldValue(sourceRow, row, 'input[name="cardio_minutes"]');
+  copyFieldValue(sourceRow, row, 'input[name="set_memo"]');
+  applyWorkoutInputMode(document.querySelector("[data-body-part-select]")?.value || "");
+}
+
+function copySavedSet(button, setList) {
+  const bodyPartSelect = document.querySelector("[data-body-part-select]");
+  const bodyPart = button.dataset.bodyPart || "기타";
+  if (bodyPartSelect) {
+    bodyPartSelect.value = bodyPart;
+    applyBodyPartSelectColor(bodyPartSelect);
+    renderExerciseQuickList(bodyPart);
+    applyWorkoutInputMode(bodyPart);
+  }
+  if (exerciseNameInput) {
+    exerciseNameInput.value = button.dataset.exerciseName || "";
+    renderRecentSetList(exerciseNameInput.value);
+    renderExerciseGuidance(exerciseNameInput.value);
+  }
+  const firstRow = setList.querySelector(".set-entry-row");
+  const hasValue = firstRow && [...firstRow.querySelectorAll("input")].some((input) => input.value);
+  const row = firstRow && !hasValue ? firstRow : addRow(setList, "set");
+  setInputValue(row, 'input[name="set_weight"]', button.dataset.weight);
+  setInputValue(row, 'input[name="set_reps"]', button.dataset.reps);
+  setInputValue(row, 'select[name="set_type"]', button.dataset.setType || "본세트");
+  setInputValue(row, 'input[name="cardio_incline"]', button.dataset.cardioIncline);
+  setInputValue(row, 'input[name="cardio_speed"]', button.dataset.cardioSpeed);
+  setInputValue(row, 'input[name="cardio_minutes"]', button.dataset.cardioMinutes);
+  row.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function copyFieldValue(sourceRow, targetRow, selector) {
+  const source = sourceRow.querySelector(selector);
+  setInputValue(targetRow, selector, source?.value || "");
+}
+
+function setInputValue(row, selector, value) {
+  const input = row.querySelector(selector);
+  if (input) {
+    input.value = value || "";
+  }
 }
 
 function loadFoodEntry(button, mealList) {
@@ -378,6 +458,7 @@ function setRowHtml(index) {
       </label>
     </div>
     <input name="set_memo" autocomplete="off" placeholder="메모">
+    <button class="row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
     <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
   `;
 }

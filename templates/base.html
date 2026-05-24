@@ -23,6 +23,7 @@
         <a class="tab-btn {% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>
         <a class="tab-btn {% if active_page == 'meals' %}active{% endif %}" href="{{ url_for('meal_weekly_page') }}">식단</a>
         <a class="tab-btn {% if active_page == 'calendar' %}active{% endif %}" href="{{ url_for('calendar_page') }}">달력</a>
+        <a class="tab-btn {% if active_page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}">설정</a>
       </nav>
       <main class="content">
         {% block content %}{% endblock %}

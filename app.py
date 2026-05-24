@@ -42,17 +42,20 @@ def create_app() -> Flask:
             exercises=exercises,
             exercises_by_body_part=list_exercises_by_body_part(),
             recent_sets_by_exercise=list_recent_sets_by_exercise(),
+            exercise_stats_by_name=list_exercise_stats_by_name(),
             overload_suggestions=list_overload_suggestions(),
             exercise_notes=list_exercise_notes(),
             pr_events=list_pr_events(today_session["workout_date"]),
             foods_by_meal_type=list_foods_by_meal_type(),
             routines=list_routines(),
+            recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
             meal_templates=list_meal_templates(),
             body_metric=get_body_metric(today_session["workout_date"]),
             goals=get_goal_progress(today_session["workout_date"]),
             meals=meals,
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
+            balance_score=get_balance_score("weekly", today_session["workout_date"]),
             body_parts=body_part_options(),
             prev_date=shift_date(today_session["workout_date"], -1),
             next_date=shift_date(today_session["workout_date"], 1),
@@ -169,6 +172,10 @@ def create_app() -> Flask:
             meal_days=list_weekly_meal_days(week_start),
             active_page="meals",
         )
+
+    @app.get("/settings")
+    def settings_page():
+        return render_template("settings.html", active_page="settings")
 
     @app.post("/sets")
     def create_set():
@@ -287,6 +294,20 @@ def create_app() -> Flask:
         apply_routine_template(routine_id, workout_date)
         return redirect(url_for("index", date=workout_date))
 
+    @app.post("/sessions/<int:source_session_id>/apply")
+    def apply_session(source_session_id: int):
+        workout_date = request.form.get("workout_date") or current_local_date()
+        apply_session_template(source_session_id, workout_date)
+        return redirect(url_for("index", date=workout_date))
+
+    @app.post("/sessions/<int:session_id>/complete")
+    def toggle_session_complete(session_id: int):
+        session = get_session_by_id(session_id)
+        if not session:
+            return redirect(url_for("index"))
+        mark_session_completed(session_id, request.form.get("completed") == "1")
+        return redirect(url_for("index", date=session["workout_date"]))
+
     @app.post("/goals")
     def update_goals():
         target_date = request.form.get("target_date") or current_local_date()
@@ -337,6 +358,13 @@ def create_app() -> Flask:
             mimetype="application/json; charset=utf-8",
             headers={"Content-Disposition": "attachment; filename=health-tracker-export.json"},
         )
+
+    @app.post("/import.json")
+    def import_json():
+        file = request.files.get("backup_file")
+        if file:
+            import_all_data(json.loads(file.read().decode("utf-8")))
+        return redirect(url_for("settings_page"))
 
     @app.post("/meals")
     def create_meal():
@@ -516,6 +544,7 @@ def init_db() -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             workout_date TEXT NOT NULL UNIQUE,
             note TEXT NOT NULL DEFAULT '',
+            completed INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -627,6 +656,7 @@ def init_db() -> None:
         """
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
+    ensure_column(db, "workout_sessions", "completed", "INTEGER NOT NULL DEFAULT 0")
     ensure_column(db, "workout_sets", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
     ensure_column(db, "workout_sets", "cardio_incline", "REAL")
     ensure_column(db, "workout_sets", "cardio_speed", "REAL")
@@ -698,6 +728,15 @@ def get_session_by_date(workout_date: str) -> sqlite3.Row | None:
     ).fetchone()
 
 
+def get_session_by_id(session_id: int) -> sqlite3.Row | None:
+    return get_db().execute("SELECT * FROM workout_sessions WHERE id = ?", (session_id,)).fetchone()
+
+
+def mark_session_completed(session_id: int, completed: bool) -> None:
+    get_db().execute("UPDATE workout_sessions SET completed = ? WHERE id = ?", (1 if completed else 0, session_id))
+    get_db().commit()
+
+
 def get_or_create_exercise(name: str) -> int:
     db = get_db()
     existing = db.execute("SELECT id FROM exercises WHERE name = ?", (name,)).fetchone()
@@ -758,6 +797,40 @@ def list_recent_sets_by_exercise(limit: int = 6) -> dict[str, list[dict[str, flo
             grouped[name] = [{"weight": row["weight"], "reps": row["reps"]}]
             seen_dates.add(marker)
     return grouped
+
+
+def list_exercise_stats_by_name() -> dict[str, dict[str, object]]:
+    rows = get_db().execute(
+        """
+        SELECT
+            e.name,
+            MAX(ws.weight) AS best_weight,
+            MAX(ws.reps) AS best_reps,
+            MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)) AS best_volume,
+            (
+                SELECT s2.workout_date || ' · ' || COALESCE(ws2.weight, 0) || 'kg ' || COALESCE(ws2.reps, 0) || '회'
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id
+                  AND (ws2.weight IS NOT NULL OR ws2.reps IS NOT NULL)
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS recent
+        FROM exercises e
+        JOIN workout_sets ws ON ws.exercise_id = e.id
+        WHERE ws.weight IS NOT NULL OR ws.reps IS NOT NULL
+        GROUP BY e.id, e.name
+        """
+    ).fetchall()
+    return {
+        row["name"]: {
+            "recent": row["recent"],
+            "best_weight": row["best_weight"],
+            "best_reps": row["best_reps"],
+            "best_volume": row["best_volume"],
+        }
+        for row in rows
+    }
 
 
 def list_foods_by_meal_type(limit: int = 12) -> dict[str, list[dict[str, float | str | None]]]:
@@ -904,6 +977,102 @@ def apply_routine_template(routine_id: int, workout_date: str) -> None:
             ),
         )
     db.commit()
+
+
+def apply_session_template(source_session_id: int, workout_date: str) -> None:
+    db = get_db()
+    items = db.execute(
+        """
+        SELECT
+            e.name AS exercise_name,
+            ws.body_part,
+            ws.set_type,
+            ws.weight,
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            ws.sort_order
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE ws.session_id = ?
+        ORDER BY ws.sort_order, ws.id
+        """,
+        (source_session_id,),
+    ).fetchall()
+    if not items:
+        return
+    session = get_or_create_session(workout_date)
+    next_order = db.execute(
+        "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
+        (session["id"],),
+    ).fetchone()[0]
+    for offset, item in enumerate(items):
+        exercise_id = get_or_create_exercise(item["exercise_name"])
+        db.execute(
+            """
+            INSERT INTO workout_sets (
+                session_id, exercise_id, body_part, set_type, weight, reps,
+                cardio_incline, cardio_speed, cardio_minutes, estimated_calories, sort_order
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                session["id"],
+                exercise_id,
+                item["body_part"],
+                item["set_type"],
+                item["weight"],
+                item["reps"],
+                item["cardio_incline"],
+                item["cardio_speed"],
+                item["cardio_minutes"],
+                estimate_exercise_calories(
+                    item["body_part"],
+                    item["cardio_incline"],
+                    item["cardio_speed"],
+                    item["cardio_minutes"],
+                    workout_date,
+                ),
+                next_order + offset,
+            ),
+        )
+    db.commit()
+
+
+def list_recommended_sessions(workout_date: str, limit: int = 3) -> list[dict[str, object]]:
+    weekday = datetime.strptime(workout_date, "%Y-%m-%d").weekday()
+    rows = get_db().execute(
+        """
+        SELECT
+            s.id,
+            s.workout_date,
+            COUNT(ws.id) AS set_count,
+            GROUP_CONCAT(DISTINCT COALESCE(NULLIF(ws.body_part, ''), '기타')) AS body_parts
+        FROM workout_sessions s
+        JOIN workout_sets ws ON ws.session_id = s.id
+        WHERE s.workout_date < ?
+        GROUP BY s.id, s.workout_date
+        ORDER BY s.workout_date DESC
+        LIMIT 30
+        """,
+        (workout_date,),
+    ).fetchall()
+    recommendations = []
+    for row in rows:
+        if datetime.strptime(row["workout_date"], "%Y-%m-%d").weekday() != weekday:
+            continue
+        recommendations.append(
+            {
+                "id": row["id"],
+                "workout_date": row["workout_date"],
+                "set_count": row["set_count"],
+                "body_parts": (row["body_parts"] or "").replace(",", " · "),
+            }
+        )
+        if len(recommendations) >= limit:
+            break
+    return recommendations
 
 
 def save_goal(key: str, value: int) -> None:
@@ -1249,6 +1418,34 @@ def list_balance_warnings(scope: str = "weekly") -> list[str]:
     return warnings[:4]
 
 
+def get_balance_score(scope: str = "weekly", date_text: str | None = None) -> dict[str, object]:
+    base_date = date_text or current_local_date()
+    if scope == "weekly":
+        start = week_start_for_date(base_date)
+        end = shift_date(start, 6)
+    else:
+        start = normalize_month(base_date[:7])
+        end = shift_date(shift_month(start, 1), -1)
+    rows = get_db().execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date BETWEEN ? AND ?
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') != '기타'
+        GROUP BY body_part
+        """,
+        (start, end),
+    ).fetchall()
+    target_parts = ["하체", "가슴", "등", "어깨", "팔", "유산소"]
+    counts = {part: 0 for part in target_parts}
+    counts.update({row["body_part"]: int(row["set_count"]) for row in rows if row["body_part"] in counts})
+    filled = sum(1 for count in counts.values() if count > 0)
+    score = round(filled / len(target_parts) * 100)
+    missing = [part for part, count in counts.items() if count == 0]
+    return {"score": score, "counts": counts, "missing": missing, "period": f"{start} ~ {end}"}
+
+
 def export_all_data() -> dict[str, object]:
     db = get_db()
     tables = [
@@ -1269,6 +1466,47 @@ def export_all_data() -> dict[str, object]:
         "exported_at": datetime.now().isoformat(timespec="seconds"),
         "tables": {table: [dict(row) for row in db.execute(f"SELECT * FROM {table}").fetchall()] for table in tables},
     }
+
+
+def import_all_data(payload: dict[str, object]) -> None:
+    tables = payload.get("tables", {})
+    if not isinstance(tables, dict):
+        return
+    ordered_tables = [
+        "exercises",
+        "workout_sessions",
+        "workout_sets",
+        "meal_entries",
+        "routine_templates",
+        "routine_items",
+        "meal_templates",
+        "meal_template_items",
+        "user_goals",
+        "exercise_notes",
+        "pr_events",
+        "body_metrics",
+    ]
+    db = get_db()
+    for table in reversed(ordered_tables):
+        db.execute(f"DELETE FROM {table}")
+    for table in ordered_tables:
+        rows = tables.get(table, [])
+        if not isinstance(rows, list):
+            continue
+        columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            insert_columns = [column for column in columns if column in row]
+            if not insert_columns:
+                continue
+            placeholders = ", ".join(["?"] * len(insert_columns))
+            column_sql = ", ".join(insert_columns)
+            db.execute(
+                f"INSERT INTO {table} ({column_sql}) VALUES ({placeholders})",
+                tuple(row[column] for column in insert_columns),
+            )
+    db.commit()
 
 
 def body_part_options() -> list[str]:

@@ -413,6 +413,30 @@ label span {
   gap: 6px;
 }
 
+.completion-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 11px;
+}
+
+.completion-card.is-complete {
+  border-color: #16a34a;
+  background: #102018;
+}
+
+.completion-card strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.completion-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .pr-card {
   border-color: #f59e0b;
   background: #1f1a10;
@@ -455,6 +479,16 @@ label span {
 .meal-template-panel {
   display: grid;
   gap: 7px;
+}
+
+.recommended-routine {
+  border-color: #3b82f6;
+}
+
+.import-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
 }
 
 .note-form {
@@ -630,7 +664,7 @@ label span {
 }
 
 .set-entry-row {
-  grid-template-columns: minmax(0, 1fr) 28px;
+  grid-template-columns: minmax(0, 1fr) 42px 28px;
 }
 
 .meal-entry-row {
@@ -673,8 +707,25 @@ label span {
 
 .set-entry-row .row-remove-button,
 .meal-entry-row .row-remove-button {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.row-copy-button {
   grid-column: 2;
   grid-row: 1;
+  min-height: 38px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: #121a29;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 0;
+}
+
+.meal-entry-row .row-remove-button {
+  grid-column: 2;
 }
 
 .set-entry-row input,
@@ -1270,7 +1321,8 @@ tbody tr:last-child td {
   .routine-form,
   .tool-form,
   .body-metric-form,
-  .note-form {
+  .note-form,
+  .import-form {
     grid-template-columns: 1fr;
   }
 
