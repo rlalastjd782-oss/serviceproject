@@ -14,6 +14,7 @@
     <div id="app">
       <header class="header">
         <div class="header-title">🏋️ 헬스 트래커</div>
+        <div class="app-version" title="현재 배포 버전">{{ app_version }}</div>
       </header>
       <nav class="tabs" aria-label="주요 메뉴">
         <a class="tab-btn {% if active_page == 'today' %}active{% endif %}" href="{{ url_for('index') }}">오늘</a>
