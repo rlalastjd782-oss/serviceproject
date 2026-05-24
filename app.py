@@ -1300,6 +1300,30 @@ def list_recent_pr_events(limit: int = 12) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def list_recent_pr_events_filtered(body_part: str = "", query: str = "", limit: int = 30) -> list[sqlite3.Row]:
+    filters = []
+    params: list[object] = []
+    if body_part:
+        filters.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
+        params.append(body_part)
+    if query:
+        filters.append("pe.exercise_name LIKE ?")
+        params.append(f"%{query}%")
+    where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
+    params.append(limit)
+    return get_db().execute(
+        f"""
+        SELECT pe.*
+        FROM pr_events pe
+        LEFT JOIN workout_sets ws ON ws.id = pe.set_id
+        {where_clause}
+        ORDER BY pe.workout_date DESC, pe.id DESC
+        LIMIT ?
+        """,
+        params,
+    ).fetchall()
+
+
 def list_exercise_pr_history(exercise_id: int | None, limit: int = 12) -> list[sqlite3.Row]:
     if not exercise_id:
         return []
@@ -1347,6 +1371,27 @@ def list_exercise_pr_summary(body_part: str = "", query: str = "", limit: int = 
         GROUP BY e.id, e.name
         ORDER BY best_weight DESC, best_volume DESC, last_date DESC, e.name
         LIMIT ?
+        """,
+        params,
+    ).fetchall()
+
+
+def list_pr_exercise_choices(body_part: str = "", query: str = "") -> list[sqlite3.Row]:
+    filters = ["ws.weight IS NOT NULL", "ws.reps IS NOT NULL", "COALESCE(NULLIF(ws.body_part, ''), '기타') != '유산소'"]
+    params: list[object] = []
+    if body_part:
+        filters.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
+        params.append(body_part)
+    if query:
+        filters.append("e.name LIKE ?")
+        params.append(f"%{query}%")
+    return get_db().execute(
+        f"""
+        SELECT DISTINCT e.id, e.name
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE {' AND '.join(filters)}
+        ORDER BY e.name
         """,
         params,
     ).fetchall()

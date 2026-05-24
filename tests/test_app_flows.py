@@ -169,6 +169,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/summaries/pr")
         self.assertIn('list="pr-exercise-list"', response.data.decode("utf-8"))
 
+        response = self.client.get("/summaries/pr", query_string={"q": strength_name})
+        pr_html = response.data.decode("utf-8")
+        self.assertIn(strength_name, pr_html)
+        self.assertNotIn(cardio_name, pr_html)
+
         response = self.client.get("/records/search", query_string={"q": "벤치", "part": "가슴"})
         self.assertEqual(response.status_code, 200)
         self.assertIn(strength_name, response.data.decode("utf-8"))

@@ -200,13 +200,13 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
         pr_rows = list_exercise_pr_summary(selected_part, search_query)
-        recent_pr_events = list_recent_pr_events(limit=30)
+        recent_pr_events = list_recent_pr_events_filtered(selected_part, search_query, limit=30)
         selected_exercise = parse_int(request.args.get("exercise_id"))
         selected_exercise = selected_exercise or (int(pr_rows[0]["id"]) if pr_rows else None)
         return render_template(
             "pr_page.html",
             body_parts=body_part_options(),
-            exercise_choices=list_exercises(),
+            exercise_choices=list_pr_exercise_choices(selected_part, search_query),
             selected_part=selected_part,
             search_query=search_query,
             pr_rows=pr_rows,
