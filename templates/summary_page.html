@@ -13,8 +13,9 @@
             <span class="badge">🏃 {{ item.set_count }}세트</span>
             <span class="badge">💪 {{ item.rep_count }}회</span>
             <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
+            <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
             <span class="badge">🍱 {{ item.meal_count }}식</span>
-            <span class="badge">🔥 {{ "%.0f"|format(item.calories) }}kcal</span>
+            <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
           </div>
         </article>
       {% else %}
@@ -43,6 +44,10 @@
           <article class="summary-card">
             <div class="summary-value">{{ "%.0f"|format(weekly_report.volume) }}</div>
             <div class="summary-label">볼륨 kg</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-value">{{ "%.0f"|format(weekly_report.cardio_minutes) }}</div>
+            <div class="summary-label">유산소 분</div>
           </article>
           <article class="summary-card">
             <div class="summary-value">{{ weekly_report.meal_days }}</div>
@@ -112,8 +117,9 @@
               <span class="badge">🏃 {{ item.set_count }}세트</span>
               <span class="badge">💪 {{ item.rep_count }}회</span>
               <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
+              <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
               <span class="badge">🍱 {{ item.meal_count }}식</span>
-              <span class="badge">🔥 {{ "%.0f"|format(item.calories) }}kcal</span>
+              <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
             </div>
           </article>
         {% else %}
@@ -165,7 +171,17 @@
           {% for result in search_results %}
             <div class="detail-row">
               <strong>{{ result.workout_date }} · {{ result.exercise_name }}</strong>
-              <span>{{ result.body_part }} · {% if result.weight is not none %}{{ "%.1f"|format(result.weight) }}kg{% else %}-kg{% endif %} · {% if result.reps is not none %}{{ result.reps }}회{% else %}-회{% endif %}</span>
+              <span>
+                {{ result.body_part }} ·
+                {% if result.body_part == "유산소" %}
+                  인클라인 {% if result.cardio_incline is not none %}{{ "%.1f"|format(result.cardio_incline) }}{% else %}-{% endif %}
+                  · 속도 {% if result.cardio_speed is not none %}{{ "%.1f"|format(result.cardio_speed) }}{% else %}-{% endif %}
+                  · {% if result.cardio_minutes is not none %}{{ "%.0f"|format(result.cardio_minutes) }}분{% else %}-분{% endif %}
+                {% else %}
+                  {% if result.weight is not none %}{{ "%.1f"|format(result.weight) }}kg{% else %}-kg{% endif %}
+                  · {% if result.reps is not none %}{{ result.reps }}회{% else %}-회{% endif %}
+                {% endif %}
+              </span>
             </div>
           {% else %}
             <div class="empty">검색 결과가 없습니다.</div>
@@ -189,6 +205,7 @@
                 <span class="badge">{{ item.set_count }}세트</span>
                 <span class="badge">{{ item.rep_count }}회</span>
                 <span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>
+                <span class="badge">{{ "%.0f"|format(item.cardio_minutes) }}분</span>
               </div>
             </div>
           </article>
@@ -227,7 +244,7 @@
               <div class="detail-row">
                 <strong>{{ exercise.name }}</strong>
                 <span>
-                  {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg
+                  {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg · {{ "%.0f"|format(exercise.cardio_minutes) }}분
                 </span>
               </div>
             {% else %}
@@ -252,7 +269,7 @@
             <div class="cat-stat-name {{ body_part_class(item.body_part) }}">{{ item.body_part }}</div>
             <div class="cat-stat-count">{{ item.set_count }}</div>
             <div class="cat-stat-unit">{{ item.period }}</div>
-            <div class="cat-stat-unit">{{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg</div>
+            <div class="cat-stat-unit">{{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg · {{ "%.0f"|format(item.cardio_minutes) }}분</div>
             {% if active_page == "weekly" and detail_rows %}
               <button type="button" class="btn-small detail-inline-btn" data-toggle-detail data-detail-target="{{ detail_id }}" aria-expanded="false">상세</button>
             {% endif %}
@@ -270,6 +287,7 @@
                     {% if detail.weight is not none %}{{ "%.1f"|format(detail.weight) }}kg{% else %}-kg{% endif %}
                     · {{ detail.set_count }}세트
                     · {{ detail.rep_count }}회
+                    {% if detail.cardio_minutes is not none and detail.cardio_minutes > 0 %}· {{ "%.0f"|format(detail.cardio_minutes) }}분{% endif %}
                   </span>
                 </div>
               {% endfor %}

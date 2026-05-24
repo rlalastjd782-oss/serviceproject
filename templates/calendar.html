@@ -34,7 +34,7 @@
         <a class="calendar-cell" href="{{ url_for('index', date=day.date) }}">
           <strong>{{ day.day }}</strong>
           <div class="calendar-dots">
-            {% if day.set_count %}<span class="dot-workout" title="운동 {{ day.set_count }}세트"></span>{% endif %}
+            {% if day.set_count %}<span class="dot-workout" title="운동 {{ day.set_count }}개"></span>{% endif %}
             {% if day.meal_count %}<span class="dot-meal" title="식단 {{ day.meal_count }}식"></span>{% endif %}
           </div>
           <small>

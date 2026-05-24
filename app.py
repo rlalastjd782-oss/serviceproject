@@ -179,23 +179,48 @@ def create_app() -> Flask:
 
         set_weights = request.form.getlist("set_weight") or [request.form.get("weight", "")]
         set_reps = request.form.getlist("set_reps") or [request.form.get("reps", "")]
+        cardio_inclines = request.form.getlist("cardio_incline") or [request.form.get("cardio_incline", "")]
+        cardio_speeds = request.form.getlist("cardio_speed") or [request.form.get("cardio_speed", "")]
+        cardio_minutes = request.form.getlist("cardio_minutes") or [request.form.get("cardio_minutes", "")]
         set_memos = request.form.getlist("set_memo") or [request.form.get("memo", "")]
         set_types = request.form.getlist("set_type") or [request.form.get("set_type", "본세트")]
-        set_count = max(len(set_weights), len(set_reps), len(set_memos), len(set_types))
+        set_count = max(
+            len(set_weights),
+            len(set_reps),
+            len(cardio_inclines),
+            len(cardio_speeds),
+            len(cardio_minutes),
+            len(set_memos),
+            len(set_types),
+        )
         set_rows = []
         for index in range(set_count):
             weight_value = value_at(set_weights, index)
             reps_value = value_at(set_reps, index)
+            incline_value = value_at(cardio_inclines, index)
+            speed_value = value_at(cardio_speeds, index)
+            minutes_value = value_at(cardio_minutes, index)
             memo_value = value_at(set_memos, index).strip()
             set_type = value_at(set_types, index).strip() or "본세트"
-            if weight_value.strip() == "" and reps_value.strip() == "" and memo_value == "":
+            is_cardio = body_part == "유산소"
+            if (
+                weight_value.strip() == ""
+                and reps_value.strip() == ""
+                and incline_value.strip() == ""
+                and speed_value.strip() == ""
+                and minutes_value.strip() == ""
+                and memo_value == ""
+            ):
                 continue
             set_rows.append(
                 (
-                    parse_float(weight_value),
-                    parse_int(reps_value),
+                    None if is_cardio else parse_float(weight_value),
+                    None if is_cardio else parse_int(reps_value),
+                    parse_float(incline_value) if is_cardio else None,
+                    parse_float(speed_value) if is_cardio else None,
+                    parse_float(minutes_value) if is_cardio else None,
                     memo_value,
-                    set_type,
+                    "유산소" if is_cardio else set_type,
                 )
             )
 
@@ -209,16 +234,32 @@ def create_app() -> Flask:
             "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
             (session["id"],),
         ).fetchone()[0]
-        for offset, (weight, reps, memo, set_type) in enumerate(set_rows):
+        for offset, (weight, reps, cardio_incline, cardio_speed, cardio_minutes_value, memo, set_type) in enumerate(set_rows):
             cursor = db.execute(
                 """
-                INSERT INTO workout_sets (session_id, exercise_id, weight, reps, memo, sort_order, body_part, set_type)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO workout_sets (
+                    session_id, exercise_id, weight, reps, cardio_incline, cardio_speed,
+                    cardio_minutes, memo, sort_order, body_part, set_type
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                (session["id"], exercise_id, weight, reps, memo, next_order + offset, body_part, set_type),
+                (
+                    session["id"],
+                    exercise_id,
+                    weight,
+                    reps,
+                    cardio_incline,
+                    cardio_speed,
+                    cardio_minutes_value,
+                    memo,
+                    next_order + offset,
+                    body_part,
+                    set_type,
+                ),
             )
-            record_pr_events(cursor.lastrowid, session["workout_date"], exercise_id, exercise_name, weight, reps, previous_records)
-            previous_records = update_record_values(previous_records, weight, reps)
+            if body_part != "유산소":
+                record_pr_events(cursor.lastrowid, session["workout_date"], exercise_id, exercise_name, weight, reps, previous_records)
+                previous_records = update_record_values(previous_records, weight, reps)
         db.commit()
         return redirect(url_for("index", date=session["workout_date"]))
 
@@ -378,7 +419,7 @@ def create_app() -> Flask:
         db = get_db()
         workout = db.execute(
             """
-            SELECT s.workout_date
+            SELECT s.workout_date, ws.body_part
             FROM workout_sets ws
             JOIN workout_sessions s ON s.id = ws.session_id
             WHERE ws.id = ?
@@ -386,19 +427,34 @@ def create_app() -> Flask:
             (set_id,),
         ).fetchone()
         workout_date = workout["workout_date"] if workout else current_local_date()
-        db.execute(
-            """
-            UPDATE workout_sets
-            SET weight = ?, reps = ?, set_type = ?
-            WHERE id = ?
-            """,
-            (
-                parse_float(request.form.get("weight")),
-                parse_int(request.form.get("reps")),
-                request.form.get("set_type", "본세트").strip() or "본세트",
-                set_id,
-            ),
-        )
+        if workout and workout["body_part"] == "유산소":
+            db.execute(
+                """
+                UPDATE workout_sets
+                SET cardio_incline = ?, cardio_speed = ?, cardio_minutes = ?
+                WHERE id = ?
+                """,
+                (
+                    parse_float(request.form.get("cardio_incline")),
+                    parse_float(request.form.get("cardio_speed")),
+                    parse_float(request.form.get("cardio_minutes")),
+                    set_id,
+                ),
+            )
+        else:
+            db.execute(
+                """
+                UPDATE workout_sets
+                SET weight = ?, reps = ?, set_type = ?
+                WHERE id = ?
+                """,
+                (
+                    parse_float(request.form.get("weight")),
+                    parse_int(request.form.get("reps")),
+                    request.form.get("set_type", "본세트").strip() or "본세트",
+                    set_id,
+                ),
+            )
         db.commit()
         return redirect(url_for("index", date=workout_date))
 
@@ -458,6 +514,9 @@ def init_db() -> None:
             set_type TEXT NOT NULL DEFAULT '본세트',
             weight REAL,
             reps INTEGER,
+            cardio_incline REAL,
+            cardio_speed REAL,
+            cardio_minutes REAL,
             memo TEXT NOT NULL DEFAULT '',
             sort_order INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -494,6 +553,9 @@ def init_db() -> None:
             set_type TEXT NOT NULL DEFAULT '본세트',
             weight REAL,
             reps INTEGER,
+            cardio_incline REAL,
+            cardio_speed REAL,
+            cardio_minutes REAL,
             sort_order INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (routine_id) REFERENCES routine_templates (id) ON DELETE CASCADE
         );
@@ -552,7 +614,13 @@ def init_db() -> None:
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
     ensure_column(db, "workout_sets", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
+    ensure_column(db, "workout_sets", "cardio_incline", "REAL")
+    ensure_column(db, "workout_sets", "cardio_speed", "REAL")
+    ensure_column(db, "workout_sets", "cardio_minutes", "REAL")
     ensure_column(db, "routine_items", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
+    ensure_column(db, "routine_items", "cardio_incline", "REAL")
+    ensure_column(db, "routine_items", "cardio_speed", "REAL")
+    ensure_column(db, "routine_items", "cardio_minutes", "REAL")
     ensure_column(db, "meal_entries", "quantity", "REAL")
     ensure_column(db, "meal_entries", "grams", "REAL")
     db.execute(
@@ -725,7 +793,16 @@ def create_routine_template(name: str, session_id: int) -> None:
     db = get_db()
     items = db.execute(
         """
-        SELECT e.name AS exercise_name, ws.body_part, ws.set_type, ws.weight, ws.reps, ws.sort_order
+        SELECT
+            e.name AS exercise_name,
+            ws.body_part,
+            ws.set_type,
+            ws.weight,
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            ws.sort_order
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
         WHERE ws.session_id = ?
@@ -740,10 +817,24 @@ def create_routine_template(name: str, session_id: int) -> None:
     for index, item in enumerate(items, start=1):
         db.execute(
             """
-            INSERT INTO routine_items (routine_id, exercise_name, body_part, set_type, weight, reps, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO routine_items (
+                routine_id, exercise_name, body_part, set_type, weight, reps,
+                cardio_incline, cardio_speed, cardio_minutes, sort_order
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (routine_id, item["exercise_name"], item["body_part"], item["set_type"], item["weight"], item["reps"], index),
+            (
+                routine_id,
+                item["exercise_name"],
+                item["body_part"],
+                item["set_type"],
+                item["weight"],
+                item["reps"],
+                item["cardio_incline"],
+                item["cardio_speed"],
+                item["cardio_minutes"],
+                index,
+            ),
         )
     db.commit()
 
@@ -770,10 +861,24 @@ def apply_routine_template(routine_id: int, workout_date: str) -> None:
         exercise_id = get_or_create_exercise(item["exercise_name"])
         db.execute(
             """
-            INSERT INTO workout_sets (session_id, exercise_id, body_part, set_type, weight, reps, sort_order)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO workout_sets (
+                session_id, exercise_id, body_part, set_type, weight, reps,
+                cardio_incline, cardio_speed, cardio_minutes, sort_order
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (session["id"], exercise_id, item["body_part"], item["set_type"], item["weight"], item["reps"], next_order + offset),
+            (
+                session["id"],
+                exercise_id,
+                item["body_part"],
+                item["set_type"],
+                item["weight"],
+                item["reps"],
+                item["cardio_incline"],
+                item["cardio_speed"],
+                item["cardio_minutes"],
+                next_order + offset,
+            ),
         )
     db.commit()
 
@@ -1051,7 +1156,8 @@ def build_weekly_report() -> dict[str, object]:
         SELECT
             COUNT(DISTINCT s.workout_date) AS workout_days,
             COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
         WHERE s.workout_date BETWEEN ? AND ?
@@ -1079,6 +1185,7 @@ def build_weekly_report() -> dict[str, object]:
         "workout_days": int(totals["workout_days"] or 0),
         "set_count": int(totals["set_count"] or 0),
         "volume": float(totals["volume"] or 0),
+        "cardio_minutes": float(totals["cardio_minutes"] or 0),
         "meal_days": int(meal_days or 0),
         "top_part": top_part["body_part"] if top_part else "-",
     }
@@ -1139,7 +1246,7 @@ def export_all_data() -> dict[str, object]:
 
 
 def body_part_options() -> list[str]:
-    return ["하체", "가슴", "팔", "등", "어깨", "기타"]
+    return ["하체", "가슴", "팔", "등", "어깨", "유산소", "기타"]
 
 
 def body_part_class(body_part: str | None) -> str:
@@ -1149,6 +1256,7 @@ def body_part_class(body_part: str | None) -> str:
         "팔": "body-part-arms",
         "등": "body-part-back",
         "어깨": "body-part-shoulders",
+        "유산소": "body-part-cardio",
         "기타": "body-part-other",
     }
     return class_names.get((body_part or "기타").strip(), "body-part-other")
@@ -1272,7 +1380,8 @@ def get_day_summary(day: str) -> dict[str, float]:
         SELECT
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM workout_sessions s
         LEFT JOIN workout_sets ws ON ws.session_id = s.id
         WHERE s.workout_date = ?
@@ -1295,6 +1404,7 @@ def get_day_summary(day: str) -> dict[str, float]:
         "set_count": workout["set_count"],
         "rep_count": workout["rep_count"],
         "volume": workout["volume"],
+        "cardio_minutes": workout["cardio_minutes"],
         "meal_count": meal["meal_count"],
         "amount": meal["amount"],
         "grams": meal["grams"],
@@ -1310,7 +1420,8 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
                 s.workout_date AS period,
                 COUNT(ws.id) AS set_count,
                 COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+                COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
             FROM workout_sessions s
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             GROUP BY s.workout_date
@@ -1335,6 +1446,7 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
             COALESCE(w.set_count, 0) AS set_count,
             COALESCE(w.rep_count, 0) AS rep_count,
             COALESCE(w.volume, 0) AS volume,
+            COALESCE(w.cardio_minutes, 0) AS cardio_minutes,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
             COALESCE(m.grams, 0) AS grams,
@@ -1360,7 +1472,8 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
                 COUNT(DISTINCT s.workout_date) AS workout_days,
                 COUNT(ws.id) AS set_count,
                 COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+                COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
             FROM workout_sessions s
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             GROUP BY month_key, week_of_month
@@ -1390,6 +1503,7 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
             COALESCE(w.set_count, 0) AS set_count,
             COALESCE(w.rep_count, 0) AS rep_count,
             COALESCE(w.volume, 0) AS volume,
+            COALESCE(w.cardio_minutes, 0) AS cardio_minutes,
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
@@ -1420,7 +1534,8 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
                 COUNT(DISTINCT s.workout_date) AS workout_days,
                 COUNT(ws.id) AS set_count,
                 COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+                COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
             FROM workout_sessions s
             LEFT JOIN workout_sets ws ON ws.session_id = s.id
             GROUP BY strftime(?, s.workout_date)
@@ -1447,6 +1562,7 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
             COALESCE(w.set_count, 0) AS set_count,
             COALESCE(w.rep_count, 0) AS rep_count,
             COALESCE(w.volume, 0) AS volume,
+            COALESCE(w.cardio_minutes, 0) AS cardio_minutes,
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
@@ -1514,6 +1630,7 @@ def list_exercise_summary(limit: int = 20) -> list[sqlite3.Row]:
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
             MAX(s.workout_date) AS last_date
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
@@ -1535,6 +1652,7 @@ def list_exercise_summary_by_body_part() -> dict[str, list[sqlite3.Row]]:
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
             MAX(s.workout_date) AS last_date
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
@@ -1593,7 +1711,10 @@ def search_workout_records(query: str, limit: int = 50) -> list[sqlite3.Row]:
             e.name AS exercise_name,
             COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
             ws.weight,
-            ws.reps
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         JOIN exercises e ON e.id = ws.exercise_id
@@ -1665,7 +1786,8 @@ def list_body_part_summary(scope: str, limit: int = 30) -> list[sqlite3.Row]:
             COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         GROUP BY period, body_part
@@ -1688,6 +1810,9 @@ def list_weekly_body_part_details() -> dict[str, list[sqlite3.Row]]:
             COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
             e.name AS exercise_name,
             ws.weight AS weight,
+            ws.cardio_incline AS cardio_incline,
+            ws.cardio_speed AS cardio_speed,
+            ws.cardio_minutes AS cardio_minutes,
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
@@ -1695,8 +1820,8 @@ def list_weekly_body_part_details() -> dict[str, list[sqlite3.Row]]:
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         JOIN exercises e ON e.id = ws.exercise_id
-        GROUP BY period, body_part, e.name, ws.weight
-        ORDER BY MAX(s.workout_date) DESC, body_part, e.name, ws.weight
+        GROUP BY period, body_part, e.name, ws.weight, ws.cardio_incline, ws.cardio_speed, ws.cardio_minutes
+        ORDER BY MAX(s.workout_date) DESC, body_part, e.name, ws.weight, ws.cardio_minutes
         """,
     ).fetchall()
 

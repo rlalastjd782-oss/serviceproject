@@ -10,6 +10,7 @@ const bodyPartClassMap = {
   "팔": "body-part-arms",
   "등": "body-part-back",
   "어깨": "body-part-shoulders",
+  "유산소": "body-part-cardio",
   "기타": "body-part-other",
 };
 
@@ -42,6 +43,7 @@ const foodsByMealType = parseJsonData(foodQuickPanel, "foodsByMealType");
 document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   applyBodyPartSelectColor(select);
   renderExerciseQuickList(select.value);
+  applyWorkoutInputMode(select.value);
 });
 document.querySelectorAll("[data-meal-type-select]").forEach((select) => {
   applyMealTypeSelectColor(select);
@@ -53,6 +55,7 @@ document.addEventListener("change", (event) => {
   if (bodyPartSelect) {
     applyBodyPartSelectColor(bodyPartSelect);
     renderExerciseQuickList(bodyPartSelect.value);
+    applyWorkoutInputMode(bodyPartSelect.value);
     return;
   }
 
@@ -228,6 +231,28 @@ function renderExerciseQuickList(bodyPart) {
   renderExerciseGuidance(exerciseNameInput?.value || "");
 }
 
+function applyWorkoutInputMode(bodyPart) {
+  const isCardio = bodyPart === "유산소";
+  document.querySelectorAll("[data-strength-fields]").forEach((element) => {
+    element.hidden = isCardio;
+    if (element.matches("input, select")) {
+      element.disabled = isCardio;
+    }
+    element.querySelectorAll("input, select").forEach((input) => {
+      input.disabled = isCardio;
+    });
+  });
+  document.querySelectorAll("[data-cardio-fields]").forEach((element) => {
+    element.hidden = !isCardio;
+    if (element.matches("input, select")) {
+      element.disabled = !isCardio;
+    }
+    element.querySelectorAll("input").forEach((input) => {
+      input.disabled = !isCardio;
+    });
+  });
+}
+
 function renderRecentSetList(exerciseName) {
   if (!recentSetTitle || !recentSetList) {
     return;
@@ -280,6 +305,7 @@ function loadRecentSets(exerciseName, setList) {
     row.querySelector('input[name="set_reps"]').value = set.reps ?? "";
     setList.append(row);
   });
+  applyWorkoutInputMode(document.querySelector("[data-body-part-select]")?.value || "");
 }
 
 function loadFoodEntry(button, mealList) {
@@ -317,7 +343,7 @@ function addRow(list, type) {
 
 function setRowHtml(index) {
   return `
-    <div class="compact-field-grid">
+    <div class="compact-field-grid" data-strength-fields>
       <label>
         <span>무게 kg</span>
         <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
@@ -327,12 +353,26 @@ function setRowHtml(index) {
         <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
       </label>
     </div>
-    <select name="set_type" aria-label="세트 타입">
+    <select name="set_type" aria-label="세트 타입" data-strength-fields>
       <option value="본세트">본세트</option>
       <option value="워밍업">워밍업</option>
       <option value="드롭세트">드롭세트</option>
       <option value="실패">실패</option>
     </select>
+    <div class="compact-field-grid cardio-field-grid" data-cardio-fields hidden>
+      <label>
+        <span>인클라인</span>
+        <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" placeholder="8">
+      </label>
+      <label>
+        <span>속도</span>
+        <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" placeholder="5.5">
+      </label>
+      <label>
+        <span>시간 분</span>
+        <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30">
+      </label>
+    </div>
     <input name="set_memo" autocomplete="off" placeholder="메모">
     <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
   `;

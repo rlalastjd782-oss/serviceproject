@@ -951,6 +951,13 @@ label span {
   color: #fda4af;
 }
 
+.body-part-cardio,
+.body-part-badge.body-part-cardio,
+.cat-badge.body-part-cardio {
+  border-color: #0d9488;
+  color: #5eead4;
+}
+
 .body-part-other,
 .body-part-badge.body-part-other,
 .cat-badge.body-part-other {

@@ -31,7 +31,12 @@
     <article class="summary-card">
       <div class="summary-icon">🔥</div>
       <div class="summary-value">{{ "%.0f"|format(today_summary.calories) }}</div>
-      <div class="summary-label">칼로리</div>
+      <div class="summary-label">입력 kcal</div>
+    </article>
+    <article class="summary-card">
+      <div class="summary-icon">🚶</div>
+      <div class="summary-value">{{ "%.0f"|format(today_summary.cardio_minutes) }}</div>
+      <div class="summary-label">유산소 분</div>
     </article>
   </div>
 
@@ -175,16 +180,28 @@
       <div class="set-entry-list" data-set-list>
         <div class="set-entry-row">
           <div class="compact-field-grid">
-            <label>
+            <label data-strength-fields>
               <span>무게 kg</span>
               <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
             </label>
-            <label>
+            <label data-strength-fields>
               <span>횟수</span>
               <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
             </label>
+            <label data-cardio-fields hidden>
+              <span>인클라인</span>
+              <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" placeholder="8" disabled>
+            </label>
+            <label data-cardio-fields hidden>
+              <span>속도</span>
+              <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" placeholder="5.5" disabled>
+            </label>
+            <label data-cardio-fields hidden>
+              <span>시간 분</span>
+              <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30" disabled>
+            </label>
           </div>
-          <select name="set_type" aria-label="세트 타입">
+          <select name="set_type" aria-label="세트 타입" data-strength-fields>
             <option value="본세트">본세트</option>
             <option value="워밍업">워밍업</option>
             <option value="드롭세트">드롭세트</option>
@@ -278,19 +295,31 @@
                   <div class="ex-name">
                     {{ loop.index }}세트:
                     <span class="badge">{{ item.set_type or "본세트" }}</span>
-                    {% if item.weight is not none %}<span class="blue-text">{{ "%.1f"|format(item.weight) }}kg</span>{% else %}-kg{% endif %}
-                    ·
-                    {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
+                    {% if group.body_part == "유산소" %}
+                      인클라인 {% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% else %}-{% endif %}
+                      · 속도 {% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% else %}-{% endif %}
+                      · {% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}-분{% endif %}
+                    {% else %}
+                      {% if item.weight is not none %}<span class="blue-text">{{ "%.1f"|format(item.weight) }}kg</span>{% else %}-kg{% endif %}
+                      ·
+                      {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
+                    {% endif %}
                   </div>
                 </div>
                 <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
-                  <input name="weight" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}{% endif %}" placeholder="kg">
-                  <input name="reps" type="number" min="0" step="1" inputmode="numeric" value="{% if item.reps is not none %}{{ item.reps }}{% endif %}" placeholder="회">
-                  <select name="set_type">
-                    {% for option in ["본세트", "워밍업", "드롭세트", "실패"] %}
-                      <option value="{{ option }}" {% if (item.set_type or "본세트") == option %}selected{% endif %}>{{ option }}</option>
-                    {% endfor %}
-                  </select>
+                  {% if group.body_part == "유산소" %}
+                    <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% endif %}" placeholder="인클라인">
+                    <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% endif %}" placeholder="속도">
+                    <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" value="{% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}{% endif %}" placeholder="분">
+                  {% else %}
+                    <input name="weight" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}{% endif %}" placeholder="kg">
+                    <input name="reps" type="number" min="0" step="1" inputmode="numeric" value="{% if item.reps is not none %}{{ item.reps }}{% endif %}" placeholder="회">
+                    <select name="set_type">
+                      {% for option in ["본세트", "워밍업", "드롭세트", "실패"] %}
+                        <option value="{{ option }}" {% if (item.set_type or "본세트") == option %}selected{% endif %}>{{ option }}</option>
+                      {% endfor %}
+                    </select>
+                  {% endif %}
                   <button type="submit" class="btn-small">저장</button>
                 </form>
                 <div class="item-actions">
@@ -307,14 +336,20 @@
                 <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
                 <input type="hidden" name="body_part" value="{{ group.body_part }}">
                 <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
-                <input name="set_weight" type="number" min="0" step="0.1" inputmode="decimal" placeholder="kg">
-                <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="회">
-                <select name="set_type">
-                  <option value="본세트">본세트</option>
-                  <option value="워밍업">워밍업</option>
-                  <option value="드롭세트">드롭세트</option>
-                  <option value="실패">실패</option>
-                </select>
+                {% if group.body_part == "유산소" %}
+                  <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" placeholder="인클라인">
+                  <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" placeholder="속도">
+                  <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="분">
+                {% else %}
+                  <input name="set_weight" type="number" min="0" step="0.1" inputmode="decimal" placeholder="kg">
+                  <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="회">
+                  <select name="set_type">
+                    <option value="본세트">본세트</option>
+                    <option value="워밍업">워밍업</option>
+                    <option value="드롭세트">드롭세트</option>
+                    <option value="실패">실패</option>
+                  </select>
+                {% endif %}
                 <button type="submit" class="btn-small">저장</button>
               </form>
             </div>
