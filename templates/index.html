@@ -735,21 +735,48 @@
                 </button>
                 <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
                   <input type="hidden" name="mode" value="workout">
-                  <input name="set_number" type="number" min="1" step="1" inputmode="numeric" value="{{ loop.index }}" aria-label="세트 번호" placeholder="세트">
+                  <label class="edit-field edit-field-small">
+                    <span>세트</span>
+                    <input name="set_number" type="number" min="1" step="1" inputmode="numeric" value="{{ loop.index }}" aria-label="세트 번호" placeholder="세트">
+                  </label>
                   {% if group.body_part == "유산소" %}
-                    <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% endif %}" placeholder="인클라인">
-                    <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% endif %}" placeholder="속도">
-                    <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" value="{% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}{% endif %}" placeholder="분">
-                    <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="RPE">
+                    <label class="edit-field">
+                      <span>인클라인</span>
+                      <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% endif %}" placeholder="인클라인">
+                    </label>
+                    <label class="edit-field">
+                      <span>속도</span>
+                      <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% endif %}" placeholder="속도">
+                    </label>
+                    <label class="edit-field">
+                      <span>분</span>
+                      <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" value="{% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}{% endif %}" placeholder="분">
+                    </label>
+                    <label class="edit-field edit-field-small">
+                      <span>RPE</span>
+                      <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="RPE">
+                    </label>
                   {% else %}
-                    <input name="weight" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}{% endif %}" placeholder="kg">
-                    <input name="reps" type="number" min="0" step="1" inputmode="numeric" value="{% if item.reps is not none %}{{ item.reps }}{% endif %}" placeholder="회">
-                    <select name="set_type">
-                      {% for option in ["본세트", "워밍업", "드롭세트", "실패"] %}
-                        <option value="{{ option }}" {% if (item.set_type or "본세트") == option %}selected{% endif %}>{{ option }}</option>
-                      {% endfor %}
-                    </select>
-                    <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="RPE">
+                    <label class="edit-field">
+                      <span>무게</span>
+                      <input name="weight" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}{% endif %}" placeholder="kg">
+                    </label>
+                    <label class="edit-field">
+                      <span>횟수</span>
+                      <input name="reps" type="number" min="0" step="1" inputmode="numeric" value="{% if item.reps is not none %}{{ item.reps }}{% endif %}" placeholder="회">
+                    </label>
+                    <label class="edit-field edit-field-type">
+                      <span>타입</span>
+                      <select name="set_type">
+                        {% for option in ["본세트", "워밍업", "드롭세트", "실패"] %}
+                          <option value="{{ option }}" {% if (item.set_type or "본세트") == option %}selected{% endif %}>{{ option }}</option>
+                        {% endfor %}
+                      </select>
+                    </label>
+                    <label class="edit-field edit-field-small">
+                      <span>RPE</span>
+                      <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="RPE">
+                    </label>
                   {% endif %}
                   <button type="submit" class="btn-small">저장</button>
                 </form>

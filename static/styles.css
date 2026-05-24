@@ -1730,7 +1730,34 @@ label span {
 }
 
 .set-edit-form {
-  grid-template-columns: 0.7fr 1fr 1fr 1fr auto;
+  grid-template-columns: 58px minmax(82px, 1fr) minmax(74px, 0.9fr) minmax(96px, 1fr) 64px auto;
+  align-items: stretch;
+}
+
+.edit-field {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.edit-field span {
+  color: var(--dim);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.edit-field input,
+.edit-field select {
+  width: 100%;
+  min-width: 0;
+}
+
+.edit-field-small {
+  max-width: 64px;
+}
+
+.edit-field-type {
+  min-width: 92px;
 }
 
 .meal-edit-form,
@@ -2011,11 +2038,29 @@ tbody tr:last-child td {
     grid-template-columns: minmax(78px, 92px) minmax(0, 1fr);
   }
 
-  .set-edit-form,
   .meal-edit-form,
   .inline-add-form,
   .meal-add-form {
     grid-template-columns: 1fr;
+  }
+
+  .set-edit-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg);
+    padding: 8px;
+  }
+
+  .set-edit-form .edit-field-small,
+  .set-edit-form .edit-field-type {
+    max-width: none;
+    min-width: 0;
+  }
+
+  .set-edit-form button {
+    grid-column: 1 / -1;
   }
 
   .goal-form,
@@ -2183,9 +2228,12 @@ tbody tr:last-child td {
 
   .meal-add-form,
   .meal-edit-form,
-  .set-edit-form,
   .inline-add-form {
     grid-template-columns: 1fr;
+  }
+
+  .set-edit-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .record-toggle {
