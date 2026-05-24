@@ -19,6 +19,7 @@
       <nav class="tabs" aria-label="주요 메뉴">
         <a class="tab-btn {% if active_page == 'today' %}active{% endif %}" href="{{ url_for('index') }}">오늘</a>
         <a class="tab-btn {% if active_page == 'daily' %}active{% endif %}" href="{{ url_for('daily_summary_page') }}">기록</a>
+        <a class="tab-btn {% if active_page == 'search' %}active{% endif %}" href="{{ url_for('record_search_page') }}">검색</a>
         <a class="tab-btn {% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주별</a>
         <a class="tab-btn {% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월별</a>
         <a class="tab-btn {% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>

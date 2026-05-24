@@ -33,6 +33,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/meals/monthly",
             "/settings",
             "/api/sessions",
+            "/records/search",
         ]
         for path in paths:
             with self.subTest(path=path):
@@ -167,6 +168,23 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
         response = self.client.get("/summaries/pr")
         self.assertIn('list="pr-exercise-list"', response.data.decode("utf-8"))
+
+        response = self.client.get("/records/search", query_string={"q": "벤치", "part": "가슴"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(strength_name, response.data.decode("utf-8"))
+
+        response = self.client.post(
+            "/rest-days",
+            data={"rest_date": "2026-05-21", "rest_reason": "회복", "memo": "테스트 휴식"},
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            rest = app_module.get_db().execute(
+                "SELECT * FROM recovery_checkins WHERE checkin_date = ?",
+                ("2026-05-21",),
+            ).fetchone()
+            self.assertEqual(rest["is_rest_day"], 1)
+            self.assertEqual(rest["rest_reason"], "회복")
 
     def test_sample_data_aggregates(self) -> None:
         with self.app.app_context():

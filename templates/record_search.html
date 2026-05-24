@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}기록 검색{% endblock %}
+
+{% block content %}
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">기록 검색</div>
+        <div class="section-subtitle">운동명, 부위, 장비, 날짜 범위를 조합해서 찾습니다.</div>
+      </div>
+    </div>
+    <form method="get" action="{{ url_for('record_search_page') }}" class="record-search-form">
+      <input name="q" value="{{ search_query }}" placeholder="운동명 또는 메모">
+      <select name="part" aria-label="부위">
+        <option value="">전체 부위</option>
+        {% for part in body_parts %}
+          <option value="{{ part }}" {% if selected_part == part %}selected{% endif %}>{{ part }}</option>
+        {% endfor %}
+      </select>
+      <select name="equipment" aria-label="장비">
+        <option value="">전체 장비</option>
+        {% for option in equipment_options %}
+          <option value="{{ option }}" {% if selected_equipment == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+      </select>
+      <input name="start" type="date" value="{{ selected_start }}" aria-label="시작일">
+      <input name="end" type="date" value="{{ selected_end }}" aria-label="종료일">
+      <button class="btn-small" type="submit">검색</button>
+    </form>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">검색 결과</div>
+      <span class="badge">{{ results|length }}개</span>
+    </div>
+    <div class="detail-list">
+      {% for item in results %}
+        <div class="detail-row">
+          <strong>{{ item.workout_date }} · {{ item.exercise_name }}</strong>
+          <span>
+            {{ item.body_part }} · {{ item.equipment }}
+            {% if item.body_part == "유산소" %}
+              · {{ "%.0f"|format(item.cardio_minutes or 0) }}분 · 속도 {{ "%.1f"|format(item.cardio_speed or 0) }}
+            {% else %}
+              · {{ "%.1f"|format(item.weight or 0) }}kg x {{ item.reps or 0 }}회
+            {% endif %}
+          </span>
+        </div>
+      {% else %}
+        <div class="empty compact-empty">검색 결과가 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

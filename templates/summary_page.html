@@ -202,6 +202,36 @@
             <button class="btn-small" type="submit">월간 목표 저장</button>
           </form>
         {% endif %}
+        {% if body_monthly_report and body_monthly_report.has_data %}
+          <div class="summary-grid">
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.1f"|format(body_monthly_report.body_weight or 0) }}</div>
+              <div class="summary-label">체중 kg · {{ "%+.1f"|format(body_monthly_report.weight_delta) }}</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.1f"|format(body_monthly_report.muscle_mass or 0) }}</div>
+              <div class="summary-label">골격근 kg · {{ "%+.1f"|format(body_monthly_report.muscle_delta) }}</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.1f"|format(body_monthly_report.body_fat or 0) }}</div>
+              <div class="summary-label">체지방 % · {{ "%+.1f"|format(body_monthly_report.fat_delta) }}</div>
+            </article>
+          </div>
+          {% if body_metric_trend %}
+            <div class="detail-list">
+              <div class="detail-list-head">
+                <strong>체성분 추이</strong>
+                <span>{{ body_monthly_report.first_date }} ~ {{ body_monthly_report.last_date }}</span>
+              </div>
+              {% for item in body_metric_trend %}
+                <div class="progress-line">
+                  <span class="line-label">{{ item.period }}</span>
+                  <span class="line-track"><i class="duration-bar" style="width: {{ item.weight_width }}%"></i></span>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endif %}
         <div class="detail-list">
           {% for item in period_highlights %}
             <div class="detail-row highlight-row">

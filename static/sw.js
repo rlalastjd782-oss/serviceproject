@@ -1,10 +1,13 @@
-const CACHE_NAME = "workout-pwa-v23";
+const CACHE_NAME = "workout-pwa-v24";
 const ASSETS = [
   "/",
   "/?mode=workout",
   "/?mode=meal",
   "/summaries/weekly",
   "/summaries/monthly",
+  "/summaries/pr",
+  "/records/search",
+  "/settings",
   "/static/styles.css",
   "/static/app.js",
   "/static/manifest.webmanifest",

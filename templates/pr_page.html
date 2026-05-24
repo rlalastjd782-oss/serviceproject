@@ -144,6 +144,24 @@
           {% endfor %}
         </div>
       {% endif %}
+      {% if selected_pr_timeline %}
+        <div class="detail-list exercise-recent-set-list">
+          <div class="detail-list-head">
+            <strong>PR 히스토리 그래프</strong>
+            <span>{{ selected_pr_timeline|length }}회</span>
+          </div>
+          {% for item in selected_pr_timeline %}
+            <div class="progress-line">
+              <span class="line-label">{{ item.period }}</span>
+              <span class="line-track"><i class="set-bar" style="width: {{ item.weight_width }}%"></i></span>
+            </div>
+            <div class="progress-line">
+              <span class="line-label">1RM</span>
+              <span class="line-track"><i class="burn-bar" style="width: {{ item.estimated_1rm_width }}%"></i></span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
     </section>
   {% endif %}
 

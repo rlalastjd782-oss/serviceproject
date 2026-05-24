@@ -20,6 +20,12 @@
     <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체</a>
   </div>
 
+  <nav class="mobile-action-dock workout-only" aria-label="운동 빠른 실행">
+    <a href="#workout-input">세트 추가</a>
+    <a href="#rest-timer">휴식</a>
+    <a href="#today-workout">오늘 운동</a>
+  </nav>
+
   <section class="today-focus-panel overview-only">
     <a class="today-focus-card" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">
       <strong>운동 기록</strong>
@@ -467,7 +473,33 @@
           <span>{{ message }}</span>
         </div>
       {% endfor %}
+      {% for warning in volume_warnings %}
+        <div class="detail-row">
+          <strong>볼륨 경고</strong>
+          <span>{{ warning }}</span>
+        </div>
+      {% endfor %}
     </div>
+  </section>
+
+  <section class="section overview-only">
+    <div class="section-header">
+      <div>
+        <div class="section-title">휴식일 기록</div>
+        <div class="section-subtitle">운동하지 않은 날도 이유를 남겨 월간 흐름에 반영합니다.</div>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('save_rest_day_route') }}" class="routine-form">
+      <input type="hidden" name="rest_date" value="{{ session.workout_date }}">
+      <select name="rest_reason" aria-label="휴식 이유">
+        <option value="회복">회복</option>
+        <option value="컨디션">컨디션</option>
+        <option value="일정">일정</option>
+        <option value="통증">통증</option>
+      </select>
+      <input name="memo" placeholder="휴식 메모">
+      <button class="btn-small" type="submit">휴식 저장</button>
+    </form>
   </section>
 
   <section class="section optional-section">
@@ -736,6 +768,18 @@
     </form>
     <div class="meal-template-panel">
       <div class="quick-panel-title">식단 조합</div>
+      {% if frequent_meal_combos %}
+        <div class="quick-panel-title">자주 먹는 조합</div>
+        {% for combo in frequent_meal_combos %}
+          <form method="post" action="{{ url_for('apply_meal_combo_route') }}" class="routine-load-row">
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="source_date" value="{{ combo.meal_date }}">
+            <input type="hidden" name="meal_type" value="{{ combo.meal_type }}">
+            <span>{{ combo.meal_type }} · {{ combo.foods }} · {{ "%.0f"|format(combo.calories) }}kcal</span>
+            <button class="btn-small" type="submit">적용</button>
+          </form>
+        {% endfor %}
+      {% endif %}
       {% if meal_copy_sources %}
         <div class="quick-panel-title">지난 식단 복사</div>
         {% for day in meal_copy_sources %}

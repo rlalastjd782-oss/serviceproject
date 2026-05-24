@@ -39,6 +39,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             weekly_routine_recommendations=list_weekly_routine_recommendations(today_session["workout_date"]),
             recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
             workout_focus_recommendations=list_workout_focus_recommendations(today_session["workout_date"]),
+            volume_warnings=list_volume_warnings(today_session["workout_date"]),
+            frequent_meal_combos=list_frequent_meal_combos(),
             default_programs=DEFAULT_PROGRAMS.keys(),
             meal_templates=list_meal_templates(),
             body_metric=get_body_metric(today_session["workout_date"]),
@@ -131,6 +133,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             chart_note="선택한 월을 주간 단위로 표시합니다.",
             body_part_summary=list_body_part_summary("monthly", date_text=month_start),
             monthly_report=build_monthly_report(month_start),
+            body_monthly_report=build_body_monthly_report(month_start),
+            body_metric_trend=list_body_metric_trend(month_start),
             monthly_goals=get_goal_progress(month_start),
             monthly_goal_insights=build_goal_insights("monthly", month_start),
             report_insights=build_period_insights("monthly", month_start),
@@ -209,6 +213,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             selected_profile=get_exercise_profile(selected_exercise),
             selected_growth=build_exercise_growth_chart(selected_exercise, limit=10),
             selected_pr_sets=list_exercise_best_sets(selected_exercise),
+            selected_pr_timeline=list_exercise_pr_timeline(selected_exercise),
             recent_pr_events=recent_pr_events,
             active_page="pr",
         )
@@ -288,6 +293,12 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             request.form.get("memo", "").strip(),
         )
         return redirect(url_for("index", date=checkin_date, mode=request.form.get("mode") or "workout"))
+
+    @app.post("/rest-days")
+    def save_rest_day_route():
+        rest_date = normalize_date(request.form.get("rest_date"))
+        save_rest_day(rest_date, request.form.get("rest_reason", ""), request.form.get("memo", ""))
+        return redirect(url_for("index", date=rest_date))
 
     @app.post("/data/cleanup-empty")
     def cleanup_empty_data_route():
@@ -628,6 +639,35 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         if source_date:
             copy_meals_from_day(source_date, meal_date)
         return redirect(url_for("index", date=meal_date, mode=mode or None))
+
+    @app.post("/meals/combo")
+    def apply_meal_combo_route():
+        meal_date = normalize_date(request.form.get("meal_date"))
+        meal_type = request.form.get("meal_type", "").strip()
+        source_date = normalize_optional_date(request.form.get("source_date"))
+        if source_date and meal_type:
+            copy_meal_type_from_day(source_date, meal_date, meal_type)
+        return redirect(url_for("index", date=meal_date, mode="meal"))
+
+    @app.get("/records/search")
+    def record_search_page():
+        selected_start = normalize_optional_date(request.args.get("start"), max_future_days=365) or ""
+        selected_end = normalize_optional_date(request.args.get("end"), max_future_days=365) or ""
+        selected_part = request.args.get("part", "").strip()
+        selected_equipment = request.args.get("equipment", "").strip()
+        query = request.args.get("q", "").strip()
+        return render_template(
+            "record_search.html",
+            active_page="search",
+            body_parts=body_part_options(),
+            equipment_options=equipment_options(),
+            selected_start=selected_start,
+            selected_end=selected_end,
+            selected_part=selected_part,
+            selected_equipment=selected_equipment,
+            search_query=query,
+            results=search_workout_records_filtered(query, selected_part, selected_equipment, selected_start, selected_end),
+        )
 
     @app.post("/programs/apply")
     def apply_program_route():

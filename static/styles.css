@@ -214,6 +214,37 @@ a {
   text-align: center;
 }
 
+.mobile-action-dock {
+  position: sticky;
+  top: 91px;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(15 15 20 / 92%);
+  padding: 7px;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-action-dock a {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.record-search-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) repeat(4, minmax(0, 0.8fr)) auto;
+  gap: 7px;
+}
+
 .today-focus-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2716,6 +2747,7 @@ tbody tr:last-child td {
   .routine-form,
   .routine-manage-form,
   .tool-form,
+  .record-search-form,
   .body-metric-form,
   .body-photo-form,
   .note-form,

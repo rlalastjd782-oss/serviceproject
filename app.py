@@ -239,6 +239,8 @@ def init_db() -> None:
             sleep_score INTEGER NOT NULL DEFAULT 3,
             soreness_score INTEGER NOT NULL DEFAULT 3,
             fatigue_score INTEGER NOT NULL DEFAULT 3,
+            is_rest_day INTEGER NOT NULL DEFAULT 0,
+            rest_reason TEXT NOT NULL DEFAULT '',
             memo TEXT NOT NULL DEFAULT '',
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -263,6 +265,8 @@ def init_db() -> None:
     ensure_column(db, "routine_items", "equipment", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "meal_entries", "quantity", "REAL")
     ensure_column(db, "meal_entries", "grams", "REAL")
+    ensure_column(db, "recovery_checkins", "is_rest_day", "INTEGER NOT NULL DEFAULT 0")
+    ensure_column(db, "recovery_checkins", "rest_reason", "TEXT NOT NULL DEFAULT ''")
     db.execute(
         """
         UPDATE meal_entries
@@ -1492,6 +1496,42 @@ def list_body_metrics(month_start: str) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def build_body_monthly_report(month_start: str) -> dict[str, object]:
+    rows = list_body_metrics(month_start)
+    if not rows:
+        return {"has_data": False}
+    first = rows[0]
+    last = rows[-1]
+    return {
+        "has_data": True,
+        "first_date": first["metric_date"],
+        "last_date": last["metric_date"],
+        "body_weight": last["body_weight"],
+        "muscle_mass": last["muscle_mass"],
+        "body_fat": last["body_fat"],
+        "waist": last["waist"],
+        "weight_delta": float(last["body_weight"] or 0) - float(first["body_weight"] or 0),
+        "muscle_delta": float(last["muscle_mass"] or 0) - float(first["muscle_mass"] or 0),
+        "fat_delta": float(last["body_fat"] or 0) - float(first["body_fat"] or 0),
+        "waist_delta": float(last["waist"] or 0) - float(first["waist"] or 0),
+    }
+
+
+def list_body_metric_trend(month_start: str) -> list[dict[str, object]]:
+    rows = list_body_metrics(month_start)
+    max_weight = max([float(row["body_weight"] or 0) for row in rows] + [1.0])
+    return [
+        {
+            "period": row["metric_date"][5:],
+            "body_weight": float(row["body_weight"] or 0),
+            "muscle_mass": float(row["muscle_mass"] or 0),
+            "body_fat": float(row["body_fat"] or 0),
+            "weight_width": round(float(row["body_weight"] or 0) / max_weight * 100),
+        }
+        for row in rows
+    ]
+
+
 def save_body_photo(photo_date: str, file) -> None:
     PHOTO_DIR.mkdir(parents=True, exist_ok=True)
     suffix = Path(file.filename).suffix.lower()
@@ -1614,6 +1654,47 @@ def copy_meals_from_day(source_date: str, meal_date: str) -> None:
             (meal_date, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"], row["memo"]),
         )
     get_db().commit()
+
+
+def copy_meal_type_from_day(source_date: str, meal_date: str, meal_type: str) -> None:
+    rows = get_db().execute(
+        """
+        SELECT meal_type, food_name, quantity, grams, calories, memo
+        FROM meal_entries
+        WHERE meal_date = ? AND meal_type = ?
+        ORDER BY id
+        """,
+        (source_date, meal_type),
+    ).fetchall()
+    for row in rows:
+        get_db().execute(
+            """
+            INSERT INTO meal_entries (meal_date, meal_type, food_name, quantity, grams, calories, memo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (meal_date, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"], row["memo"]),
+        )
+    get_db().commit()
+
+
+def list_frequent_meal_combos(limit: int = 6) -> list[dict[str, object]]:
+    rows = get_db().execute(
+        """
+        SELECT
+            meal_date,
+            meal_type,
+            COUNT(id) AS item_count,
+            GROUP_CONCAT(food_name, ', ') AS foods,
+            COALESCE(SUM(calories), 0) AS calories
+        FROM meal_entries
+        GROUP BY meal_date, meal_type
+        HAVING COUNT(id) >= 2
+        ORDER BY meal_date DESC, item_count DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    return [dict(row) for row in rows]
 
 
 def build_weekly_report(date_text: str | None = None) -> dict[str, object]:
@@ -1774,6 +1855,32 @@ def list_balance_warnings(scope: str = "weekly", date_text: str | None = None) -
     if dominant[1] / total >= 0.5 and total >= 4:
         warnings.append(f"{dominant[0]} 비중이 높습니다. 다른 부위도 균형 있게 넣어보세요.")
     return warnings[:4]
+
+
+def list_volume_warnings(date_text: str) -> list[str]:
+    start_date = shift_date(date_text, -6)
+    rows = get_db().execute(
+        """
+        SELECT
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            COUNT(ws.id) AS set_count,
+            COUNT(DISTINCT s.workout_date) AS workout_days
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date BETWEEN ? AND ?
+        GROUP BY body_part
+        ORDER BY set_count DESC
+        """,
+        (start_date, date_text),
+    ).fetchall()
+    warnings = []
+    for row in rows:
+        body_part = row["body_part"]
+        if body_part != "유산소" and int(row["set_count"] or 0) >= 18:
+            warnings.append(f"{body_part} 세트가 최근 7일 {row['set_count']}세트입니다.")
+        if body_part != "유산소" and int(row["workout_days"] or 0) >= 3:
+            warnings.append(f"{body_part}를 최근 7일 중 {row['workout_days']}일 운동했습니다.")
+    return warnings[:3]
 
 
 def get_balance_score(scope: str = "weekly", date_text: str | None = None) -> dict[str, object]:
@@ -2020,6 +2127,25 @@ def save_recovery_checkin(
             clamp_score(fatigue_score),
             memo[:200],
         ),
+    )
+    get_db().commit()
+
+
+def save_rest_day(date_text: str, reason: str, memo: str = "") -> None:
+    get_db().execute(
+        """
+        INSERT INTO recovery_checkins (
+            checkin_date, condition_score, sleep_score, soreness_score, fatigue_score,
+            is_rest_day, rest_reason, memo, updated_at
+        )
+        VALUES (?, 3, 3, 3, 3, 1, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(checkin_date) DO UPDATE SET
+            is_rest_day = 1,
+            rest_reason = excluded.rest_reason,
+            memo = excluded.memo,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (date_text, reason.strip()[:40] or "휴식", memo.strip()[:120]),
     )
     get_db().commit()
 
@@ -3292,6 +3418,41 @@ def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> lis
     ]
 
 
+def list_exercise_pr_timeline(exercise_id: int | None, limit: int = 12) -> list[dict[str, object]]:
+    if not exercise_id:
+        return []
+    rows = get_db().execute(
+        """
+        SELECT
+            s.workout_date,
+            MAX(COALESCE(ws.weight, 0)) AS max_weight,
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.exercise_id = ?
+        GROUP BY s.workout_date
+        ORDER BY s.workout_date DESC
+        LIMIT ?
+        """,
+        (exercise_id, limit),
+    ).fetchall()
+    ordered = list(reversed(rows))
+    max_weight = max([float(row["max_weight"] or 0) for row in ordered] + [1.0])
+    max_1rm = max([float(row["estimated_1rm"] or 0) for row in ordered] + [1.0])
+    return [
+        {
+            "period": row["workout_date"][5:],
+            "max_weight": float(row["max_weight"] or 0),
+            "estimated_1rm": float(row["estimated_1rm"] or 0),
+            "volume": float(row["volume"] or 0),
+            "weight_width": round(float(row["max_weight"] or 0) / max_weight * 100),
+            "estimated_1rm_width": round(float(row["estimated_1rm"] or 0) / max_1rm * 100),
+        }
+        for row in ordered
+    ]
+
+
 def list_exercise_recent_sets(exercise_id: int | None, limit: int = 12) -> list[sqlite3.Row]:
     if not exercise_id:
         return []
@@ -3341,6 +3502,60 @@ def search_workout_records(query: str, limit: int = 50) -> list[sqlite3.Row]:
         LIMIT ?
         """,
         (like_query, like_query, limit),
+    ).fetchall()
+
+
+def search_workout_records_filtered(
+    query: str = "",
+    body_part: str = "",
+    equipment: str = "",
+    start_date: str = "",
+    end_date: str = "",
+    limit: int = 120,
+) -> list[sqlite3.Row]:
+    where = []
+    params: list[object] = []
+    if query:
+        where.append("(e.name LIKE ? OR ws.memo LIKE ?)")
+        params.extend([f"%{query}%", f"%{query}%"])
+    if body_part:
+        where.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
+        params.append(body_part)
+    if equipment:
+        where.append("COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') = ?")
+        params.append(equipment)
+    if start_date:
+        where.append("s.workout_date >= ?")
+        params.append(start_date)
+    if end_date:
+        where.append("s.workout_date <= ?")
+        params.append(end_date)
+    where_sql = "WHERE " + " AND ".join(where) if where else ""
+    params.append(limit)
+    return get_db().execute(
+        f"""
+        SELECT
+            s.workout_date,
+            e.name AS exercise_name,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') AS equipment,
+            ws.weight,
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            ws.estimated_calories,
+            ws.rpe,
+            ws.memo
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
+        {where_sql}
+        ORDER BY s.workout_date DESC, ws.sort_order ASC, ws.id ASC
+        LIMIT ?
+        """,
+        params,
     ).fetchall()
 
 
