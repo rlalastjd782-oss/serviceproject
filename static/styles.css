@@ -1421,6 +1421,15 @@ label span {
   grid-template-columns: 1.4fr 0.75fr 0.8fr 0.9fr auto;
 }
 
+.meal-add-form {
+  grid-template-columns: minmax(180px, 1.4fr) minmax(72px, 0.7fr) minmax(86px, 0.8fr) minmax(92px, 0.9fr) auto auto;
+}
+
+.set-edit-form + .item-actions,
+.meal-edit-form + .item-actions {
+  align-self: center;
+}
+
 .inline-add-panel {
   display: grid;
   gap: 6px;

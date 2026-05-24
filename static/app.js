@@ -106,6 +106,7 @@ document.addEventListener("click", (event) => {
   const removeMealButton = event.target.closest("[data-remove-meal-row]");
   const editButton = event.target.closest("[data-toggle-edit]");
   const inlineAddButton = event.target.closest("[data-toggle-add]");
+  const inlineAddCancelButton = event.target.closest("[data-cancel-inline-add]");
   const detailButton = event.target.closest("[data-toggle-detail]");
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
@@ -238,6 +239,14 @@ document.addEventListener("click", (event) => {
     const panel = inlineAddButton.closest(".inline-add-panel");
     panel?.classList.add("is-adding");
     panel?.querySelector("input:not([type='hidden'])")?.focus();
+    return;
+  }
+
+  if (inlineAddCancelButton) {
+    const panel = inlineAddCancelButton.closest(".inline-add-panel");
+    const form = inlineAddCancelButton.closest("form");
+    form?.reset();
+    panel?.classList.remove("is-adding");
     return;
   }
 
