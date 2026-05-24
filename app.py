@@ -114,6 +114,23 @@ def create_app() -> Flask:
             active_page="exercises",
         )
 
+    @app.get("/meals/weekly")
+    def meal_weekly_page():
+        selected_week = request.args.get("week") or week_start_for_date(current_local_date())
+        week_start = week_start_for_date(selected_week)
+        week_end = shift_date(week_start, 6)
+        return render_template(
+            "meal_weekly.html",
+            week_start=week_start,
+            week_end=week_end,
+            prev_week=shift_date(week_start, -7),
+            next_week=shift_date(week_start, 7),
+            week_label=meal_week_label(week_start),
+            week_options=list_meal_week_options(week_start),
+            meal_days=list_weekly_meal_days(week_start),
+            active_page="meals",
+        )
+
     @app.post("/sets")
     def create_set():
         session = get_or_create_session(request.form.get("workout_date"))
@@ -530,6 +547,77 @@ def grouped_meals_for_date(meal_date: str) -> list[dict[str, object]]:
     return groups
 
 
+def list_weekly_meal_days(week_start: str) -> list[dict[str, object]]:
+    week_end = shift_date(week_start, 6)
+    rows = get_db().execute(
+        """
+        SELECT *
+        FROM meal_entries
+        WHERE meal_date BETWEEN ? AND ?
+        ORDER BY meal_date ASC,
+            CASE meal_type
+                WHEN '아침' THEN 1
+                WHEN '점심' THEN 2
+                WHEN '저녁' THEN 3
+                WHEN '간식' THEN 4
+                ELSE 5
+            END,
+            created_at ASC,
+            id ASC
+        """,
+        (week_start, week_end),
+    ).fetchall()
+    rows_by_date: dict[str, list[sqlite3.Row]] = {}
+    for row in rows:
+        rows_by_date.setdefault(row["meal_date"], []).append(row)
+
+    days = []
+    for offset in range(7):
+        date_value = shift_date(week_start, offset)
+        entries = rows_by_date.get(date_value, [])
+        days.append(
+            {
+                "date": date_value,
+                "label": meal_day_label(date_value),
+                "entry_rows": entries,
+                "meal_count": len(entries),
+                "calories": sum(float(entry["calories"] or 0) for entry in entries),
+            }
+        )
+    return days
+
+
+def list_meal_week_options(selected_week: str, limit: int = 24) -> list[dict[str, str | int]]:
+    rows = get_db().execute(
+        """
+        SELECT
+            meal_date,
+            COUNT(id) AS meal_count
+        FROM meal_entries
+        GROUP BY meal_date
+        ORDER BY meal_date DESC
+        """
+    ).fetchall()
+    weeks: dict[str, int] = {selected_week: 0}
+    for row in rows:
+        week_key = week_start_for_date(row["meal_date"])
+        weeks[week_key] = weeks.get(week_key, 0) + int(row["meal_count"])
+
+    ordered_weeks = sorted(weeks.items(), key=lambda item: item[0], reverse=True)[:limit]
+    if selected_week not in dict(ordered_weeks):
+        ordered_weeks.append((selected_week, weeks[selected_week]))
+
+    return [
+        {
+            "key": week_key,
+            "label": meal_week_label(week_key),
+            "range": f"{format_short_date(week_key)} - {format_short_date(shift_date(week_key, 6))}",
+            "meal_count": meal_count,
+        }
+        for week_key, meal_count in ordered_weeks
+    ]
+
+
 def get_day_summary(day: str) -> dict[str, float]:
     db = get_db()
     workout = db.execute(
@@ -913,6 +1001,31 @@ def current_local_date() -> str:
 
 def shift_date(date_text: str, days: int) -> str:
     return (datetime.strptime(date_text, "%Y-%m-%d") + timedelta(days=days)).strftime("%Y-%m-%d")
+
+
+def week_start_for_date(date_text: str) -> str:
+    try:
+        date_value = datetime.strptime(date_text, "%Y-%m-%d")
+    except ValueError:
+        date_value = datetime.strptime(current_local_date(), "%Y-%m-%d")
+    return (date_value - timedelta(days=date_value.weekday())).strftime("%Y-%m-%d")
+
+
+def meal_week_label(week_start: str) -> str:
+    date_value = datetime.strptime(shift_date(week_start, 6), "%Y-%m-%d")
+    week_of_month = ((date_value.day - 1) // 7) + 1
+    return f"{date_value.month}월 {week_of_month}주차"
+
+
+def meal_day_label(date_text: str) -> str:
+    date_value = datetime.strptime(date_text, "%Y-%m-%d")
+    weekdays = ["월", "화", "수", "목", "금", "토", "일"]
+    return f"{date_value.month}/{date_value.day}({weekdays[date_value.weekday()]})"
+
+
+def format_short_date(date_text: str) -> str:
+    date_value = datetime.strptime(date_text, "%Y-%m-%d")
+    return date_value.strftime("%m.%d")
 
 
 def value_at(values: list[str], index: int) -> str:

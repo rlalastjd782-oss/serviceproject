@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}주간 식단{% endblock %}
+
+{% block content %}
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🍱 주간 식단</div>
+        <div class="section-subtitle">{{ week_label }} · {{ week_start }} ~ {{ week_end }}</div>
+      </div>
+    </div>
+    <div class="week-control-row">
+      <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=prev_week) }}" aria-label="이전 주">‹</a>
+      <form method="get" action="{{ url_for('meal_weekly_page') }}" class="week-select-form">
+        <select name="week" aria-label="주 선택">
+          {% for option in week_options %}
+            <option value="{{ option.key }}" {% if option.key == week_start %}selected{% endif %}>
+              {{ option.label }} · {{ option.range }} · {{ option.meal_count }}식
+            </option>
+          {% endfor %}
+        </select>
+        <button type="submit" class="btn-small">보기</button>
+      </form>
+      <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=next_week) }}" aria-label="다음 주">›</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">일자별 식단 리스트</div>
+    </div>
+    <div class="weekly-meal-list">
+      {% for day in meal_days %}
+        <article class="weekly-meal-day">
+          <div class="weekly-meal-day-head">
+            <strong>{{ day.label }}</strong>
+            <span>{{ day.meal_count }}식{% if day.calories %} · {{ "%.0f"|format(day.calories) }}kcal{% endif %}</span>
+          </div>
+          {% if day.entry_rows %}
+            <div class="weekly-meal-items">
+              {% for meal in day.entry_rows %}
+                <div class="weekly-meal-item">
+                  <span class="badge {{ meal_type_class(meal.meal_type) }}">{{ meal.meal_type or "식사" }}</span>
+                  <div class="weekly-meal-main">
+                    <strong>{{ meal.food_name }}</strong>
+                    <span>
+                      {% if meal.quantity %}{{ "%.0f"|format(meal.quantity) }}개{% endif %}
+                      {% if meal.grams %}{% if meal.quantity %} · {% endif %}{{ "%.1f"|format(meal.grams) }}g{% endif %}
+                      {% if meal.calories %}{% if meal.quantity or meal.grams %} · {% endif %}{{ "%.0f"|format(meal.calories) }}kcal{% endif %}
+                    </span>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty compact-empty">식단 기록 없음</div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
