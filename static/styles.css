@@ -214,6 +214,34 @@ a {
   text-align: center;
 }
 
+.today-focus-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 11px;
+}
+
+.today-focus-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  color: inherit;
+  padding: 12px;
+}
+
+.today-focus-card strong {
+  color: var(--strong);
+  font-size: 14px;
+}
+
+.today-focus-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .section-header {
   display: flex;
   align-items: center;
@@ -2629,7 +2657,10 @@ tbody tr:last-child td {
   .recovery-grid,
   .routine-recommend-grid,
   .routine-step-card,
-  .pr-card-grid {
+  .pr-card-grid,
+  .trend-card-grid,
+  .pr-rank-metrics,
+  .pr-best-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2712,6 +2743,10 @@ tbody tr:last-child td {
 
   .today-mode-actions {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .today-focus-panel {
+    grid-template-columns: 1fr;
   }
 
   .section {

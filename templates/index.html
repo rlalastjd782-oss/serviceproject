@@ -20,6 +20,17 @@
     <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체</a>
   </div>
 
+  <section class="today-focus-panel overview-only">
+    <a class="today-focus-card" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">
+      <strong>운동 기록</strong>
+      <span>{{ today_summary.set_count }}세트 · {{ format_duration(today_summary.duration_seconds) }}</span>
+    </a>
+    <a class="today-focus-card" href="{{ url_for('index', date=session.workout_date, mode='meal') }}">
+      <strong>식단 기록</strong>
+      <span>{{ today_summary.meal_count }}개 · {{ "%.0f"|format(today_summary.calories) }}kcal</span>
+    </a>
+  </section>
+
   <section class="section workout-clock-section workout-only" data-workout-clock data-workout-date="{{ session.workout_date }}" data-workout-mode="{% if workout_mode %}1{% else %}0{% endif %}" data-initial-duration="{{ session.duration_seconds or 0 }}" data-duration-url="{{ url_for('update_session_duration_route', session_id=session.id) }}">
     <div class="section-header">
       <div>
