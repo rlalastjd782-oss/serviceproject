@@ -33,7 +33,7 @@
         </div>
         <div class="chart-legend" aria-label="그래프 범례">
           <span class="legend-volume">볼륨</span>
-          <span class="legend-calories">kcal</span>
+          <span class="legend-calories">총량 g</span>
           <span class="legend-sets">세트</span>
         </div>
       </div>
@@ -43,7 +43,7 @@
             <article class="chart-group">
               <div class="bar-stack">
                 <span class="chart-bar volume-bar" style="height: {{ item.volume_height }}%" title="볼륨 {{ '%.0f'|format(item.volume) }} kg"></span>
-                <span class="chart-bar calorie-bar" style="height: {{ item.calories_height }}%" title="칼로리 {{ '%.0f'|format(item.calories) }} kcal"></span>
+                <span class="chart-bar calorie-bar" style="height: {{ item.grams_height }}%" title="총량 {{ '%.1f'|format(item.grams) }} g"></span>
                 <span class="chart-bar set-bar" style="height: {{ item.set_height }}%" title="세트 {{ item.set_count }}"></span>
               </div>
               <strong>{{ item.period }}</strong>

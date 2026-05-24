@@ -30,11 +30,11 @@
       <article class="metric-tile metric-meal">
         <span>식단 기록</span>
         <strong>{{ today_summary.meal_count }}</strong>
-        <small>{{ "%.0f"|format(today_summary.calories) }} kcal</small>
+        <small>수량 {{ "%.0f"|format(today_summary.amount) }}</small>
       </article>
       <article class="metric-tile metric-protein">
-        <span>단백질</span>
-        <strong>{{ "%.1f"|format(today_summary.protein) }}g</strong>
+        <span>총량</span>
+        <strong>{{ "%.1f"|format(today_summary.grams) }}g</strong>
         <small>선택 날짜 누적</small>
       </article>
     </div>
@@ -111,22 +111,14 @@
             <input name="food_name" autocomplete="off" placeholder="닭가슴살 샐러드" required>
           </label>
         </div>
-        <div class="macro-grid">
+        <div class="input-grid">
           <label>
-            <span>kcal</span>
-            <input name="calories" type="number" min="0" step="1" inputmode="decimal" placeholder="420">
+            <span>수량</span>
+            <input name="amount" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
           </label>
           <label>
-            <span>단백질 g</span>
-            <input name="protein" type="number" min="0" step="0.1" inputmode="decimal" placeholder="35">
-          </label>
-          <label>
-            <span>탄수 g</span>
-            <input name="carbs" type="number" min="0" step="0.1" inputmode="decimal" placeholder="45">
-          </label>
-          <label>
-            <span>지방 g</span>
-            <input name="fat" type="number" min="0" step="0.1" inputmode="decimal" placeholder="12">
+            <span>그램 g</span>
+            <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="150">
           </label>
         </div>
         <label>
@@ -185,10 +177,8 @@
               <div>
                 <strong>{{ item.meal_type or "식사" }} · {{ item.food_name }}</strong>
                 <p>
-                  {{ "%.0f"|format(item.calories or 0) }} kcal ·
-                  P {{ "%.1f"|format(item.protein or 0) }}g ·
-                  C {{ "%.1f"|format(item.carbs or 0) }}g ·
-                  F {{ "%.1f"|format(item.fat or 0) }}g
+                  수량 {{ "%.0f"|format(item.calories or 0) }} ·
+                  {{ "%.1f"|format(item.protein or 0) }} g
                 </p>
                 {% if item.memo %}<small>{{ item.memo }}</small>{% endif %}
               </div>

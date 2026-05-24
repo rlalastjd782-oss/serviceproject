@@ -167,10 +167,10 @@ def create_app() -> Flask:
                 meal_date,
                 meal_type,
                 food_name,
-                parse_float(request.form.get("calories")),
-                parse_float(request.form.get("protein")),
-                parse_float(request.form.get("carbs")),
-                parse_float(request.form.get("fat")),
+                parse_float(request.form.get("amount")),
+                parse_float(request.form.get("grams")),
+                None,
+                None,
                 request.form.get("memo", "").strip(),
             ),
         )
@@ -353,8 +353,8 @@ def get_day_summary(day: str) -> dict[str, float]:
         """
         SELECT
             COUNT(id) AS meal_count,
-            COALESCE(SUM(calories), 0) AS calories,
-            COALESCE(SUM(protein), 0) AS protein
+            COALESCE(SUM(calories), 0) AS amount,
+            COALESCE(SUM(protein), 0) AS grams
         FROM meal_entries
         WHERE meal_date = ?
         """,
@@ -365,8 +365,8 @@ def get_day_summary(day: str) -> dict[str, float]:
         "rep_count": workout["rep_count"],
         "volume": workout["volume"],
         "meal_count": meal["meal_count"],
-        "calories": meal["calories"],
-        "protein": meal["protein"],
+        "amount": meal["amount"],
+        "grams": meal["grams"],
     }
 
 
@@ -387,8 +387,8 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
             SELECT
                 meal_date AS period,
                 COUNT(id) AS meal_count,
-                COALESCE(SUM(calories), 0) AS calories,
-                COALESCE(SUM(protein), 0) AS protein
+                COALESCE(SUM(calories), 0) AS amount,
+                COALESCE(SUM(protein), 0) AS grams
             FROM meal_entries
             GROUP BY meal_date
         ),
@@ -403,8 +403,8 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
             COALESCE(w.rep_count, 0) AS rep_count,
             COALESCE(w.volume, 0) AS volume,
             COALESCE(m.meal_count, 0) AS meal_count,
-            COALESCE(m.calories, 0) AS calories,
-            COALESCE(m.protein, 0) AS protein
+            COALESCE(m.amount, 0) AS amount,
+            COALESCE(m.grams, 0) AS grams
         FROM periods p
         LEFT JOIN workout w ON w.period = p.period
         LEFT JOIN meal m ON m.period = p.period
@@ -438,8 +438,8 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
                 ((CAST(strftime('%d', meal_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
                 COUNT(DISTINCT meal_date) AS meal_days,
                 COUNT(id) AS meal_count,
-                COALESCE(SUM(calories), 0) AS calories,
-                COALESCE(SUM(protein), 0) AS protein
+                COALESCE(SUM(calories), 0) AS amount,
+                COALESCE(SUM(protein), 0) AS grams
             FROM meal_entries
             GROUP BY month_key, week_of_month
         ),
@@ -457,8 +457,8 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
             COALESCE(w.volume, 0) AS volume,
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
-            COALESCE(m.calories, 0) AS calories,
-            COALESCE(m.protein, 0) AS protein
+            COALESCE(m.amount, 0) AS amount,
+            COALESCE(m.grams, 0) AS grams
         FROM periods p
         LEFT JOIN workout w
             ON w.month_key = p.month_key AND w.week_of_month = p.week_of_month
@@ -494,8 +494,8 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
                 strftime(?, meal_date) AS period,
                 COUNT(DISTINCT meal_date) AS meal_days,
                 COUNT(id) AS meal_count,
-                COALESCE(SUM(calories), 0) AS calories,
-                COALESCE(SUM(protein), 0) AS protein
+                COALESCE(SUM(calories), 0) AS amount,
+                COALESCE(SUM(protein), 0) AS grams
             FROM meal_entries
             GROUP BY strftime(?, meal_date)
         ),
@@ -512,8 +512,8 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
             COALESCE(w.volume, 0) AS volume,
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
-            COALESCE(m.calories, 0) AS calories,
-            COALESCE(m.protein, 0) AS protein
+            COALESCE(m.amount, 0) AS amount,
+            COALESCE(m.grams, 0) AS grams
         FROM periods p
         LEFT JOIN workout w ON w.period = p.period
         LEFT JOIN meal m ON m.period = p.period
@@ -527,18 +527,18 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
 def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
     ordered_rows = list(reversed(rows))
     max_volume = max([float(row["volume"]) for row in ordered_rows] + [1.0])
-    max_calories = max([float(row["calories"]) for row in ordered_rows] + [1.0])
+    max_grams = max([float(row["grams"]) for row in ordered_rows] + [1.0])
     max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
     return [
         {
             "period": row["period"],
             "volume": float(row["volume"]),
-            "calories": float(row["calories"]),
+            "grams": float(row["grams"]),
             "set_count": int(row["set_count"]),
             "workout_days": int(row["workout_days"]),
             "meal_count": int(row["meal_count"]),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
-            "calories_height": max(3, round(float(row["calories"]) / max_calories * 100)),
+            "grams_height": max(3, round(float(row["grams"]) / max_grams * 100)),
             "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
         }
         for row in ordered_rows
@@ -548,18 +548,18 @@ def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | 
 def build_daily_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
     ordered_rows = list(reversed(rows))
     max_volume = max([float(row["volume"]) for row in ordered_rows] + [1.0])
-    max_calories = max([float(row["calories"]) for row in ordered_rows] + [1.0])
+    max_grams = max([float(row["grams"]) for row in ordered_rows] + [1.0])
     max_sets = max([int(row["set_count"]) for row in ordered_rows] + [1])
     return [
         {
             "period": row["period"],
             "volume": float(row["volume"]),
-            "calories": float(row["calories"]),
+            "grams": float(row["grams"]),
             "set_count": int(row["set_count"]),
             "workout_days": 1 if int(row["set_count"]) > 0 else 0,
             "meal_count": int(row["meal_count"]),
             "volume_height": max(3, round(float(row["volume"]) / max_volume * 100)),
-            "calories_height": max(3, round(float(row["calories"]) / max_calories * 100)),
+            "grams_height": max(3, round(float(row["grams"]) / max_grams * 100)),
             "set_height": max(3, round(int(row["set_count"]) / max_sets * 100)),
         }
         for row in ordered_rows
