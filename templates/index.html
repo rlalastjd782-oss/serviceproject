@@ -50,10 +50,20 @@
       </div>
       <form method="post" action="{{ url_for('create_set') }}" class="record-form">
         <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
-        <label>
-          <span>운동명</span>
-          <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="벤치프레스" required>
-        </label>
+        <div class="input-grid">
+          <label>
+            <span>부위</span>
+            <select name="body_part">
+              {% for part in body_parts %}
+                <option value="{{ part }}">{{ part }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            <span>운동명</span>
+            <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="벤치프레스" required>
+          </label>
+        </div>
         <datalist id="exercise-list">
           {% for exercise in exercises %}
             <option value="{{ exercise.name }}"></option>
@@ -149,7 +159,7 @@
         {% if workout_groups %}
           {% for group in workout_groups %}
             <article class="workout-group-row">
-              <strong>{{ group.exercise_name }}</strong>
+              <strong><span>{{ group.body_part }}</span>{{ group.exercise_name }}</strong>
               <div class="vertical-item-list">
                 {% for item in group.sets %}
                   <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}" class="vertical-list-item">

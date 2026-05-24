@@ -40,6 +40,7 @@ def create_app() -> Flask:
             meals=meals,
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
+            body_parts=body_part_options(),
             active_page="today",
         )
 
@@ -55,6 +56,7 @@ def create_app() -> Flask:
             page_kicker="Daily",
             table_kind="daily",
             daily_summary=list_daily_summary(),
+            body_part_summary=list_body_part_summary("daily"),
             active_page="daily",
         )
 
@@ -72,6 +74,7 @@ def create_app() -> Flask:
             chart_items=build_daily_chart(chart_rows),
             chart_title="일별 추이",
             chart_note="최근 기록일 7개를 일별로 표시합니다.",
+            body_part_summary=list_body_part_summary("weekly"),
             active_page="weekly",
         )
 
@@ -89,6 +92,7 @@ def create_app() -> Flask:
             chart_items=build_period_chart(chart_rows),
             chart_title="주간별 추이",
             chart_note="최근 6주를 주간 단위로 표시합니다.",
+            body_part_summary=list_body_part_summary("monthly"),
             active_page="monthly",
         )
 
@@ -106,6 +110,7 @@ def create_app() -> Flask:
     @app.post("/sets")
     def create_set():
         session = get_or_create_session(request.form.get("workout_date"))
+        body_part = request.form.get("body_part", "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", "").strip()
         if not exercise_name:
             return redirect(url_for("index", date=session["workout_date"]))
@@ -141,10 +146,10 @@ def create_app() -> Flask:
         for offset, (weight, reps, memo) in enumerate(set_rows):
             db.execute(
                 """
-                INSERT INTO workout_sets (session_id, exercise_id, weight, reps, memo, sort_order)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO workout_sets (session_id, exercise_id, weight, reps, memo, sort_order, body_part)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (session["id"], exercise_id, weight, reps, memo, next_order + offset),
+                (session["id"], exercise_id, weight, reps, memo, next_order + offset, body_part),
             )
         db.commit()
         return redirect(url_for("index", date=session["workout_date"]))
@@ -262,6 +267,7 @@ def init_db() -> None:
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             session_id INTEGER NOT NULL,
             exercise_id INTEGER NOT NULL,
+            body_part TEXT NOT NULL DEFAULT '기타',
             weight REAL,
             reps INTEGER,
             memo TEXT NOT NULL DEFAULT '',
@@ -287,6 +293,7 @@ def init_db() -> None:
         );
         """
     )
+    ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
     ensure_column(db, "meal_entries", "quantity", "REAL")
     ensure_column(db, "meal_entries", "grams", "REAL")
     db.execute(
@@ -353,6 +360,10 @@ def get_or_create_exercise(name: str) -> int:
 
 def list_exercises() -> list[sqlite3.Row]:
     return get_db().execute("SELECT name FROM exercises ORDER BY name").fetchall()
+
+
+def body_part_options() -> list[str]:
+    return ["하체", "가슴", "팔", "등", "어깨", "기타"]
 
 
 def list_recent_sessions(limit: int = 10) -> list[sqlite3.Row]:
@@ -659,6 +670,7 @@ def list_exercise_summary(limit: int = 20) -> list[sqlite3.Row]:
         """
         SELECT
             e.name,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
@@ -666,8 +678,37 @@ def list_exercise_summary(limit: int = 20) -> list[sqlite3.Row]:
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
         JOIN workout_sessions s ON s.id = ws.session_id
-        GROUP BY e.id, e.name
+        GROUP BY e.id, e.name, body_part
         ORDER BY set_count DESC, rep_count DESC, e.name
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+
+
+def list_body_part_summary(scope: str, limit: int = 30) -> list[sqlite3.Row]:
+    if scope == "daily":
+        period_expr = "s.workout_date"
+    elif scope == "weekly":
+        period_expr = (
+            "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
+            "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
+        )
+    else:
+        period_expr = "strftime('%Y-%m', s.workout_date)"
+
+    return get_db().execute(
+        f"""
+        SELECT
+            {period_expr} AS period,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        GROUP BY period, body_part
+        ORDER BY MAX(s.workout_date) DESC, volume DESC, body_part
         LIMIT ?
         """,
         (limit,),
@@ -698,12 +739,14 @@ def grouped_sets_for_session(session_id: int | None) -> list[dict[str, object]]:
     groups: list[dict[str, object]] = []
     group_by_name: dict[str, dict[str, object]] = {}
     for item in list_sets_for_session(int(session_id)):
+        body_part = item["body_part"] or "기타"
         exercise_name = item["exercise_name"]
-        if exercise_name not in group_by_name:
-            group = {"exercise_name": exercise_name, "sets": []}
-            group_by_name[exercise_name] = group
+        group_key = f"{body_part}:{exercise_name}"
+        if group_key not in group_by_name:
+            group = {"body_part": body_part, "exercise_name": exercise_name, "sets": []}
+            group_by_name[group_key] = group
             groups.append(group)
-        group_by_name[exercise_name]["sets"].append(item)
+        group_by_name[group_key]["sets"].append(item)
     return groups
 
 
