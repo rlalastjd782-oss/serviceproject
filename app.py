@@ -126,7 +126,7 @@ def create_app() -> Flask:
             prev_week=shift_date(week_start, -7),
             next_week=shift_date(week_start, 7),
             week_label=meal_week_label(week_start),
-            week_options=list_meal_week_options(week_start),
+            selected_date=selected_week,
             meal_days=list_weekly_meal_days(week_start),
             active_page="meals",
         )
@@ -585,37 +585,6 @@ def list_weekly_meal_days(week_start: str) -> list[dict[str, object]]:
             }
         )
     return days
-
-
-def list_meal_week_options(selected_week: str, limit: int = 24) -> list[dict[str, str | int]]:
-    rows = get_db().execute(
-        """
-        SELECT
-            meal_date,
-            COUNT(id) AS meal_count
-        FROM meal_entries
-        GROUP BY meal_date
-        ORDER BY meal_date DESC
-        """
-    ).fetchall()
-    weeks: dict[str, int] = {selected_week: 0}
-    for row in rows:
-        week_key = week_start_for_date(row["meal_date"])
-        weeks[week_key] = weeks.get(week_key, 0) + int(row["meal_count"])
-
-    ordered_weeks = sorted(weeks.items(), key=lambda item: item[0], reverse=True)[:limit]
-    if selected_week not in dict(ordered_weeks):
-        ordered_weeks.append((selected_week, weeks[selected_week]))
-
-    return [
-        {
-            "key": week_key,
-            "label": meal_week_label(week_key),
-            "range": f"{format_short_date(week_key)} - {format_short_date(shift_date(week_key, 6))}",
-            "meal_count": meal_count,
-        }
-        for week_key, meal_count in ordered_weeks
-    ]
 
 
 def get_day_summary(day: str) -> dict[str, float]:

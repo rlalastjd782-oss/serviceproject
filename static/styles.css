@@ -196,14 +196,15 @@ a {
   gap: 8px;
 }
 
-.week-select-form {
+.week-date-form {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 6px;
 }
 
-.week-select-form select {
+.week-date-form input {
   min-width: 0;
+  text-align: center;
 }
 
 .page-title {

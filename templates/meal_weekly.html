@@ -12,14 +12,8 @@
     </div>
     <div class="week-control-row">
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=prev_week) }}" aria-label="이전 주">‹</a>
-      <form method="get" action="{{ url_for('meal_weekly_page') }}" class="week-select-form">
-        <select name="week" aria-label="주 선택">
-          {% for option in week_options %}
-            <option value="{{ option.key }}" {% if option.key == week_start %}selected{% endif %}>
-              {{ option.label }} · {{ option.range }} · {{ option.meal_count }}식
-            </option>
-          {% endfor %}
-        </select>
+      <form method="get" action="{{ url_for('meal_weekly_page') }}" class="week-date-form">
+        <input name="week" type="date" value="{{ selected_date }}" aria-label="주 선택 날짜">
         <button type="submit" class="btn-small">보기</button>
       </form>
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=next_week) }}" aria-label="다음 주">›</a>
