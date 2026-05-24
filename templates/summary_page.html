@@ -22,15 +22,23 @@
       {% for item in daily_summary %}
         <article class="record-card">
           <div class="record-date">{{ item.period }}</div>
-          <div class="record-summary">
-            <span class="badge">⏱ {{ format_duration(item.duration_seconds) }}</span>
-            {% if item.set_count %}<span class="badge">🏃 {{ item.set_count }}세트</span>{% endif %}
-            {% if item.rep_count %}<span class="badge">💪 {{ item.rep_count }}회</span>{% endif %}
-            {% if item.volume %}<span class="badge">🏋 웨이트 {{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
-            {% if item.cardio_minutes %}<span class="badge">🚶 유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
-            {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
-            <span class="badge">🍱 {{ item.meal_count }}식</span>
-            <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
+          <div class="daily-metric-grid">
+            <div class="daily-metric">
+              <strong>웨이트</strong>
+              <span>{{ item.set_count }}세트 · {{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg</span>
+            </div>
+            <div class="daily-metric cardio-metric {% if item.cardio_minutes %}has-value{% endif %}">
+              <strong>유산소</strong>
+              <span>{{ "%.0f"|format(item.cardio_minutes) }}분{% if item.exercise_calories %} · {{ "%.0f"|format(item.exercise_calories) }}kcal{% endif %}</span>
+            </div>
+            <div class="daily-metric">
+              <strong>식단</strong>
+              <span>{{ item.meal_count }}식 · {{ "%.0f"|format(item.calories) }}kcal</span>
+            </div>
+            <div class="daily-metric">
+              <strong>시간</strong>
+              <span>{{ format_duration(item.duration_seconds) }}</span>
+            </div>
           </div>
         </article>
       {% else %}

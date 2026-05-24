@@ -1414,6 +1414,47 @@ label span {
   gap: 6px;
 }
 
+.daily-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.daily-metric {
+  display: grid;
+  gap: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 8px;
+}
+
+.daily-metric strong {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.daily-metric span {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.cardio-metric {
+  border-color: rgb(56 189 248 / 35%);
+}
+
+.cardio-metric.has-value {
+  background: #0c1c26;
+}
+
+.cardio-metric.has-value strong,
+.cardio-metric.has-value span {
+  color: #38bdf8;
+}
+
 .badge,
 .cat-badge,
 .body-part-badge,
