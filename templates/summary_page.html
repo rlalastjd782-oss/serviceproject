@@ -125,27 +125,14 @@
           </thead>
           <tbody>
             {% for item in body_part_summary %}
+              {% set detail_rows = body_part_details.get(item.period ~ "::" ~ item.body_part, []) if active_page == "weekly" else [] %}
+              {% set detail_id = "body-part-detail-" ~ loop.index %}
               <tr>
                 <td>{{ item.period }}</td>
                 {% if active_page == "weekly" %}
                   <td>
-                    {% set detail_rows = body_part_details.get(item.period ~ "::" ~ item.body_part, []) %}
                     {% if detail_rows %}
-                      <details class="detail-toggle">
-                        <summary>상세</summary>
-                        <div class="detail-list">
-                          {% for detail in detail_rows %}
-                            <div class="detail-row">
-                              <strong>{{ detail.exercise_name }}</strong>
-                              <span>
-                                {% if detail.weight is not none %}{{ "%.1f"|format(detail.weight) }}kg{% else %}-kg{% endif %}
-                                · {{ detail.set_count }}세트
-                                · {{ detail.rep_count }}회
-                              </span>
-                            </div>
-                          {% endfor %}
-                        </div>
-                      </details>
+                      <button type="button" class="detail-button" data-toggle-detail data-detail-target="{{ detail_id }}" aria-expanded="false">상세</button>
                     {% else %}
                       -
                     {% endif %}
@@ -156,6 +143,28 @@
                 <td>{{ item.rep_count }}</td>
                 <td>{{ "%.0f"|format(item.volume) }} kg</td>
               </tr>
+              {% if active_page == "weekly" and detail_rows %}
+                <tr id="{{ detail_id }}" class="detail-table-row" hidden>
+                  <td colspan="6">
+                    <div class="detail-list">
+                      <div class="detail-list-head">
+                        <strong>{{ item.period }} · {{ item.body_part }}</strong>
+                        <span>운동 상세</span>
+                      </div>
+                      {% for detail in detail_rows %}
+                        <div class="detail-row">
+                          <strong>{{ detail.exercise_name }}</strong>
+                          <span>
+                            {% if detail.weight is not none %}{{ "%.1f"|format(detail.weight) }}kg{% else %}-kg{% endif %}
+                            · {{ detail.set_count }}세트
+                            · {{ detail.rep_count }}회
+                          </span>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </td>
+                </tr>
+              {% endif %}
             {% else %}
               <tr>
                 <td colspan="{% if active_page == 'weekly' %}6{% else %}5{% endif %}" class="empty-cell">운동 기록을 추가하면 부위별로 집계됩니다.</td>

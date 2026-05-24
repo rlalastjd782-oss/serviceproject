@@ -820,11 +820,7 @@ tbody tr:last-child td {
   text-align: center;
 }
 
-.detail-toggle {
-  position: relative;
-}
-
-.detail-toggle summary {
+.detail-button {
   display: inline-flex;
   align-items: center;
   min-height: 28px;
@@ -836,27 +832,54 @@ tbody tr:last-child td {
   cursor: pointer;
   font-size: 0.76rem;
   font-weight: 850;
-  list-style: none;
 }
 
-.detail-toggle summary::-webkit-details-marker {
-  display: none;
+.detail-button[aria-expanded="true"] {
+  border-color: rgb(63 242 177 / 40%);
+  background: rgb(63 242 177 / 12%);
+  color: var(--accent);
+}
+
+.detail-table-row td {
+  padding: 0 12px 12px;
+  background: rgb(255 255 255 / 1.5%);
+  text-align: left;
+  white-space: normal;
 }
 
 .detail-list {
   display: grid;
   gap: 7px;
-  min-width: 220px;
-  margin-top: 8px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  padding: 9px;
+  padding: 12px;
   background: #080d14;
 }
 
+.detail-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.detail-list-head strong {
+  color: var(--text);
+}
+
+.detail-list-head span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .detail-row {
-  display: grid;
-  gap: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   text-align: left;
 }
 

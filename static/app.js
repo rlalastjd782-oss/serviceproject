@@ -11,6 +11,7 @@ document.addEventListener("click", (event) => {
   const removeMealButton = event.target.closest("[data-remove-meal-row]");
   const editButton = event.target.closest("[data-toggle-edit]");
   const inlineAddButton = event.target.closest("[data-toggle-add]");
+  const detailButton = event.target.closest("[data-toggle-detail]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
@@ -52,6 +53,16 @@ document.addEventListener("click", (event) => {
     const panel = inlineAddButton.closest(".inline-add-panel");
     panel?.classList.add("is-adding");
     panel?.querySelector("input:not([type='hidden'])")?.focus();
+    return;
+  }
+
+  if (detailButton) {
+    const target = document.getElementById(detailButton.dataset.detailTarget);
+    if (!target) return;
+
+    const isOpening = target.hidden;
+    target.hidden = !isOpening;
+    detailButton.setAttribute("aria-expanded", String(isOpening));
   }
 });
 
