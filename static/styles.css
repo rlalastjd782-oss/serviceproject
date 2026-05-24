@@ -189,13 +189,16 @@ input[type="month"] {
   display: none;
 }
 
-.today-shell.workout-mode {
+.today-shell.workout-mode,
+.today-shell.meal-mode {
   display: flex;
   flex-direction: column;
 }
 
 .workout-mode .date-row,
-.workout-mode .today-mode-actions {
+.workout-mode .today-mode-actions,
+.meal-mode .date-row,
+.meal-mode .today-mode-actions {
   order: 0;
 }
 
@@ -240,6 +243,22 @@ input[type="month"] {
 .workout-mode .workout-secondary-section,
 .workout-mode .optional-section {
   order: 90;
+}
+
+.meal-mode .meal-input-section {
+  order: 10;
+}
+
+.meal-mode .today-meal-section {
+  order: 20;
+}
+
+.meal-mode .meal-goal-section {
+  order: 30;
+}
+
+.meal-mode .meal-helper-section {
+  order: 40;
 }
 
 .date-row {
@@ -292,6 +311,12 @@ input[type="month"] {
 .workout-mode .workout-plan-section,
 .workout-mode .routine-library-section,
 .workout-mode .workout-secondary-section {
+  background: rgb(17 24 39 / 55%);
+  border-color: rgb(75 85 99 / 55%);
+}
+
+.meal-mode .meal-helper-section,
+.meal-mode .meal-goal-section {
   background: rgb(17 24 39 / 55%);
   border-color: rgb(75 85 99 / 55%);
 }
@@ -2565,13 +2590,18 @@ label span {
 }
 
 .set-edit-form {
-  grid-template-columns: minmax(56px, 0.7fr) repeat(4, minmax(72px, 1fr));
+  grid-template-columns: minmax(54px, 0.55fr) minmax(94px, 0.9fr) repeat(3, minmax(76px, 1fr));
   align-items: end;
   border: 1px solid #2b3a55;
   border-radius: 12px;
   background: #101827;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
   padding: 10px;
+}
+
+.set-edit-form,
+.meal-edit-form {
+  width: 100%;
 }
 
 .edit-field {
@@ -2596,11 +2626,11 @@ label span {
 }
 
 .edit-field-small {
-  max-width: 64px;
+  max-width: 72px;
 }
 
 .edit-field-type {
-  min-width: 92px;
+  min-width: 94px;
 }
 
 .edit-actions {
@@ -2616,11 +2646,17 @@ label span {
 
 .meal-edit-form,
 .meal-add-form {
-  grid-template-columns: 1.4fr 0.75fr 0.8fr 0.9fr auto;
+  grid-template-columns: minmax(150px, 1.4fr) minmax(72px, 0.7fr) minmax(82px, 0.8fr) minmax(90px, 0.9fr) auto;
 }
 
 .meal-add-form {
   grid-template-columns: minmax(220px, 1.4fr) minmax(74px, 0.7fr) minmax(92px, 0.8fr) minmax(100px, 0.9fr) auto auto;
+}
+
+.meal-template-panel {
+  margin-top: 10px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
 }
 
 .set-edit-form + .item-actions,
