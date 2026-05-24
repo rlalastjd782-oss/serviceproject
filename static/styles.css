@@ -613,6 +613,37 @@ select:focus {
   padding: 8px;
 }
 
+.item-read-view {
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.editable-list-item .inline-edit-form {
+  display: none;
+}
+
+.editable-list-item.is-editing {
+  align-items: end;
+}
+
+.editable-list-item.is-editing .item-read-view {
+  display: none;
+}
+
+.editable-list-item.is-editing .inline-edit-form {
+  display: grid;
+}
+
+.editable-list-item.is-editing .edit-chip {
+  display: none;
+}
+
 .inline-edit-form,
 .inline-add-form {
   display: grid;
@@ -668,6 +699,19 @@ select:focus {
   background: rgb(63 242 177 / 11%) !important;
   color: var(--accent) !important;
   font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.edit-chip {
+  width: auto !important;
+  min-width: 44px;
+  height: 24px !important;
+  border: 1px solid rgb(103 168 255 / 28%) !important;
+  border-radius: 999px !important;
+  padding: 0 9px;
+  background: rgb(103 168 255 / 10%) !important;
+  color: var(--accent-2) !important;
+  font-size: 0.74rem;
   font-weight: 850;
 }
 

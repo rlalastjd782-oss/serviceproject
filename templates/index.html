@@ -163,6 +163,13 @@
               <div class="vertical-item-list">
                 {% for item in group.sets %}
                   <div class="vertical-list-item editable-list-item">
+                    <div class="item-read-view">
+                      <span>
+                        {% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}kg{% else %}-kg{% endif %}
+                        x
+                        {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
+                      </span>
+                    </div>
                     <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
                       <label>
                         <span>kg</span>
@@ -174,9 +181,12 @@
                       </label>
                       <button type="submit" class="save-chip">저장</button>
                     </form>
-                    <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}">
-                      <button type="submit" aria-label="세트 삭제">×</button>
-                    </form>
+                    <div class="item-actions">
+                      <button type="button" class="edit-chip" data-toggle-edit>수정</button>
+                      <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}">
+                        <button type="submit" aria-label="세트 삭제">×</button>
+                      </form>
+                    </div>
                   </div>
                 {% endfor %}
                 <form method="post" action="{{ url_for('create_set') }}" class="inline-add-form">
@@ -211,6 +221,14 @@
               <div class="vertical-item-list">
                 {% for item in group.entries %}
                   <div class="vertical-list-item editable-list-item meal-edit-item">
+                    <div class="item-read-view">
+                      <span>
+                        {{ item.food_name }}
+                        {% if item.quantity is not none %} · {{ "%.0f"|format(item.quantity) }}개{% endif %}
+                        {% if item.grams is not none %} · {{ "%.1f"|format(item.grams) }}g{% endif %}
+                        {% if item.calories is not none %} · {{ "%.0f"|format(item.calories) }}kcal{% endif %}
+                      </span>
+                    </div>
                     <form method="post" action="{{ url_for('update_meal', meal_id=item.id) }}" class="inline-edit-form meal-edit-form">
                       <input name="food_name" value="{{ item.food_name }}" required>
                       <label>
@@ -227,9 +245,12 @@
                       </label>
                       <button type="submit" class="save-chip">저장</button>
                     </form>
-                    <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}">
-                      <button type="submit" aria-label="식단 삭제">×</button>
-                    </form>
+                    <div class="item-actions">
+                      <button type="button" class="edit-chip" data-toggle-edit>수정</button>
+                      <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}">
+                        <button type="submit" aria-label="식단 삭제">×</button>
+                      </form>
+                    </div>
                   </div>
                 {% endfor %}
                 <form method="post" action="{{ url_for('create_meal') }}" class="inline-add-form meal-add-form">
