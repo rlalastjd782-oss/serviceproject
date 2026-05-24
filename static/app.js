@@ -751,19 +751,21 @@ function initWorkoutClock() {
   }
   const state = readWorkoutClock();
   const initialElapsedMs = Number(workoutClockPanel.dataset.initialDuration || 0) * 1000;
-  if (state.startedAt && !state.manualStarted) {
+  if (state.startedAt) {
+    const elapsedMs = Number(state.elapsedMs || 0) + Math.max(0, Date.now() - Number(state.startedAt));
+    saveWorkoutClock({ startedAt: null, elapsedMs, manualStarted: false });
+    persistWorkoutClock("정지됨");
+  } else if (state.elapsedMs === undefined || Math.abs(Number(state.elapsedMs || 0) - initialElapsedMs) > 1000) {
     saveWorkoutClock({ startedAt: null, elapsedMs: initialElapsedMs, manualStarted: false });
   }
-  if (!state.startedAt && (state.elapsedMs === undefined || Math.abs(Number(state.elapsedMs || 0) - initialElapsedMs) > 1000)) {
-    saveWorkoutClock({ startedAt: null, elapsedMs: initialElapsedMs, manualStarted: false });
-  }
+  updateWorkoutClockStatus("시작 대기");
   updateWorkoutClockDisplay();
   clearInterval(workoutClockId);
   workoutClockId = setInterval(updateWorkoutClockDisplay, 1000);
   clearInterval(workoutClockSyncId);
   workoutClockSyncId = setInterval(() => {
     const currentState = readWorkoutClock();
-    if (currentState.startedAt) {
+    if (currentState.startedAt && currentState.manualStarted) {
       persistWorkoutClock();
     }
   }, 15000);
@@ -812,6 +814,10 @@ function persistWorkoutClock(successMessage = "자동 저장됨") {
   if (!url) {
     return;
   }
+  const clockState = readWorkoutClock();
+  if (clockState.startedAt && !clockState.manualStarted) {
+    saveWorkoutClock({ startedAt: null, elapsedMs: Number(clockState.elapsedMs || 0), manualStarted: false });
+  }
   updateWorkoutClockStatus("저장 중");
   fetch(url, {
     method: "POST",
@@ -840,7 +846,14 @@ function persistWorkoutClock(successMessage = "자동 저장됨") {
 function sendWorkoutClockBeacon() {
   const url = workoutClockPanel?.dataset.durationUrl;
   if (!url || !navigator.sendBeacon) {
-    persistWorkoutClock();
+    const fallbackState = readWorkoutClock();
+    if (fallbackState.startedAt && fallbackState.manualStarted) {
+      persistWorkoutClock();
+    }
+    return;
+  }
+  const state = readWorkoutClock();
+  if (!state.startedAt || !state.manualStarted) {
     return;
   }
   const payload = new Blob([JSON.stringify({ duration_seconds: currentWorkoutSeconds() })], {
@@ -860,7 +873,7 @@ function updateWorkoutClockDisplay() {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   display.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-  display.classList.toggle("is-running", Boolean(state.startedAt));
+  display.classList.toggle("is-running", Boolean(state.startedAt && state.manualStarted));
 }
 
 function updateSavedWorkoutDuration(durationText) {
