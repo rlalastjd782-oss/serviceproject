@@ -154,6 +154,32 @@ def create_app() -> Flask:
         db.commit()
         return redirect(url_for("index", date=session["workout_date"]))
 
+    @app.post("/workout-groups/update")
+    def update_workout_group():
+        workout_date = request.form.get("workout_date") or current_local_date()
+        session_id = parse_int(request.form.get("session_id"))
+        old_exercise_id = parse_int(request.form.get("exercise_id"))
+        old_body_part = request.form.get("old_body_part", "").strip() or "기타"
+        new_body_part = request.form.get("body_part", "").strip() or "기타"
+        exercise_name = request.form.get("exercise_name", "").strip()
+        if session_id is None or old_exercise_id is None or not exercise_name:
+            return redirect(url_for("index", date=workout_date))
+
+        exercise_id = get_or_create_exercise(exercise_name)
+        db = get_db()
+        db.execute(
+            """
+            UPDATE workout_sets
+            SET exercise_id = ?, body_part = ?
+            WHERE session_id = ?
+              AND exercise_id = ?
+              AND COALESCE(NULLIF(body_part, ''), '기타') = ?
+            """,
+            (exercise_id, new_body_part, session_id, old_exercise_id, old_body_part),
+        )
+        db.commit()
+        return redirect(url_for("index", date=workout_date))
+
     @app.post("/meals")
     def create_meal():
         meal_date = request.form.get("meal_date") or current_local_date()
@@ -743,7 +769,13 @@ def grouped_sets_for_session(session_id: int | None) -> list[dict[str, object]]:
         exercise_name = item["exercise_name"]
         group_key = f"{body_part}:{exercise_name}"
         if group_key not in group_by_name:
-            group = {"body_part": body_part, "exercise_name": exercise_name, "sets": []}
+            group = {
+                "session_id": item["session_id"],
+                "exercise_id": item["exercise_id"],
+                "body_part": body_part,
+                "exercise_name": exercise_name,
+                "sets": [],
+            }
             group_by_name[group_key] = group
             groups.append(group)
         group_by_name[group_key]["sets"].append(item)
