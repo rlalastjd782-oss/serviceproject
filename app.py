@@ -2752,7 +2752,13 @@ def build_period_highlights(scope: str, date_text: str) -> list[dict[str, str]]:
 def get_data_counts() -> dict[str, int]:
     db = get_db()
     return {
-        "workouts": db.execute("SELECT COUNT(*) FROM workout_sessions").fetchone()[0],
+        "workouts": db.execute(
+            """
+            SELECT COUNT(DISTINCT s.workout_date)
+            FROM workout_sessions s
+            JOIN workout_sets ws ON ws.session_id = s.id
+            """
+        ).fetchone()[0],
         "sets": db.execute("SELECT COUNT(*) FROM workout_sets").fetchone()[0],
         "meals": db.execute("SELECT COUNT(*) FROM meal_entries").fetchone()[0],
         "routines": db.execute("SELECT COUNT(*) FROM routine_templates").fetchone()[0],
