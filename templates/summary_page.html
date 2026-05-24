@@ -14,7 +14,7 @@
             <span class="badge">💪 {{ item.rep_count }}회</span>
             <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
             <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
-            <span class="badge">🔥 소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>
+            {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
             <span class="badge">🍱 {{ item.meal_count }}식</span>
             <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
           </div>
@@ -50,10 +50,12 @@
             <div class="summary-value">{{ "%.0f"|format(weekly_report.cardio_minutes) }}</div>
             <div class="summary-label">유산소 분</div>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ "%.0f"|format(weekly_report.exercise_calories) }}</div>
-            <div class="summary-label">예상 소모 kcal</div>
-          </article>
+          {% if weekly_report.exercise_calories %}
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.0f"|format(weekly_report.exercise_calories) }}</div>
+              <div class="summary-label">유산소 kcal</div>
+            </article>
+          {% endif %}
           <article class="summary-card">
             <div class="summary-value">{{ weekly_report.meal_days }}</div>
             <div class="summary-label">식단일</div>
@@ -124,7 +126,7 @@
               <span class="badge">💪 {{ item.rep_count }}회</span>
               <span class="badge">🏋 {{ "%.0f"|format(item.volume) }}kg</span>
               <span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
-              <span class="badge">🔥 소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>
+              {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
               <span class="badge">🍱 {{ item.meal_count }}식</span>
               <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
             </div>
@@ -214,7 +216,7 @@
                 <span class="badge">{{ item.rep_count }}회</span>
                 <span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>
                 <span class="badge">{{ "%.0f"|format(item.cardio_minutes) }}분</span>
-                <span class="badge">소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>
+                {% if item.exercise_calories %}<span class="badge">유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
               </div>
             </div>
           </article>
@@ -253,7 +255,7 @@
               <div class="detail-row">
                 <strong>{{ exercise.name }}</strong>
                 <span>
-                  {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg · {{ "%.0f"|format(exercise.cardio_minutes) }}분 · 소모 {{ "%.0f"|format(exercise.exercise_calories) }}kcal
+                  {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg · {{ "%.0f"|format(exercise.cardio_minutes) }}분{% if exercise.exercise_calories %} · 유산소 {{ "%.0f"|format(exercise.exercise_calories) }}kcal{% endif %}
                 </span>
               </div>
             {% else %}
@@ -278,7 +280,7 @@
             <div class="cat-stat-name {{ body_part_class(item.body_part) }}">{{ item.body_part }}</div>
             <div class="cat-stat-count">{{ item.set_count }}</div>
             <div class="cat-stat-unit">{{ item.period }}</div>
-            <div class="cat-stat-unit">{{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg · {{ "%.0f"|format(item.cardio_minutes) }}분 · 소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</div>
+            <div class="cat-stat-unit">{{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg · {{ "%.0f"|format(item.cardio_minutes) }}분{% if item.exercise_calories %} · 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal{% endif %}</div>
             {% if active_page == "weekly" and detail_rows %}
               <button type="button" class="btn-small detail-inline-btn" data-toggle-detail data-detail-target="{{ detail_id }}" aria-expanded="false">상세</button>
             {% endif %}

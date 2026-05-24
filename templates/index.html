@@ -38,11 +38,13 @@
       <div class="summary-value">{{ "%.0f"|format(today_summary.cardio_minutes) }}</div>
       <div class="summary-label">유산소 분</div>
     </article>
-    <article class="summary-card">
-      <div class="summary-icon">🔥</div>
-      <div class="summary-value">{{ "%.0f"|format(today_summary.exercise_calories) }}</div>
-      <div class="summary-label">예상 소모 kcal</div>
-    </article>
+    {% if today_summary.exercise_calories %}
+      <article class="summary-card">
+        <div class="summary-icon">🔥</div>
+        <div class="summary-value">{{ "%.0f"|format(today_summary.exercise_calories) }}</div>
+        <div class="summary-label">유산소 kcal</div>
+      </article>
+    {% endif %}
   </div>
 
   {% if pr_events %}
@@ -284,9 +286,9 @@
       {% if workout_groups %}
         {% for group in workout_groups %}
           <article class="record-card">
-            <div class="record-date">
+            <div class="record-date workout-record-head">
               <span class="cat-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>
-              {{ group.exercise_name }}
+              <strong>{{ group.exercise_name }}</strong>
             </div>
             <form method="post" action="{{ url_for('update_exercise_note') }}" class="note-form">
               <input type="hidden" name="target_date" value="{{ session.workout_date }}">
@@ -298,7 +300,8 @@
               <div class="ex-item editable-list-item">
                 <div class="item-read-view ex-item-info">
                   <div class="ex-name">
-                    {{ loop.index }}세트:
+                    <span class="set-index">{{ loop.index }}세트</span>
+                    <span class="set-result">
                     {% if group.body_part == "유산소" %}
                       인클라인 {% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% else %}-{% endif %}
                       · 속도 {% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% else %}-{% endif %}
@@ -310,6 +313,7 @@
                       ·
                       {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
                     {% endif %}
+                    </span>
                   </div>
                 </div>
                 <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
