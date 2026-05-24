@@ -2590,7 +2590,7 @@ label span {
 }
 
 .set-edit-form {
-  grid-template-columns: minmax(54px, 0.55fr) minmax(94px, 0.9fr) repeat(3, minmax(76px, 1fr));
+  grid-template-columns: minmax(86px, 0.85fr) minmax(160px, 1.35fr) minmax(54px, 0.55fr) minmax(94px, 0.9fr) repeat(3, minmax(76px, 1fr));
   align-items: end;
   border: 1px solid #2b3a55;
   border-radius: 12px;
@@ -2631,6 +2631,10 @@ label span {
 
 .edit-field-type {
   min-width: 94px;
+}
+
+.edit-field-name {
+  min-width: 150px;
 }
 
 .edit-actions {
@@ -3185,6 +3189,11 @@ tbody tr:last-child td {
 
   .edit-field-type {
     grid-column: 1 / -1;
+  }
+
+  .edit-field-name {
+    grid-column: 1 / -1;
+    min-width: 0;
   }
 
   .edit-field input,

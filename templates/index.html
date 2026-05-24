@@ -964,6 +964,20 @@
                 </button>
                 <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
                   <input type="hidden" name="mode" value="workout">
+                  <label class="edit-field edit-field-type">
+                    <span>부위</span>
+                    <select name="body_part" data-body-part-select>
+                      {% for part in body_parts %}
+                        {% if (group.body_part == "유산소" and part == "유산소") or (group.body_part != "유산소" and part != "유산소") %}
+                          <option value="{{ part }}" {% if group.body_part == part %}selected{% endif %}>{{ part }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </label>
+                  <label class="edit-field edit-field-name">
+                    <span>운동명</span>
+                    <input list="exercise-list" name="exercise_name" value="{{ group.exercise_name }}" autocomplete="off" required>
+                  </label>
                   <label class="edit-field edit-field-small">
                     <span>세트</span>
                     <input name="set_number" type="number" min="1" step="1" inputmode="numeric" value="{{ loop.index }}" aria-label="세트 번호" placeholder="세트">

@@ -823,9 +823,10 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         db = get_db()
         workout = db.execute(
             """
-            SELECT s.workout_date, ws.body_part
+            SELECT s.workout_date, ws.body_part, e.name AS exercise_name
             FROM workout_sets ws
             JOIN workout_sessions s ON s.id = ws.session_id
+            JOIN exercises e ON e.id = ws.exercise_id
             WHERE ws.id = ?
             """,
             (set_id,),
@@ -833,21 +834,39 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         workout_date = workout["workout_date"] if workout else current_local_date()
         mode = request.form.get("mode")
         equipment = request.form.get("equipment", "").strip()
-        if workout and workout["body_part"] == "유산소":
+        body_part = request.form.get("body_part", workout["body_part"] if workout else "").strip() or "기타"
+        exercise_name = request.form.get("exercise_name", workout["exercise_name"] if workout else "").strip()
+        exercise_id = get_or_create_exercise(exercise_name) if exercise_name else None
+        if exercise_name and equipment:
+            save_exercise_equipment(exercise_name, equipment)
+        if body_part == "유산소":
             cardio_incline = parse_float(request.form.get("cardio_incline"))
             cardio_speed = parse_float(request.form.get("cardio_speed"))
             cardio_minutes = parse_float(request.form.get("cardio_minutes"))
             db.execute(
                 """
                 UPDATE workout_sets
-                SET cardio_incline = ?, cardio_speed = ?, cardio_minutes = ?, estimated_calories = ?, rpe = ?, equipment = ?
+                SET exercise_id = COALESCE(?, exercise_id),
+                    body_part = ?,
+                    weight = NULL,
+                    reps = NULL,
+                    set_type = ?,
+                    cardio_incline = ?,
+                    cardio_speed = ?,
+                    cardio_minutes = ?,
+                    estimated_calories = ?,
+                    rpe = ?,
+                    equipment = ?
                 WHERE id = ?
                 """,
                 (
+                    exercise_id,
+                    body_part,
+                    body_part,
                     cardio_incline,
                     cardio_speed,
                     cardio_minutes,
-                    estimate_exercise_calories("유산소", cardio_incline, cardio_speed, cardio_minutes, workout_date),
+                    estimate_exercise_calories(body_part, cardio_incline, cardio_speed, cardio_minutes, workout_date),
                     parse_float(request.form.get("rpe")),
                     equipment[:20],
                     set_id,
@@ -857,10 +876,22 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             db.execute(
                 """
                 UPDATE workout_sets
-                SET weight = ?, reps = ?, set_type = ?, rpe = ?, equipment = ?
+                SET exercise_id = COALESCE(?, exercise_id),
+                    body_part = ?,
+                    weight = ?,
+                    reps = ?,
+                    set_type = ?,
+                    rpe = ?,
+                    equipment = ?,
+                    cardio_incline = NULL,
+                    cardio_speed = NULL,
+                    cardio_minutes = NULL,
+                    estimated_calories = NULL
                 WHERE id = ?
                 """,
                 (
+                    exercise_id,
+                    body_part,
                     parse_float(request.form.get("weight")),
                     parse_int(request.form.get("reps")),
                     request.form.get("set_type", "본세트").strip() or "본세트",
