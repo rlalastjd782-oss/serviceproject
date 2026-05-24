@@ -93,8 +93,9 @@ document.addEventListener("click", (event) => {
     const target = document.getElementById(detailButton.dataset.detailTarget);
     if (!target) return;
 
-    const isOpening = target.hidden;
-    target.hidden = !isOpening;
+    const isOpening = target.classList.contains("is-collapsed");
+    target.classList.toggle("is-collapsed", !isOpening);
+    target.setAttribute("aria-hidden", String(!isOpening));
     detailButton.setAttribute("aria-expanded", String(isOpening));
   }
 });

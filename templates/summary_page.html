@@ -124,7 +124,7 @@
             {% endif %}
           </article>
           {% if active_page == "weekly" and detail_rows %}
-            <div id="{{ detail_id }}" class="detail-list full-detail-list" hidden>
+            <div id="{{ detail_id }}" class="detail-list full-detail-list is-collapsed" aria-hidden="true">
               <div class="detail-list-head">
                 <strong>{{ item.period }} · {{ item.body_part }}</strong>
                 <span>운동 상세</span>

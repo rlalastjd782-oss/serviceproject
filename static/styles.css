@@ -386,11 +386,11 @@ label span {
 }
 
 .set-entry-row {
-  grid-template-columns: 28px 1fr 0.75fr 28px;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
 }
 
 .meal-entry-row {
-  grid-template-columns: 28px 1fr 1fr 28px;
+  grid-template-columns: 28px minmax(0, 1fr) 28px;
 }
 
 .set-entry-row > strong,
@@ -414,10 +414,22 @@ label span {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
+  grid-column: 2;
 }
 
 .meal-compact-grid {
   grid-template-columns: 0.7fr 0.8fr 1fr;
+}
+
+.set-entry-row > input,
+.meal-entry-row > input {
+  grid-column: 2;
+}
+
+.set-entry-row .row-remove-button,
+.meal-entry-row .row-remove-button {
+  grid-column: 3;
+  grid-row: 1;
 }
 
 .set-entry-row input,
@@ -792,6 +804,10 @@ tbody tr:last-child td {
   grid-column: 1 / -1;
 }
 
+.full-detail-list.is-collapsed {
+  display: none;
+}
+
 .detail-list-head,
 .detail-row {
   display: flex;
@@ -818,24 +834,6 @@ tbody tr:last-child td {
   .inline-add-form,
   .meal-add-form {
     grid-template-columns: 1fr;
-  }
-
-  .set-entry-row,
-  .meal-entry-row {
-    grid-template-columns: 26px minmax(0, 1fr) 28px;
-  }
-
-  .set-entry-row .compact-field-grid,
-  .meal-entry-row .compact-field-grid,
-  .set-entry-row > input,
-  .meal-entry-row > input {
-    grid-column: 2;
-  }
-
-  .set-entry-row .row-remove-button,
-  .meal-entry-row .row-remove-button {
-    grid-column: 3;
-    grid-row: 1;
   }
 
   .editable-list-item {
