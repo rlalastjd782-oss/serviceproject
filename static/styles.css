@@ -706,6 +706,10 @@ label span {
   min-height: 38px;
 }
 
+.goal-form-compact {
+  margin-top: 10px;
+}
+
 .routine-load-row {
   align-items: center;
   border: 1px solid var(--line);

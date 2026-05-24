@@ -108,6 +108,28 @@
             </div>
           {% endfor %}
         </div>
+        {% if weekly_goals %}
+          <div class="goal-grid monthly-goal-grid">
+            {% for key in ["weekly_workout_days", "weekly_meal_days"] %}
+              {% set goal = weekly_goals[key] %}
+              <article class="goal-card {% if goal.percent >= 100 %}is-complete{% endif %}">
+                <div class="goal-head">
+                  <strong>{{ goal.label }}</strong>
+                  <span>{{ goal.percent }}%</span>
+                </div>
+                <div class="goal-bar"><span style="width: {{ goal.percent }}%"></span></div>
+                <div class="goal-meta">{{ "%.0f"|format(goal.current) }} / {{ goal.target }}일</div>
+              </article>
+            {% endfor %}
+          </div>
+          <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
+            <input type="hidden" name="scope" value="weekly">
+            <input type="hidden" name="target_date" value="{{ selected_week }}">
+            <input name="weekly_workout_days" type="number" min="0" step="1" value="{{ weekly_goals.weekly_workout_days.target }}" placeholder="주간 운동일">
+            <input name="weekly_meal_days" type="number" min="0" step="1" value="{{ weekly_goals.weekly_meal_days.target }}" placeholder="주간 식단일">
+            <button class="btn-small" type="submit">주간 목표 저장</button>
+          </form>
+        {% endif %}
       </section>
     {% endif %}
 
@@ -179,6 +201,14 @@
               </article>
             {% endfor %}
           </div>
+          <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
+            <input type="hidden" name="scope" value="monthly">
+            <input type="hidden" name="target_date" value="{{ selected_month }}-01">
+            <input name="monthly_volume" type="number" min="0" step="100" value="{{ monthly_goals.monthly_volume.target }}" placeholder="월간 볼륨">
+            <input name="monthly_workout_days" type="number" min="0" step="1" value="{{ monthly_goals.monthly_workout_days.target }}" placeholder="월간 운동일">
+            <input name="monthly_cardio_minutes" type="number" min="0" step="10" value="{{ monthly_goals.monthly_cardio_minutes.target }}" placeholder="월간 유산소 분">
+            <button class="btn-small" type="submit">월간 목표 저장</button>
+          </form>
         {% endif %}
         <div class="detail-list">
           <div class="detail-row">

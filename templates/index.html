@@ -215,7 +215,10 @@
 
   <section class="section optional-section">
     <div class="section-header">
-      <div class="section-title">목표 달성률</div>
+      <div>
+        <div class="section-title">목표 달성률</div>
+        <div class="section-subtitle">목표 수정은 주별/월별 페이지에서 관리합니다.</div>
+      </div>
     </div>
     <div class="goal-grid">
       {% for goal in goals.values() %}
@@ -228,17 +231,6 @@
           <div class="goal-meta">{{ "%.0f"|format(goal.current) }} / {{ goal.target }}</div>
         </article>
       {% endfor %}
-    </div>
-    <div class="inline-add-panel is-adding">
-      <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form">
-        <input type="hidden" name="target_date" value="{{ session.workout_date }}">
-        <input name="weekly_workout_days" type="number" min="0" step="1" value="{{ goals.weekly_workout_days.target }}" placeholder="주간 운동일">
-        <input name="weekly_meal_days" type="number" min="0" step="1" value="{{ goals.weekly_meal_days.target }}" placeholder="주간 식단일">
-        <input name="monthly_volume" type="number" min="0" step="100" value="{{ goals.monthly_volume.target }}" placeholder="월간 볼륨">
-        <input name="monthly_workout_days" type="number" min="0" step="1" value="{{ goals.monthly_workout_days.target }}" placeholder="월간 운동일">
-        <input name="monthly_cardio_minutes" type="number" min="0" step="10" value="{{ goals.monthly_cardio_minutes.target }}" placeholder="월간 유산소 분">
-        <button class="btn-small" type="submit">저장</button>
-      </form>
     </div>
   </section>
 

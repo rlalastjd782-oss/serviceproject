@@ -132,6 +132,7 @@ def create_app() -> Flask:
             body_part_summary=list_body_part_summary("weekly", date_text=week_start),
             body_part_details=list_weekly_body_part_details(week_start),
             weekly_report=build_weekly_report(week_start),
+            weekly_goals=get_goal_progress(week_start),
             balance_warnings=list_balance_warnings("weekly", week_start),
             selected_week=week_start,
             prev_week=shift_date(week_start, -7),
@@ -396,11 +397,16 @@ def create_app() -> Flask:
     @app.post("/goals")
     def update_goals():
         target_date = request.form.get("target_date") or current_local_date()
-        save_goal("weekly_workout_days", parse_int(request.form.get("weekly_workout_days")) or 0)
-        save_goal("weekly_meal_days", parse_int(request.form.get("weekly_meal_days")) or 0)
-        save_goal("monthly_volume", parse_int(request.form.get("monthly_volume")) or 0)
-        save_goal("monthly_workout_days", parse_int(request.form.get("monthly_workout_days")) or 0)
-        save_goal("monthly_cardio_minutes", parse_int(request.form.get("monthly_cardio_minutes")) or 0)
+        scope = request.form.get("scope", "today")
+        if scope == "weekly":
+            save_goal("weekly_workout_days", parse_int(request.form.get("weekly_workout_days")) or 0)
+            save_goal("weekly_meal_days", parse_int(request.form.get("weekly_meal_days")) or 0)
+            return redirect(url_for("weekly_summary_page", week=target_date))
+        if scope == "monthly":
+            save_goal("monthly_volume", parse_int(request.form.get("monthly_volume")) or 0)
+            save_goal("monthly_workout_days", parse_int(request.form.get("monthly_workout_days")) or 0)
+            save_goal("monthly_cardio_minutes", parse_int(request.form.get("monthly_cardio_minutes")) or 0)
+            return redirect(url_for("monthly_summary_page", month=target_date[:7]))
         return redirect(url_for("index", date=target_date))
 
     @app.post("/exercise-notes")
