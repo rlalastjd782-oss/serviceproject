@@ -377,7 +377,7 @@ label span {
 .set-entry-row,
 .meal-entry-row {
   display: grid;
-  align-items: end;
+  align-items: center;
   gap: 6px;
   border: 1px solid var(--line);
   border-radius: 10px;
@@ -386,11 +386,11 @@ label span {
 }
 
 .set-entry-row {
-  grid-template-columns: 32px 1fr 1fr 1.1fr 28px;
+  grid-template-columns: 28px 1fr 0.75fr 28px;
 }
 
 .meal-entry-row {
-  grid-template-columns: 32px 1.3fr 0.75fr 0.9fr 0.9fr 28px;
+  grid-template-columns: 28px 1fr 1fr 28px;
 }
 
 .set-entry-row > strong,
@@ -408,6 +408,21 @@ label span {
 .row-remove-button {
   min-height: 38px;
   padding: 0;
+}
+
+.compact-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.meal-compact-grid {
+  grid-template-columns: 0.7fr 0.8fr 1fr;
+}
+
+.set-entry-row input,
+.meal-entry-row input {
+  min-width: 0;
 }
 
 .record-card {
@@ -798,13 +813,29 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 560px) {
-  .set-entry-row,
-  .meal-entry-row,
   .set-edit-form,
   .meal-edit-form,
   .inline-add-form,
   .meal-add-form {
     grid-template-columns: 1fr;
+  }
+
+  .set-entry-row,
+  .meal-entry-row {
+    grid-template-columns: 26px minmax(0, 1fr) 28px;
+  }
+
+  .set-entry-row .compact-field-grid,
+  .meal-entry-row .compact-field-grid,
+  .set-entry-row > input,
+  .meal-entry-row > input {
+    grid-column: 2;
+  }
+
+  .set-entry-row .row-remove-button,
+  .meal-entry-row .row-remove-button {
+    grid-column: 3;
+    grid-row: 1;
   }
 
   .editable-list-item {

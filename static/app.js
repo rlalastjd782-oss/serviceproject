@@ -122,18 +122,17 @@ function addRow(list, type) {
 function setRowHtml(index) {
   return `
     <strong>${index}</strong>
-    <label>
-      <span>무게 kg</span>
-      <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
-    </label>
-    <label>
-      <span>횟수</span>
-      <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
-    </label>
-    <label>
-      <span>메모</span>
-      <input name="set_memo" autocomplete="off" placeholder="추가 세트">
-    </label>
+    <div class="compact-field-grid">
+      <label>
+        <span>무게 kg</span>
+        <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+      </label>
+      <label>
+        <span>횟수</span>
+        <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
+      </label>
+    </div>
+    <input name="set_memo" autocomplete="off" placeholder="메모">
     <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
   `;
 }
@@ -141,22 +140,12 @@ function setRowHtml(index) {
 function mealRowHtml(index) {
   return `
     <strong>${index}</strong>
-    <label>
-      <span>음식</span>
-      <input name="meal_food_name" autocomplete="off" placeholder="신라면건면" required>
-    </label>
-    <label>
-      <span>수량</span>
-      <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
-    </label>
-    <label>
-      <span>그램 g</span>
-      <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="100">
-    </label>
-    <label>
-      <span>칼로리</span>
-      <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="320">
-    </label>
+    <input name="meal_food_name" autocomplete="off" placeholder="음식" required>
+    <div class="compact-field-grid meal-compact-grid">
+      <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
+      <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
+      <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+    </div>
     <button class="row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
   `;
 }
