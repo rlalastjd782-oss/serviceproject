@@ -28,3 +28,7 @@ Then open `http://YOUR_PC_IP:5000` from the phone browser and add it to the home
 - View recent workout history
 - SQLite database stored in `instance/workout.db`
 - PWA manifest and service worker for app-like mobile use
+
+## Deploy to PythonAnywhere
+
+See [DEPLOY_PYTHONANYWHERE.md](DEPLOY_PYTHONANYWHERE.md).
