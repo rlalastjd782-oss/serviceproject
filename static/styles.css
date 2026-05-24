@@ -545,6 +545,14 @@ label span {
   transform: translateY(1px);
 }
 
+.workout-form.is-cardio [data-strength-fields] {
+  display: none !important;
+}
+
+.workout-form.is-strength [data-cardio-fields] {
+  display: none !important;
+}
+
 .quick-empty {
   color: var(--empty);
   font-size: 11px;

@@ -233,7 +233,11 @@ function renderExerciseQuickList(bodyPart) {
 
 function applyWorkoutInputMode(bodyPart) {
   const isCardio = bodyPart === "유산소";
-  document.querySelectorAll("[data-strength-fields]").forEach((element) => {
+  const workoutForm = document.querySelector("[data-workout-form]");
+  workoutForm?.classList.toggle("is-cardio", isCardio);
+  workoutForm?.classList.toggle("is-strength", !isCardio);
+
+  document.querySelectorAll("[data-workout-form] [data-strength-fields]").forEach((element) => {
     element.hidden = isCardio;
     if (element.matches("input, select")) {
       element.disabled = isCardio;
@@ -242,7 +246,7 @@ function applyWorkoutInputMode(bodyPart) {
       input.disabled = isCardio;
     });
   });
-  document.querySelectorAll("[data-cardio-fields]").forEach((element) => {
+  document.querySelectorAll("[data-workout-form] [data-cardio-fields]").forEach((element) => {
     element.hidden = !isCardio;
     if (element.matches("input, select")) {
       element.disabled = !isCardio;
