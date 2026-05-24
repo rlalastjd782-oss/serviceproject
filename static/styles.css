@@ -630,7 +630,7 @@ label span {
   min-height: 28px;
 }
 
-.plate-result,
+.plate-result span,
 .warmup-result span {
   border: 1px solid #293854;
   border-radius: 999px;
@@ -642,10 +642,6 @@ label span {
   line-height: 1.35;
   overflow-wrap: anywhere;
   word-break: keep-all;
-}
-
-.plate-result {
-  display: block;
 }
 
 .period-filter-form {

@@ -773,7 +773,17 @@ function persistWorkoutClock(successMessage = "자동 저장됨") {
     keepalive: true,
   })
     .then((response) => {
-      updateWorkoutClockStatus(response.ok ? successMessage : "저장 실패");
+      if (!response.ok) {
+        updateWorkoutClockStatus("저장 실패");
+        return null;
+      }
+      updateWorkoutClockStatus(successMessage);
+      return response.json();
+    })
+    .then((payload) => {
+      if (payload?.duration_text) {
+        updateSavedWorkoutDuration(payload.duration_text);
+      }
     })
     .catch(() => {
       updateWorkoutClockStatus("저장 실패");
@@ -806,6 +816,12 @@ function updateWorkoutClockDisplay() {
   display.classList.toggle("is-running", Boolean(state.startedAt));
 }
 
+function updateSavedWorkoutDuration(durationText) {
+  document.querySelectorAll("[data-workout-saved-duration]").forEach((element) => {
+    element.textContent = durationText;
+  });
+}
+
 function initWorkoutTools() {
   if (!document.querySelector("[data-plate-tool]") && !document.querySelector("[data-warmup-tool]")) {
     return;
@@ -835,7 +851,13 @@ function renderPlateCalculator() {
     return;
   }
   const plates = calculatePlates(perSide);
-  result.textContent = plates.length ? plates.map((item) => item.label || `${item.weight}kg x ${item.count}`).join(" · ") : "원판 없음";
+  if (!plates.length) {
+    result.innerHTML = `<span>원판 없음</span>`;
+    return;
+  }
+  const totalText = plates.map((item) => item.label || `${item.weight}kg x ${item.count * 2}`).join(" · ");
+  const sideText = plates.map((item) => item.label || `${item.weight}kg x ${item.count}`).join(" · ");
+  result.innerHTML = `<span>전체 ${totalText}</span><span>한쪽 ${sideText}</span>`;
 }
 
 function renderWarmupCalculator() {

@@ -65,7 +65,7 @@
           <span>오늘 세트</span>
         </article>
         <article>
-          <strong>{{ format_duration(session.duration_seconds) }}</strong>
+          <strong data-workout-saved-duration>{{ format_duration(session.duration_seconds) }}</strong>
           <span>저장 시간</span>
         </article>
         <article>
@@ -242,7 +242,7 @@
     </div>
     <div class="completion-card {% if session.completed %}is-complete{% endif %}">
       <strong>{% if session.completed %}오늘 운동 완료{% else %}아직 완료 전{% endif %}</strong>
-      <span>저장된 운동 시간 {{ format_duration(session.duration_seconds) }}</span>
+      <span>저장된 운동 시간 <span data-workout-saved-duration>{{ format_duration(session.duration_seconds) }}</span></span>
       <span>{{ today_summary.set_count }}세트 · {{ "%.0f"|format(today_summary.volume) }}kg{% if today_summary.cardio_minutes %} · 유산소 {{ "%.0f"|format(today_summary.cardio_minutes) }}분{% endif %}</span>
       {% if pr_events %}<span>오늘 신기록 {{ pr_events|length }}개</span>{% endif %}
       <span>주간 균형 {{ balance_score.score }}%{% if balance_score.missing %} · 부족: {{ balance_score.missing[:3]|join(", ") }}{% endif %}</span>
