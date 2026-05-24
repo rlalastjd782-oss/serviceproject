@@ -2111,6 +2111,39 @@ def get_sample_data_counts() -> dict[str, int]:
     return build_sample_data_counts(get_db())
 
 
+def get_app_health_status() -> list[dict[str, str]]:
+    counts = get_data_counts()
+    sample_counts = get_sample_data_counts()
+    backup_status = get_backup_status()
+    database_exists = DATABASE.exists()
+    return [
+        {
+            "label": "DB 파일",
+            "value": "정상" if database_exists else "없음",
+            "note": str(DATABASE),
+            "state": "ok" if database_exists else "warn",
+        },
+        {
+            "label": "저장 데이터",
+            "value": f"운동 {counts['workouts']}일 · 식단 {counts['meals']}개",
+            "note": f"세트 {counts['sets']}개 · 빈 기록 {counts['empty_workouts']}개",
+            "state": "warn" if counts["empty_workouts"] else "ok",
+        },
+        {
+            "label": "샘플 데이터",
+            "value": f"세트 {sample_counts['sets']}개 · 식단 {sample_counts['meals']}개",
+            "note": "화면 확인용 데이터입니다.",
+            "state": "info" if sample_counts["sets"] or sample_counts["meals"] else "ok",
+        },
+        {
+            "label": "백업",
+            "value": f"{backup_status['count']}개",
+            "note": f"최근 {backup_status['last_backup']}",
+            "state": "ok" if backup_status["count"] != "0" else "warn",
+        },
+    ]
+
+
 def delete_sample_data() -> None:
     db = get_db()
     db.execute("DELETE FROM pr_events WHERE exercise_name LIKE '샘플%' OR exercise_name LIKE 'PR확인%'")

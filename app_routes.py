@@ -270,6 +270,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             sample_counts=get_sample_data_counts(),
             data_counts=get_data_counts(),
             backup_status=get_backup_status(),
+            health_status=get_app_health_status(),
         )
 
     @app.post("/recovery-checkins")
@@ -651,13 +652,14 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     @app.post("/import.json")
     def import_json():
         file = request.files.get("backup_file")
-        if file:
+        if file and request.form.get("confirm_restore", "").strip() == "복원":
             import_all_data(json.loads(file.read().decode("utf-8")))
         return redirect(url_for("settings_page"))
 
     @app.post("/samples/delete")
     def delete_sample_data_route():
-        delete_sample_data()
+        if request.form.get("confirm_sample_delete", "").strip() == "샘플삭제":
+            delete_sample_data()
         return redirect(url_for("settings_page"))
 
     @app.post("/samples/may")
@@ -667,7 +669,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.post("/data/delete-all")
     def delete_all_data_route():
-        delete_all_data()
+        if request.form.get("confirm_delete_all", "").strip() == "전체삭제":
+            delete_all_data()
         return redirect(url_for("settings_page"))
 
     @app.post("/meals")

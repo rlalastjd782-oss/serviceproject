@@ -1932,7 +1932,49 @@ label span {
 }
 
 .settings-action-card .import-form {
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(112px, 0.55fr) auto;
+}
+
+.health-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.health-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 10px;
+}
+
+.health-card span,
+.health-card small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.health-card strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.health-ok {
+  border-color: rgb(34 197 94 / 28%);
+}
+
+.health-warn {
+  border-color: rgb(251 191 36 / 35%);
+  background: #201a0c;
+}
+
+.health-info {
+  border-color: rgb(96 165 250 / 35%);
+  background: #101b2d;
 }
 
 .rank-num {
@@ -2642,7 +2684,8 @@ tbody tr:last-child td {
   .note-form,
   .import-form,
   .settings-action-card .import-form,
-  .settings-action-grid {
+  .settings-action-grid,
+  .health-grid {
     grid-template-columns: 1fr;
   }
 

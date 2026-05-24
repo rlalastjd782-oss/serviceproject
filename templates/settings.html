@@ -51,6 +51,24 @@
   <section class="section settings-panel">
     <div class="section-header">
       <div>
+        <div class="section-title">상태 점검</div>
+        <div class="section-subtitle">배포 후 저장 상태, 샘플 여부, 백업 상태를 빠르게 확인합니다.</div>
+      </div>
+    </div>
+    <div class="health-grid">
+      {% for item in health_status %}
+        <article class="health-card health-{{ item.state }}">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <small>{{ item.note }}</small>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section settings-panel">
+    <div class="section-header">
+      <div>
         <div class="section-title">데이터 관리</div>
         <div class="section-subtitle">백업, 복원, 샘플, 빈 기록 정리를 한 곳에서 처리합니다.</div>
       </div>
@@ -66,9 +84,10 @@
       </div>
       <div class="settings-action-card">
         <strong>복원</strong>
-        <span>복원 전 현재 데이터는 instance/restore_backups에 자동 백업됩니다.</span>
+        <span>복원 전 현재 데이터는 instance/restore_backups에 자동 백업됩니다. 실행하려면 복원을 입력합니다.</span>
         <form method="post" action="{{ url_for('import_json') }}" enctype="multipart/form-data" class="import-form">
           <input name="backup_file" type="file" accept="application/json,.json" required>
+          <input name="confirm_restore" placeholder="복원 입력" autocomplete="off" required>
           <button class="btn-danger" type="submit">복원 실행</button>
         </form>
       </div>
@@ -80,6 +99,7 @@
             <button class="btn-small" type="submit">5월 샘플 생성</button>
           </form>
           <form method="post" action="{{ url_for('delete_sample_data_route') }}">
+            <input name="confirm_sample_delete" placeholder="샘플삭제 입력" autocomplete="off" required>
             <button class="btn-danger" type="submit">샘플 제거</button>
           </form>
         </div>
@@ -108,6 +128,7 @@
       </div>
     </div>
     <form method="post" action="{{ url_for('delete_all_data_route') }}" class="settings-action-row" data-confirm-submit="전체 데이터를 모두 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.">
+      <input name="confirm_delete_all" placeholder="전체삭제 입력" autocomplete="off" required>
       <button class="btn-danger" type="submit">모두 삭제</button>
     </form>
   </section>
