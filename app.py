@@ -184,6 +184,7 @@ def create_app() -> Flask:
             exercise_choices=exercise_choices,
             selected_exercise_id=selected_exercise,
             selected_exercise_profile=get_exercise_profile(selected_exercise),
+            selected_exercise_next_plan=build_exercise_next_plan(selected_exercise),
             exercise_growth=build_exercise_growth_chart(selected_exercise),
             search_query=search_query,
             search_results=search_workout_records(search_query) if search_query else [],
@@ -223,6 +224,7 @@ def create_app() -> Flask:
             selected_date=selected_week,
             meal_days=list_weekly_meal_days(week_start),
             meal_summary=build_weekly_meal_summary(week_start),
+            meal_goals=get_goal_progress(week_start),
             active_page="meals",
         )
 
@@ -404,7 +406,13 @@ def create_app() -> Flask:
         if scope == "weekly":
             save_goal("weekly_workout_days", parse_int(request.form.get("weekly_workout_days")) or 0)
             save_goal("weekly_meal_days", parse_int(request.form.get("weekly_meal_days")) or 0)
+            if "weekly_calories" in request.form:
+                save_goal("weekly_calories", parse_int(request.form.get("weekly_calories")) or 0)
             return redirect(url_for("weekly_summary_page", week=target_date))
+        if scope == "weekly_meals":
+            save_goal("weekly_meal_days", parse_int(request.form.get("weekly_meal_days")) or 0)
+            save_goal("weekly_calories", parse_int(request.form.get("weekly_calories")) or 0)
+            return redirect(url_for("meal_weekly_page", week=target_date))
         if scope == "monthly":
             save_goal("monthly_volume", parse_int(request.form.get("monthly_volume")) or 0)
             save_goal("monthly_workout_days", parse_int(request.form.get("monthly_workout_days")) or 0)
@@ -1454,6 +1462,14 @@ def get_goal_progress(date_text: str) -> dict[str, dict[str, int | float | str]]
         """,
         (week_start, week_end),
     ).fetchone()["count"]
+    weekly_calories = db.execute(
+        """
+        SELECT COALESCE(SUM(calories), 0) AS calories
+        FROM meal_entries
+        WHERE meal_date BETWEEN ? AND ?
+        """,
+        (week_start, week_end),
+    ).fetchone()["calories"]
     monthly_volume = db.execute(
         """
         SELECT COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
@@ -1484,6 +1500,7 @@ def get_goal_progress(date_text: str) -> dict[str, dict[str, int | float | str]]
     return {
         "weekly_workout_days": goal_item(int(weekly_workout_days), get_goal_value("weekly_workout_days", 3), "주간 운동일"),
         "weekly_meal_days": goal_item(int(weekly_meal_days), get_goal_value("weekly_meal_days", 5), "주간 식단일"),
+        "weekly_calories": goal_item(float(weekly_calories), get_goal_value("weekly_calories", 14000), "주간 칼로리"),
         "monthly_volume": goal_item(float(monthly_volume), get_goal_value("monthly_volume", 10000), "월간 볼륨"),
         "monthly_workout_days": goal_item(int(monthly_workout_days), get_goal_value("monthly_workout_days", 12), "월간 운동일"),
         "monthly_cardio_minutes": goal_item(float(monthly_cardio_minutes), get_goal_value("monthly_cardio_minutes", 300), "월간 유산소"),
@@ -2609,6 +2626,61 @@ def get_exercise_profile(exercise_id: int | None) -> dict[str, object] | None:
         (exercise_id,),
     ).fetchone()
     return dict(row) if row else None
+
+
+def build_exercise_next_plan(exercise_id: int | None) -> list[str]:
+    if not exercise_id:
+        return []
+    row = get_db().execute(
+        """
+        SELECT
+            e.name,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            ws.weight,
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            s.workout_date
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.exercise_id = ?
+        ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
+        LIMIT 1
+        """,
+        (exercise_id,),
+    ).fetchone()
+    if not row:
+        return ["아직 기록이 적어서 다음 목표를 만들 수 없습니다. 먼저 1회 기록을 남겨주세요."]
+
+    body_part = row["body_part"] or "기타"
+    if body_part == "유산소":
+        minutes = float(row["cardio_minutes"] or 0)
+        speed = float(row["cardio_speed"] or 0)
+        incline = float(row["cardio_incline"] or 0)
+        suggestions = []
+        if minutes:
+            suggestions.append(f"다음 유산소는 {minutes + 2:.0f}분을 1차 목표로 잡아보세요.")
+        if speed:
+            suggestions.append(f"컨디션이 좋으면 속도 {speed + 0.1:.1f}까지 올려보세요.")
+        if incline:
+            suggestions.append(f"인클라인은 {incline:.1f}을 유지하고 시간을 먼저 늘리는 편이 안정적입니다.")
+        return suggestions or ["다음 유산소는 시간, 속도, 인클라인 중 하나만 올려서 기록해보세요."]
+
+    weight = float(row["weight"] or 0)
+    reps = int(row["reps"] or 0)
+    if weight <= 0 or reps <= 0:
+        return ["최근 세트에 중량/횟수가 비어 있습니다. 다음 기록부터 중량과 횟수를 같이 남겨주세요."]
+    if reps >= 10:
+        return [
+            f"최근 {weight:.1f}kg x {reps}회까지 했습니다. 다음 목표는 {weight + 2.5:.1f}kg로 6~8회입니다.",
+            "중량을 올린 날은 첫 세트 성공률을 보고 나머지 세트는 같은 중량으로 유지하세요.",
+        ]
+    return [
+        f"최근 {weight:.1f}kg x {reps}회입니다. 다음 목표는 같은 중량으로 {reps + 1}회입니다.",
+        "목표 횟수에 도달하면 그 다음 운동에서 2.5kg 증량을 고려하세요.",
+    ]
 
 
 def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> list[dict[str, float | int | str]]:

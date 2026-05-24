@@ -108,12 +108,13 @@
           {% endfor %}
         </div>
         {% if weekly_goals %}
-          {{ goal_cards(weekly_goals, ["weekly_workout_days", "weekly_meal_days"], {"weekly_workout_days": "일", "weekly_meal_days": "일"}) }}
+          {{ goal_cards(weekly_goals, ["weekly_workout_days", "weekly_meal_days", "weekly_calories"], {"weekly_workout_days": "일", "weekly_meal_days": "일", "weekly_calories": "kcal"}) }}
           <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
             <input type="hidden" name="scope" value="weekly">
             <input type="hidden" name="target_date" value="{{ selected_week }}">
             <input name="weekly_workout_days" type="number" min="0" step="1" value="{{ weekly_goals.weekly_workout_days.target }}" placeholder="주간 운동일">
             <input name="weekly_meal_days" type="number" min="0" step="1" value="{{ weekly_goals.weekly_meal_days.target }}" placeholder="주간 식단일">
+            <input name="weekly_calories" type="number" min="0" step="100" value="{{ weekly_goals.weekly_calories.target }}" placeholder="주간 kcal">
             <button class="btn-small" type="submit">주간 목표 저장</button>
           </form>
         {% endif %}
@@ -326,6 +327,16 @@
             </article>
           {% endif %}
         </div>
+        {% if selected_exercise_next_plan %}
+          <div class="detail-list compact-detail-list">
+            {% for plan in selected_exercise_next_plan %}
+              <div class="detail-row">
+                <strong>다음 목표</strong>
+                <span>{{ plan }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       {% endif %}
       {% if exercise_growth %}
         <div class="progress-chart exercise-progress-chart" role="img" aria-label="운동 성장 그래프">

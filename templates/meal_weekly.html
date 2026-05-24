@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import goal_cards %}
 
 {% block title %}주간 식단{% endblock %}
 
@@ -46,6 +47,23 @@
       <div class="summary-label">최다 음식</div>
     </article>
   </div>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">주간 식단 목표</div>
+        <div class="section-subtitle">기록일과 칼로리 목표를 식단 페이지에서 바로 관리합니다.</div>
+      </div>
+    </div>
+    {{ goal_cards(meal_goals, ["weekly_meal_days", "weekly_calories"], {"weekly_meal_days": "일", "weekly_calories": "kcal"}) }}
+    <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
+      <input type="hidden" name="scope" value="weekly_meals">
+      <input type="hidden" name="target_date" value="{{ week_start }}">
+      <input name="weekly_meal_days" type="number" min="0" step="1" value="{{ meal_goals.weekly_meal_days.target }}" placeholder="주간 식단일">
+      <input name="weekly_calories" type="number" min="0" step="100" value="{{ meal_goals.weekly_calories.target }}" placeholder="주간 kcal">
+      <button class="btn-small" type="submit">식단 목표 저장</button>
+    </form>
+  </section>
 
   <section class="section">
     <div class="section-header">
