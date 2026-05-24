@@ -1897,6 +1897,44 @@ label span {
   font-weight: 800;
 }
 
+.settings-action-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.settings-action-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  padding: 11px;
+}
+
+.settings-action-card strong {
+  color: var(--strong);
+  font-size: 14px;
+}
+
+.settings-action-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.settings-action-card .settings-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+}
+
+.settings-action-card .import-form {
+  grid-template-columns: 1fr auto;
+}
+
 .rank-num {
   flex: 0 0 auto;
   min-width: 34px;
@@ -2602,7 +2640,9 @@ tbody tr:last-child td {
   .body-metric-form,
   .body-photo-form,
   .note-form,
-  .import-form {
+  .import-form,
+  .settings-action-card .import-form,
+  .settings-action-grid {
     grid-template-columns: 1fr;
   }
 

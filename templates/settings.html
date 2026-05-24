@@ -51,80 +51,47 @@
   <section class="section settings-panel">
     <div class="section-header">
       <div>
-        <div class="section-title">백업</div>
-        <div class="section-subtitle">운동, 식단, 루틴, 목표, 체성분 데이터를 JSON으로 저장합니다.</div>
-      </div>
-      <a class="btn-small" href="{{ url_for('export_json') }}">다운로드</a>
-    </div>
-    <div class="detail-list compact-detail-list">
-      <div class="detail-row">
-        <strong>권장 주기</strong>
-        <span>PythonAnywhere 배포 DB는 주 1회 JSON 백업을 권장합니다.</span>
-      </div>
-      <div class="detail-row">
-        <strong>복원 안전장치</strong>
-        <span>복원 전 현재 데이터는 자동으로 instance/restore_backups에 저장됩니다.</span>
+        <div class="section-title">데이터 관리</div>
+        <div class="section-subtitle">백업, 복원, 샘플, 빈 기록 정리를 한 곳에서 처리합니다.</div>
       </div>
     </div>
-    <div class="settings-action-row">
-      <a class="btn-small" href="{{ url_for('export_csv') }}">운동 CSV 다운로드</a>
-    </div>
-  </section>
-
-  <section class="section settings-panel">
-    <div class="section-header">
-      <div>
-        <div class="section-title">복원</div>
-        <div class="section-subtitle">복원 전 현재 데이터는 instance/restore_backups에 자동 백업됩니다.</div>
+    <div class="settings-action-grid">
+      <div class="settings-action-card">
+        <strong>백업</strong>
+        <span>JSON은 전체 복원용, CSV는 운동 기록 확인용입니다.</span>
+        <div class="settings-action-row">
+          <a class="btn-small" href="{{ url_for('export_json') }}">JSON 다운로드</a>
+          <a class="btn-small" href="{{ url_for('export_csv') }}">운동 CSV</a>
+        </div>
+      </div>
+      <div class="settings-action-card">
+        <strong>복원</strong>
+        <span>복원 전 현재 데이터는 instance/restore_backups에 자동 백업됩니다.</span>
+        <form method="post" action="{{ url_for('import_json') }}" enctype="multipart/form-data" class="import-form">
+          <input name="backup_file" type="file" accept="application/json,.json" required>
+          <button class="btn-danger" type="submit">복원 실행</button>
+        </form>
+      </div>
+      <div class="settings-action-card">
+        <strong>샘플 데이터</strong>
+        <span>운동 {{ sample_counts.exercises }}개 · 세트 {{ sample_counts.sets }}개 · 식단 {{ sample_counts.meals }}개 · PR {{ sample_counts.prs }}개</span>
+        <div class="settings-action-row">
+          <form method="post" action="{{ url_for('create_may_sample_data_route') }}">
+            <button class="btn-small" type="submit">5월 샘플 생성</button>
+          </form>
+          <form method="post" action="{{ url_for('delete_sample_data_route') }}">
+            <button class="btn-danger" type="submit">샘플 제거</button>
+          </form>
+        </div>
+      </div>
+      <div class="settings-action-card">
+        <strong>빈 기록 정리</strong>
+        <span>세트와 식단이 없는 빈 운동일 {{ data_counts.empty_workouts }}개</span>
+        <form method="post" action="{{ url_for('cleanup_empty_data_route') }}" class="settings-action-row">
+          <button class="btn-small" type="submit">빈 기록 정리</button>
+        </form>
       </div>
     </div>
-    <form method="post" action="{{ url_for('import_json') }}" enctype="multipart/form-data" class="import-form">
-      <input name="backup_file" type="file" accept="application/json,.json" required>
-      <button class="btn-danger" type="submit">복원 실행</button>
-    </form>
-  </section>
-
-  <section class="section settings-panel">
-    <div class="section-header">
-      <div>
-        <div class="section-title">샘플 데이터</div>
-        <div class="section-subtitle">화면 확인용으로 넣은 샘플/PR확인 데이터를 정리합니다.</div>
-      </div>
-    </div>
-    <div class="detail-list compact-detail-list">
-      <div class="detail-row">
-        <strong>샘플 운동</strong>
-        <span>{{ sample_counts.exercises }}개 · 세트 {{ sample_counts.sets }}개 · PR {{ sample_counts.prs }}개</span>
-      </div>
-      <div class="detail-row">
-        <strong>샘플 식단</strong>
-        <span>{{ sample_counts.meals }}개</span>
-      </div>
-    </div>
-    <form method="post" action="{{ url_for('delete_sample_data_route') }}" class="settings-action-row">
-      <button class="btn-danger" type="submit">샘플 데이터 제거</button>
-    </form>
-    <form method="post" action="{{ url_for('create_may_sample_data_route') }}" class="settings-action-row">
-      <button class="btn-small" type="submit">5월 샘플 생성</button>
-    </form>
-  </section>
-
-  <section class="section settings-panel">
-    <div class="section-header">
-      <div>
-        <div class="section-title">빈 기록 정리</div>
-        <div class="section-subtitle">세트와 식단이 없는 날짜 기록을 정리합니다.</div>
-      </div>
-    </div>
-    <div class="detail-list compact-detail-list">
-      <div class="detail-row">
-        <strong>빈 운동일</strong>
-        <span>{{ data_counts.empty_workouts }}개</span>
-      </div>
-    </div>
-    <form method="post" action="{{ url_for('cleanup_empty_data_route') }}" class="settings-action-row">
-      <button class="btn-small" type="submit">빈 기록 정리</button>
-    </form>
   </section>
 
   <section class="section danger-zone settings-panel">
