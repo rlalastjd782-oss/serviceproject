@@ -351,15 +351,15 @@
           <article class="record-card">
             <div class="record-date">{{ item.period }}</div>
             <div class="record-summary">
-              <span class="badge">⏱ {{ format_duration(item.duration_seconds) }}</span>
-              <span class="badge">운동 {{ item.workout_days }}일</span>
+              {% if item.duration_seconds %}<span class="badge">⏱ {{ format_duration(item.duration_seconds) }}</span>{% endif %}
+              {% if item.workout_days %}<span class="badge">운동 {{ item.workout_days }}일</span>{% endif %}
               {% if item.set_count %}<span class="badge">🏃 {{ item.set_count }}세트</span>{% endif %}
               {% if item.rep_count %}<span class="badge">💪 {{ item.rep_count }}회</span>{% endif %}
               {% if item.volume %}<span class="badge">🏋 웨이트 {{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
               {% if item.cardio_minutes %}<span class="badge">🚶 유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
               {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
-              <span class="badge">🍱 {{ item.meal_count }}식</span>
-              <span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>
+              {% if item.meal_count %}<span class="badge">🍱 {{ item.meal_count }}식</span>{% endif %}
+              {% if item.calories %}<span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>{% endif %}
             </div>
           </article>
         {% else %}
