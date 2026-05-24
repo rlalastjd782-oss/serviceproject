@@ -38,6 +38,7 @@ def create_app() -> Flask:
             sessions=sessions,
             exercises=exercises,
             meals=meals,
+            meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
             active_page="today",
         )
@@ -152,28 +153,52 @@ def create_app() -> Flask:
     def create_meal():
         meal_date = request.form.get("meal_date") or current_local_date()
         meal_type = request.form.get("meal_type", "").strip()
-        food_name = request.form.get("food_name", "").strip()
-        if not food_name:
+        food_names = request.form.getlist("meal_food_name") or [request.form.get("food_name", "")]
+        quantities = request.form.getlist("meal_quantity") or [request.form.get("amount", "")]
+        grams_values = request.form.getlist("meal_grams") or [request.form.get("grams", "")]
+        calories_values = request.form.getlist("meal_calories") or [request.form.get("calories", "")]
+        memos = request.form.getlist("meal_memo") or [request.form.get("memo", "")]
+        row_count = max(
+            len(food_names),
+            len(quantities),
+            len(grams_values),
+            len(calories_values),
+            len(memos),
+        )
+        meal_rows = []
+        for index in range(row_count):
+            food_name = value_at(food_names, index).strip()
+            quantity = value_at(quantities, index)
+            grams = value_at(grams_values, index)
+            calories = value_at(calories_values, index)
+            memo = value_at(memos, index).strip()
+            if food_name == "" and quantity.strip() == "" and grams.strip() == "" and calories.strip() == "" and memo == "":
+                continue
+            if food_name == "":
+                continue
+            meal_rows.append(
+                (
+                    food_name,
+                    parse_float(quantity),
+                    parse_float(grams),
+                    parse_float(calories),
+                    memo,
+                )
+            )
+
+        if not meal_rows:
             return redirect(url_for("index", date=meal_date))
 
         db = get_db()
-        db.execute(
-            """
-            INSERT INTO meal_entries
-                (meal_date, meal_type, food_name, calories, protein, carbs, fat, memo)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                meal_date,
-                meal_type,
-                food_name,
-                parse_float(request.form.get("amount")),
-                parse_float(request.form.get("grams")),
-                None,
-                None,
-                request.form.get("memo", "").strip(),
-            ),
-        )
+        for food_name, quantity, grams, calories, memo in meal_rows:
+            db.execute(
+                """
+                INSERT INTO meal_entries
+                    (meal_date, meal_type, food_name, quantity, grams, calories, memo)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (meal_date, meal_type, food_name, quantity, grams, calories, memo),
+            )
         db.commit()
         return redirect(url_for("index", date=meal_date))
 
@@ -251,6 +276,8 @@ def init_db() -> None:
             meal_date TEXT NOT NULL,
             meal_type TEXT NOT NULL DEFAULT '',
             food_name TEXT NOT NULL,
+            quantity REAL,
+            grams REAL,
             calories REAL,
             protein REAL,
             carbs REAL,
@@ -260,7 +287,30 @@ def init_db() -> None:
         );
         """
     )
+    ensure_column(db, "meal_entries", "quantity", "REAL")
+    ensure_column(db, "meal_entries", "grams", "REAL")
+    db.execute(
+        """
+        UPDATE meal_entries
+        SET
+            quantity = COALESCE(quantity, calories),
+            grams = COALESCE(grams, protein),
+            calories = NULL,
+            protein = NULL
+        WHERE quantity IS NULL
+          AND grams IS NULL
+          AND (calories IS NOT NULL OR protein IS NOT NULL)
+          AND carbs IS NULL
+          AND fat IS NULL
+        """
+    )
     db.commit()
+
+
+def ensure_column(db: sqlite3.Connection, table: str, column: str, column_type: str) -> None:
+    columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
+    if column not in columns:
+        db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
 
 
 def get_or_create_session(workout_date: str | None = None) -> sqlite3.Row:
@@ -335,6 +385,36 @@ def list_meals_for_date(meal_date: str) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def grouped_meals_for_date(meal_date: str) -> list[dict[str, object]]:
+    rows = get_db().execute(
+        """
+        SELECT *
+        FROM meal_entries
+        WHERE meal_date = ?
+        ORDER BY
+            CASE meal_type
+                WHEN '아침' THEN 1
+                WHEN '점심' THEN 2
+                WHEN '저녁' THEN 3
+                WHEN '간식' THEN 4
+                ELSE 5
+            END,
+            id
+        """,
+        (meal_date,),
+    ).fetchall()
+    groups: list[dict[str, object]] = []
+    group_by_type: dict[str, dict[str, object]] = {}
+    for item in rows:
+        meal_type = item["meal_type"] or "식사"
+        if meal_type not in group_by_type:
+            group = {"meal_type": meal_type, "entries": []}
+            group_by_type[meal_type] = group
+            groups.append(group)
+        group_by_type[meal_type]["entries"].append(item)
+    return groups
+
+
 def get_day_summary(day: str) -> dict[str, float]:
     db = get_db()
     workout = db.execute(
@@ -353,8 +433,9 @@ def get_day_summary(day: str) -> dict[str, float]:
         """
         SELECT
             COUNT(id) AS meal_count,
-            COALESCE(SUM(calories), 0) AS amount,
-            COALESCE(SUM(protein), 0) AS grams
+            COALESCE(SUM(quantity), 0) AS amount,
+            COALESCE(SUM(grams), 0) AS grams,
+            COALESCE(SUM(calories), 0) AS calories
         FROM meal_entries
         WHERE meal_date = ?
         """,
@@ -367,6 +448,7 @@ def get_day_summary(day: str) -> dict[str, float]:
         "meal_count": meal["meal_count"],
         "amount": meal["amount"],
         "grams": meal["grams"],
+        "calories": meal["calories"],
     }
 
 
@@ -387,8 +469,9 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
             SELECT
                 meal_date AS period,
                 COUNT(id) AS meal_count,
-                COALESCE(SUM(calories), 0) AS amount,
-                COALESCE(SUM(protein), 0) AS grams
+                COALESCE(SUM(quantity), 0) AS amount,
+                COALESCE(SUM(grams), 0) AS grams,
+                COALESCE(SUM(calories), 0) AS calories
             FROM meal_entries
             GROUP BY meal_date
         ),
@@ -404,7 +487,8 @@ def list_daily_summary(limit: int = 14) -> list[sqlite3.Row]:
             COALESCE(w.volume, 0) AS volume,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
-            COALESCE(m.grams, 0) AS grams
+            COALESCE(m.grams, 0) AS grams,
+            COALESCE(m.calories, 0) AS calories
         FROM periods p
         LEFT JOIN workout w ON w.period = p.period
         LEFT JOIN meal m ON m.period = p.period
@@ -438,8 +522,9 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
                 ((CAST(strftime('%d', meal_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
                 COUNT(DISTINCT meal_date) AS meal_days,
                 COUNT(id) AS meal_count,
-                COALESCE(SUM(calories), 0) AS amount,
-                COALESCE(SUM(protein), 0) AS grams
+                COALESCE(SUM(quantity), 0) AS amount,
+                COALESCE(SUM(grams), 0) AS grams,
+                COALESCE(SUM(calories), 0) AS calories
             FROM meal_entries
             GROUP BY month_key, week_of_month
         ),
@@ -458,7 +543,8 @@ def list_weekly_summary(limit: int = 12) -> list[sqlite3.Row]:
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
-            COALESCE(m.grams, 0) AS grams
+            COALESCE(m.grams, 0) AS grams,
+            COALESCE(m.calories, 0) AS calories
         FROM periods p
         LEFT JOIN workout w
             ON w.month_key = p.month_key AND w.week_of_month = p.week_of_month
@@ -494,8 +580,9 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
                 strftime(?, meal_date) AS period,
                 COUNT(DISTINCT meal_date) AS meal_days,
                 COUNT(id) AS meal_count,
-                COALESCE(SUM(calories), 0) AS amount,
-                COALESCE(SUM(protein), 0) AS grams
+                COALESCE(SUM(quantity), 0) AS amount,
+                COALESCE(SUM(grams), 0) AS grams,
+                COALESCE(SUM(calories), 0) AS calories
             FROM meal_entries
             GROUP BY strftime(?, meal_date)
         ),
@@ -513,7 +600,8 @@ def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
             COALESCE(m.meal_days, 0) AS meal_days,
             COALESCE(m.meal_count, 0) AS meal_count,
             COALESCE(m.amount, 0) AS amount,
-            COALESCE(m.grams, 0) AS grams
+            COALESCE(m.grams, 0) AS grams,
+            COALESCE(m.calories, 0) AS calories
         FROM periods p
         LEFT JOIN workout w ON w.period = p.period
         LEFT JOIN meal m ON m.period = p.period

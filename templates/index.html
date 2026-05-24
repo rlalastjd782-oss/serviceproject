@@ -33,9 +33,9 @@
         <small>수량 {{ "%.0f"|format(today_summary.amount) }}</small>
       </article>
       <article class="metric-tile metric-protein">
-        <span>총량</span>
-        <strong>{{ "%.1f"|format(today_summary.grams) }}g</strong>
-        <small>선택 날짜 누적</small>
+        <span>칼로리</span>
+        <strong>{{ "%.0f"|format(today_summary.calories) }}</strong>
+        <small>{{ "%.1f"|format(today_summary.grams) }}g 기록</small>
       </article>
     </div>
   </section>
@@ -95,36 +95,42 @@
       </div>
       <form method="post" action="{{ url_for('create_meal') }}" class="record-form">
         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-        <div class="input-grid">
-          <label>
-            <span>구분</span>
-            <select name="meal_type">
-              <option value="아침">아침</option>
-              <option value="점심">점심</option>
-              <option value="저녁">저녁</option>
-              <option value="간식">간식</option>
-              <option value="기타">기타</option>
-            </select>
-          </label>
-          <label>
-            <span>음식</span>
-            <input name="food_name" autocomplete="off" placeholder="닭가슴살 샐러드" required>
-          </label>
-        </div>
-        <div class="input-grid">
-          <label>
-            <span>수량</span>
-            <input name="amount" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
-          </label>
-          <label>
-            <span>그램 g</span>
-            <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="150">
-          </label>
-        </div>
         <label>
-          <span>메모</span>
-          <input name="memo" autocomplete="off" placeholder="외식, 보충제, 양 조절">
+          <span>구분</span>
+          <select name="meal_type">
+            <option value="아침">아침</option>
+            <option value="점심">점심</option>
+            <option value="저녁">저녁</option>
+            <option value="간식">간식</option>
+            <option value="기타">기타</option>
+          </select>
         </label>
+        <div class="set-entry-head">
+          <span>음식</span>
+          <button class="secondary-button" type="button" data-add-meal-row>음식 추가</button>
+        </div>
+        <div class="meal-entry-list" data-meal-list>
+          <div class="meal-entry-row">
+            <strong>1</strong>
+            <label>
+              <span>음식</span>
+              <input name="meal_food_name" autocomplete="off" placeholder="닭가슴살만두" required>
+            </label>
+            <label>
+              <span>수량</span>
+              <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+            </label>
+            <label>
+              <span>그램 g</span>
+              <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="150">
+            </label>
+            <label>
+              <span>칼로리</span>
+              <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="320">
+            </label>
+            <button class="row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
+          </div>
+        </div>
         <button class="primary-button" type="submit">식단 추가</button>
       </form>
     </article>
@@ -172,20 +178,23 @@
         </div>
       </div>
       <div class="set-list">
-        {% if meals %}
-          {% for item in meals %}
-            <article class="record-row">
-              <div>
-                <strong>{{ item.meal_type or "식사" }} · {{ item.food_name }}</strong>
-                <p>
-                  수량 {{ "%.0f"|format(item.calories or 0) }} ·
-                  {{ "%.1f"|format(item.protein or 0) }} g
-                </p>
-                {% if item.memo %}<small>{{ item.memo }}</small>{% endif %}
+        {% if meal_groups %}
+          {% for group in meal_groups %}
+            <article class="meal-group-row">
+              <strong>{{ group.meal_type }}</strong>
+              <div class="meal-chip-list">
+                {% for item in group.entries %}
+                  <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}" class="meal-chip">
+                    <span>
+                      {{ item.food_name }}
+                      {% if item.quantity is not none %} · {{ "%.0f"|format(item.quantity) }}개{% endif %}
+                      {% if item.grams is not none %} · {{ "%.1f"|format(item.grams) }}g{% endif %}
+                      {% if item.calories is not none %} · {{ "%.0f"|format(item.calories) }}kcal{% endif %}
+                    </span>
+                    <button type="submit" aria-label="식단 삭제">×</button>
+                  </form>
+                {% endfor %}
               </div>
-              <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}">
-                <button class="icon-button" type="submit" aria-label="식단 삭제">×</button>
-              </form>
             </article>
           {% endfor %}
         {% else %}

@@ -11,6 +11,7 @@
         <th>식단</th>
         <th>수량</th>
         <th>총량</th>
+        <th>칼로리</th>
       </tr>
     </thead>
     <tbody>
@@ -25,10 +26,11 @@
           <td>{{ item.meal_count }}</td>
           <td>{{ "%.0f"|format(item.amount) }}</td>
           <td>{{ "%.1f"|format(item.grams) }} g</td>
+          <td>{{ "%.0f"|format(item.calories) }}</td>
         </tr>
       {% else %}
         <tr>
-          <td colspan="9" class="empty-cell">기록을 추가하면 집계됩니다.</td>
+          <td colspan="10" class="empty-cell">기록을 추가하면 집계됩니다.</td>
         </tr>
       {% endfor %}
     </tbody>
