@@ -112,9 +112,24 @@ document.addEventListener("click", (event) => {
     if (!target) return;
 
     const isOpening = target.classList.contains("is-collapsed");
+    if (detailButton.classList.contains("body-part-toggle")) {
+      document.querySelectorAll(".body-part-exercise-list").forEach((list) => {
+        if (list !== target) {
+          list.classList.add("is-collapsed");
+          list.setAttribute("aria-hidden", "true");
+        }
+      });
+      document.querySelectorAll(".body-part-toggle").forEach((button) => {
+        if (button !== detailButton) {
+          button.classList.remove("is-active");
+          button.setAttribute("aria-expanded", "false");
+        }
+      });
+    }
     target.classList.toggle("is-collapsed", !isOpening);
     target.setAttribute("aria-hidden", String(!isOpening));
     detailButton.setAttribute("aria-expanded", String(isOpening));
+    detailButton.classList.toggle("is-active", isOpening);
   }
 });
 

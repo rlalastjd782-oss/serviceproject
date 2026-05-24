@@ -102,6 +102,46 @@
           <div class="empty">운동 기록 없음</div>
         {% endfor %}
       </div>
+      <div class="body-part-toggle-panel">
+        <div class="quick-panel-title">부위별 운동 리스트</div>
+        <div class="body-part-toggle-list">
+          {% for part in body_parts %}
+            {% set rows = body_part_exercise_summary.get(part, []) %}
+            {% set detail_id = "exercise-part-list-" ~ loop.index %}
+            <button
+              type="button"
+              class="body-part-toggle {{ body_part_class(part) }}"
+              data-toggle-detail
+              data-detail-target="{{ detail_id }}"
+              aria-expanded="false"
+              {% if not rows %}disabled{% endif %}
+            >
+              {{ part }}
+              <span>{{ rows|length }}</span>
+            </button>
+          {% endfor %}
+        </div>
+        {% for part in body_parts %}
+          {% set rows = body_part_exercise_summary.get(part, []) %}
+          {% set detail_id = "exercise-part-list-" ~ loop.index %}
+          <div id="{{ detail_id }}" class="detail-list full-detail-list is-collapsed body-part-exercise-list" aria-hidden="true">
+            <div class="detail-list-head">
+              <strong>{{ part }} 운동 리스트</strong>
+              <span>{{ rows|length }}개</span>
+            </div>
+            {% for exercise in rows %}
+              <div class="detail-row">
+                <strong>{{ exercise.name }}</strong>
+                <span>
+                  {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg
+                </span>
+              </div>
+            {% else %}
+              <div class="empty">이 부위의 운동 기록이 없습니다.</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
     </section>
   {% endif %}
 

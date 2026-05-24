@@ -109,6 +109,8 @@ def create_app() -> Flask:
             page_kicker="Exercise",
             table_kind="exercise",
             exercise_summary=list_exercise_summary(),
+            body_part_exercise_summary=list_exercise_summary_by_body_part(),
+            body_parts=body_part_options(),
             active_page="exercises",
         )
 
@@ -786,6 +788,29 @@ def list_exercise_summary(limit: int = 20) -> list[sqlite3.Row]:
         """,
         (limit,),
     ).fetchall()
+
+
+def list_exercise_summary_by_body_part() -> dict[str, list[sqlite3.Row]]:
+    rows = get_db().execute(
+        """
+        SELECT
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.name,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        GROUP BY body_part, e.name
+        ORDER BY body_part, last_date DESC, set_count DESC, e.name
+        """
+    ).fetchall()
+    grouped = {part: [] for part in body_part_options()}
+    for row in rows:
+        grouped.setdefault(row["body_part"] or "기타", []).append(row)
+    return grouped
 
 
 def list_body_part_summary(scope: str, limit: int = 30) -> list[sqlite3.Row]:

@@ -411,6 +411,56 @@ label span {
   font-size: 11px;
 }
 
+.body-part-toggle-panel {
+  display: grid;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.body-part-toggle-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.body-part-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0 10px;
+}
+
+.body-part-toggle span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  color: inherit;
+  font-size: 11px;
+}
+
+.body-part-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.body-part-toggle.is-active {
+  outline: 2px solid rgb(255 255 255 / 28%);
+  outline-offset: 2px;
+}
+
+.body-part-exercise-list {
+  margin-top: 0;
+}
+
 .set-entry-row,
 .meal-entry-row {
   display: grid;
