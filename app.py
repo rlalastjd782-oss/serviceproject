@@ -3117,9 +3117,14 @@ def list_body_part_summary(scope: str, limit: int = 30, date_text: str | None = 
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
             COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
+            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
+            COUNT(DISTINCT pe.id) AS pr_count,
+            MAX(CASE WHEN pe.record_type = '최고 중량' THEN pe.record_value END) AS best_pr_weight,
+            MAX(CASE WHEN pe.record_type = '최고 반복' THEN pe.record_value END) AS best_pr_reps,
+            MAX(CASE WHEN pe.record_type = '최고 볼륨' THEN pe.record_value END) AS best_pr_volume
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
+        LEFT JOIN pr_events pe ON pe.set_id = ws.id
         {where_clause}
         GROUP BY period, body_part
         ORDER BY MAX(s.workout_date) DESC, volume DESC, body_part
@@ -3154,10 +3159,15 @@ def list_weekly_body_part_details(date_text: str | None = None) -> dict[str, lis
             COUNT(ws.id) AS set_count,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COUNT(DISTINCT pe.id) AS pr_count,
+            MAX(CASE WHEN pe.record_type = '최고 중량' THEN pe.record_value END) AS best_pr_weight,
+            MAX(CASE WHEN pe.record_type = '최고 반복' THEN pe.record_value END) AS best_pr_reps,
+            MAX(CASE WHEN pe.record_type = '최고 볼륨' THEN pe.record_value END) AS best_pr_volume,
             MAX(s.workout_date) AS last_date
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         JOIN exercises e ON e.id = ws.exercise_id
+        LEFT JOIN pr_events pe ON pe.set_id = ws.id
         {where_clause}
         GROUP BY period, body_part, e.name, ws.weight, ws.cardio_incline, ws.cardio_speed, ws.cardio_minutes
         ORDER BY MAX(s.workout_date) DESC, body_part, e.name, ws.weight, ws.cardio_minutes

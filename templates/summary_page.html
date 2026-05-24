@@ -521,6 +521,14 @@
                 {{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg
               {% endif %}
             </div>
+            {% if active_page == "weekly" and item.pr_count %}
+              <div class="cat-stat-pr">
+                PR {{ item.pr_count }}개
+                {% if item.best_pr_weight %} · 최고 {{ "%.1f"|format(item.best_pr_weight) }}kg
+                {% elif item.best_pr_reps %} · 최고 {{ "%.0f"|format(item.best_pr_reps) }}회
+                {% elif item.best_pr_volume %} · 최고 {{ "%.0f"|format(item.best_pr_volume) }}kg{% endif %}
+              </div>
+            {% endif %}
             {% if active_page == "weekly" and detail_rows %}
               <button type="button" class="btn-small detail-inline-btn" data-toggle-detail data-detail-target="{{ detail_id }}" aria-expanded="false">상세</button>
             {% endif %}
@@ -545,6 +553,12 @@
                       {% if detail.weight is not none %}{{ "%.1f"|format(detail.weight) }}kg{% else %}-kg{% endif %}
                       · {{ detail.set_count }}세트
                       · {{ detail.rep_count }}회
+                      {% if detail.pr_count %}
+                        · PR {{ detail.pr_count }}개
+                        {% if detail.best_pr_weight %}· 최고 {{ "%.1f"|format(detail.best_pr_weight) }}kg
+                        {% elif detail.best_pr_reps %}· 최고 {{ "%.0f"|format(detail.best_pr_reps) }}회
+                        {% elif detail.best_pr_volume %}· 최고 {{ "%.0f"|format(detail.best_pr_volume) }}kg{% endif %}
+                      {% endif %}
                     {% endif %}
                   </span>
                 </div>
