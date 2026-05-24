@@ -20,12 +20,6 @@
     <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체</a>
   </div>
 
-  <nav class="mobile-action-dock workout-only" aria-label="운동 빠른 실행">
-    <a href="#workout-input">세트 추가</a>
-    <a href="#rest-timer">휴식</a>
-    <a href="#today-workout">오늘 운동</a>
-  </nav>
-
   <section class="today-focus-panel overview-only">
     <a class="today-focus-card" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">
       <strong>운동 기록</strong>
@@ -273,7 +267,7 @@
   {% endif %}
 
   {% if workout_mode and workout_plan %}
-    <section class="section workout-only workout-secondary-section" id="workout-plan">
+    <section class="section workout-only workout-plan-section" id="workout-plan">
       <div class="section-header">
         <div>
           <div class="section-title">루틴 진행</div>
@@ -495,7 +489,7 @@
     {% endif %}
   </section>
 
-  <section class="section overview-only workout-only">
+  <section class="section overview-only workout-only workout-recovery-section">
     <div class="section-header">
       <div class="section-title">회복 추천</div>
     </div>
@@ -515,7 +509,7 @@
     </div>
   </section>
 
-  <section class="section overview-only">
+  <section class="section overview-only rest-day-section">
     <div class="section-header">
       <div>
         <div class="section-title">휴식일 기록</div>
@@ -571,7 +565,7 @@
     {% endif %}
   </section>
 
-  <section class="section workout-only">
+  <section class="section workout-only routine-library-section workout-secondary-section">
     <div class="section-header">
       <div class="section-title">루틴</div>
     </div>
@@ -850,7 +844,7 @@
   </section>
 
   {% if workout_mode and recent_pr_events %}
-    <section class="section workout-only">
+    <section class="section workout-only workout-secondary-section">
       <div class="section-header">
         <div class="section-title">최근 신기록</div>
       </div>
@@ -866,7 +860,7 @@
   {% endif %}
 
   {% if workout_mode and pr_cards %}
-    <section class="section workout-only pr-card-section">
+    <section class="section workout-only pr-card-section workout-secondary-section">
       <div class="section-header">
         <div>
           <div class="section-title">오늘 PR 카드</div>

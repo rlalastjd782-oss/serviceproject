@@ -204,22 +204,22 @@ input[type="month"] {
 }
 
 .workout-mode .workout-action-dock {
-  order: 15;
-}
-
-.workout-mode .session-flow-section {
-  order: 20;
-}
-
-.workout-mode #rest-timer {
-  order: 30;
+  order: 12;
 }
 
 .workout-mode #workout-input {
-  order: 40;
+  order: 20;
 }
 
 .workout-mode #today-workout {
+  order: 30;
+}
+
+.workout-mode #rest-timer {
+  order: 40;
+}
+
+.workout-mode .session-flow-section {
   order: 50;
 }
 
@@ -231,6 +231,12 @@ input[type="month"] {
   order: 70;
 }
 
+.workout-mode .workout-recovery-section {
+  order: 80;
+}
+
+.workout-mode .workout-plan-section,
+.workout-mode .routine-library-section,
 .workout-mode .workout-secondary-section,
 .workout-mode .optional-section {
   order: 90;
@@ -281,6 +287,19 @@ input[type="month"] {
 .workout-mode .section {
   margin-bottom: 9px;
   padding: 11px;
+}
+
+.workout-mode .workout-plan-section,
+.workout-mode .routine-library-section,
+.workout-mode .workout-secondary-section {
+  background: rgb(17 24 39 / 55%);
+  border-color: rgb(75 85 99 / 55%);
+}
+
+.workout-mode .workout-plan-section .section-header,
+.workout-mode .routine-library-section .section-header,
+.workout-mode .workout-secondary-section .section-header {
+  margin-bottom: 8px;
 }
 
 .mode-actions {
