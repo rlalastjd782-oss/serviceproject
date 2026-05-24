@@ -86,7 +86,9 @@ def create_app() -> Flask:
             daily_calorie_goal=get_goal_value("daily_calories", 2200),
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
             recovery_statuses=list_recovery_statuses(today_session["workout_date"]),
+            recovery_checkin=get_recovery_checkin(today_session["workout_date"]),
             recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
+            daily_coaching=list_daily_coaching(today_session["workout_date"]),
             meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
             equipment_options=equipment_options(),
             today_mode=today_mode,
@@ -140,6 +142,7 @@ def create_app() -> Flask:
             weekly_goal_insights=build_goal_insights("weekly", week_start),
             rpe_report=build_rpe_report("weekly", week_start),
             report_insights=build_period_insights("weekly", week_start),
+            period_highlights=build_period_highlights("weekly", week_start),
             balance_warnings=list_balance_warnings("weekly", week_start),
             selected_week=week_start,
             prev_week=shift_date(week_start, -7),
@@ -167,6 +170,7 @@ def create_app() -> Flask:
             monthly_goals=get_goal_progress(month_start),
             monthly_goal_insights=build_goal_insights("monthly", month_start),
             report_insights=build_period_insights("monthly", month_start),
+            period_highlights=build_period_highlights("monthly", month_start),
             selected_month=month_start[:7],
             prev_month=shift_month(month_start, -1)[:7],
             next_month=shift_month(month_start, 1)[:7],
@@ -258,7 +262,26 @@ def create_app() -> Flask:
 
     @app.get("/settings")
     def settings_page():
-        return render_template("settings.html", active_page="settings", sample_counts=get_sample_data_counts())
+        return render_template(
+            "settings.html",
+            active_page="settings",
+            sample_counts=get_sample_data_counts(),
+            data_counts=get_data_counts(),
+            backup_status=get_backup_status(),
+        )
+
+    @app.post("/recovery-checkins")
+    def save_recovery_checkin_route():
+        checkin_date = normalize_date(request.form.get("checkin_date"))
+        save_recovery_checkin(
+            checkin_date,
+            parse_int(request.form.get("condition_score")) or 3,
+            parse_int(request.form.get("sleep_score")) or 3,
+            parse_int(request.form.get("soreness_score")) or 3,
+            parse_int(request.form.get("fatigue_score")) or 3,
+            request.form.get("memo", "").strip(),
+        )
+        return redirect(url_for("index", date=checkin_date, mode=request.form.get("mode") or "workout"))
 
     @app.post("/sets")
     def create_set():
@@ -970,6 +993,17 @@ def init_db() -> None:
             calories REAL,
             sort_order INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (template_id) REFERENCES meal_templates (id) ON DELETE CASCADE
+        );
+
+        CREATE TABLE IF NOT EXISTS recovery_checkins (
+            checkin_date TEXT PRIMARY KEY,
+            condition_score INTEGER NOT NULL DEFAULT 3,
+            sleep_score INTEGER NOT NULL DEFAULT 3,
+            soreness_score INTEGER NOT NULL DEFAULT 3,
+            fatigue_score INTEGER NOT NULL DEFAULT 3,
+            memo TEXT NOT NULL DEFAULT '',
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
         """
     )
@@ -2492,6 +2526,174 @@ def list_preferred_exercises_for_body_part(body_part: str, limit: int = 2) -> tu
     return items[:limit], equipment
 
 
+def get_recovery_checkin(date_text: str) -> dict[str, object]:
+    row = get_db().execute(
+        "SELECT * FROM recovery_checkins WHERE checkin_date = ?",
+        (date_text,),
+    ).fetchone()
+    if row:
+        return dict(row)
+    return {
+        "checkin_date": date_text,
+        "condition_score": 3,
+        "sleep_score": 3,
+        "soreness_score": 3,
+        "fatigue_score": 3,
+        "memo": "",
+    }
+
+
+def save_recovery_checkin(
+    checkin_date: str,
+    condition_score: int,
+    sleep_score: int,
+    soreness_score: int,
+    fatigue_score: int,
+    memo: str,
+) -> None:
+    def clamp_score(value: int) -> int:
+        return max(1, min(5, int(value or 3)))
+
+    get_db().execute(
+        """
+        INSERT INTO recovery_checkins (
+            checkin_date, condition_score, sleep_score, soreness_score, fatigue_score, memo, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(checkin_date) DO UPDATE SET
+            condition_score = excluded.condition_score,
+            sleep_score = excluded.sleep_score,
+            soreness_score = excluded.soreness_score,
+            fatigue_score = excluded.fatigue_score,
+            memo = excluded.memo,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (
+            checkin_date,
+            clamp_score(condition_score),
+            clamp_score(sleep_score),
+            clamp_score(soreness_score),
+            clamp_score(fatigue_score),
+            memo[:200],
+        ),
+    )
+    get_db().commit()
+
+
+def list_daily_coaching(date_text: str) -> list[str]:
+    checkin = get_recovery_checkin(date_text)
+    condition = int(checkin["condition_score"] or 3)
+    sleep = int(checkin["sleep_score"] or 3)
+    soreness = int(checkin["soreness_score"] or 3)
+    fatigue = int(checkin["fatigue_score"] or 3)
+    messages = []
+    if condition >= 4 and sleep >= 4 and fatigue <= 2:
+        messages.append("컨디션이 좋습니다. 메인 운동은 지난 기록보다 1회 또는 2.5kg 도전을 고려하세요.")
+    elif sleep <= 2 or fatigue >= 4:
+        messages.append("회복 점수가 낮습니다. 고중량보다 가벼운 볼륨이나 유산소 위주가 낫습니다.")
+    else:
+        messages.append("평균 컨디션입니다. 지난 기록과 같은 중량에서 안정적으로 세트를 채우세요.")
+    if soreness >= 4:
+        messages.append("근육통이 높습니다. 같은 부위 반복보다 회복된 부위를 선택하세요.")
+    messages.extend(list_recovery_recommendations(date_text))
+    return messages[:4]
+
+
+def build_period_highlights(scope: str, date_text: str) -> list[dict[str, str]]:
+    if scope == "weekly":
+        start = week_start_for_date(date_text)
+        end = shift_date(start, 6)
+    else:
+        start = normalize_month(date_text[:7])
+        end = shift_date(shift_month(start, 1), -1)
+    db = get_db()
+    top_exercise = db.execute(
+        """
+        SELECT e.name, COUNT(ws.id) AS set_count,
+               COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE s.workout_date BETWEEN ? AND ?
+        GROUP BY e.name
+        ORDER BY set_count DESC, volume DESC, e.name
+        LIMIT 1
+        """,
+        (start, end),
+    ).fetchone()
+    best_pr = db.execute(
+        """
+        SELECT workout_date, exercise_name, record_type, record_value
+        FROM pr_events
+        WHERE workout_date BETWEEN ? AND ?
+        ORDER BY record_value DESC, workout_date DESC
+        LIMIT 1
+        """,
+        (start, end),
+    ).fetchone()
+    avg_recovery = db.execute(
+        """
+        SELECT AVG(condition_score) AS condition_score, AVG(sleep_score) AS sleep_score,
+               AVG(soreness_score) AS soreness_score, AVG(fatigue_score) AS fatigue_score
+        FROM recovery_checkins
+        WHERE checkin_date BETWEEN ? AND ?
+        """,
+        (start, end),
+    ).fetchone()
+    highlights: list[dict[str, str]] = []
+    if top_exercise:
+        highlights.append(
+            {
+                "label": "최다 운동",
+                "value": top_exercise["name"],
+                "note": f"{int(top_exercise['set_count'] or 0)}세트 · {float(top_exercise['volume'] or 0):.0f}kg",
+            }
+        )
+    if best_pr:
+        highlights.append(
+            {
+                "label": "대표 PR",
+                "value": best_pr["exercise_name"],
+                "note": f"{best_pr['record_type']} {float(best_pr['record_value'] or 0):.0f} · {best_pr['workout_date']}",
+            }
+        )
+    if avg_recovery and avg_recovery["condition_score"]:
+        readiness = (
+            float(avg_recovery["condition_score"] or 0)
+            + float(avg_recovery["sleep_score"] or 0)
+            + (6 - float(avg_recovery["fatigue_score"] or 3))
+            + (6 - float(avg_recovery["soreness_score"] or 3))
+        ) / 4
+        highlights.append({"label": "회복 평균", "value": f"{readiness:.1f}/5", "note": "컨디션·수면·피로·근육통 기준"})
+    if not highlights:
+        highlights.append({"label": "리포트", "value": "기록 대기", "note": "운동이나 회복 기록을 입력하면 표시됩니다."})
+    return highlights[:3]
+
+
+def get_data_counts() -> dict[str, int]:
+    db = get_db()
+    return {
+        "workouts": db.execute("SELECT COUNT(*) FROM workout_sessions").fetchone()[0],
+        "sets": db.execute("SELECT COUNT(*) FROM workout_sets").fetchone()[0],
+        "meals": db.execute("SELECT COUNT(*) FROM meal_entries").fetchone()[0],
+        "routines": db.execute("SELECT COUNT(*) FROM routine_templates").fetchone()[0],
+        "meal_templates": db.execute("SELECT COUNT(*) FROM meal_templates").fetchone()[0],
+        "recovery": db.execute("SELECT COUNT(*) FROM recovery_checkins").fetchone()[0],
+    }
+
+
+def get_backup_status() -> dict[str, str]:
+    backup_dirs = [BASE_DIR / "instance" / "delete_backups", BASE_DIR / "instance" / "restore_backups"]
+    files = []
+    for backup_dir in backup_dirs:
+        if backup_dir.exists():
+            files.extend(path for path in backup_dir.glob("*.json") if path.is_file())
+    if not files:
+        return {"last_backup": "없음", "count": "0"}
+    latest = max(files, key=lambda path: path.stat().st_mtime)
+    return {"last_backup": latest.name, "count": str(len(files))}
+
+
 def get_sample_data_counts() -> dict[str, int]:
     db = get_db()
     return {
@@ -2555,6 +2757,7 @@ def delete_all_data() -> None:
         "meal_entries",
         "body_photos",
         "body_metrics",
+        "recovery_checkins",
         "exercise_notes",
         "exercise_settings",
         "food_favorites",
@@ -2590,6 +2793,7 @@ def export_all_data() -> dict[str, object]:
         "pr_events",
         "body_metrics",
         "body_photos",
+        "recovery_checkins",
     ]
     return {
         "exported_at": datetime.now().isoformat(timespec="seconds"),
@@ -2661,6 +2865,7 @@ def import_all_data(payload: dict[str, object]) -> None:
         "pr_events",
         "body_metrics",
         "body_photos",
+        "recovery_checkins",
     ]
     db = get_db()
     backup_dir = BASE_DIR / "instance" / "restore_backups"

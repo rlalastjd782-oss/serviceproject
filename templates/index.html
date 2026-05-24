@@ -156,6 +156,47 @@
     </section>
   {% endif %}
 
+  {% if workout_mode %}
+    <section class="section workout-only readiness-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">오늘 컨디션</div>
+          <div class="section-subtitle">운동 강도 추천에 쓰는 간단 체크입니다.</div>
+        </div>
+      </div>
+      <form method="post" action="{{ url_for('save_recovery_checkin_route') }}" class="readiness-form">
+        <input type="hidden" name="checkin_date" value="{{ session.workout_date }}">
+        <input type="hidden" name="mode" value="workout">
+        <label>
+          <span>컨디션</span>
+          <input name="condition_score" type="range" min="1" max="5" value="{{ recovery_checkin.condition_score }}">
+        </label>
+        <label>
+          <span>수면</span>
+          <input name="sleep_score" type="range" min="1" max="5" value="{{ recovery_checkin.sleep_score }}">
+        </label>
+        <label>
+          <span>근육통</span>
+          <input name="soreness_score" type="range" min="1" max="5" value="{{ recovery_checkin.soreness_score }}">
+        </label>
+        <label>
+          <span>피로</span>
+          <input name="fatigue_score" type="range" min="1" max="5" value="{{ recovery_checkin.fatigue_score }}">
+        </label>
+        <input name="memo" value="{{ recovery_checkin.memo }}" placeholder="컨디션 메모">
+        <button class="btn-small" type="submit">저장</button>
+      </form>
+      <div class="detail-list compact-detail-list readiness-advice">
+        {% for message in daily_coaching %}
+          <div class="detail-row">
+            <strong>추천</strong>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
   {% if workout_mode and weekly_routine_recommendations %}
     <section class="section workout-only">
       <div class="section-header">

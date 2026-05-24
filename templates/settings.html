@@ -6,6 +6,51 @@
   <section class="section">
     <div class="section-header">
       <div>
+        <div class="section-title">앱 관리</div>
+        <div class="section-subtitle">현재 저장된 데이터와 백업 상태를 먼저 확인합니다.</div>
+      </div>
+    </div>
+    <div class="summary-grid settings-summary-grid">
+      <article class="summary-card">
+        <div class="summary-value">{{ data_counts.workouts }}</div>
+        <div class="summary-label">운동일</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ data_counts.sets }}</div>
+        <div class="summary-label">세트</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ data_counts.meals }}</div>
+        <div class="summary-label">식단</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ data_counts.routines }}</div>
+        <div class="summary-label">운동 루틴</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ data_counts.recovery }}</div>
+        <div class="summary-label">컨디션 기록</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ backup_status.count }}</div>
+        <div class="summary-label">자동 백업</div>
+      </article>
+    </div>
+    <div class="detail-list compact-detail-list">
+      <div class="detail-row">
+        <strong>최근 자동 백업</strong>
+        <span>{{ backup_status.last_backup }}</span>
+      </div>
+      <div class="detail-row">
+        <strong>앱 버전</strong>
+        <span>{{ app_version }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
         <div class="section-title">백업</div>
         <div class="section-subtitle">운동, 식단, 루틴, 목표, 체성분 데이터를 JSON으로 저장합니다.</div>
       </div>

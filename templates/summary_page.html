@@ -98,6 +98,12 @@
           </article>
         </div>
         <div class="detail-list">
+          {% for item in period_highlights %}
+            <div class="detail-row highlight-row">
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.value }}{% if item.note %} · {{ item.note }}{% endif %}</span>
+            </div>
+          {% endfor %}
           <div class="detail-row">
             <strong>가장 많이 한 부위</strong>
             <span>{{ weekly_report.top_part }}</span>
@@ -197,6 +203,12 @@
           </form>
         {% endif %}
         <div class="detail-list">
+          {% for item in period_highlights %}
+            <div class="detail-row highlight-row">
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.value }}{% if item.note %} · {{ item.note }}{% endif %}</span>
+            </div>
+          {% endfor %}
           <div class="detail-row">
             <strong>가장 많이 한 운동</strong>
             <span>{{ monthly_report.top_exercise }}{% if monthly_report.top_exercise_sets %} · {{ monthly_report.top_exercise_sets }}세트{% endif %}</span>

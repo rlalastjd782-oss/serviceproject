@@ -630,6 +630,45 @@ label span {
   margin-top: 10px;
 }
 
+.readiness-section {
+  border-color: rgb(34 197 94 / 35%);
+}
+
+.readiness-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  align-items: end;
+}
+
+.readiness-form label {
+  min-width: 0;
+}
+
+.readiness-form input[type="range"] {
+  width: 100%;
+  accent-color: var(--green);
+}
+
+.readiness-form > input[name="memo"] {
+  grid-column: 1 / -2;
+}
+
+.readiness-advice {
+  margin-top: 10px;
+}
+
+.highlight-row {
+  border-color: rgb(96 165 250 / 22%);
+  border-radius: 8px;
+  background: #101b2e;
+  padding: 8px;
+}
+
+.settings-summary-grid {
+  margin-bottom: 10px;
+}
+
 .recovery-grid,
 .routine-recommend-grid,
 .quick-workout-grid {
@@ -2139,8 +2178,13 @@ tbody tr:last-child td {
 
   .focus-grid,
   .focus-shortcuts,
+  .readiness-form,
   .period-filter-form {
     grid-template-columns: 1fr;
+  }
+
+  .readiness-form > input[name="memo"] {
+    grid-column: 1;
   }
 
   .tool-input-row {
