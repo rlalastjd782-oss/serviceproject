@@ -445,6 +445,12 @@ label span {
   color: #22c55e;
 }
 
+.workout-save-status {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+
 .timer-display.is-running {
   color: #22c55e;
 }

@@ -29,8 +29,10 @@
     <div class="timer-actions">
       <button class="btn-small" type="button" data-workout-clock-start>시작</button>
       <button class="btn-small" type="button" data-workout-clock-pause>일시정지</button>
+      <button class="btn-primary" type="button" data-workout-clock-save>저장</button>
       <button class="btn-danger" type="button" data-workout-clock-reset>초기화</button>
     </div>
+    <div class="workout-save-status" data-workout-clock-status>저장 대기</div>
     <form method="post" action="{{ url_for('update_session_duration_route', session_id=session.id) }}" class="duration-edit-form">
       <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
       <label>

@@ -110,6 +110,7 @@ document.addEventListener("click", (event) => {
   const restStopButton = event.target.closest("[data-rest-stop]");
   const workoutClockStartButton = event.target.closest("[data-workout-clock-start]");
   const workoutClockPauseButton = event.target.closest("[data-workout-clock-pause]");
+  const workoutClockSaveButton = event.target.closest("[data-workout-clock-save]");
   const workoutClockResetButton = event.target.closest("[data-workout-clock-reset]");
 
   const setList = document.querySelector("[data-set-list]");
@@ -140,6 +141,11 @@ document.addEventListener("click", (event) => {
 
   if (workoutClockPauseButton) {
     pauseWorkoutClock();
+    return;
+  }
+
+  if (workoutClockSaveButton) {
+    persistWorkoutClock("저장됨");
     return;
   }
 
@@ -575,6 +581,14 @@ function saveWorkoutClock(state) {
   }
 }
 
+function updateWorkoutClockStatus(message) {
+  const status = document.querySelector("[data-workout-clock-status]");
+  if (!status) {
+    return;
+  }
+  status.textContent = message;
+}
+
 function initWorkoutClock() {
   if (!workoutClockPanel) {
     return;
@@ -605,6 +619,7 @@ function startWorkoutClock(shouldUpdate = true) {
     return;
   }
   saveWorkoutClock({ startedAt: Date.now(), elapsedMs: Number(state.elapsedMs || 0) });
+  updateWorkoutClockStatus("측정 중");
   if (shouldUpdate) {
     updateWorkoutClockDisplay();
   }
@@ -618,13 +633,13 @@ function pauseWorkoutClock() {
   const elapsedMs = Number(state.elapsedMs || 0) + (Date.now() - Number(state.startedAt));
   saveWorkoutClock({ startedAt: null, elapsedMs });
   updateWorkoutClockDisplay();
-  persistWorkoutClock();
+  persistWorkoutClock("일시정지 저장됨");
 }
 
 function resetWorkoutClock() {
   saveWorkoutClock({ startedAt: null, elapsedMs: 0 });
   updateWorkoutClockDisplay();
-  persistWorkoutClock();
+  persistWorkoutClock("시간 삭제됨");
 }
 
 function currentWorkoutElapsedMs() {
@@ -636,17 +651,24 @@ function currentWorkoutSeconds() {
   return Math.max(0, Math.floor(currentWorkoutElapsedMs() / 1000));
 }
 
-function persistWorkoutClock() {
+function persistWorkoutClock(successMessage = "자동 저장됨") {
   const url = workoutClockPanel?.dataset.durationUrl;
   if (!url) {
     return;
   }
+  updateWorkoutClockStatus("저장 중");
   fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ duration_seconds: currentWorkoutSeconds() }),
     keepalive: true,
-  }).catch(() => {});
+  })
+    .then((response) => {
+      updateWorkoutClockStatus(response.ok ? successMessage : "저장 실패");
+    })
+    .catch(() => {
+      updateWorkoutClockStatus("저장 실패");
+    });
 }
 
 function sendWorkoutClockBeacon() {
