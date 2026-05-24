@@ -18,6 +18,21 @@
     <a class="btn-small mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체 보기</a>
   </div>
 
+  <section class="section workout-clock-section" data-workout-clock data-workout-date="{{ session.workout_date }}" data-workout-mode="{% if workout_mode %}1{% else %}0{% endif %}">
+    <div class="section-header">
+      <div>
+        <div class="section-title">운동 시간</div>
+        <div class="section-subtitle">{% if workout_mode %}운동 시작 모드에서 자동으로 측정됩니다.{% else %}운동 시작을 누르면 자동으로 시작됩니다.{% endif %}</div>
+      </div>
+      <div class="workout-clock-display" data-workout-clock-display>00:00:00</div>
+    </div>
+    <div class="timer-actions">
+      <button class="btn-small" type="button" data-workout-clock-start>시작</button>
+      <button class="btn-small" type="button" data-workout-clock-pause>일시정지</button>
+      <button class="btn-danger" type="button" data-workout-clock-reset>초기화</button>
+    </div>
+  </section>
+
   <div class="summary-grid optional-section">
     <article class="summary-card">
       <div class="summary-icon">🏃</div>

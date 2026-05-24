@@ -41,6 +41,9 @@ const foodQuickPanel = document.querySelector("[data-food-quick-panel]");
 const foodQuickList = document.querySelector("[data-food-quick-list]");
 const foodQuickEmpty = document.querySelector("[data-food-quick-empty]");
 const foodsByMealType = parseJsonData(foodQuickPanel, "foodsByMealType");
+const workoutClockPanel = document.querySelector("[data-workout-clock]");
+
+initWorkoutClock();
 
 document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   applyBodyPartSelectColor(select);
@@ -89,6 +92,9 @@ document.addEventListener("click", (event) => {
   const foodQuickButton = event.target.closest("[data-food-entry]");
   const restButton = event.target.closest("[data-rest-seconds]");
   const restStopButton = event.target.closest("[data-rest-stop]");
+  const workoutClockStartButton = event.target.closest("[data-workout-clock-start]");
+  const workoutClockPauseButton = event.target.closest("[data-workout-clock-pause]");
+  const workoutClockResetButton = event.target.closest("[data-workout-clock-reset]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
@@ -108,6 +114,21 @@ document.addEventListener("click", (event) => {
 
   if (restStopButton) {
     stopRestTimer();
+    return;
+  }
+
+  if (workoutClockStartButton) {
+    startWorkoutClock();
+    return;
+  }
+
+  if (workoutClockPauseButton) {
+    pauseWorkoutClock();
+    return;
+  }
+
+  if (workoutClockResetButton) {
+    resetWorkoutClock();
     return;
   }
 
@@ -486,6 +507,7 @@ function renumberRows(list, selector) {
 
 let restTimerId = null;
 let restRemaining = 0;
+let workoutClockId = null;
 
 function startRestTimer(seconds) {
   if (!seconds) {
@@ -519,4 +541,72 @@ function updateRestTimerDisplay() {
   const seconds = restRemaining % 60;
   display.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   display.classList.toggle("is-running", restRemaining > 0);
+}
+
+function workoutClockKey() {
+  return `workout-clock:${workoutClockPanel?.dataset.workoutDate || "today"}`;
+}
+
+function readWorkoutClock() {
+  try {
+    return JSON.parse(localStorage.getItem(workoutClockKey()) || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveWorkoutClock(state) {
+  localStorage.setItem(workoutClockKey(), JSON.stringify(state));
+}
+
+function initWorkoutClock() {
+  if (!workoutClockPanel) {
+    return;
+  }
+  const state = readWorkoutClock();
+  if (workoutClockPanel.dataset.workoutMode === "1" && !state.startedAt && !state.elapsedMs) {
+    saveWorkoutClock({ startedAt: Date.now(), elapsedMs: 0 });
+  }
+  updateWorkoutClockDisplay();
+  clearInterval(workoutClockId);
+  workoutClockId = setInterval(updateWorkoutClockDisplay, 1000);
+}
+
+function startWorkoutClock() {
+  const state = readWorkoutClock();
+  if (state.startedAt) {
+    return;
+  }
+  saveWorkoutClock({ startedAt: Date.now(), elapsedMs: Number(state.elapsedMs || 0) });
+  updateWorkoutClockDisplay();
+}
+
+function pauseWorkoutClock() {
+  const state = readWorkoutClock();
+  if (!state.startedAt) {
+    return;
+  }
+  const elapsedMs = Number(state.elapsedMs || 0) + (Date.now() - Number(state.startedAt));
+  saveWorkoutClock({ startedAt: null, elapsedMs });
+  updateWorkoutClockDisplay();
+}
+
+function resetWorkoutClock() {
+  saveWorkoutClock({ startedAt: null, elapsedMs: 0 });
+  updateWorkoutClockDisplay();
+}
+
+function updateWorkoutClockDisplay() {
+  const display = document.querySelector("[data-workout-clock-display]");
+  if (!display) {
+    return;
+  }
+  const state = readWorkoutClock();
+  const elapsedMs = Number(state.elapsedMs || 0) + (state.startedAt ? Date.now() - Number(state.startedAt) : 0);
+  const totalSeconds = Math.max(0, Math.floor(elapsedMs / 1000));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  display.textContent = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  display.classList.toggle("is-running", Boolean(state.startedAt));
 }

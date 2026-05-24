@@ -428,6 +428,23 @@ label span {
   letter-spacing: 0;
 }
 
+.workout-clock-section {
+  border-color: #2563eb;
+  background: linear-gradient(180deg, #121a29, var(--panel));
+}
+
+.workout-clock-display {
+  color: var(--strong);
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.workout-clock-display.is-running {
+  color: #22c55e;
+}
+
 .timer-display.is-running {
   color: #22c55e;
 }
