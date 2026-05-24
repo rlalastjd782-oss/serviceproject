@@ -160,6 +160,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn('list="exercise-list"', html)
         self.assertIn(f'value="{strength_name}"', html)
         self.assertIn(f'value="{cardio_name}"', html)
+        self.assertIn('class="set-row-actions"', html)
 
         response = self.client.get("/summaries/exercises")
         self.assertIn('list="exercise-search-list"', response.data.decode("utf-8"))

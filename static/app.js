@@ -368,6 +368,11 @@ function renderExerciseQuickList(bodyPart) {
       return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}">${safeName}</button>`;
     })
     .join("");
+  if (exerciseDatalist) {
+    exerciseDatalist.innerHTML = names
+      .map((name) => `<option value="${escapeHtml(name)}"></option>`)
+      .join("");
+  }
   exerciseQuickEmpty.hidden = names.length > 0;
   renderRecentSetList(exerciseNameInput?.value || "");
   renderExerciseGuidance(exerciseNameInput?.value || "");
@@ -646,8 +651,10 @@ function setRowHtml(index) {
     </div>
     <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
     <input name="set_memo" autocomplete="off" placeholder="메모">
-    <button class="row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
-    <button class="row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
+    <div class="set-row-actions">
+      <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
+      <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">×</button>
+    </div>
   `;
 }
 

@@ -1403,7 +1403,7 @@ label span {
 }
 
 .set-entry-row {
-  grid-template-columns: minmax(0, 1fr) 48px 34px;
+  grid-template-columns: minmax(0, 1fr) minmax(92px, 0.44fr) 92px;
 }
 
 .meal-entry-row {
@@ -1446,15 +1446,20 @@ label span {
   grid-column: 1;
 }
 
-.set-entry-row .row-remove-button,
+.set-entry-row .set-row-actions,
 .meal-entry-row .row-remove-button {
   grid-column: 3;
   grid-row: 1;
 }
 
+.set-row-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 5px;
+  align-self: stretch;
+}
+
 .row-copy-button {
-  grid-column: 2;
-  grid-row: 1;
   min-height: 38px;
   border: 1px solid var(--line-strong);
   border-radius: 8px;
@@ -1462,7 +1467,7 @@ label span {
   color: var(--blue);
   font-size: 11px;
   font-weight: 800;
-  padding: 0;
+  padding: 0 6px;
 }
 
 .meal-entry-row .row-remove-button {
@@ -2738,7 +2743,7 @@ tbody tr:last-child td {
   }
 
   .set-entry-row {
-    grid-template-columns: minmax(0, 1fr) 42px 32px;
+    grid-template-columns: minmax(0, 1fr) minmax(82px, 0.45fr) 84px;
   }
 
   .meal-compact-grid {
@@ -2883,9 +2888,20 @@ tbody tr:last-child td {
   }
 
   .set-entry-row {
-    grid-template-columns: minmax(0, 1fr) 40px 32px;
+    grid-template-columns: minmax(0, 1fr);
     gap: 5px;
     padding: 7px;
+  }
+
+  .set-entry-row > select,
+  .set-entry-row > input,
+  .set-entry-row .set-row-actions {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .set-row-actions {
+    grid-template-columns: minmax(0, 1fr) 40px;
   }
 
   .set-entry-row input,
