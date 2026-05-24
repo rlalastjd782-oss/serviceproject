@@ -574,32 +574,6 @@ select:focus {
   font-weight: 800;
 }
 
-.group-edit-form {
-  display: grid;
-  grid-template-columns: minmax(112px, 0.7fr) minmax(150px, 1.3fr) auto;
-  align-items: end;
-  gap: 8px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px;
-  background: rgb(255 255 255 / 2.5%);
-}
-
-.group-edit-form label {
-  display: grid;
-  gap: 5px;
-}
-
-.group-edit-form label span {
-  color: var(--muted);
-  font-size: 0.76rem;
-  font-weight: 800;
-}
-
-.group-edit-form .secondary-button {
-  min-height: 44px;
-}
-
 .vertical-item-list {
   display: grid;
   gap: 7px;
@@ -757,8 +731,7 @@ tbody tr:last-child td {
   .input-grid,
   .macro-grid,
   .set-entry-row,
-  .meal-entry-row,
-  .group-edit-form {
+  .meal-entry-row {
     grid-template-columns: 1fr;
   }
 

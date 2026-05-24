@@ -160,25 +160,6 @@
           {% for group in workout_groups %}
             <article class="workout-group-row">
               <strong><span>{{ group.body_part }}</span>{{ group.exercise_name }}</strong>
-              <form method="post" action="{{ url_for('update_workout_group') }}" class="group-edit-form">
-                <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
-                <input type="hidden" name="session_id" value="{{ group.session_id }}">
-                <input type="hidden" name="exercise_id" value="{{ group.exercise_id }}">
-                <input type="hidden" name="old_body_part" value="{{ group.body_part }}">
-                <label>
-                  <span>운동부위</span>
-                  <select name="body_part">
-                    {% for body_part in body_parts %}
-                      <option value="{{ body_part }}" {% if group.body_part == body_part %}selected{% endif %}>{{ body_part }}</option>
-                    {% endfor %}
-                  </select>
-                </label>
-                <label>
-                  <span>운동명</span>
-                  <input type="text" name="exercise_name" value="{{ group.exercise_name }}" list="exercise-list" required>
-                </label>
-                <button type="submit" class="secondary-button">수정</button>
-              </form>
               <div class="vertical-item-list">
                 {% for item in group.sets %}
                   <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}" class="vertical-list-item">
