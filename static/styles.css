@@ -156,6 +156,53 @@ a {
   display: none;
 }
 
+.today-shell.workout-mode {
+  display: flex;
+  flex-direction: column;
+}
+
+.workout-mode .date-row,
+.workout-mode .today-mode-actions {
+  order: 0;
+}
+
+.workout-mode .workout-clock-section {
+  order: 10;
+}
+
+.workout-mode .workout-action-dock {
+  order: 15;
+}
+
+.workout-mode .session-flow-section {
+  order: 20;
+}
+
+.workout-mode #rest-timer {
+  order: 30;
+}
+
+.workout-mode #workout-input {
+  order: 40;
+}
+
+.workout-mode #today-workout {
+  order: 50;
+}
+
+.workout-mode .workout-focus-section {
+  order: 60;
+}
+
+.workout-mode .workout-finish-section {
+  order: 70;
+}
+
+.workout-mode .workout-secondary-section,
+.workout-mode .optional-section {
+  order: 90;
+}
+
 .date-row {
   display: flex;
   align-items: center;
@@ -475,9 +522,9 @@ label span {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .exercise-profile-grid {
