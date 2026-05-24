@@ -7,9 +7,19 @@
     <div class="section-header">
       <div>
         <div class="section-title">백업</div>
-        <div class="section-subtitle">운동, 식단, 루틴, 목표, 체성분 데이터를 저장합니다.</div>
+        <div class="section-subtitle">운동, 식단, 루틴, 목표, 체성분 데이터를 JSON으로 저장합니다.</div>
       </div>
       <a class="btn-small" href="{{ url_for('export_json') }}">다운로드</a>
+    </div>
+    <div class="detail-list compact-detail-list">
+      <div class="detail-row">
+        <strong>권장 주기</strong>
+        <span>PythonAnywhere 배포 DB는 주 1회 JSON 백업을 권장합니다.</span>
+      </div>
+      <div class="detail-row">
+        <strong>복원 안전장치</strong>
+        <span>복원 전 현재 데이터는 자동으로 instance/restore_backups에 저장됩니다.</span>
+      </div>
     </div>
     <div class="settings-action-row">
       <a class="btn-small" href="{{ url_for('export_csv') }}">운동 CSV 다운로드</a>

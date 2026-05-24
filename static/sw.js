@@ -1,5 +1,15 @@
-const CACHE_NAME = "workout-pwa-v22";
-const ASSETS = ["/", "/static/styles.css", "/static/app.js", "/static/manifest.webmanifest", "/static/icon.svg"];
+const CACHE_NAME = "workout-pwa-v23";
+const ASSETS = [
+  "/",
+  "/?mode=workout",
+  "/?mode=meal",
+  "/summaries/weekly",
+  "/summaries/monthly",
+  "/static/styles.css",
+  "/static/app.js",
+  "/static/manifest.webmanifest",
+  "/static/icon.svg",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
@@ -14,17 +24,20 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") {
+  const requestUrl = new URL(event.request.url);
+  if (event.request.method !== "GET" || requestUrl.origin !== location.origin) {
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
         return response;
       })
-      .catch(() => caches.match(event.request)),
+      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/"))),
   );
 });

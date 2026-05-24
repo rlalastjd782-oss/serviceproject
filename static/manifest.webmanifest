@@ -1,10 +1,36 @@
 {
   "name": "운동 및 식단 관리",
   "short_name": "운동식단",
+  "description": "운동, 식단, 목표, PR을 모바일에서 빠르게 기록하는 개인 헬스 트래커",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
+  "lang": "ko",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#080b12",
   "theme_color": "#080b12",
+  "categories": ["health", "fitness", "productivity"],
+  "shortcuts": [
+    {
+      "name": "운동 입력",
+      "short_name": "운동",
+      "url": "/?mode=workout",
+      "icons": [{ "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "식단 입력",
+      "short_name": "식단",
+      "url": "/?mode=meal",
+      "icons": [{ "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "주간 집계",
+      "short_name": "주간",
+      "url": "/summaries/weekly",
+      "icons": [{ "src": "/static/icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ],
   "icons": [
     {
       "src": "/static/icon.svg",

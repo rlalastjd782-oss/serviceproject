@@ -10,33 +10,20 @@ from pathlib import Path
 
 from flask import Flask, Response, g, jsonify, redirect, render_template, request, url_for
 
+from app_constants import (
+    BODY_PART_CLASSES,
+    BODY_PARTS,
+    DEFAULT_BODY_WEIGHT_KG,
+    DEFAULT_PROGRAMS,
+    EQUIPMENT_OPTIONS,
+    MEAL_TYPE_CLASSES,
+    RECOMMENDED_EXERCISE_MAP,
+)
+
 
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE = BASE_DIR / "instance" / "workout.db"
 PHOTO_DIR = BASE_DIR / "static" / "progress_photos"
-DEFAULT_BODY_WEIGHT_KG = 70.0
-DEFAULT_PROGRAMS = {
-    "5x5": [
-        ("하체", "스쿼트", "본세트", None, 5),
-        ("가슴", "벤치프레스", "본세트", None, 5),
-        ("등", "바벨로우", "본세트", None, 5),
-        ("어깨", "오버헤드프레스", "본세트", None, 5),
-        ("등", "데드리프트", "본세트", None, 5),
-    ],
-    "상체/하체": [
-        ("가슴", "벤치프레스", "본세트", None, 8),
-        ("등", "랫풀다운", "본세트", None, 10),
-        ("하체", "스쿼트", "본세트", None, 8),
-        ("하체", "레그프레스", "본세트", None, 12),
-    ],
-    "푸쉬/풀/레그": [
-        ("가슴", "벤치프레스", "본세트", None, 8),
-        ("어깨", "숄더프레스", "본세트", None, 10),
-        ("등", "시티드로우", "본세트", None, 10),
-        ("팔", "바벨컬", "본세트", None, 12),
-        ("하체", "스쿼트", "본세트", None, 8),
-    ],
-}
 
 
 def create_app() -> Flask:
@@ -983,6 +970,7 @@ def init_db() -> None:
         """
     )
     recalculate_missing_exercise_calories()
+    delete_internal_test_data()
     db.commit()
 
 
@@ -1922,7 +1910,7 @@ def list_favorite_exercises() -> list[sqlite3.Row]:
 
 
 def equipment_options() -> list[str]:
-    return ["바벨", "덤벨", "머신", "케이블", "맨몸", "유산소"]
+    return EQUIPMENT_OPTIONS
 
 
 def get_body_metric(metric_date: str) -> sqlite3.Row | None:
@@ -2393,15 +2381,44 @@ def list_weekly_routine_recommendations(date_text: str) -> list[dict[str, object
     balance = get_balance_score("weekly", date_text)
     missing = [part for part in balance["missing"] if part in ["하체", "등", "어깨", "가슴", "팔", "유산소"]]
     targets = (missing or ["하체", "등", "어깨"])[:3]
-    exercise_map = {
-        "하체": ["스쿼트", "레그프레스"],
-        "등": ["랫풀다운", "시티드로우"],
-        "어깨": ["숄더프레스", "사이드레터럴"],
-        "가슴": ["벤치프레스", "인클라인프레스"],
-        "팔": ["바벨컬", "케이블푸시다운"],
-        "유산소": ["트레드밀 30분"],
-    }
-    return [{"body_part": part, "items": exercise_map[part], "reason": f"{part} 보강 추천"} for part in targets]
+    recommendations = []
+    for part in targets:
+        items, equipment = list_preferred_exercises_for_body_part(part)
+        reason = f"{part} 보강 추천"
+        if equipment:
+            reason = f"{reason} · {equipment}"
+        recommendations.append({"body_part": part, "items": items, "reason": reason})
+    return recommendations
+
+
+def list_preferred_exercises_for_body_part(body_part: str, limit: int = 2) -> tuple[list[str], str]:
+    rows = get_db().execute(
+        """
+        SELECT
+            e.name,
+            COALESCE(es.equipment, '') AS equipment,
+            COALESCE(es.is_favorite, 0) AS is_favorite,
+            COUNT(ws.id) AS set_count,
+            MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
+        WHERE COALESCE(NULLIF(ws.body_part, ''), '기타') = ?
+        GROUP BY e.id, e.name, es.equipment, es.is_favorite
+        ORDER BY is_favorite DESC, last_date DESC, set_count DESC, e.name
+        LIMIT ?
+        """,
+        (body_part, limit),
+    ).fetchall()
+    items = [row["name"] for row in rows]
+    for fallback in RECOMMENDED_EXERCISE_MAP.get(body_part, ["기록 운동"]):
+        if len(items) >= limit:
+            break
+        if fallback not in items:
+            items.append(fallback)
+    equipment = next((row["equipment"] for row in rows if row["equipment"]), "")
+    return items[:limit], equipment
 
 
 def get_sample_data_counts() -> dict[str, int]:
@@ -2435,6 +2452,12 @@ def delete_sample_data() -> None:
     db.execute("DELETE FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'")
     db.execute("DELETE FROM meal_entries WHERE food_name LIKE '샘플%'")
     db.commit()
+
+
+def delete_internal_test_data() -> None:
+    db = get_db()
+    db.execute("DELETE FROM exercise_settings WHERE exercise_name LIKE '__%점검__'")
+    db.execute("DELETE FROM workout_plan_items WHERE exercise_name LIKE '__%점검%'")
 
 
 def export_all_data() -> dict[str, object]:
@@ -2556,31 +2579,15 @@ def import_all_data(payload: dict[str, object]) -> None:
 
 
 def body_part_options() -> list[str]:
-    return ["하체", "가슴", "팔", "등", "어깨", "유산소", "기타"]
+    return BODY_PARTS
 
 
 def body_part_class(body_part: str | None) -> str:
-    class_names = {
-        "하체": "body-part-legs",
-        "가슴": "body-part-chest",
-        "팔": "body-part-arms",
-        "등": "body-part-back",
-        "어깨": "body-part-shoulders",
-        "유산소": "body-part-cardio",
-        "기타": "body-part-other",
-    }
-    return class_names.get((body_part or "기타").strip(), "body-part-other")
+    return BODY_PART_CLASSES.get((body_part or "기타").strip(), "body-part-other")
 
 
 def meal_type_class(meal_type: str | None) -> str:
-    class_names = {
-        "아침": "meal-type-breakfast",
-        "점심": "meal-type-lunch",
-        "저녁": "meal-type-dinner",
-        "간식": "meal-type-snack",
-        "기타": "meal-type-other",
-    }
-    return class_names.get((meal_type or "기타").strip(), "meal-type-other")
+    return MEAL_TYPE_CLASSES.get((meal_type or "기타").strip(), "meal-type-other")
 
 
 def list_recent_sessions(limit: int = 10) -> list[sqlite3.Row]:
