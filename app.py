@@ -77,11 +77,13 @@ def create_app() -> Flask:
             exercise_notes=list_exercise_notes(),
             exercise_settings=list_exercise_settings(),
             pr_events=list_pr_events(today_session["workout_date"]),
+            recent_pr_events=list_recent_pr_events(limit=8),
             foods_by_meal_type=list_foods_by_meal_type(),
             favorite_foods=list_favorite_foods(),
             favorite_exercises=list_favorite_exercises(),
             routines=list_routines(),
             workout_plan=list_workout_plan(today_session["workout_date"]),
+            weekly_routine_recommendations=list_weekly_routine_recommendations(today_session["workout_date"]),
             recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
             workout_focus_recommendations=list_workout_focus_recommendations(today_session["workout_date"]),
             default_programs=DEFAULT_PROGRAMS.keys(),
@@ -94,8 +96,10 @@ def create_app() -> Flask:
             today_summary=get_day_summary(today_session["workout_date"]),
             daily_calorie_goal=get_goal_value("daily_calories", 2200),
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
+            recovery_statuses=list_recovery_statuses(today_session["workout_date"]),
             recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
             meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
+            equipment_options=equipment_options(),
             today_mode=today_mode,
             workout_mode=workout_mode,
             meal_mode=meal_mode,
@@ -144,6 +148,8 @@ def create_app() -> Flask:
             body_part_details=list_weekly_body_part_details(week_start),
             weekly_report=build_weekly_report(week_start),
             weekly_goals=get_goal_progress(week_start),
+            weekly_goal_insights=build_goal_insights("weekly", week_start),
+            rpe_report=build_rpe_report("weekly", week_start),
             report_insights=build_period_insights("weekly", week_start),
             balance_warnings=list_balance_warnings("weekly", week_start),
             selected_week=week_start,
@@ -170,6 +176,7 @@ def create_app() -> Flask:
             body_part_summary=list_body_part_summary("monthly", date_text=month_start),
             monthly_report=build_monthly_report(month_start),
             monthly_goals=get_goal_progress(month_start),
+            monthly_goal_insights=build_goal_insights("monthly", month_start),
             report_insights=build_period_insights("monthly", month_start),
             selected_month=month_start[:7],
             prev_month=shift_month(month_start, -1)[:7],
@@ -197,6 +204,8 @@ def create_app() -> Flask:
             selected_exercise_profile=get_exercise_profile(selected_exercise),
             selected_exercise_next_plan=build_exercise_next_plan(selected_exercise),
             exercise_growth=build_exercise_growth_chart(selected_exercise),
+            exercise_pr_history=list_exercise_pr_history(selected_exercise),
+            recent_pr_events=list_recent_pr_events(limit=20),
             search_query=search_query,
             search_results=search_workout_records(search_query) if search_query else [],
             active_page="exercises",
@@ -241,7 +250,7 @@ def create_app() -> Flask:
 
     @app.get("/settings")
     def settings_page():
-        return render_template("settings.html", active_page="settings")
+        return render_template("settings.html", active_page="settings", sample_counts=get_sample_data_counts())
 
     @app.post("/sets")
     def create_set():
@@ -410,6 +419,7 @@ def create_app() -> Flask:
                 exercise_name,
                 parse_int(request.form.get("rest_seconds")) or 90,
                 request.form.get("is_favorite") == "1",
+                request.form.get("equipment", "").strip(),
             )
         return redirect(url_for("index", date=workout_date, mode="workout"))
 
@@ -590,6 +600,11 @@ def create_app() -> Flask:
         file = request.files.get("backup_file")
         if file:
             import_all_data(json.loads(file.read().decode("utf-8")))
+        return redirect(url_for("settings_page"))
+
+    @app.post("/samples/delete")
+    def delete_sample_data_route():
+        delete_sample_data()
         return redirect(url_for("settings_page"))
 
     @app.post("/meals")
@@ -856,6 +871,7 @@ def init_db() -> None:
             exercise_name TEXT PRIMARY KEY,
             rest_seconds INTEGER NOT NULL DEFAULT 90,
             is_favorite INTEGER NOT NULL DEFAULT 0,
+            equipment TEXT NOT NULL DEFAULT '',
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -934,6 +950,7 @@ def init_db() -> None:
     ensure_column(db, "workout_sets", "cardio_minutes", "REAL")
     ensure_column(db, "workout_sets", "estimated_calories", "REAL")
     ensure_column(db, "workout_sets", "rpe", "REAL")
+    ensure_column(db, "exercise_settings", "equipment", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "routine_items", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
     ensure_column(db, "routine_items", "cardio_incline", "REAL")
     ensure_column(db, "routine_items", "cardio_speed", "REAL")
@@ -1781,6 +1798,33 @@ def list_pr_events(workout_date: str) -> list[sqlite3.Row]:
     ).fetchall()
 
 
+def list_recent_pr_events(limit: int = 12) -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT *
+        FROM pr_events
+        ORDER BY workout_date DESC, id DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+
+
+def list_exercise_pr_history(exercise_id: int | None, limit: int = 12) -> list[sqlite3.Row]:
+    if not exercise_id:
+        return []
+    return get_db().execute(
+        """
+        SELECT *
+        FROM pr_events
+        WHERE exercise_id = ?
+        ORDER BY workout_date DESC, id DESC
+        LIMIT ?
+        """,
+        (exercise_id, limit),
+    ).fetchall()
+
+
 def list_overload_suggestions() -> dict[str, str]:
     rows = get_db().execute(
         """
@@ -1826,22 +1870,24 @@ def list_exercise_settings() -> dict[str, dict[str, int | bool]]:
         row["exercise_name"]: {
             "rest_seconds": int(row["rest_seconds"] or 90),
             "is_favorite": bool(row["is_favorite"]),
+            "equipment": row["equipment"] or "",
         }
         for row in rows
     }
 
 
-def save_exercise_settings(exercise_name: str, rest_seconds: int, is_favorite: bool) -> None:
+def save_exercise_settings(exercise_name: str, rest_seconds: int, is_favorite: bool, equipment: str = "") -> None:
     get_db().execute(
         """
-        INSERT INTO exercise_settings (exercise_name, rest_seconds, is_favorite, updated_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO exercise_settings (exercise_name, rest_seconds, is_favorite, equipment, updated_at)
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
         ON CONFLICT(exercise_name) DO UPDATE SET
             rest_seconds = excluded.rest_seconds,
             is_favorite = excluded.is_favorite,
+            equipment = excluded.equipment,
             updated_at = CURRENT_TIMESTAMP
         """,
-        (exercise_name, max(15, min(600, int(rest_seconds or 90))), 1 if is_favorite else 0),
+        (exercise_name, max(15, min(600, int(rest_seconds or 90))), 1 if is_favorite else 0, equipment[:20]),
     )
     get_db().commit()
 
@@ -1863,6 +1909,10 @@ def list_favorite_exercises() -> list[sqlite3.Row]:
         ORDER BY updated_at DESC, exercise_name
         """
     ).fetchall()
+
+
+def equipment_options() -> list[str]:
+    return ["바벨", "덤벨", "머신", "케이블", "맨몸", "유산소"]
 
 
 def get_body_metric(metric_date: str) -> sqlite3.Row | None:
@@ -2260,6 +2310,121 @@ def build_period_insights(scope: str, date_text: str) -> list[str]:
     if report["missing"]:
         messages.append(f"보강하면 좋은 부위: {', '.join(report['missing'][:3])}")
     return messages[:5]
+
+
+def build_goal_insights(scope: str, date_text: str) -> list[str]:
+    goals = get_goal_progress(date_text)
+    keys = ["weekly_workout_days", "weekly_meal_days", "weekly_calories"] if scope == "weekly" else ["monthly_volume", "monthly_workout_days", "monthly_cardio_minutes"]
+    messages = []
+    for key in keys:
+        goal = goals.get(key)
+        if not goal or not goal["target"]:
+            continue
+        current = float(goal["current"] or 0)
+        target = float(goal["target"] or 0)
+        label = str(goal["label"])
+        messages.append(f"{label} 목표 달성" if current >= target else f"{label} {target - current:.0f} 부족")
+    return messages
+
+
+def build_rpe_report(scope: str = "weekly", date_text: str | None = None) -> dict[str, object]:
+    base_date = date_text or current_local_date()
+    start = week_start_for_date(base_date) if scope == "weekly" else normalize_month(base_date[:7])
+    end = shift_date(start, 6) if scope == "weekly" else shift_date(shift_month(start, 1), -1)
+    row = get_db().execute(
+        """
+        SELECT AVG(rpe) AS avg_rpe, COUNT(rpe) AS rpe_count,
+               SUM(CASE WHEN rpe >= 9 THEN 1 ELSE 0 END) AS hard_sets,
+               SUM(CASE WHEN rpe <= 7 THEN 1 ELSE 0 END) AS easy_sets
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date BETWEEN ? AND ?
+          AND ws.rpe IS NOT NULL
+        """,
+        (start, end),
+    ).fetchone()
+    avg_rpe = float(row["avg_rpe"] or 0)
+    hard_sets = int(row["hard_sets"] or 0)
+    easy_sets = int(row["easy_sets"] or 0)
+    if not int(row["rpe_count"] or 0):
+        message = "RPE 기록이 아직 적습니다."
+    elif hard_sets >= 5:
+        message = "고강도 세트가 많아 다음 운동은 회복을 우선하세요."
+    elif easy_sets >= 5 and avg_rpe <= 7.2:
+        message = "여유 세트가 많아 주요 운동 증량을 고려해도 좋습니다."
+    else:
+        message = "강도 분포가 무난합니다."
+    return {"avg_rpe": avg_rpe, "hard_sets": hard_sets, "easy_sets": easy_sets, "message": message}
+
+
+def list_recovery_statuses(date_text: str) -> list[dict[str, object]]:
+    start = shift_date(date_text, -2)
+    rows = get_db().execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') IN ('하체', '등', '어깨', '가슴', '팔')
+        GROUP BY body_part
+        """,
+        (start, date_text),
+    ).fetchall()
+    counts = {row["body_part"]: int(row["set_count"] or 0) for row in rows}
+    statuses = []
+    for part in ["하체", "등", "어깨", "가슴", "팔"]:
+        count = counts.get(part, 0)
+        state = "주의" if count >= 8 else "적정" if count >= 4 else "가능"
+        statuses.append({"body_part": part, "set_count": count, "state": state})
+    return statuses
+
+
+def list_weekly_routine_recommendations(date_text: str) -> list[dict[str, object]]:
+    balance = get_balance_score("weekly", date_text)
+    missing = [part for part in balance["missing"] if part in ["하체", "등", "어깨", "가슴", "팔", "유산소"]]
+    targets = (missing or ["하체", "등", "어깨"])[:3]
+    exercise_map = {
+        "하체": ["스쿼트", "레그프레스"],
+        "등": ["랫풀다운", "시티드로우"],
+        "어깨": ["숄더프레스", "사이드레터럴"],
+        "가슴": ["벤치프레스", "인클라인프레스"],
+        "팔": ["바벨컬", "케이블푸시다운"],
+        "유산소": ["트레드밀 30분"],
+    }
+    return [{"body_part": part, "items": exercise_map[part], "reason": f"{part} 보강 추천"} for part in targets]
+
+
+def get_sample_data_counts() -> dict[str, int]:
+    db = get_db()
+    return {
+        "exercises": db.execute("SELECT COUNT(*) FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'").fetchone()[0],
+        "sets": db.execute(
+            """
+            SELECT COUNT(*)
+            FROM workout_sets ws
+            JOIN exercises e ON e.id = ws.exercise_id
+            WHERE e.name LIKE '샘플%' OR e.name LIKE 'PR확인%'
+            """
+        ).fetchone()[0],
+        "meals": db.execute("SELECT COUNT(*) FROM meal_entries WHERE food_name LIKE '샘플%'").fetchone()[0],
+        "prs": db.execute("SELECT COUNT(*) FROM pr_events WHERE exercise_name LIKE '샘플%' OR exercise_name LIKE 'PR확인%'").fetchone()[0],
+    }
+
+
+def delete_sample_data() -> None:
+    db = get_db()
+    db.execute("DELETE FROM pr_events WHERE exercise_name LIKE '샘플%' OR exercise_name LIKE 'PR확인%'")
+    db.execute(
+        """
+        DELETE FROM workout_sets
+        WHERE exercise_id IN (
+            SELECT id FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'
+        )
+        """
+    )
+    db.execute("DELETE FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'")
+    db.execute("DELETE FROM meal_entries WHERE food_name LIKE '샘플%'")
+    db.commit()
 
 
 def export_all_data() -> dict[str, object]:

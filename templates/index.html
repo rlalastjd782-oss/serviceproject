@@ -112,6 +112,45 @@
     </section>
   {% endif %}
 
+  {% if workout_mode and recovery_statuses %}
+    <section class="section workout-only">
+      <div class="section-header">
+        <div>
+          <div class="section-title">회복 상태</div>
+          <div class="section-subtitle">최근 48시간 세트 수 기준입니다.</div>
+        </div>
+      </div>
+      <div class="recovery-grid">
+        {% for item in recovery_statuses %}
+          <article class="recovery-chip state-{{ item.state }}">
+            <strong>{{ item.body_part }}</strong>
+            <span>{{ item.state }} · {{ item.set_count }}세트</span>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if workout_mode and weekly_routine_recommendations %}
+    <section class="section workout-only">
+      <div class="section-header">
+        <div>
+          <div class="section-title">이번 주 추천 루틴</div>
+          <div class="section-subtitle">부족한 부위를 우선으로 제안합니다.</div>
+        </div>
+      </div>
+      <div class="routine-recommend-grid">
+        {% for item in weekly_routine_recommendations %}
+          <article class="routine-recommend-card {{ body_part_class(item.body_part) }}">
+            <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+            <strong>{{ item.reason }}</strong>
+            <span>{{ item["items"]|join(" · ") }}</span>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
   <section class="section workout-only" id="rest-timer">
     <div class="section-header">
       <div class="section-title">휴식 타이머</div>
@@ -532,6 +571,7 @@
       </div>
     </form>
     <div class="meal-template-panel">
+      <div class="quick-panel-title">식단 조합</div>
       {% if meal_copy_sources %}
         <div class="quick-panel-title">지난 식단 복사</div>
         {% for day in meal_copy_sources %}
@@ -547,14 +587,14 @@
       <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
         <input type="hidden" name="mode" value="meal">
-        <input name="template_name" placeholder="오늘 식단을 템플릿으로 저장">
-        <button class="btn-small" type="submit">저장</button>
+        <input name="template_name" placeholder="오늘 식단을 조합으로 저장">
+        <button class="btn-small" type="submit">조합 저장</button>
       </form>
       {% for template in meal_templates %}
         <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
          <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
           <input type="hidden" name="mode" value="meal">
-          <span>{{ template.name }} · {{ template.item_count }}개</span>
+          <span>식단 조합 · {{ template.name }} · {{ template.item_count }}개</span>
           <button class="btn-small" type="submit">불러오기</button>
         </form>
       {% endfor %}
@@ -565,6 +605,22 @@
       </form>
     </div>
   </section>
+
+  {% if workout_mode and recent_pr_events %}
+    <section class="section workout-only">
+      <div class="section-header">
+        <div class="section-title">최근 신기록</div>
+      </div>
+      <div class="detail-list compact-detail-list">
+        {% for event in recent_pr_events[:5] %}
+          <div class="detail-row">
+            <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
+            <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
 
   <section class="section workout-only" id="today-workout">
     <div class="section-header">
@@ -615,6 +671,12 @@
               <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
               {% set setting = exercise_settings.get(group.exercise_name, {}) %}
               <input name="rest_seconds" type="number" min="15" max="600" step="15" value="{{ setting.get('rest_seconds', 90) }}" aria-label="휴식초">
+              <select name="equipment" aria-label="운동 장비">
+                <option value="">장비 없음</option>
+                {% for option in equipment_options %}
+                  <option value="{{ option }}" {% if setting.get('equipment') == option %}selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+              </select>
               <label class="inline-check"><input name="is_favorite" type="checkbox" value="1" {% if setting.get('is_favorite') %}checked{% endif %}> 즐겨찾기</label>
               <button class="btn-small" type="submit">설정</button>
             </form>

@@ -28,4 +28,26 @@
       <button class="btn-danger" type="submit">복원 실행</button>
     </form>
   </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">샘플 데이터</div>
+        <div class="section-subtitle">화면 확인용으로 넣은 샘플/PR확인 데이터를 정리합니다.</div>
+      </div>
+    </div>
+    <div class="detail-list compact-detail-list">
+      <div class="detail-row">
+        <strong>샘플 운동</strong>
+        <span>{{ sample_counts.exercises }}개 · 세트 {{ sample_counts.sets }}개 · PR {{ sample_counts.prs }}개</span>
+      </div>
+      <div class="detail-row">
+        <strong>샘플 식단</strong>
+        <span>{{ sample_counts.meals }}개</span>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('delete_sample_data_route') }}" class="settings-action-row">
+      <button class="btn-danger" type="submit">샘플 데이터 제거</button>
+    </form>
+  </section>
 {% endblock %}

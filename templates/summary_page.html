@@ -114,6 +114,18 @@
               <span>{{ warning }}</span>
             </div>
           {% endfor %}
+          {% for insight in weekly_goal_insights %}
+            <div class="detail-row">
+              <strong>목표 체크</strong>
+              <span>{{ insight }}</span>
+            </div>
+          {% endfor %}
+          {% if rpe_report %}
+            <div class="detail-row">
+              <strong>RPE 분석</strong>
+              <span>평균 {{ "%.1f"|format(rpe_report.avg_rpe) }} · 고강도 {{ rpe_report.hard_sets }}세트 · {{ rpe_report.message }}</span>
+            </div>
+          {% endif %}
         </div>
         {% if weekly_goals %}
           {{ goal_cards(weekly_goals, ["weekly_workout_days", "weekly_meal_days", "weekly_calories"], {"weekly_workout_days": "일", "weekly_meal_days": "일", "weekly_calories": "kcal"}) }}
@@ -205,6 +217,12 @@
               <span>{{ monthly_report.missing[:4]|join(", ") }}</span>
             </div>
           {% endif %}
+          {% for insight in monthly_goal_insights %}
+            <div class="detail-row">
+              <strong>목표 체크</strong>
+              <span>{{ insight }}</span>
+            </div>
+          {% endfor %}
         </div>
       </section>
     {% endif %}
@@ -356,6 +374,16 @@
             {% endfor %}
           </div>
         {% endif %}
+        {% if exercise_pr_history %}
+          <div class="detail-list compact-detail-list">
+            {% for event in exercise_pr_history %}
+              <div class="detail-row">
+                <strong>{{ event.workout_date }} · {{ event.record_type }}</strong>
+                <span>{{ "%.0f"|format(event.record_value) }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       {% endif %}
       {% if exercise_growth %}
         <div class="progress-chart exercise-progress-chart" role="img" aria-label="운동 성장 그래프">
@@ -449,6 +477,16 @@
       <div class="section-header">
         <div class="section-title">🏆 운동별 기록</div>
       </div>
+      {% if recent_pr_events %}
+        <div class="detail-list compact-detail-list">
+          {% for event in recent_pr_events[:8] %}
+            <div class="detail-row">
+              <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
+              <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       <div class="record-list">
         {% for item in exercise_summary %}
           <article class="ex-rank-item">
