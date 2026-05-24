@@ -574,6 +574,65 @@ select:focus {
   font-weight: 800;
 }
 
+.body-part-badge,
+.body-part-select {
+  --part-bg: rgb(103 168 255 / 12%);
+  --part-fg: var(--accent-2);
+  --part-line: rgb(103 168 255 / 28%);
+}
+
+.body-part-badge {
+  background: var(--part-bg) !important;
+  color: var(--part-fg) !important;
+}
+
+.body-part-select {
+  border-color: var(--part-line);
+  background-color: rgb(10 15 23);
+  box-shadow: inset 3px 0 0 var(--part-fg);
+}
+
+.body-part-select:focus {
+  border-color: var(--part-fg);
+  outline-color: var(--part-bg);
+}
+
+.body-part-legs {
+  --part-bg: rgb(63 242 177 / 13%);
+  --part-fg: #3ff2b1;
+  --part-line: rgb(63 242 177 / 34%);
+}
+
+.body-part-chest {
+  --part-bg: rgb(255 107 107 / 14%);
+  --part-fg: #ff7b7b;
+  --part-line: rgb(255 107 107 / 34%);
+}
+
+.body-part-arms {
+  --part-bg: rgb(255 203 107 / 15%);
+  --part-fg: #ffcb6b;
+  --part-line: rgb(255 203 107 / 34%);
+}
+
+.body-part-back {
+  --part-bg: rgb(103 168 255 / 14%);
+  --part-fg: #67a8ff;
+  --part-line: rgb(103 168 255 / 34%);
+}
+
+.body-part-shoulders {
+  --part-bg: rgb(184 139 255 / 15%);
+  --part-fg: #b88bff;
+  --part-line: rgb(184 139 255 / 34%);
+}
+
+.body-part-other {
+  --part-bg: rgb(155 168 184 / 14%);
+  --part-fg: #9ba8b8;
+  --part-line: rgb(155 168 184 / 30%);
+}
+
 .vertical-item-list {
   display: grid;
   gap: 7px;

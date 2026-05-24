@@ -53,9 +53,9 @@
         <div class="input-grid">
           <label>
             <span>부위</span>
-            <select name="body_part">
+            <select name="body_part" class="body-part-select" data-body-part-select>
               {% for part in body_parts %}
-                <option value="{{ part }}">{{ part }}</option>
+                <option value="{{ part }}" class="{{ body_part_class(part) }}">{{ part }}</option>
               {% endfor %}
             </select>
           </label>
@@ -159,7 +159,7 @@
         {% if workout_groups %}
           {% for group in workout_groups %}
             <article class="workout-group-row">
-              <strong><span>{{ group.body_part }}</span>{{ group.exercise_name }}</strong>
+              <strong><span class="body-part-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>{{ group.exercise_name }}</strong>
               <div class="vertical-item-list">
                 {% for item in group.sets %}
                   <div class="vertical-list-item editable-list-item">

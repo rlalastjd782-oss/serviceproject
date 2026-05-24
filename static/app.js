@@ -4,6 +4,24 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+const bodyPartClassMap = {
+  "하체": "body-part-legs",
+  "가슴": "body-part-chest",
+  "팔": "body-part-arms",
+  "등": "body-part-back",
+  "어깨": "body-part-shoulders",
+  "기타": "body-part-other",
+};
+
+document.querySelectorAll("[data-body-part-select]").forEach(applyBodyPartSelectColor);
+
+document.addEventListener("change", (event) => {
+  const bodyPartSelect = event.target.closest("[data-body-part-select]");
+  if (bodyPartSelect) {
+    applyBodyPartSelectColor(bodyPartSelect);
+  }
+});
+
 document.addEventListener("click", (event) => {
   const addSetButton = event.target.closest("[data-add-set-row]");
   const removeSetButton = event.target.closest("[data-remove-set-row]");
@@ -65,6 +83,11 @@ document.addEventListener("click", (event) => {
     detailButton.setAttribute("aria-expanded", String(isOpening));
   }
 });
+
+function applyBodyPartSelectColor(select) {
+  select.classList.remove(...Object.values(bodyPartClassMap));
+  select.classList.add(bodyPartClassMap[select.value] || "body-part-other");
+}
 
 function addRow(list, type) {
   const selector = type === "set" ? ".set-entry-row" : ".meal-entry-row";

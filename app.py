@@ -419,6 +419,18 @@ def body_part_options() -> list[str]:
     return ["하체", "가슴", "팔", "등", "어깨", "기타"]
 
 
+def body_part_class(body_part: str | None) -> str:
+    class_names = {
+        "하체": "body-part-legs",
+        "가슴": "body-part-chest",
+        "팔": "body-part-arms",
+        "등": "body-part-back",
+        "어깨": "body-part-shoulders",
+        "기타": "body-part-other",
+    }
+    return class_names.get((body_part or "기타").strip(), "body-part-other")
+
+
 def list_recent_sessions(limit: int = 10) -> list[sqlite3.Row]:
     return get_db().execute(
         """
@@ -858,6 +870,7 @@ def parse_int(value: str | None) -> int | None:
 app = create_app()
 app.jinja_env.globals["sets_for_session"] = sets_for_session
 app.jinja_env.globals["grouped_sets_for_session"] = grouped_sets_for_session
+app.jinja_env.globals["body_part_class"] = body_part_class
 
 
 if __name__ == "__main__":
