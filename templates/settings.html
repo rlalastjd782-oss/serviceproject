@@ -106,6 +106,24 @@
     </form>
   </section>
 
+  <section class="section settings-panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">빈 기록 정리</div>
+        <div class="section-subtitle">세트와 식단이 없는 날짜 기록을 정리합니다.</div>
+      </div>
+    </div>
+    <div class="detail-list compact-detail-list">
+      <div class="detail-row">
+        <strong>빈 운동일</strong>
+        <span>{{ data_counts.empty_workouts }}개</span>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('cleanup_empty_data_route') }}" class="settings-action-row">
+      <button class="btn-small" type="submit">빈 기록 정리</button>
+    </form>
+  </section>
+
   <section class="section danger-zone settings-panel">
     <div class="section-header">
       <div>

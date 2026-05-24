@@ -285,6 +285,12 @@ def create_app() -> Flask:
         )
         return redirect(url_for("index", date=checkin_date, mode=request.form.get("mode") or "workout"))
 
+    @app.post("/data/cleanup-empty")
+    def cleanup_empty_data_route():
+        delete_empty_workout_sessions()
+        get_db().commit()
+        return redirect(url_for("settings_page"))
+
     @app.post("/sets")
     def create_set():
         session = get_or_create_session(request.form.get("workout_date"))
@@ -2764,6 +2770,15 @@ def get_data_counts() -> dict[str, int]:
         "routines": db.execute("SELECT COUNT(*) FROM routine_templates").fetchone()[0],
         "meal_templates": db.execute("SELECT COUNT(*) FROM meal_templates").fetchone()[0],
         "recovery": db.execute("SELECT COUNT(*) FROM recovery_checkins").fetchone()[0],
+        "empty_workouts": db.execute(
+            """
+            SELECT COUNT(*)
+            FROM workout_sessions
+            WHERE COALESCE(completed, 0) = 0
+              AND id NOT IN (SELECT DISTINCT session_id FROM workout_sets)
+              AND workout_date NOT IN (SELECT DISTINCT meal_date FROM meal_entries)
+            """
+        ).fetchone()[0],
     }
 
 
