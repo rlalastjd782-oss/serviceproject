@@ -149,6 +149,19 @@
     </section>
   {% endif %}
 
+  <section class="section workout-only" id="rest-timer">
+    <div class="section-header">
+      <div class="section-title">휴식 타이머</div>
+      <div class="timer-display" data-rest-timer-display>00:00</div>
+    </div>
+    <div class="timer-actions">
+      <button class="btn-small" type="button" data-rest-seconds="60">60초</button>
+      <button class="btn-small" type="button" data-rest-seconds="90">90초</button>
+      <button class="btn-small" type="button" data-rest-seconds="120">120초</button>
+      <button class="btn-danger" type="button" data-rest-stop>정지</button>
+    </div>
+  </section>
+
   {% if workout_mode and recovery_statuses %}
     <section class="section workout-only">
       <div class="section-header">
@@ -264,19 +277,6 @@
       </div>
     </section>
   {% endif %}
-
-  <section class="section workout-only" id="rest-timer">
-    <div class="section-header">
-      <div class="section-title">휴식 타이머</div>
-      <div class="timer-display" data-rest-timer-display>00:00</div>
-    </div>
-    <div class="timer-actions">
-      <button class="btn-small" type="button" data-rest-seconds="60">60초</button>
-      <button class="btn-small" type="button" data-rest-seconds="90">90초</button>
-      <button class="btn-small" type="button" data-rest-seconds="120">120초</button>
-      <button class="btn-danger" type="button" data-rest-stop>정지</button>
-    </div>
-  </section>
 
   <section class="section workout-only">
     <div class="section-header">
