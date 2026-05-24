@@ -150,9 +150,9 @@
           {% for group in workout_groups %}
             <article class="workout-group-row">
               <strong>{{ group.exercise_name }}</strong>
-              <div class="compact-set-list">
+              <div class="vertical-item-list">
                 {% for item in group.sets %}
-                  <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}" class="compact-set-item">
+                  <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}" class="vertical-list-item">
                     <span>
                       {% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}kg{% else %}-kg{% endif %}
                       x
@@ -182,9 +182,9 @@
           {% for group in meal_groups %}
             <article class="meal-group-row">
               <strong>{{ group.meal_type }}</strong>
-              <div class="meal-chip-list">
+              <div class="vertical-item-list">
                 {% for item in group.entries %}
-                  <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}" class="meal-chip">
+                  <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}" class="vertical-list-item">
                     <span>
                       {{ item.food_name }}
                       {% if item.quantity is not none %} · {{ "%.0f"|format(item.quantity) }}개{% endif %}
