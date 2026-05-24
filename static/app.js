@@ -42,6 +42,9 @@ const foodQuickList = document.querySelector("[data-food-quick-list]");
 const foodQuickEmpty = document.querySelector("[data-food-quick-empty]");
 const foodsByMealType = parseJsonData(foodQuickPanel, "foodsByMealType");
 const workoutClockPanel = document.querySelector("[data-workout-clock]");
+let restTimerId = null;
+let restRemaining = 0;
+let workoutClockId = null;
 
 initWorkoutClock();
 
@@ -505,10 +508,6 @@ function renumberRows(list, selector) {
   });
 }
 
-let restTimerId = null;
-let restRemaining = 0;
-let workoutClockId = null;
-
 function startRestTimer(seconds) {
   if (!seconds) {
     return;
@@ -556,7 +555,11 @@ function readWorkoutClock() {
 }
 
 function saveWorkoutClock(state) {
-  localStorage.setItem(workoutClockKey(), JSON.stringify(state));
+  try {
+    localStorage.setItem(workoutClockKey(), JSON.stringify(state));
+  } catch {
+    // Timer display should keep working even if storage is unavailable.
+  }
 }
 
 function initWorkoutClock() {
