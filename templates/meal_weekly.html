@@ -10,6 +10,7 @@
         <div class="section-title">🍱 주간 식단</div>
         <div class="section-subtitle">{{ week_label }} · {{ week_start }} ~ {{ week_end }}</div>
       </div>
+      <a class="btn-small" href="{{ url_for('meal_monthly_page', month=week_start[:7]) }}">월간 보기</a>
     </div>
     <div class="week-control-row">
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=prev_week) }}" aria-label="이전 주">‹</a>

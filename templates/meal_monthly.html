@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "macros.html" import goal_cards %}
+
+{% block title %}월간 식단{% endblock %}
+
+{% block content %}
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">월간 식단</div>
+        <div class="section-subtitle">{{ selected_month }} · 주차별 식단량과 칼로리를 확인합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('meal_weekly_page') }}">주간 보기</a>
+    </div>
+    <div class="week-control-row">
+      <a class="arrow-btn" href="{{ url_for('meal_monthly_page', month=prev_month) }}" aria-label="이전 달">‹</a>
+      <form method="get" action="{{ url_for('meal_monthly_page') }}" class="week-date-form">
+        <input name="month" type="month" value="{{ selected_month }}" aria-label="월 선택">
+        <button type="submit" class="btn-small">보기</button>
+      </form>
+      <a class="arrow-btn" href="{{ url_for('meal_monthly_page', month=next_month) }}" aria-label="다음 달">›</a>
+    </div>
+  </section>
+
+  <div class="summary-grid">
+    <article class="summary-card">
+      <div class="summary-value">{{ month_summary.meal_days }}</div>
+      <div class="summary-label">식단일</div>
+    </article>
+    <article class="summary-card">
+      <div class="summary-value">{{ month_summary.meal_count }}</div>
+      <div class="summary-label">식단 수</div>
+    </article>
+    <article class="summary-card">
+      <div class="summary-value">{{ "%.0f"|format(month_summary.calories) }}</div>
+      <div class="summary-label">총 kcal</div>
+    </article>
+    <article class="summary-card">
+      <div class="summary-value">{{ month_summary.avg_calories }}</div>
+      <div class="summary-label">일평균 kcal</div>
+    </article>
+    <article class="summary-card">
+      <div class="summary-value">{{ month_summary.top_food }}</div>
+      <div class="summary-label">최다 음식</div>
+    </article>
+  </div>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">월간 식단 목표</div>
+        <div class="section-subtitle">월간 화면에서는 주간 식단일과 칼로리 목표 달성 상태를 함께 봅니다.</div>
+      </div>
+    </div>
+    {{ goal_cards(meal_goals, ["weekly_meal_days", "weekly_calories"], {"weekly_meal_days": "일", "weekly_calories": "kcal"}) }}
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">주차별 식단 추이</div>
+    </div>
+    <div class="meal-month-chart">
+      {% for item in meal_weeks %}
+        <article class="meal-week-card">
+          <div class="meal-week-head">
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.start_date }} ~ {{ item.end_date }}</span>
+          </div>
+          <div class="progress-line">
+            <span class="line-label">kcal</span>
+            <span class="line-track"><i class="burn-bar" style="width: {{ item.calorie_width }}%"></i></span>
+          </div>
+          <div class="progress-line">
+            <span class="line-label">식단</span>
+            <span class="line-track"><i class="set-bar" style="width: {{ item.meal_width }}%"></i></span>
+          </div>
+          <div class="record-summary">
+            <span class="badge">{{ item.meal_days }}일</span>
+            <span class="badge">{{ item.meal_count }}개</span>
+            <span class="badge">{{ "%.0f"|format(item.calories) }}kcal</span>
+            <span class="badge">평균 {{ item.avg_calories }}kcal</span>
+          </div>
+        </article>
+      {% else %}
+        <div class="empty">선택한 달의 식단 기록이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

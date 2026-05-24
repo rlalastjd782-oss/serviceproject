@@ -285,6 +285,21 @@ def create_app() -> Flask:
             active_page="meals",
         )
 
+    @app.get("/meals/monthly")
+    def meal_monthly_page():
+        selected_month = request.args.get("month") or current_local_date()[:7]
+        month_start = normalize_month(selected_month)
+        return render_template(
+            "meal_monthly.html",
+            selected_month=month_start[:7],
+            prev_month=shift_month(month_start, -1)[:7],
+            next_month=shift_month(month_start, 1)[:7],
+            month_summary=build_monthly_meal_summary(month_start),
+            meal_weeks=list_monthly_meal_weeks(month_start),
+            meal_goals=get_goal_progress(month_start),
+            active_page="meals",
+        )
+
     @app.get("/settings")
     def settings_page():
         return render_template(
@@ -3410,6 +3425,89 @@ def build_weekly_meal_summary(week_start: str) -> dict[str, object]:
         "top_food": top_food["food_name"] if top_food else "-",
         "top_food_count": int(top_food["count"] or 0) if top_food else 0,
     }
+
+
+def build_monthly_meal_summary(month_start: str) -> dict[str, object]:
+    normalized_month = normalize_month(month_start)
+    next_month = shift_month(normalized_month, 1)
+    totals = get_db().execute(
+        """
+        SELECT
+            COUNT(DISTINCT meal_date) AS meal_days,
+            COUNT(id) AS meal_count,
+            COALESCE(SUM(calories), 0) AS calories,
+            COALESCE(SUM(grams), 0) AS grams
+        FROM meal_entries
+        WHERE meal_date >= ? AND meal_date < ?
+        """,
+        (normalized_month, next_month),
+    ).fetchone()
+    top_food = get_db().execute(
+        """
+        SELECT food_name, COUNT(id) AS count
+        FROM meal_entries
+        WHERE meal_date >= ? AND meal_date < ?
+        GROUP BY food_name
+        ORDER BY count DESC, food_name
+        LIMIT 1
+        """,
+        (normalized_month, next_month),
+    ).fetchone()
+    meal_days = int(totals["meal_days"] or 0)
+    calories = float(totals["calories"] or 0)
+    return {
+        "meal_days": meal_days,
+        "meal_count": int(totals["meal_count"] or 0),
+        "calories": calories,
+        "grams": float(totals["grams"] or 0),
+        "avg_calories": round(calories / meal_days) if meal_days else 0,
+        "top_food": top_food["food_name"] if top_food else "-",
+        "top_food_count": int(top_food["count"] or 0) if top_food else 0,
+    }
+
+
+def list_monthly_meal_weeks(month_start: str) -> list[dict[str, object]]:
+    normalized_month = normalize_month(month_start)
+    next_month = shift_month(normalized_month, 1)
+    rows = get_db().execute(
+        """
+        SELECT
+            ((CAST(strftime('%d', meal_date) AS INTEGER) - 1) / 7) + 1 AS week_of_month,
+            MIN(meal_date) AS start_date,
+            MAX(meal_date) AS end_date,
+            COUNT(DISTINCT meal_date) AS meal_days,
+            COUNT(id) AS meal_count,
+            COALESCE(SUM(calories), 0) AS calories,
+            COALESCE(SUM(grams), 0) AS grams
+        FROM meal_entries
+        WHERE meal_date >= ? AND meal_date < ?
+        GROUP BY week_of_month
+        ORDER BY week_of_month ASC
+        """,
+        (normalized_month, next_month),
+    ).fetchall()
+    max_calories = max([float(row["calories"] or 0) for row in rows] + [1.0])
+    max_meals = max([int(row["meal_count"] or 0) for row in rows] + [1])
+    result = []
+    month_number = int(normalized_month[5:7])
+    for row in rows:
+        calories = float(row["calories"] or 0)
+        meal_days = int(row["meal_days"] or 0)
+        result.append(
+            {
+                "label": f"{month_number}월 {int(row['week_of_month'])}주차",
+                "start_date": row["start_date"],
+                "end_date": row["end_date"],
+                "meal_days": meal_days,
+                "meal_count": int(row["meal_count"] or 0),
+                "calories": calories,
+                "grams": float(row["grams"] or 0),
+                "avg_calories": round(calories / meal_days) if meal_days else 0,
+                "calorie_width": round(calories / max_calories * 100),
+                "meal_width": round(int(row["meal_count"] or 0) / max_meals * 100),
+            }
+        )
+    return result
 
 
 def get_day_summary(day: str) -> dict[str, float]:
