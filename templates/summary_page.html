@@ -158,6 +158,13 @@
             <div class="summary-value">{{ monthly_report.balance_score }}%</div>
             <div class="summary-label">부위 균형</div>
           </article>
+          {% if monthly_goals %}
+            <article class="summary-card goal-summary-card {% if monthly_goals.monthly_volume.percent >= 100 %}is-complete{% endif %}">
+              <div class="summary-value">{{ monthly_goals.monthly_volume.percent }}%</div>
+              <div class="summary-label">월간 볼륨 목표</div>
+              <div class="summary-foot">{{ "%.0f"|format(monthly_goals.monthly_volume.current) }} / {{ monthly_goals.monthly_volume.target }}kg</div>
+            </article>
+          {% endif %}
         </div>
         <div class="detail-list">
           <div class="detail-row">

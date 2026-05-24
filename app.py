@@ -156,6 +156,7 @@ def create_app() -> Flask:
             chart_note="선택한 월을 주간 단위로 표시합니다.",
             body_part_summary=list_body_part_summary("monthly", date_text=month_start),
             monthly_report=build_monthly_report(month_start),
+            monthly_goals=get_goal_progress(month_start),
             selected_month=month_start[:7],
             prev_month=shift_month(month_start, -1)[:7],
             next_month=shift_month(month_start, 1)[:7],
@@ -834,16 +835,6 @@ def get_or_create_session(workout_date: str | None = None) -> sqlite3.Row:
         "SELECT * FROM workout_sessions WHERE workout_date = ?",
         (date_value,),
     ).fetchone()
-
-
-def get_session_for_date(workout_date: str) -> sqlite3.Row | dict[str, str | None]:
-    existing = get_db().execute(
-        "SELECT * FROM workout_sessions WHERE workout_date = ?",
-        (workout_date,),
-    ).fetchone()
-    if existing:
-        return existing
-    return {"id": None, "workout_date": workout_date}
 
 
 def get_session_by_date(workout_date: str) -> sqlite3.Row | None:
@@ -2378,74 +2369,6 @@ def list_weekly_summary(limit: int = 12, month_start: str | None = None) -> list
     ).fetchall()
 
 
-def list_monthly_summary(limit: int = 12) -> list[sqlite3.Row]:
-    return list_period_summary("%Y-%m", limit)
-
-
-def list_period_summary(period_format: str, limit: int) -> list[sqlite3.Row]:
-    return get_db().execute(
-        """
-        WITH workout AS (
-            SELECT
-                strftime(?, s.workout_date) AS period,
-                COUNT(DISTINCT s.workout_date) AS workout_days,
-                COUNT(ws.id) AS set_count,
-                COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-                COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-                COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
-            FROM workout_sessions s
-            LEFT JOIN workout_sets ws ON ws.session_id = s.id
-            GROUP BY strftime(?, s.workout_date)
-        ),
-        workout_time AS (
-            SELECT
-                strftime(?, workout_date) AS period,
-                COALESCE(SUM(duration_seconds), 0) AS duration_seconds
-            FROM workout_sessions
-            GROUP BY strftime(?, workout_date)
-        ),
-        meal AS (
-            SELECT
-                strftime(?, meal_date) AS period,
-                COUNT(DISTINCT meal_date) AS meal_days,
-                COUNT(id) AS meal_count,
-                COALESCE(SUM(quantity), 0) AS amount,
-                COALESCE(SUM(grams), 0) AS grams,
-                COALESCE(SUM(calories), 0) AS calories
-            FROM meal_entries
-            GROUP BY strftime(?, meal_date)
-        ),
-        periods AS (
-            SELECT period FROM workout
-            UNION
-            SELECT period FROM meal
-        )
-        SELECT
-            p.period,
-            COALESCE(w.workout_days, 0) AS workout_days,
-            COALESCE(w.set_count, 0) AS set_count,
-            COALESCE(w.rep_count, 0) AS rep_count,
-            COALESCE(w.volume, 0) AS volume,
-            COALESCE(w.cardio_minutes, 0) AS cardio_minutes,
-            COALESCE(w.exercise_calories, 0) AS exercise_calories,
-            COALESCE(wt.duration_seconds, 0) AS duration_seconds,
-            COALESCE(m.meal_days, 0) AS meal_days,
-            COALESCE(m.meal_count, 0) AS meal_count,
-            COALESCE(m.amount, 0) AS amount,
-            COALESCE(m.grams, 0) AS grams,
-            COALESCE(m.calories, 0) AS calories
-        FROM periods p
-        LEFT JOIN workout w ON w.period = p.period
-        LEFT JOIN workout_time wt ON wt.period = p.period
-        LEFT JOIN meal m ON m.period = p.period
-        ORDER BY p.period DESC
-        LIMIT ?
-        """,
-        (period_format, period_format, period_format, period_format, period_format, period_format, limit),
-    ).fetchall()
-
-
 def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
     ordered_rows = list(reversed(rows))
     max_volume = max([float(row["volume"]) for row in ordered_rows] + [1.0])
@@ -2773,10 +2696,6 @@ def list_sets_for_session(session_id: int) -> list[sqlite3.Row]:
     ).fetchall()
 
 
-def sets_for_session(session_id: int) -> list[sqlite3.Row]:
-    return list_sets_for_session(session_id)
-
-
 def grouped_sets_for_session(session_id: int | None) -> list[dict[str, object]]:
     if session_id is None:
         return []
@@ -2821,11 +2740,6 @@ def meal_day_label(date_text: str) -> str:
     date_value = datetime.strptime(date_text, "%Y-%m-%d")
     weekdays = ["월", "화", "수", "목", "금", "토", "일"]
     return f"{date_value.month}/{date_value.day}({weekdays[date_value.weekday()]})"
-
-
-def format_short_date(date_text: str) -> str:
-    date_value = datetime.strptime(date_text, "%Y-%m-%d")
-    return date_value.strftime("%m.%d")
 
 
 def normalize_month(month_text: str) -> str:
@@ -2997,7 +2911,6 @@ def recalculate_exercise_calories_for_date(workout_date: str) -> None:
 
 
 app = create_app()
-app.jinja_env.globals["sets_for_session"] = sets_for_session
 app.jinja_env.globals["grouped_sets_for_session"] = grouped_sets_for_session
 app.jinja_env.globals["body_part_class"] = body_part_class
 app.jinja_env.globals["meal_type_class"] = meal_type_class
