@@ -207,6 +207,30 @@ def create_app() -> Flask:
         db.commit()
         return redirect(url_for("index", date=meal_date))
 
+    @app.post("/meals/<int:meal_id>/update")
+    def update_meal(meal_id: int):
+        db = get_db()
+        meal = db.execute("SELECT meal_date FROM meal_entries WHERE id = ?", (meal_id,)).fetchone()
+        meal_date = meal["meal_date"] if meal else current_local_date()
+        food_name = request.form.get("food_name", "").strip()
+        if food_name:
+            db.execute(
+                """
+                UPDATE meal_entries
+                SET food_name = ?, quantity = ?, grams = ?, calories = ?
+                WHERE id = ?
+                """,
+                (
+                    food_name,
+                    parse_float(request.form.get("quantity")),
+                    parse_float(request.form.get("grams")),
+                    parse_float(request.form.get("calories")),
+                    meal_id,
+                ),
+            )
+            db.commit()
+        return redirect(url_for("index", date=meal_date))
+
     @app.post("/meals/<int:meal_id>/delete")
     def delete_meal(meal_id: int):
         db = get_db()
@@ -214,6 +238,34 @@ def create_app() -> Flask:
         db.execute("DELETE FROM meal_entries WHERE id = ?", (meal_id,))
         db.commit()
         return redirect(url_for("index", date=meal["meal_date"] if meal else None))
+
+    @app.post("/sets/<int:set_id>/update")
+    def update_set(set_id: int):
+        db = get_db()
+        workout = db.execute(
+            """
+            SELECT s.workout_date
+            FROM workout_sets ws
+            JOIN workout_sessions s ON s.id = ws.session_id
+            WHERE ws.id = ?
+            """,
+            (set_id,),
+        ).fetchone()
+        workout_date = workout["workout_date"] if workout else current_local_date()
+        db.execute(
+            """
+            UPDATE workout_sets
+            SET weight = ?, reps = ?
+            WHERE id = ?
+            """,
+            (
+                parse_float(request.form.get("weight")),
+                parse_int(request.form.get("reps")),
+                set_id,
+            ),
+        )
+        db.commit()
+        return redirect(url_for("index", date=workout_date))
 
     @app.post("/sets/<int:set_id>/delete")
     def delete_set(set_id: int):
