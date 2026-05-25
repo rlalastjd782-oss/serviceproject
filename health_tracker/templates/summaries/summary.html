@@ -813,16 +813,22 @@
     {% endif %}
   {% endif %}
 
-  {% if body_part_summary %}
+  {% if body_part_summary is defined and (body_part_summary or body_parts) %}
     <section class="section">
       <div class="section-header">
         <div class="section-title">💪 부위별 분석</div>
+      </div>
+      <div class="body-part-filter-list" aria-label="부위별 분석 필터">
+        <a class="body-part-filter-chip {% if not selected_body_part %}is-active{% endif %}" href="{{ query_url(part=None, page=None) }}">전체</a>
+        {% for part in body_parts %}
+          <a class="body-part-filter-chip {{ body_part_class(part) }} {% if selected_body_part == part %}is-active{% endif %}" href="{{ query_url(part=part, page=None) }}">{{ part }}</a>
+        {% endfor %}
       </div>
       <div class="cat-stat-grid">
         {% for item in body_part_summary %}
           {% set detail_rows = body_part_details.get(item.period ~ "::" ~ item.body_part, []) if active_page == "weekly" else [] %}
           {% set detail_id = "body-part-detail-" ~ loop.index %}
-          <article class="cat-stat-card active heat-card {{ body_part_class(item.body_part) }}" style="--heat: {{ [100, item.set_count * 12]|min }}%">
+          <article class="cat-stat-card active heat-card {{ body_part_class(item.body_part) }}" data-body-part-summary="{{ item.body_part }}" style="--heat: {{ [100, item.set_count * 12]|min }}%">
             <div class="cat-stat-name">{{ item.body_part }}</div>
             <div class="cat-stat-count">{{ item.set_count }}</div>
             <div class="heat-track"><span style="width: {{ [100, item.set_count * 12]|min }}%"></span></div>
@@ -884,6 +890,8 @@
               {% endfor %}
             </div>
           {% endif %}
+        {% else %}
+          <div class="empty">선택한 부위의 분석 기록이 없습니다.</div>
         {% endfor %}
       </div>
     </section>

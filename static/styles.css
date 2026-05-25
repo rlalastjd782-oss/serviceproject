@@ -2466,6 +2466,40 @@ label span {
   margin-top: 14px;
 }
 
+.body-part-filter-list {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 0 10px;
+  scrollbar-width: none;
+}
+
+.body-part-filter-list::-webkit-scrollbar {
+  display: none;
+}
+
+.body-part-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 0 12px;
+}
+
+.body-part-filter-chip.is-active {
+  border-color: rgb(255 255 255 / 45%);
+  box-shadow: var(--shadow-soft);
+  outline: 2px solid rgb(255 255 255 / 14%);
+  outline-offset: 1px;
+}
+
 .body-part-toggle-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

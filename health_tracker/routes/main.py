@@ -12,6 +12,15 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             return round(parsed * 0.45359237, 2)
         return parsed
 
+    def selected_body_part_filter() -> str:
+        selected = request.args.get("part", "").strip()
+        return selected if selected in body_part_options() else ""
+
+    def filter_body_part_summary(rows, selected_part: str):
+        if not selected_part:
+            return rows
+        return [row for row in rows if row["body_part"] == selected_part]
+
     @app.get("/")
     def index():
         selected_date = normalize_date(request.args.get("date"))
@@ -98,6 +107,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             daily_sort = "newest"
         daily_pagination = build_pagination(len(daily_rows), page, per_page)
         daily_summary = daily_rows[daily_pagination.offset : daily_pagination.offset + daily_pagination.per_page]
+        selected_body_part = selected_body_part_filter()
         return render_template(
             "summaries/summary.html",
             page_title="일간 집계",
@@ -107,7 +117,9 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             daily_pagination=daily_pagination,
             daily_sort=daily_sort,
             selected_days=days,
-            body_part_summary=list_body_part_summary("daily"),
+            body_part_summary=filter_body_part_summary(list_body_part_summary("daily"), selected_body_part),
+            body_parts=body_part_options(),
+            selected_body_part=selected_body_part,
             active_page="daily",
         )
 
@@ -128,6 +140,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             period_sort = "newest"
         period_pagination = build_pagination(len(all_period_rows), page, per_page)
         period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
+        selected_body_part = selected_body_part_filter()
         return render_template(
             "summaries/summary.html",
             page_title="주간 집계",
@@ -140,8 +153,10 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             chart_items=build_daily_chart(chart_rows),
             chart_title="일별 추이",
             chart_note="선택한 주를 일별로 표시합니다.",
-            body_part_summary=list_body_part_summary("weekly", date_text=week_start),
+            body_part_summary=filter_body_part_summary(list_body_part_summary("weekly", date_text=week_start), selected_body_part),
             body_part_details=list_weekly_body_part_details(week_start),
+            body_parts=body_part_options(),
+            selected_body_part=selected_body_part,
             weekly_report=build_weekly_report(week_start),
             weekly_goals=get_goal_progress(week_start),
             weekly_goal_insights=build_goal_insights("weekly", week_start),
@@ -171,6 +186,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             period_sort = "newest"
         period_pagination = build_pagination(len(all_period_rows), page, per_page)
         period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
+        selected_body_part = selected_body_part_filter()
         return render_template(
             "summaries/summary.html",
             page_title="월간 집계",
@@ -183,7 +199,9 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             chart_items=build_period_chart(period_rows),
             chart_title="주간별 추이",
             chart_note="선택한 월을 주간 단위로 표시합니다.",
-            body_part_summary=list_body_part_summary("monthly", date_text=month_start),
+            body_part_summary=filter_body_part_summary(list_body_part_summary("monthly", date_text=month_start), selected_body_part),
+            body_parts=body_part_options(),
+            selected_body_part=selected_body_part,
             monthly_report=build_monthly_report(month_start),
             body_monthly_report=build_body_monthly_report(month_start),
             body_metric_trend=list_body_metric_trend(month_start),
