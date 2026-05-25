@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import hmac
 import secrets
 
@@ -31,3 +32,20 @@ def ensure_csrf_token() -> str:
 def validate_csrf_token(token: object) -> bool:
     expected = session.get("csrf_token")
     return bool(expected and token and hmac.compare_digest(str(expected), str(token)))
+
+
+def make_password_hash(password: str) -> str:
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), 120_000)
+    return f"pbkdf2_sha256${salt}${digest.hex()}"
+
+
+def verify_password_hash(password: str, stored_hash: str) -> bool:
+    try:
+        algorithm, salt, digest_hex = stored_hash.split("$", 2)
+    except ValueError:
+        return False
+    if algorithm != "pbkdf2_sha256":
+        return False
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), 120_000)
+    return hmac.compare_digest(digest.hex(), digest_hex)

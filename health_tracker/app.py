@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
-import hmac
 import json
 import secrets
 import sqlite3
@@ -25,7 +23,9 @@ from health_tracker.security import (
     ADMIN_GET_ENDPOINTS,
     PUBLIC_POST_ENDPOINTS,
     ensure_csrf_token,
+    make_password_hash,
     validate_csrf_token,
+    verify_password_hash,
 )
 from health_tracker.services.admin import build_app_health_status
 from health_tracker.services.data import (
@@ -414,23 +414,6 @@ def save_app_setting(key: str, value: str) -> None:
         (key, value),
     )
     get_db().commit()
-
-
-def make_password_hash(password: str) -> str:
-    salt = secrets.token_hex(16)
-    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), 120_000)
-    return f"pbkdf2_sha256${salt}${digest.hex()}"
-
-
-def verify_password_hash(password: str, stored_hash: str) -> bool:
-    try:
-        algorithm, salt, digest_hex = stored_hash.split("$", 2)
-    except ValueError:
-        return False
-    if algorithm != "pbkdf2_sha256":
-        return False
-    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), 120_000)
-    return hmac.compare_digest(digest.hex(), digest_hex)
 
 
 def has_settings_password() -> bool:

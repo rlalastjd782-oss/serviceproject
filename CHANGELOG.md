@@ -2,6 +2,12 @@
 
 이 프로젝트는 Semantic Versioning(`MAJOR.MINOR.PATCH`)을 기준으로 관리합니다.
 
+## v1.6.2 - 2026-05-26
+
+- 설정 비밀번호 PBKDF2 해시 생성/검증을 `health_tracker/security.py`로 옮겨 보안 책임을 한 모듈로 모았습니다.
+- 비밀번호 해시 포맷과 오입력 거부를 확인하는 회귀 테스트를 추가했습니다.
+- PWA 캐시와 앱 버전을 `v1.6.2`로 갱신했습니다.
+
 ## v1.6.1 - 2026-05-26
 
 - CSRF 토큰과 관리자 보호 라우트 기준을 `health_tracker/security.py`로 분리해 `app.py`의 보안 공통 로직 중복을 줄였습니다.

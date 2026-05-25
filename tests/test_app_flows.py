@@ -6,9 +6,20 @@ import unittest
 from pathlib import Path
 
 import app as app_module
+from health_tracker.security import make_password_hash, verify_password_hash
 
 
 TEST_TMP_DIR = Path(__file__).resolve().parents[1] / ".test-tmp"
+
+
+class SecurityHelperTest(unittest.TestCase):
+    def test_password_hash_uses_pbkdf2_and_rejects_wrong_password(self) -> None:
+        stored_hash = make_password_hash("1234")
+
+        self.assertTrue(stored_hash.startswith("pbkdf2_sha256$"))
+        self.assertTrue(verify_password_hash("1234", stored_hash))
+        self.assertFalse(verify_password_hash("wrong", stored_hash))
+        self.assertFalse(verify_password_hash("1234", "legacy-or-broken-hash"))
 
 
 class HealthTrackerFlowTest(unittest.TestCase):
@@ -263,7 +274,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.6.1", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.6.2", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")
