@@ -77,14 +77,25 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/daily")
     def daily_summary_page():
+        page, per_page = page_params(request.args)
         days = parse_int(request.args.get("days")) or 7
         days = min(max(days, 7), 90)
+        daily_sort = request.args.get("sort", "newest")
+        daily_rows = list_daily_summary(days=days)
+        if daily_sort == "oldest":
+            daily_rows = list(reversed(daily_rows))
+        else:
+            daily_sort = "newest"
+        daily_pagination = build_pagination(len(daily_rows), page, per_page)
+        daily_summary = daily_rows[daily_pagination.offset : daily_pagination.offset + daily_pagination.per_page]
         return render_template(
             "summaries/summary.html",
             page_title="일간 집계",
             page_kicker="Daily",
             table_kind="daily",
-            daily_summary=list_daily_summary(days=days),
+            daily_summary=daily_summary,
+            daily_pagination=daily_pagination,
+            daily_sort=daily_sort,
             selected_days=days,
             body_part_summary=list_body_part_summary("daily"),
             active_page="daily",

@@ -599,6 +599,17 @@ input[type="month"] {
   gap: 7px;
 }
 
+.record-list-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.record-list-toolbar .list-toolbar {
+  margin: 0;
+}
+
 .today-focus-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3475,6 +3486,7 @@ tbody tr:last-child td {
   .routine-manage-form,
   .tool-form,
   .record-search-form,
+  .record-list-toolbar,
   .body-metric-form,
   .body-photo-form,
   .note-form,

@@ -25,6 +25,11 @@
           <button class="{% if selected_days == option %}btn-primary{% else %}btn-small{% endif %}" type="submit" name="days" value="{{ option }}">{{ option }}일</button>
         {% endfor %}
       </form>
+      <form method="get" action="{{ url_for('daily_summary_page') }}" class="record-list-toolbar">
+        <input type="hidden" name="days" value="{{ selected_days }}">
+        {{ result_toolbar(daily_pagination, [("newest", "최신순"), ("oldest", "오래된순")], daily_sort, url_for('daily_summary_page')) }}
+        <button class="btn-small" type="submit">적용</button>
+      </form>
     </section>
     <div class="record-list">
       {% for item in daily_summary %}
@@ -53,6 +58,7 @@
         <div class="empty">기록 없음</div>
       {% endfor %}
     </div>
+    {{ pagination_nav(daily_pagination) }}
   {% elif table_kind == "period" %}
     {% if active_page == "weekly" and weekly_report %}
       <section class="section">
