@@ -54,6 +54,7 @@ let workoutClockSyncId = null;
 
 initWorkoutClock();
 restoreSavedScrollPosition();
+scrollActiveTabIntoView();
 initWorkoutTools();
 startRestTimerFromUrl();
 processOfflineQueue();
@@ -617,6 +618,16 @@ function restoreSavedScrollPosition() {
   }
   requestAnimationFrame(() => {
     window.scrollTo({ top: Math.max(0, Number(savedScroll) || 0), behavior: "auto" });
+  });
+}
+
+function scrollActiveTabIntoView() {
+  const activeTab = document.querySelector(".tabs .tab-btn.active");
+  if (!activeTab) {
+    return;
+  }
+  requestAnimationFrame(() => {
+    activeTab.scrollIntoView({ behavior: "auto", block: "nearest", inline: "center" });
   });
 }
 
