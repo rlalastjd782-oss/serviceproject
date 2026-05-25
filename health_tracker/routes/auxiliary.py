@@ -6,12 +6,12 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/more")
     def more_page():
-        return render_template("more.html", active_page="more")
+        return render_template("more/index.html", active_page="more")
 
     @app.get("/qa/report")
     def qa_report_page():
         return render_template(
-            "qa_report.html",
+            "qa/report.html",
             active_page="settings",
             qa_dummy_status=get_qa_dummy_status(),
             qa_links=[
@@ -55,7 +55,7 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             per_page,
         )
         return render_template(
-            "exercise_library.html",
+            "more/exercise_library.html",
             active_page="library",
             body_parts=body_part_options(),
             selected_part=selected_part,
@@ -71,7 +71,7 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
         selected_week = normalize_date(request.args.get("week"))
         week_start = week_start_for_date(selected_week)
         return render_template(
-            "weekly_plan.html",
+            "more/weekly_plan.html",
             active_page="plans",
             week_start=week_start,
             week_end=shift_date(week_start, 6),

@@ -17,7 +17,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         exercises = list_exercises()
         meals = list_meals_for_date(today_session["workout_date"])
         return render_template(
-            "index.html",
+            "today/index.html",
             session=today_session,
             sessions=sessions,
             exercises=exercises,
@@ -80,7 +80,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         days = parse_int(request.args.get("days")) or 7
         days = min(max(days, 7), 90)
         return render_template(
-            "summary_page.html",
+            "summaries/summary.html",
             page_title="일간 집계",
             page_kicker="Daily",
             table_kind="daily",
@@ -108,7 +108,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         period_pagination = build_pagination(len(all_period_rows), page, per_page)
         period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
         return render_template(
-            "summary_page.html",
+            "summaries/summary.html",
             page_title="주간 집계",
             page_kicker="Weekly",
             table_kind="period",
@@ -151,7 +151,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         period_pagination = build_pagination(len(all_period_rows), page, per_page)
         period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
         return render_template(
-            "summary_page.html",
+            "summaries/summary.html",
             page_title="월간 집계",
             page_kicker="Monthly",
             table_kind="period",
@@ -183,7 +183,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         prev_year = str(int(selected_year) - 1)
         next_year = str(int(selected_year) + 1)
         return render_template(
-            "yearly_summary.html",
+            "summaries/yearly.html",
             active_page="yearly",
             selected_year=selected_year,
             prev_year=prev_year,
@@ -201,7 +201,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         base_report = build_yearly_report(base_year)
         compare_report = build_yearly_report(compare_year)
         return render_template(
-            "yearly_compare.html",
+            "summaries/yearly_compare.html",
             active_page="yearly",
             base_year=base_year,
             compare_year=compare_year,
@@ -230,7 +230,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             search_results, search_pagination, search_sort = [], build_pagination(0, 1, per_page), "newest"
         selected_exercise = exercise_id or (int(exercise_summary[0]["id"]) if exercise_summary else None)
         return render_template(
-            "summary_page.html",
+            "summaries/summary.html",
             page_title="운동별 횟수",
             page_kicker="Exercise",
             table_kind="exercise",
@@ -271,7 +271,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             equipment_detail_pagination = build_pagination(0, 1, per_page)
             equipment_daily_pagination = build_pagination(0, 1, per_page)
         return render_template(
-            "summary_page.html",
+            "summaries/summary.html",
             page_title="장비별 기록",
             page_kicker="Equipment",
             table_kind="equipment",
@@ -298,7 +298,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         selected_exercise = parse_int(request.args.get("exercise_id"))
         selected_exercise = selected_exercise or (int(pr_rows[0]["id"]) if pr_rows else None)
         return render_template(
-            "pr_page.html",
+            "summaries/pr.html",
             body_parts=body_part_options(),
             exercise_choices=list_pr_exercise_choices(selected_part, search_query),
             selected_part=selected_part,
@@ -323,7 +323,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         current_date = current_local_date()
         goal_date = current_date if month_start[:7] == current_date[:7] else month_start
         return render_template(
-            "calendar.html",
+            "more/calendar.html",
             month=month_start[:7],
             month_label=f"{int(month_start[5:7])}월",
             prev_month=shift_month(month_start, -1)[:7],
@@ -340,7 +340,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         week_start = week_start_for_date(selected_week)
         week_end = shift_date(week_start, 6)
         return render_template(
-            "meal_weekly.html",
+            "meals/weekly.html",
             week_start=week_start,
             week_end=week_end,
             prev_week=shift_date(week_start, -7),
@@ -358,7 +358,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         selected_month = request.args.get("month") or current_local_date()[:7]
         month_start = normalize_month(selected_month)
         return render_template(
-            "meal_monthly.html",
+            "meals/monthly.html",
             selected_month=month_start[:7],
             prev_month=shift_month(month_start, -1)[:7],
             next_month=shift_month(month_start, 1)[:7],
@@ -372,13 +372,13 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     def settings_page():
         if not settings_unlocked():
             return render_template(
-                "settings_lock.html",
+                "settings/lock.html",
                 active_page="settings",
                 has_password=has_settings_password(),
                 error=request.args.get("error", ""),
             )
         return render_template(
-            "settings.html",
+            "settings/index.html",
             active_page="settings",
             error=request.args.get("error", ""),
             sample_counts=get_sample_data_counts(),
@@ -425,7 +425,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             generate_year_qa_dummy_data()
         return redirect(url_for("settings_page"))
 
-    from app_aux_routes import register_aux_routes
+    from health_tracker.routes.auxiliary import register_aux_routes
 
     register_aux_routes(app, globals())
 
@@ -820,7 +820,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             per_page,
         )
         return render_template(
-            "record_search.html",
+            "records/search.html",
             active_page="search",
             body_parts=body_part_options(),
             equipment_options=equipment_options(),

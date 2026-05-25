@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from datetime import datetime
 
-from app_config import BASE_DIR
+from health_tracker.config import BASE_DIR
 
 
 def get_app_version() -> str:
