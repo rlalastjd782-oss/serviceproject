@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}설정 잠금{% endblock %}
+
+{% block content %}
+  <section class="section settings-lock-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">설정 잠금</div>
+        <div class="section-subtitle">데이터 관리와 위험 작업은 비밀번호 확인 후 접근합니다.</div>
+      </div>
+    </div>
+    {% if error == "invalid" %}
+      <div class="empty compact-empty">비밀번호가 맞지 않습니다.</div>
+    {% endif %}
+    {% if has_password %}
+      <form method="post" action="{{ url_for('unlock_settings_route') }}" class="settings-password-form">
+        <input name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required autofocus>
+        <button class="btn-primary" type="submit">설정 열기</button>
+      </form>
+    {% else %}
+      <div class="detail-list compact-detail-list">
+        <div class="detail-row">
+          <strong>초기 설정</strong>
+          <span>처음 사용할 비밀번호를 등록하세요. 이후 설정 화면 진입 시 필요합니다.</span>
+        </div>
+      </div>
+      <form method="post" action="{{ url_for('save_settings_password_route') }}" class="settings-password-form">
+        <input name="password" type="password" autocomplete="new-password" placeholder="새 비밀번호" required autofocus>
+        <input name="password_confirm" type="password" autocomplete="new-password" placeholder="새 비밀번호 확인" required>
+        <button class="btn-primary" type="submit">비밀번호 설정</button>
+      </form>
+    {% endif %}
+  </section>
+{% endblock %}

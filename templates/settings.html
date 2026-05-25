@@ -3,6 +3,34 @@
 {% block title %}설정{% endblock %}
 
 {% block content %}
+  <section class="section settings-panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">설정 보안</div>
+        <div class="section-subtitle">설정 진입 비밀번호를 변경하거나 잠글 수 있습니다.</div>
+      </div>
+      {% if has_settings_password %}
+        <form method="post" action="{{ url_for('lock_settings_route') }}">
+          <button class="btn-small" type="submit">잠그기</button>
+        </form>
+      {% endif %}
+    </div>
+    {% if error == "password" %}
+      <div class="empty compact-empty">비밀번호는 4자 이상이고 확인값과 같아야 합니다.</div>
+    {% endif %}
+    <form method="post" action="{{ url_for('save_settings_password_route') }}" class="settings-password-form">
+      <input name="password" type="password" autocomplete="new-password" placeholder="새 비밀번호">
+      <input name="password_confirm" type="password" autocomplete="new-password" placeholder="새 비밀번호 확인">
+      <button class="btn-primary" type="submit">{% if has_settings_password %}비밀번호 변경{% else %}비밀번호 설정{% endif %}</button>
+    </form>
+    {% if has_settings_password %}
+      <form method="post" action="{{ url_for('reset_settings_password_route') }}" class="settings-action-row" data-confirm-submit="설정 비밀번호를 재설정하면 다음 설정 진입 시 새 비밀번호를 만들 수 있습니다. 계속할까요?">
+        <input name="confirm_reset" placeholder="RESET 입력" autocomplete="off" required>
+        <button class="btn-danger" type="submit">비밀번호 재설정</button>
+      </form>
+    {% endif %}
+  </section>
+
   <section class="section settings-overview-section">
     <div class="section-header">
       <div>

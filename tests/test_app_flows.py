@@ -73,6 +73,40 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertNotIn("장비 분석", html)
         self.assertNotIn(">PR<", html)
 
+    def test_settings_password_lock_unlock_and_reset(self) -> None:
+        response = self.client.get("/settings")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("설정 보안", response.data.decode("utf-8"))
+
+        response = self.client.post(
+            "/settings/password",
+            data={"password": "1234", "password_confirm": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.post("/settings/lock")
+        self.assertEqual(response.status_code, 302)
+        html = self.client.get("/settings").data.decode("utf-8")
+        self.assertIn("settings-lock-section", html)
+        self.assertNotIn("settings-overview-section", html)
+
+        response = self.client.post("/settings/unlock", data={"password": "wrong"})
+        self.assertEqual(response.status_code, 302)
+        html = self.client.get("/settings?error=invalid").data.decode("utf-8")
+        self.assertIn("비밀번호가 맞지 않습니다", html)
+        self.assertIn("settings-lock-section", html)
+
+        response = self.client.post("/settings/unlock", data={"password": "1234"})
+        self.assertEqual(response.status_code, 302)
+        html = self.client.get("/settings").data.decode("utf-8")
+        self.assertIn("settings-overview-section", html)
+
+        response = self.client.post("/settings/password/reset", data={"confirm_reset": "RESET"})
+        self.assertEqual(response.status_code, 302)
+        html = self.client.get("/settings").data.decode("utf-8")
+        self.assertIn("설정 보안", html)
+        self.assertNotIn("settings-lock-section", html)
+
     def test_service_worker_precache_assets_are_valid(self) -> None:
         sw_path = Path(__file__).resolve().parents[1] / "static" / "sw.js"
         sw_source = sw_path.read_text(encoding="utf-8")

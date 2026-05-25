@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import hmac
 import json
+import secrets
 import sqlite3
 from datetime import datetime, timedelta
 
-from flask import Flask, Response, g, jsonify, redirect, render_template, request, url_for
+from flask import Flask, Response, g, jsonify, redirect, render_template, request, session, url_for
 
 from app_admin_service import build_app_health_status
 from app_config import BASE_DIR, DATABASE, PHOTO_DIR
@@ -54,6 +57,7 @@ from app_workout_service import grouped_sets_for_session_from_db, list_sets_for_
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config["DATABASE"] = DATABASE
+    app.secret_key = get_or_create_secret_key()
 
     @app.before_request
     def before_request() -> None:
@@ -271,6 +275,12 @@ def init_db() -> None:
             message TEXT NOT NULL DEFAULT '',
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+
+        CREATE TABLE IF NOT EXISTS app_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL DEFAULT '',
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
         """
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
@@ -299,6 +309,7 @@ def init_db() -> None:
     ensure_column(db, "reminder_settings", "enabled", "INTEGER NOT NULL DEFAULT 0")
     ensure_column(db, "reminder_settings", "time_text", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "reminder_settings", "message", "TEXT NOT NULL DEFAULT ''")
+    ensure_column(db, "app_settings", "value", "TEXT NOT NULL DEFAULT ''")
     db.execute(
         """
         UPDATE meal_entries
@@ -323,6 +334,79 @@ def ensure_column(db: sqlite3.Connection, table: str, column: str, column_type: 
     columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
     if column not in columns:
         db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
+
+
+def get_or_create_secret_key() -> str:
+    secret_path = BASE_DIR / "instance" / "secret_key.txt"
+    secret_path.parent.mkdir(exist_ok=True)
+    if secret_path.exists():
+        secret = secret_path.read_text(encoding="utf-8").strip()
+        if secret:
+            return secret
+    secret = secrets.token_urlsafe(32)
+    secret_path.write_text(secret, encoding="utf-8")
+    return secret
+
+
+def get_app_setting(key: str, default: str = "") -> str:
+    row = get_db().execute("SELECT value FROM app_settings WHERE key = ?", (key,)).fetchone()
+    return str(row["value"]) if row else default
+
+
+def save_app_setting(key: str, value: str) -> None:
+    get_db().execute(
+        """
+        INSERT INTO app_settings (key, value, updated_at)
+        VALUES (?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
+        """,
+        (key, value),
+    )
+    get_db().commit()
+
+
+def make_password_hash(password: str) -> str:
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), 120_000)
+    return f"pbkdf2_sha256${salt}${digest.hex()}"
+
+
+def verify_password_hash(password: str, stored_hash: str) -> bool:
+    try:
+        algorithm, salt, digest_hex = stored_hash.split("$", 2)
+    except ValueError:
+        return False
+    if algorithm != "pbkdf2_sha256":
+        return False
+    digest = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt.encode("ascii"), 120_000)
+    return hmac.compare_digest(digest.hex(), digest_hex)
+
+
+def has_settings_password() -> bool:
+    return bool(get_app_setting("settings_password_hash"))
+
+
+def set_settings_password(password: str) -> bool:
+    password = password.strip()
+    if len(password) < 4:
+        return False
+    save_app_setting("settings_password_hash", make_password_hash(password))
+    session["settings_unlocked"] = True
+    return True
+
+
+def verify_settings_password(password: str) -> bool:
+    stored_hash = get_app_setting("settings_password_hash")
+    return bool(stored_hash and verify_password_hash(password, stored_hash))
+
+
+def settings_unlocked() -> bool:
+    return not has_settings_password() or bool(session.get("settings_unlocked"))
+
+
+def reset_settings_password() -> None:
+    save_app_setting("settings_password_hash", "")
+    session.pop("settings_unlocked", None)
 
 
 def get_or_create_session(workout_date: str | None = None) -> sqlite3.Row:
