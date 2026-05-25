@@ -39,6 +39,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/meals/weekly",
             "/meals/monthly",
             "/settings",
+            "/qa/report",
             "/api/sessions",
             "/records/search",
             "/exercises/library",

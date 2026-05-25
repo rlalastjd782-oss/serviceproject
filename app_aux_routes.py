@@ -8,6 +8,27 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
     def more_page():
         return render_template("more.html", active_page="more")
 
+    @app.get("/qa/report")
+    def qa_report_page():
+        return render_template(
+            "qa_report.html",
+            active_page="settings",
+            qa_dummy_status=get_qa_dummy_status(),
+            qa_links=[
+                {"label": "2025 연간", "href": url_for("yearly_summary_page", year="2025")},
+                {"label": "2026 연간", "href": url_for("yearly_summary_page", year="2026")},
+                {
+                    "label": "2025 vs 2026",
+                    "href": url_for("yearly_compare_page", base_year="2025", compare_year="2026"),
+                },
+                {
+                    "label": "연도 경계 검색",
+                    "href": url_for("record_search_page", start="2025-12-31", end="2026-01-01", q="QA-"),
+                },
+                {"label": "서비스워커", "href": url_for("root_service_worker")},
+            ],
+        )
+
     @app.get("/sw.js")
     def root_service_worker():
         response = Response(

@@ -152,6 +152,7 @@
       <form method="post" action="{{ url_for('generate_year_qa_dummy_route') }}">
         <button class="btn-small" type="submit">1년치 생성</button>
       </form>
+      <a class="btn-small" href="{{ url_for('qa_report_page') }}">QA 리포트</a>
     </div>
     <div class="summary-grid settings-summary-grid">
       <article class="summary-card"><div class="summary-value">{{ qa_dummy_status.exercises }}</div><div class="summary-label">QA 운동</div></article>
