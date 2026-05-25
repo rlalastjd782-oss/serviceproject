@@ -256,6 +256,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
         assets_match = re.search(r"const ASSETS = \[(.*?)\];", sw_source, re.S)
         self.assertIsNotNone(assets_match)
         assets = re.findall(r'"([^"]+)"', assets_match.group(1))
+        self.assertNotIn("/", assets)
+        self.assertNotIn("/?mode=workout", assets)
+        self.assertNotIn("/?mode=meal", assets)
         self.assertIn("/calendar", assets)
         self.assertIn("/meals/weekly", assets)
         self.assertIn("/summaries/exercises", assets)
@@ -274,7 +277,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.6.2", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.6.3", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")
