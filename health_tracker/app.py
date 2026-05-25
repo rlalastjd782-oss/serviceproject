@@ -4534,10 +4534,14 @@ app.jinja_env.globals["duration_hours"] = duration_hours
 app.jinja_env.globals["duration_minutes"] = duration_minutes
 
 
-if __name__ == "__main__":
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=5000, type=int)
     parser.add_argument("--debug", action="store_true")
     args = parser.parse_args()
     app.run(host=args.host, port=args.port, debug=args.debug)
+
+
+if __name__ == "__main__":
+    main()
