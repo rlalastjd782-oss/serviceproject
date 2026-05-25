@@ -3366,6 +3366,39 @@ tbody tr:last-child td {
   }
 }
 
+@media (max-width: 900px) {
+  .month-picker-form-wide {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-columns: 32px minmax(0, 1fr) 32px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .month-picker-form-wide > * {
+    min-width: 0;
+  }
+
+  .month-picker-form-wide .btn-primary {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: 38px;
+  }
+
+  .month-picker-form-wide .arrow-btn:last-child {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 32px;
+    height: 44px;
+    grid-column: 3 / 4;
+    grid-row: 1;
+    justify-self: center;
+  }
+}
+
 @media (max-width: 430px) {
   body {
     max-width: none;
@@ -3399,6 +3432,47 @@ tbody tr:last-child td {
 
   .date-picker-form input {
     width: 100%;
+  }
+
+  .month-picker-form-wide {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-columns: 28px minmax(0, 1fr) 28px;
+    gap: 5px;
+    overflow: hidden;
+  }
+
+  .month-picker-form-wide > * {
+    min-width: 0;
+  }
+
+  .month-picker-form-wide .arrow-btn {
+    padding-inline: 4px;
+  }
+
+  .month-picker-form-wide .month-picker input {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .month-picker-form-wide .btn-primary {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-width: 0;
+    min-height: 38px;
+    padding-inline: 8px;
+  }
+
+  .month-picker-form-wide .arrow-btn:last-child {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 44px;
+    grid-column: 3 / 4;
+    grid-row: 1;
+    justify-self: center;
   }
 
   .today-mode-actions {
