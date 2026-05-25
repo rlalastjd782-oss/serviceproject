@@ -6,10 +6,25 @@ from datetime import datetime
 from health_tracker.config import BASE_DIR
 
 
+def normalize_version(version: str) -> str:
+    version = version.strip()
+    if not version:
+        return ""
+    return version if version.startswith("v") else f"v{version}"
+
+
 def get_app_version() -> str:
     env_version = os.environ.get("APP_VERSION", "").strip()
     if env_version:
-        return env_version
+        return normalize_version(env_version)
+
+    version_path = BASE_DIR / "VERSION"
+    try:
+        version = version_path.read_text(encoding="utf-8").strip()
+        if version:
+            return normalize_version(version)
+    except OSError:
+        pass
 
     head_path = BASE_DIR / ".git" / "HEAD"
     try:
