@@ -22,7 +22,12 @@
         <div class="section-title">{{ selected_year }}년 요약</div>
         <div class="section-subtitle">연도 경계가 있는 장기 기록 QA 기준 화면입니다.</div>
       </div>
-      <a class="btn-small" href="{{ url_for('yearly_compare_page', base_year=selected_year|int - 1, compare_year=selected_year) }}">전년 비교</a>
+      <div class="settings-action-row">
+        <a class="btn-small" href="{{ url_for('yearly_compare_page', base_year=selected_year|int - 1, compare_year=selected_year) }}">전년 비교</a>
+        <a class="btn-small" href="{{ url_for('export_yearly_json_route', year=selected_year) }}">JSON</a>
+        <a class="btn-small" href="{{ url_for('export_yearly_workouts_csv_route', year=selected_year) }}">운동 CSV</a>
+        <a class="btn-small" href="{{ url_for('export_yearly_meals_csv_route', year=selected_year) }}">식단 CSV</a>
+      </div>
     </div>
     <div class="summary-grid">
       <article class="summary-card"><div class="summary-value">{{ yearly_report.workout_days }}</div><div class="summary-label">운동일</div></article>

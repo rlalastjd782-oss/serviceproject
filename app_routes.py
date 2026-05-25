@@ -857,6 +857,33 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             headers={"Content-Disposition": "attachment; filename=health-tracker-meals.csv"},
         )
 
+    @app.get("/export/yearly.json")
+    def export_yearly_json_route():
+        year = normalize_year(request.args.get("year"), current_local_date())
+        return Response(
+            json.dumps(export_yearly_payload(year), ensure_ascii=False, indent=2),
+            content_type="application/json; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename=health-tracker-{year}.json"},
+        )
+
+    @app.get("/export/yearly-workouts.csv")
+    def export_yearly_workouts_csv_route():
+        year = normalize_year(request.args.get("year"), current_local_date())
+        return Response(
+            export_yearly_workout_csv(year),
+            content_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename=health-tracker-workouts-{year}.csv"},
+        )
+
+    @app.get("/export/yearly-meals.csv")
+    def export_yearly_meals_csv_route():
+        year = normalize_year(request.args.get("year"), current_local_date())
+        return Response(
+            export_yearly_meal_csv(year),
+            content_type="text/csv; charset=utf-8",
+            headers={"Content-Disposition": f"attachment; filename=health-tracker-meals-{year}.csv"},
+        )
+
     @app.post("/import.json")
     def import_json():
         file = request.files.get("backup_file")

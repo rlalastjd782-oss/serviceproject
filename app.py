@@ -56,6 +56,8 @@ from app_workout_service import grouped_sets_for_session_from_db, list_sets_for_
 from app_yearly_service import (
     build_yearly_report as build_yearly_report_from_db,
     compare_yearly_reports,
+    export_yearly_meal_rows,
+    export_yearly_workout_rows,
     list_yearly_body_part_summary as list_yearly_body_part_summary_from_db,
     list_yearly_month_rows as list_yearly_month_rows_from_db,
     list_yearly_top_exercises as list_yearly_top_exercises_from_db,
@@ -3474,6 +3476,52 @@ def list_yearly_body_part_summary(year: str) -> list[sqlite3.Row]:
 
 def list_yearly_top_exercises(year: str, limit: int = 10) -> list[sqlite3.Row]:
     return list_yearly_top_exercises_from_db(get_db(), year, limit)
+
+
+def export_yearly_payload(year: str) -> dict[str, object]:
+    return {
+        "year": year,
+        "report": build_yearly_report(year),
+        "months": [dict(row) for row in list_yearly_month_rows(year)],
+        "body_parts": [dict(row) for row in list_yearly_body_part_summary(year)],
+        "top_exercises": [dict(row) for row in list_yearly_top_exercises(year, limit=20)],
+    }
+
+
+def rows_to_csv(rows: list[sqlite3.Row], headers: list[str]) -> str:
+    lines = [",".join(headers)]
+    for row in rows:
+        values = []
+        for header in headers:
+            value = row[header]
+            text = "" if value is None else str(value)
+            values.append('"' + text.replace('"', '""') + '"')
+        lines.append(",".join(values))
+    return "\ufeff" + "\n".join(lines)
+
+
+def export_yearly_workout_csv(year: str) -> str:
+    headers = [
+        "workout_date",
+        "exercise_name",
+        "body_part",
+        "equipment",
+        "set_type",
+        "weight",
+        "reps",
+        "cardio_incline",
+        "cardio_speed",
+        "cardio_minutes",
+        "estimated_calories",
+        "rpe",
+        "memo",
+    ]
+    return rows_to_csv(export_yearly_workout_rows(get_db(), year), headers)
+
+
+def export_yearly_meal_csv(year: str) -> str:
+    headers = ["meal_date", "meal_type", "food_name", "quantity", "grams", "calories", "memo"]
+    return rows_to_csv(export_yearly_meal_rows(get_db(), year), headers)
 
 
 def paged_rows(select_sql: str, count_sql: str, params: list[object], page: int, per_page: int) -> tuple[list[sqlite3.Row], object]:

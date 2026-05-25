@@ -208,3 +208,44 @@ def compare_yearly_reports(base: dict[str, object], compare: dict[str, object]) 
             }
         )
     return rows
+
+
+def export_yearly_workout_rows(db: sqlite3.Connection, year: str) -> list[sqlite3.Row]:
+    start, end = year_bounds(year)
+    return db.execute(
+        """
+        SELECT
+            s.workout_date,
+            e.name AS exercise_name,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            COALESCE(NULLIF(ws.equipment, ''), '미지정') AS equipment,
+            ws.set_type,
+            ws.weight,
+            ws.reps,
+            ws.cardio_incline,
+            ws.cardio_speed,
+            ws.cardio_minutes,
+            ws.estimated_calories,
+            ws.rpe,
+            ws.memo
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+        ORDER BY s.workout_date, ws.sort_order, ws.id
+        """,
+        (start, end),
+    ).fetchall()
+
+
+def export_yearly_meal_rows(db: sqlite3.Connection, year: str) -> list[sqlite3.Row]:
+    start, end = year_bounds(year)
+    return db.execute(
+        """
+        SELECT meal_date, meal_type, food_name, quantity, grams, calories, memo
+        FROM meal_entries
+        WHERE meal_date >= ? AND meal_date < ?
+        ORDER BY meal_date, id
+        """,
+        (start, end),
+    ).fetchall()
