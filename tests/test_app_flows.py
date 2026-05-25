@@ -57,6 +57,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("data-quality-card", overview_html)
         self.assertIn("분석 신뢰도", overview_html)
         self.assertIn("quality-metric-list", overview_html)
+        self.assertIn("today-hero-section", overview_html)
         self.assertIn("today-mode-actions", overview_html)
 
         workout_html = self.client.get("/?mode=workout").data.decode("utf-8")
@@ -70,6 +71,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("record-filter-details", search_html)
         self.assertIn("<summary>상세 필터</summary>", search_html)
         self.assertIn("record-search-dashboard", search_html)
+        self.assertIn("record-result-list", search_html)
 
         weekly_html = self.client.get("/summaries/weekly").data.decode("utf-8")
         self.assertIn("analysis-dashboard-section", weekly_html)
@@ -196,7 +198,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.3.0", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.4.0", response.data.decode("utf-8"))
 
     def test_workout_cardio_meal_flow(self) -> None:
         workout_date = "2026-05-20"

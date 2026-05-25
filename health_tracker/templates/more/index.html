@@ -3,23 +3,27 @@
 {% block title %}더보기{% endblock %}
 
 {% block content %}
-  <section class="section more-section">
-    <div class="section-header">
+  <section class="section more-section analysis-dashboard-section">
+    <div class="yearly-dashboard-head">
       <div>
-        <div class="section-title">더보기</div>
-        <div class="section-subtitle">상단 메뉴에 두면 복잡해지는 보조 화면만 모았습니다.</div>
+        <div class="yearly-kicker">더보기</div>
+        <h1>운동 관리 도구</h1>
+        <p>라이브러리, 주간 계획, 캘린더처럼 반복해서 쓰는 보조 기능을 모았습니다.</p>
       </div>
     </div>
     <div class="more-link-grid">
       <a class="more-link-card" href="{{ url_for('exercise_library_page') }}">
+        <b>Library</b>
         <strong>운동 라이브러리</strong>
         <span>즐겨찾기, 목표, 휴식 시간, 메모를 관리합니다.</span>
       </a>
       <a class="more-link-card" href="{{ url_for('weekly_plan_page') }}">
+        <b>Plan</b>
         <strong>주간 계획</strong>
         <span>추천 기반으로 이번 주 운동 계획을 채웁니다.</span>
       </a>
       <a class="more-link-card" href="{{ url_for('calendar_page') }}">
+        <b>Calendar</b>
         <strong>캘린더</strong>
         <span>월간 운동, 식단, 체성분 기록을 날짜별로 봅니다.</span>
       </a>

@@ -229,12 +229,12 @@
 
 :root {
   color-scheme: dark;
-  --bg: #0f0f14;
-  --panel: #15151e;
-  --panel-2: #1a1a24;
-  --panel-soft: #111827;
-  --line: #1f2937;
-  --line-strong: #374151;
+  --bg: #0b0d12;
+  --panel: #141821;
+  --panel-2: #181d28;
+  --panel-soft: #101722;
+  --line: #263142;
+  --line-strong: #3a4659;
   --text: #e5e7eb;
   --strong: #f3f4f6;
   --muted: #9ca3af;
@@ -243,7 +243,10 @@
   --blue: #60a5fa;
   --blue-strong: #1d4ed8;
   --green: #22c55e;
+  --amber: #f59e0b;
   --danger: #ef4444;
+  --shadow: 0 14px 34px rgb(0 0 0 / 26%);
+  --shadow-soft: 0 8px 22px rgb(0 0 0 / 18%);
   --radius: 8px;
   --radius-soft: 10px;
   --font-main: "Pretendard", "Noto Sans KR", "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
@@ -261,7 +264,8 @@ body {
   max-width: 760px;
   min-height: 100vh;
   margin: 0 auto;
-  background: var(--bg);
+  background:
+    linear-gradient(180deg, #0b0d12 0, #0d1119 42%, #0b0d12 100%);
   color: var(--text);
   font-family: var(--font-main);
   font-size: 14px;
@@ -321,8 +325,9 @@ input[type="month"] {
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 14px 18px 12px;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg);
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  background: rgb(11 13 18 / 94%);
+  backdrop-filter: blur(12px);
 }
 
 .header-title {
@@ -372,8 +377,9 @@ input[type="month"] {
   top: 49px;
   z-index: 9;
   display: flex;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg);
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  background: rgb(11 13 18 / 94%);
+  backdrop-filter: blur(12px);
 }
 
 .tab-btn {
@@ -522,7 +528,10 @@ input[type="month"] {
   border: 1px solid var(--line);
   border-radius: var(--radius-soft);
   padding: 13px;
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent 48%),
+    var(--panel);
+  box-shadow: var(--shadow-soft);
 }
 
 .workout-mode .section {
@@ -648,19 +657,33 @@ input[type="month"] {
 
 .today-focus-panel {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin-bottom: 11px;
 }
 
 .today-focus-card {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent),
+    var(--panel-2);
   color: inherit;
   padding: 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+.today-focus-card.is-workout {
+  border-color: rgb(96 165 250 / 34%);
+}
+
+.today-focus-card.is-meal {
+  border-color: rgb(245 158 11 / 32%);
+}
+
+.today-focus-card.is-analysis {
+  border-color: rgb(34 197 94 / 32%);
 }
 
 .today-focus-card strong {
@@ -672,6 +695,47 @@ input[type="month"] {
   color: var(--muted);
   font-size: 12px;
   font-weight: 800;
+}
+
+.today-hero-section {
+  border-color: rgb(96 165 250 / 32%);
+  background:
+    linear-gradient(135deg, rgb(96 165 250 / 17%), transparent 46%),
+    linear-gradient(180deg, #151a24, var(--panel));
+}
+
+.today-hero-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.today-hero-head > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.today-hero-head span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.today-hero-head h1 {
+  color: var(--strong);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.today-hero-head p {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .data-quality-section {
@@ -990,12 +1054,13 @@ label span {
 .btn-primary {
   border: 0;
   border-radius: var(--radius);
-  background: var(--blue-strong);
+  background: linear-gradient(180deg, #2563eb, #1d4ed8);
   color: #fff;
   cursor: pointer;
   font-size: 13px;
   font-weight: 800;
   padding: 8px 14px;
+  box-shadow: 0 8px 18px rgb(37 99 235 / 22%);
 }
 
 .btn-small,
@@ -1005,7 +1070,7 @@ label span {
 .detail-button {
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  background: #1f2937;
+  background: linear-gradient(180deg, #1f2937, #182131);
   color: var(--muted);
   cursor: pointer;
   font-size: 12px;
@@ -1054,7 +1119,9 @@ label span {
   gap: 3px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent),
+    var(--panel-2);
   min-height: 72px;
   padding: 10px 8px;
   text-align: center;
@@ -2514,10 +2581,49 @@ label span {
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: var(--panel-2);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent),
+    var(--panel-2);
   cursor: pointer;
   margin-bottom: 8px;
   padding: 12px 13px;
+  box-shadow: var(--shadow-soft);
+}
+
+.record-result-list {
+  display: grid;
+  gap: 8px;
+}
+
+.record-result-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.record-result-card > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.record-result-card strong {
+  color: var(--strong);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.record-result-card small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.record-result-card b {
+  color: var(--blue);
+  font-size: 16px;
+  white-space: nowrap;
 }
 
 .equipment-summary-card {
@@ -4122,6 +4228,14 @@ tbody tr:last-child td {
 
   .today-focus-panel {
     grid-template-columns: 1fr;
+  }
+
+  .today-hero-head {
+    grid-template-columns: 1fr;
+  }
+
+  .today-hero-head .btn-primary {
+    width: 100%;
   }
 
   .yearly-action-grid,
