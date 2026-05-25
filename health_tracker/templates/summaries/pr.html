@@ -5,12 +5,17 @@
 
 {% block content %}
   {{ analysis_subnav(active_page) }}
-  <section class="section pr-hero-section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">운동별 최고 PR</div>
-        <div class="section-subtitle">저장된 세트 기준으로 운동별 최고 중량, 반복, 볼륨, 예상 1RM을 계산합니다.</div>
-      </div>
+  <section class="section pr-hero-section analysis-dashboard-section">
+    <div class="yearly-dashboard-head">
+      <div class="yearly-kicker">PR 분석</div>
+      <h1>{{ pr_dashboard.exercise_count }}개 운동 · {{ pr_dashboard.recent_event_count }}개 최근 PR</h1>
+      <p>저장된 세트 기준으로 운동별 최고 중량, 반복, 볼륨, 예상 1RM을 계산합니다.</p>
+    </div>
+    <div class="yearly-action-grid analysis-action-grid">
+      <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주간</a>
+      <a class="btn-small" href="{{ url_for('monthly_summary_page') }}">월간</a>
+      <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
+      <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
     </div>
     <form method="get" action="{{ url_for('pr_summary_page') }}" class="tool-form pr-filter-form">
       <select name="part" aria-label="운동부위">
@@ -27,18 +32,18 @@
         <option value="{{ exercise.name }}"></option>
       {% endfor %}
     </datalist>
-    <div class="pr-dashboard-grid">
-      <article class="pr-dashboard-card">
+    <div class="yearly-metric-grid analysis-metric-grid pr-dashboard-grid">
+      <article class="yearly-metric-card is-primary">
         <span>운동 수</span>
         <strong>{{ pr_dashboard.exercise_count }}</strong>
         <small>PR 계산 가능 운동</small>
       </article>
-      <article class="pr-dashboard-card">
+      <article class="yearly-metric-card">
         <span>최근 갱신</span>
         <strong>{{ pr_dashboard.recent_event_count }}</strong>
         <small>{{ pr_dashboard.recent_day_count }}일에 발생</small>
       </article>
-      <article class="pr-dashboard-card">
+      <article class="yearly-metric-card">
         <span>최고 중량</span>
         {% if pr_dashboard.best_weight %}
           <strong>{{ "%.1f"|format(pr_dashboard.best_weight.best_weight) }}kg</strong>
@@ -48,7 +53,7 @@
           <small>기록 없음</small>
         {% endif %}
       </article>
-      <article class="pr-dashboard-card">
+      <article class="yearly-metric-card">
         <span>예상 1RM</span>
         {% if pr_dashboard.best_1rm %}
           <strong>{{ "%.1f"|format(pr_dashboard.best_1rm.estimated_1rm) }}kg</strong>

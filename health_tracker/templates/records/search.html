@@ -9,12 +9,34 @@
     <a class="active" href="{{ url_for('record_search_page') }}">검색</a>
   </nav>
 
-  <section class="section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">기록 검색</div>
-        <div class="section-subtitle">운동명, 부위, 장비, 날짜 범위를 조합해서 찾습니다.</div>
-      </div>
+  <section class="section analysis-dashboard-section record-search-dashboard">
+    <div class="yearly-dashboard-head">
+      <div class="yearly-kicker">기록 검색</div>
+      <h1>{{ pagination.total }}개 기록 탐색</h1>
+      <p>운동명, 부위, 장비, 날짜 범위를 조합해서 필요한 세트를 빠르게 찾습니다.</p>
+    </div>
+    <div class="yearly-action-grid analysis-action-grid">
+      <a class="btn-small" href="{{ url_for('daily_summary_page') }}">일별</a>
+      <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주간</a>
+      <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
+      <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비</a>
+    </div>
+    <div class="yearly-metric-grid analysis-metric-grid record-search-metric-grid">
+      <article class="yearly-metric-card is-primary">
+        <span>검색 결과</span>
+        <strong>{{ pagination.total }}</strong>
+        <small>조건에 맞는 세트</small>
+      </article>
+      <article class="yearly-metric-card">
+        <span>정렬</span>
+        <strong>{{ selected_sort }}</strong>
+        <small>현재 결과 순서</small>
+      </article>
+      <article class="yearly-metric-card">
+        <span>페이지</span>
+        <strong>{{ pagination.page }}</strong>
+        <small>{{ pagination.pages }}페이지 중</small>
+      </article>
     </div>
     <form method="get" action="{{ url_for('record_search_page') }}" class="record-search-form">
       <input class="record-search-query" name="q" value="{{ search_query }}" placeholder="운동명 또는 메모">
@@ -42,7 +64,7 @@
     </form>
   </section>
 
-  <section class="section">
+  <section class="section record-result-section">
     <div class="section-header">
       <div class="section-title">검색 결과</div>
       <span class="badge">총 {{ pagination.total }}개</span>

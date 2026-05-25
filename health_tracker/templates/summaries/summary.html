@@ -709,12 +709,17 @@
       </div>
     </section>
   {% elif table_kind == "equipment" %}
-    <section class="section">
-      <div class="section-header">
-        <div>
-          <div class="section-title">장비별 기록</div>
-          <div class="section-subtitle">각 세트에 저장된 장비 기준으로 집계합니다.</div>
-        </div>
+    <section class="section analysis-dashboard-section equipment-dashboard-section">
+      <div class="yearly-dashboard-head">
+        <div class="yearly-kicker">장비 분석</div>
+        <h1>{{ selected_equipment or "전체 장비" }} 기준 기록</h1>
+        <p>각 세트에 저장된 장비 기준으로 운동량, 최근 사용, 장비별 상세 운동을 비교합니다.</p>
+      </div>
+      <div class="yearly-action-grid analysis-action-grid">
+        <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주간</a>
+        <a class="btn-small" href="{{ url_for('monthly_summary_page') }}">월간</a>
+        <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
+        <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
       </div>
       <form method="get" action="{{ url_for('equipment_summary_page') }}" class="period-filter-form">
         {% for value, label in [("week", "이번 주"), ("month", "이번 달"), ("all", "전체")] %}
@@ -726,7 +731,7 @@
       </form>
     </section>
 
-    <section class="section">
+    <section class="section equipment-summary-section">
       <div class="section-header">
         <div class="section-title">장비 요약</div>
       </div>

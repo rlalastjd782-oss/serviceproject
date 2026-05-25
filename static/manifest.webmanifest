@@ -2,7 +2,7 @@
   "name": "운동 및 식단 관리",
   "short_name": "운동식단",
   "description": "운동, 식단, 목표, PR을 모바일에서 빠르게 기록하는 개인 헬스 트래커",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "id": "/",
   "start_url": "/",
   "scope": "/",
