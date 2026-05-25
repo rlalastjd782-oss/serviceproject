@@ -23,7 +23,9 @@
         <a class="tab-btn {% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주별</a>
         <a class="tab-btn {% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월별</a>
         <a class="tab-btn {% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>
+        <a class="tab-btn {% if active_page == 'library' %}active{% endif %}" href="{{ url_for('exercise_library_page') }}">라이브러리</a>
         <a class="tab-btn {% if active_page == 'pr' %}active{% endif %}" href="{{ url_for('pr_summary_page') }}">PR</a>
+        <a class="tab-btn {% if active_page == 'plans' %}active{% endif %}" href="{{ url_for('weekly_plan_page') }}">계획</a>
         <a class="tab-btn {% if active_page == 'equipment' %}active{% endif %}" href="{{ url_for('equipment_summary_page') }}">장비</a>
         <a class="tab-btn {% if active_page == 'meals' %}active{% endif %}" href="{{ url_for('meal_weekly_page') }}">식단</a>
         <a class="tab-btn {% if active_page == 'calendar' %}active{% endif %}" href="{{ url_for('calendar_page') }}">달력</a>

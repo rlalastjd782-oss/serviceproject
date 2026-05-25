@@ -114,6 +114,12 @@
               <span>{{ insight }}</span>
             </div>
           {% endfor %}
+          {% if nutrition_training_link %}
+            <div class="detail-row">
+              <strong>영양 연결</strong>
+              <span>{{ nutrition_training_link.message }} · 운동일 평균 {{ nutrition_training_link.workout_calorie_avg }}kcal</span>
+            </div>
+          {% endif %}
           {% for warning in balance_warnings %}
             <div class="detail-row">
               <strong>균형 체크</strong>
@@ -249,6 +255,12 @@
               <span>{{ insight }}</span>
             </div>
           {% endfor %}
+          {% if nutrition_training_link %}
+            <div class="detail-row">
+              <strong>영양 연결</strong>
+              <span>{{ nutrition_training_link.message }} · 운동일 평균 {{ nutrition_training_link.workout_calorie_avg }}kcal</span>
+            </div>
+          {% endif %}
           <div class="detail-row">
             <strong>체중 변화</strong>
             <span>{{ "%+.1f"|format(monthly_report.weight_delta) }}kg</span>

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}운동 라이브러리{% endblock %}
+
+{% block content %}
+  <section class="section library-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">운동 라이브러리</div>
+        <div class="section-subtitle">즐겨찾기, 장비, 목표, 메모를 한 화면에서 확인합니다.</div>
+      </div>
+    </div>
+    <form method="get" action="{{ url_for('exercise_library_page') }}" class="filter-form">
+      <input name="q" value="{{ search_query }}" placeholder="운동명 검색" list="library-exercise-list">
+      <select name="part">
+        <option value="">전체 부위</option>
+        {% for part in body_parts %}
+          <option value="{{ part }}" {% if selected_part == part %}selected{% endif %}>{{ part }}</option>
+        {% endfor %}
+      </select>
+      <label class="inline-check">
+        <input type="checkbox" name="favorite" value="1" {% if favorite_only %}checked{% endif %}>
+        <span>즐겨찾기</span>
+      </label>
+      <button class="btn-small" type="submit">검색</button>
+    </form>
+    <datalist id="library-exercise-list">
+      {% for item in exercises %}
+        <option value="{{ item.name }}"></option>
+      {% endfor %}
+    </datalist>
+    <div class="library-grid">
+      {% for item in exercises %}
+        <article class="library-card">
+          <div class="library-card-head">
+            <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+            {% if item.is_favorite %}<span class="mini-badge">즐겨찾기</span>{% endif %}
+          </div>
+          <strong>{{ item.name }}</strong>
+          <div class="detail-list compact-detail-list">
+            <div class="detail-row"><span>최근</span><strong>{{ item.last_date or "-" }}</strong></div>
+            <div class="detail-row"><span>세트</span><strong>{{ item.set_count }}</strong></div>
+            <div class="detail-row"><span>휴식</span><strong>{{ item.rest_seconds }}초</strong></div>
+            <div class="detail-row"><span>장비</span><strong>{{ item.equipment or "-" }}</strong></div>
+            {% if item.target_weight or item.target_reps or item.target_sets %}
+              <div class="detail-row"><span>목표</span><strong>{{ item.target_weight or "-" }}kg · {{ item.target_reps or "-" }}회 · {{ item.target_sets or "-" }}세트</strong></div>
+            {% endif %}
+            {% if item.note %}
+              <div class="detail-row"><span>메모</span><strong>{{ item.note }}</strong></div>
+            {% endif %}
+          </div>
+          <div class="settings-action-row">
+            <a class="btn-small" href="{{ url_for('index', mode='workout') }}#workout-input">입력</a>
+            <a class="btn-small" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">분석</a>
+          </div>
+        </article>
+      {% else %}
+        <div class="empty-state">조건에 맞는 운동이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

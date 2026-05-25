@@ -115,6 +115,35 @@
     </div>
   </section>
 
+  <section class="section settings-panel" data-reminder-settings='{{ reminder_settings|tojson }}'>
+    <div class="section-header">
+      <div>
+        <div class="section-title">리마인더</div>
+        <div class="section-subtitle">운동, 식단, 주간 점검 시간을 브라우저 알림으로 관리합니다.</div>
+      </div>
+      <button class="btn-small" type="button" data-enable-notifications>알림 허용</button>
+    </div>
+    <form method="post" action="{{ url_for('save_reminders_route') }}" class="settings-action-grid">
+      {% for key, label in [("workout", "운동"), ("meal", "식단"), ("weekly", "주간 점검")] %}
+        {% set item = reminder_settings[key] %}
+        <div class="settings-action-card">
+          <strong>{{ label }}</strong>
+          <label class="inline-check">
+            <input type="checkbox" name="{{ key }}_enabled" value="1" {% if item.enabled %}checked{% endif %}>
+            <span>사용</span>
+          </label>
+          <input name="{{ key }}_time" type="time" value="{{ item.time_text }}">
+          <input name="{{ key }}_message" value="{{ item.message }}" placeholder="알림 문구">
+        </div>
+      {% endfor %}
+      <div class="settings-action-card">
+        <strong>저장</strong>
+        <span>브라우저가 열려 있을 때 지정 시간 이후 첫 방문에서 알림을 표시합니다.</span>
+        <button class="btn-primary" type="submit">리마인더 저장</button>
+      </div>
+    </form>
+  </section>
+
   <section class="section danger-zone settings-panel">
     <div class="section-header">
       <div>

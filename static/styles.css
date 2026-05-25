@@ -5,6 +5,71 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.library-grid,
+.plan-board-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.library-card,
+.plan-day-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.library-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mini-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.filter-form,
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.offline-queue-status {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 100;
+  transform: translate(-50%, 16px);
+  max-width: min(90vw, 420px);
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #101820;
+  color: #f6f7fb;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.offline-queue-status.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 :root {
   color-scheme: dark;
   --bg: #0f0f14;

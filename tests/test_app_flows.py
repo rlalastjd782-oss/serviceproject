@@ -35,6 +35,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/settings",
             "/api/sessions",
             "/records/search",
+            "/exercises/library",
+            "/plans/weekly",
+            "/sw.js",
         ]
         for path in paths:
             with self.subTest(path=path):
@@ -50,6 +53,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("/calendar", assets)
         self.assertIn("/meals/weekly", assets)
         self.assertIn("/summaries/exercises", assets)
+        self.assertIn("/sw.js", assets)
         self.assertIn("self.skipWaiting()", sw_source)
         self.assertIn("self.clients.claim()", sw_source)
         self.assertIn("offlineFallback", sw_source)
@@ -59,6 +63,10 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 response = self.client.get(asset)
                 self.assertEqual(response.status_code, 200)
                 response.close()
+
+        response = self.client.get("/sw.js")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
 
     def test_workout_cardio_meal_flow(self) -> None:
         workout_date = "2026-05-20"
@@ -330,6 +338,66 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(changed["weight"], 55)
             self.assertEqual(changed["reps"], 9)
             self.assertEqual(changed["equipment"], "test-rack")
+
+    def test_adaptive_recommendations_library_plan_and_reminders(self) -> None:
+        workout_date = "2026-05-22"
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-18",
+                "mode": "workout",
+                "body_part": app_module.body_part_options()[0],
+                "exercise_name": "__TEST__ adaptive",
+                "set_weight": ["60", "62.5"],
+                "set_reps": ["8", "8"],
+                "set_type": ["main", "main"],
+                "set_rpe": ["7", "7.5"],
+            },
+        )
+        self.client.post(
+            "/meals",
+            data={
+                "meal_date": "2026-05-18",
+                "mode": "meal",
+                "meal_type": "test",
+                "meal_food_name": ["__TEST__ fuel"],
+                "meal_quantity": ["1"],
+                "meal_grams": ["100"],
+                "meal_calories": ["500"],
+            },
+        )
+        with self.app.app_context():
+            recommendations = app_module.build_adaptive_training_recommendations(workout_date)
+            self.assertTrue(any(item["exercise_name"] == "__TEST__ adaptive" for item in recommendations))
+            link = app_module.build_nutrition_training_link("weekly", workout_date)
+            self.assertGreaterEqual(link["workout_days"], 1)
+
+        response = self.client.get("/exercises/library", query_string={"q": "__TEST__ adaptive"})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("__TEST__ adaptive", response.data.decode("utf-8"))
+
+        response = self.client.post("/plans/weekly/generate", data={"week_start": workout_date})
+        self.assertEqual(response.status_code, 302)
+        response = self.client.get("/plans/weekly", query_string={"week": workout_date})
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(
+            "/reminders",
+            data={
+                "workout_enabled": "1",
+                "workout_time": "18:30",
+                "workout_message": "test workout reminder",
+                "meal_time": "12:30",
+                "meal_message": "test meal reminder",
+                "weekly_time": "20:00",
+                "weekly_message": "test weekly reminder",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            reminders = app_module.list_reminder_settings()
+            self.assertEqual(reminders["workout"]["enabled"], 1)
+            self.assertEqual(reminders["workout"]["message"], "test workout reminder")
 
     def test_dangerous_delete_requires_confirmation(self) -> None:
         with self.app.app_context():

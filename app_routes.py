@@ -54,6 +54,9 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             recovery_statuses=list_recovery_statuses(today_session["workout_date"]),
             recovery_checkin=get_recovery_checkin(today_session["workout_date"]),
             recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
+            adaptive_training_recommendations=build_adaptive_training_recommendations(today_session["workout_date"]),
+            nutrition_training_link=build_nutrition_training_link("weekly", today_session["workout_date"]),
+            body_progress_insights=build_body_progress_insights(today_session["workout_date"]),
             daily_coaching=list_daily_coaching(today_session["workout_date"]),
             workout_session_flow=build_workout_session_flow(today_session["workout_date"]),
             record_gaps=list_record_gaps(today_session["workout_date"]),
@@ -112,6 +115,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             report_insights=build_period_insights("weekly", week_start),
             period_highlights=build_period_highlights("weekly", week_start),
             balance_warnings=list_balance_warnings("weekly", week_start),
+            nutrition_training_link=build_nutrition_training_link("weekly", week_start),
             selected_week=week_start,
             prev_week=shift_date(week_start, -7),
             next_week=shift_date(week_start, 7),
@@ -141,6 +145,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             monthly_goal_insights=build_goal_insights("monthly", month_start),
             report_insights=build_period_insights("monthly", month_start),
             period_highlights=build_period_highlights("monthly", month_start),
+            nutrition_training_link=build_nutrition_training_link("monthly", month_start),
             selected_month=month_start[:7],
             prev_month=shift_month(month_start, -1)[:7],
             next_month=shift_month(month_start, 1)[:7],
@@ -281,7 +286,64 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             data_counts=get_data_counts(),
             backup_status=get_backup_status(),
             health_status=get_app_health_status(),
+            reminder_settings=list_reminder_settings(),
         )
+
+    @app.get("/sw.js")
+    def root_service_worker():
+        response = Response(
+            (BASE_DIR / "static" / "sw.js").read_text(encoding="utf-8"),
+            content_type="text/javascript; charset=utf-8",
+        )
+        response.headers["Service-Worker-Allowed"] = "/"
+        response.headers["Cache-Control"] = "no-cache"
+        return response
+
+    @app.get("/exercises/library")
+    def exercise_library_page():
+        selected_part = request.args.get("part", "").strip()
+        search_query = request.args.get("q", "").strip()
+        favorite_only = request.args.get("favorite") == "1"
+        return render_template(
+            "exercise_library.html",
+            active_page="library",
+            body_parts=body_part_options(),
+            selected_part=selected_part,
+            search_query=search_query,
+            favorite_only=favorite_only,
+            exercises=list_exercise_library(selected_part, search_query, favorite_only),
+        )
+
+    @app.get("/plans/weekly")
+    def weekly_plan_page():
+        selected_week = normalize_date(request.args.get("week"))
+        week_start = week_start_for_date(selected_week)
+        return render_template(
+            "weekly_plan.html",
+            active_page="plans",
+            week_start=week_start,
+            week_end=shift_date(week_start, 6),
+            prev_week=shift_date(week_start, -7),
+            next_week=shift_date(week_start, 7),
+            plan_board=build_weekly_plan_board(week_start),
+        )
+
+    @app.post("/plans/weekly/generate")
+    def generate_weekly_plan_route():
+        week_start = week_start_for_date(normalize_date(request.form.get("week_start")))
+        generate_weekly_plan(week_start)
+        return redirect(url_for("weekly_plan_page", week=week_start))
+
+    @app.post("/reminders")
+    def save_reminders_route():
+        for key in ("workout", "meal", "weekly"):
+            save_reminder_settings(
+                key,
+                request.form.get(f"{key}_enabled") == "1",
+                request.form.get(f"{key}_time", ""),
+                request.form.get(f"{key}_message", ""),
+            )
+        return redirect(url_for("settings_page"))
 
     @app.post("/recovery-checkins")
     def save_recovery_checkin_route():

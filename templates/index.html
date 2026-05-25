@@ -31,6 +31,41 @@
     </a>
   </section>
 
+  <section class="section overview-only">
+    <div class="section-header">
+      <div>
+        <div class="section-title">영양-운동 연결</div>
+        <div class="section-subtitle">{{ nutrition_training_link.period }}</div>
+      </div>
+    </div>
+    <div class="summary-grid compact-summary-grid">
+      <article class="summary-card">
+        <div class="summary-value">{{ nutrition_training_link.workout_days }}</div>
+        <div class="summary-label">운동일</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ nutrition_training_link.meal_days }}</div>
+        <div class="summary-label">식단일</div>
+      </article>
+      <article class="summary-card">
+        <div class="summary-value">{{ nutrition_training_link.workout_calorie_avg }}</div>
+        <div class="summary-label">운동일 kcal</div>
+      </article>
+    </div>
+    <div class="detail-list compact-detail-list">
+      <div class="detail-row">
+        <strong>판단</strong>
+        <span>{{ nutrition_training_link.message }}</span>
+      </div>
+      {% if nutrition_training_link.low_fuel_days %}
+        <div class="detail-row">
+          <strong>보강일</strong>
+          <span>{{ nutrition_training_link.low_fuel_days|join(", ") }}</span>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
   {% if record_gaps %}
     <section class="section overview-only">
       <div class="section-header">
@@ -139,6 +174,29 @@
                 data-cardio-speed="{% if item.last_cardio_speed is not none %}{{ item.last_cardio_speed }}{% endif %}"
                 data-cardio-minutes="{% if item.last_cardio_minutes is not none %}{{ item.last_cardio_minutes }}{% endif %}"
               >불러오기</button>
+            </article>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if adaptive_training_recommendations %}
+        <div class="focus-suggestion-list adaptive-recommendation-list">
+          {% for item in adaptive_training_recommendations %}
+            <article class="focus-suggestion-card adaptive-recommendation-card">
+              <div>
+                <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+                <strong>{{ item.exercise_name }}</strong>
+                <small>{{ item.action }} · {{ item.target_sets }}세트 · {{ item.reason }}</small>
+              </div>
+              <button
+                type="button"
+                class="btn-small"
+                data-copy-saved-set
+                data-body-part="{{ item.body_part }}"
+                data-exercise-name="{{ item.exercise_name }}"
+                data-weight="{% if item.last_weight is not none %}{{ item.last_weight }}{% endif %}"
+                data-reps="{% if item.last_reps is not none %}{{ item.last_reps }}{% endif %}"
+                data-cardio-minutes="{% if item.last_cardio_minutes is not none %}{{ item.last_cardio_minutes }}{% endif %}"
+              >적용</button>
             </article>
           {% endfor %}
         </div>
@@ -556,6 +614,14 @@
       <input name="photo" type="file" accept="image/*">
       <button class="btn-small" type="submit">사진 저장</button>
     </form>
+    <div class="detail-list compact-detail-list">
+      {% for message in body_progress_insights %}
+        <div class="detail-row">
+          <strong>진행</strong>
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
     {% if body_photos %}
       <div class="photo-strip">
         {% for photo in body_photos %}

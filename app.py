@@ -263,6 +263,14 @@ def init_db() -> None:
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+
+        CREATE TABLE IF NOT EXISTS reminder_settings (
+            key TEXT PRIMARY KEY,
+            enabled INTEGER NOT NULL DEFAULT 0,
+            time_text TEXT NOT NULL DEFAULT '',
+            message TEXT NOT NULL DEFAULT '',
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
         """
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
@@ -288,6 +296,9 @@ def init_db() -> None:
     ensure_column(db, "meal_entries", "grams", "REAL")
     ensure_column(db, "recovery_checkins", "is_rest_day", "INTEGER NOT NULL DEFAULT 0")
     ensure_column(db, "recovery_checkins", "rest_reason", "TEXT NOT NULL DEFAULT ''")
+    ensure_column(db, "reminder_settings", "enabled", "INTEGER NOT NULL DEFAULT 0")
+    ensure_column(db, "reminder_settings", "time_text", "TEXT NOT NULL DEFAULT ''")
+    ensure_column(db, "reminder_settings", "message", "TEXT NOT NULL DEFAULT ''")
     db.execute(
         """
         UPDATE meal_entries
@@ -1127,6 +1138,339 @@ def list_workout_focus_recommendations(workout_date: str, limit: int = 5) -> lis
         )
     candidates.sort(key=lambda item: item["_score"])
     return [{key: value for key, value in item.items() if key != "_score"} for item in candidates[:limit]]
+
+
+def build_adaptive_training_recommendations(workout_date: str, limit: int = 6) -> list[dict[str, object]]:
+    db = get_db()
+    recovery = get_recovery_checkin(workout_date)
+    readiness = (
+        int(recovery["condition_score"] or 3)
+        + int(recovery["sleep_score"] or 3)
+        + (6 - int(recovery["soreness_score"] or 3))
+        + (6 - int(recovery["fatigue_score"] or 3))
+    )
+    readiness_ratio = readiness / 20
+    recent_start = shift_date(workout_date, -10)
+    recent_load_rows = db.execute(
+        """
+        SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+               COUNT(ws.id) AS set_count,
+               AVG(ws.rpe) AS avg_rpe
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE s.workout_date >= ? AND s.workout_date < ?
+        GROUP BY body_part
+        """,
+        (recent_start, workout_date),
+    ).fetchall()
+    recent_load = {
+        row["body_part"]: {
+            "set_count": int(row["set_count"] or 0),
+            "avg_rpe": float(row["avg_rpe"] or 0),
+        }
+        for row in recent_load_rows
+    }
+    rows = db.execute(
+        """
+        SELECT
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.name AS exercise_name,
+            MAX(s.workout_date) AS last_date,
+            COUNT(ws.id) AS history_sets,
+            AVG(ws.rpe) AS avg_rpe,
+            (
+                SELECT ws2.weight
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id AND ws2.weight IS NOT NULL AND s2.workout_date < ?
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_weight,
+            (
+                SELECT ws2.reps
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id AND ws2.reps IS NOT NULL AND s2.workout_date < ?
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_reps,
+            (
+                SELECT ws2.cardio_minutes
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id AND ws2.cardio_minutes IS NOT NULL AND s2.workout_date < ?
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS last_cardio_minutes
+        FROM workout_sets ws
+        JOIN workout_sessions s ON s.id = ws.session_id
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE s.workout_date < ?
+        GROUP BY body_part, e.id, e.name
+        ORDER BY last_date DESC, history_sets DESC
+        LIMIT 80
+        """,
+        (workout_date, workout_date, workout_date, workout_date),
+    ).fetchall()
+    date_value = datetime.strptime(workout_date, "%Y-%m-%d")
+    items = []
+    for row in rows:
+        body_part = row["body_part"] or "기타"
+        if body_part == "기타":
+            continue
+        last_date = row["last_date"]
+        days_since = (date_value - datetime.strptime(last_date, "%Y-%m-%d")).days if last_date else 99
+        load = recent_load.get(body_part, {"set_count": 0, "avg_rpe": 0})
+        avg_rpe = float(row["avg_rpe"] or load["avg_rpe"] or 0)
+        load_penalty = int(load["set_count"]) * 2 + (8 if avg_rpe >= 8.5 else 0)
+        readiness_bonus = round(readiness_ratio * 12)
+        score = min(100, max(0, days_since * 8 + readiness_bonus + min(int(row["history_sets"] or 0), 15) - load_penalty))
+        if readiness_ratio < 0.45 and body_part != "유산소":
+            action = "가볍게 유지"
+            target_sets = 2
+        elif avg_rpe >= 8.5 or int(load["set_count"]) >= 12:
+            action = "강도 낮춤"
+            target_sets = 2
+        elif days_since >= 3 and readiness_ratio >= 0.65:
+            action = "증량 시도"
+            target_sets = 4
+        else:
+            action = "기록 반복"
+            target_sets = 3
+        next_weight = row["last_weight"]
+        next_reps = row["last_reps"]
+        if next_weight is not None and action == "증량 시도":
+            next_weight = round(float(next_weight) + 2.5, 1)
+        items.append(
+            {
+                "body_part": body_part,
+                "exercise_name": row["exercise_name"],
+                "score": score,
+                "action": action,
+                "target_sets": target_sets,
+                "last_date": last_date,
+                "last_weight": next_weight,
+                "last_reps": next_reps,
+                "last_cardio_minutes": row["last_cardio_minutes"],
+                "reason": f"회복 {round(readiness_ratio * 100)}% · 최근 {days_since}일 전",
+            }
+        )
+    items.sort(key=lambda item: (-int(item["score"]), item["body_part"], item["exercise_name"]))
+    return items[:limit]
+
+
+def build_nutrition_training_link(scope: str = "weekly", date_text: str | None = None) -> dict[str, object]:
+    base_date = date_text or current_local_date()
+    if scope == "monthly":
+        start = normalize_month(base_date[:7])
+        end = shift_date(shift_month(start, 1), -1)
+    else:
+        start = week_start_for_date(base_date)
+        end = shift_date(start, 6)
+    rows = get_db().execute(
+        """
+        SELECT d.day,
+               COALESCE(w.set_count, 0) AS set_count,
+               COALESCE(w.volume, 0) AS volume,
+               COALESCE(w.duration_seconds, 0) AS duration_seconds,
+               COALESCE(m.calories, 0) AS calories,
+               COALESCE(m.meal_count, 0) AS meal_count
+        FROM (
+            SELECT workout_date AS day FROM workout_sessions WHERE workout_date BETWEEN ? AND ?
+            UNION
+            SELECT meal_date AS day FROM meal_entries WHERE meal_date BETWEEN ? AND ?
+        ) d
+        LEFT JOIN (
+            SELECT s.workout_date AS day,
+                   COUNT(ws.id) AS set_count,
+                   COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+                   MAX(COALESCE(s.duration_seconds, 0)) AS duration_seconds
+            FROM workout_sessions s
+            JOIN workout_sets ws ON ws.session_id = s.id
+            WHERE s.workout_date BETWEEN ? AND ?
+            GROUP BY s.workout_date
+        ) w ON w.day = d.day
+        LEFT JOIN (
+            SELECT meal_date AS day,
+                   COUNT(id) AS meal_count,
+                   COALESCE(SUM(COALESCE(calories, 0)), 0) AS calories
+            FROM meal_entries
+            WHERE meal_date BETWEEN ? AND ?
+            GROUP BY meal_date
+        ) m ON m.day = d.day
+        ORDER BY d.day
+        """,
+        (start, end, start, end, start, end, start, end),
+    ).fetchall()
+    workout_days = [row for row in rows if int(row["set_count"] or 0) > 0]
+    rest_days = [row for row in rows if int(row["set_count"] or 0) == 0 and float(row["calories"] or 0) > 0]
+    workout_avg = sum(float(row["calories"] or 0) for row in workout_days) / len(workout_days) if workout_days else 0
+    rest_avg = sum(float(row["calories"] or 0) for row in rest_days) / len(rest_days) if rest_days else 0
+    low_fuel_days = [
+        row["day"]
+        for row in workout_days
+        if float(row["calories"] or 0) < float(get_goal_value("daily_calories", 2200)) * 0.75
+    ]
+    message = "운동일 식단 데이터가 쌓이면 섭취량과 퍼포먼스 관계를 보여줍니다."
+    if workout_days:
+        if low_fuel_days:
+            message = f"운동일 중 {len(low_fuel_days)}일은 칼로리 기록이 목표보다 낮습니다."
+        elif workout_avg >= rest_avg and rest_avg > 0:
+            message = "운동일 섭취 기록이 휴식일보다 높아 훈련 연료 흐름이 안정적입니다."
+        else:
+            message = "운동일 섭취량이 휴식일과 비슷하거나 낮습니다."
+    return {
+        "period": f"{start} ~ {end}",
+        "workout_days": len(workout_days),
+        "meal_days": sum(1 for row in rows if int(row["meal_count"] or 0) > 0),
+        "workout_calorie_avg": round(workout_avg),
+        "rest_calorie_avg": round(rest_avg),
+        "low_fuel_days": low_fuel_days[:5],
+        "message": message,
+    }
+
+
+def build_body_progress_insights(date_text: str) -> list[str]:
+    month_start = normalize_month(date_text[:7])
+    report = build_body_monthly_report(month_start)
+    photos = get_db().execute(
+        "SELECT COUNT(id) AS count FROM body_photos WHERE photo_date >= ? AND photo_date < ?",
+        (month_start, shift_month(month_start, 1)),
+    ).fetchone()["count"]
+    messages = []
+    if report.get("has_data"):
+        messages.append(f"이번 달 체중 변화 {float(report['weight_delta'] or 0):+.1f}kg")
+        messages.append(f"골격근 변화 {float(report['muscle_delta'] or 0):+.1f}kg")
+        messages.append(f"체지방 변화 {float(report['fat_delta'] or 0):+.1f}%")
+    else:
+        messages.append("이번 달 체성분 기록이 아직 없습니다.")
+    messages.append(f"이번 달 진행 사진 {int(photos or 0)}장")
+    return messages[:4]
+
+
+def list_exercise_library(
+    body_part: str = "",
+    query: str = "",
+    favorite_only: bool = False,
+    limit: int = 120,
+) -> list[sqlite3.Row]:
+    filters = ["1 = 1"]
+    params: list[object] = []
+    if body_part:
+        filters.append("COALESCE(NULLIF(last_sets.body_part, ''), '기타') = ?")
+        params.append(body_part)
+    if query:
+        filters.append("e.name LIKE ?")
+        params.append(f"%{query}%")
+    if favorite_only:
+        filters.append("COALESCE(es.is_favorite, 0) = 1")
+    params.append(limit)
+    return get_db().execute(
+        f"""
+        SELECT
+            e.id,
+            e.name,
+            COALESCE(NULLIF(last_sets.body_part, ''), '기타') AS body_part,
+            COALESCE(es.is_favorite, 0) AS is_favorite,
+            COALESCE(es.rest_seconds, 90) AS rest_seconds,
+            COALESCE(es.equipment, last_sets.equipment, '') AS equipment,
+            es.target_weight,
+            es.target_reps,
+            es.target_sets,
+            en.note,
+            COALESCE(last_sets.set_count, 0) AS set_count,
+            last_sets.last_date,
+            last_sets.best_weight,
+            last_sets.best_volume
+        FROM exercises e
+        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
+        LEFT JOIN exercise_notes en ON en.exercise_name = e.name
+        LEFT JOIN (
+            SELECT
+                ws.exercise_id,
+                COALESCE(NULLIF(MAX(ws.body_part), ''), '기타') AS body_part,
+                COALESCE(NULLIF(MAX(ws.equipment), ''), '') AS equipment,
+                COUNT(ws.id) AS set_count,
+                MAX(s.workout_date) AS last_date,
+                MAX(ws.weight) AS best_weight,
+                MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)) AS best_volume
+            FROM workout_sets ws
+            JOIN workout_sessions s ON s.id = ws.session_id
+            GROUP BY ws.exercise_id
+        ) last_sets ON last_sets.exercise_id = e.id
+        WHERE {" AND ".join(filters)}
+        ORDER BY COALESCE(es.is_favorite, 0) DESC, last_sets.last_date DESC, set_count DESC, e.name
+        LIMIT ?
+        """,
+        params,
+    ).fetchall()
+
+
+def build_weekly_plan_board(week_start: str) -> list[dict[str, object]]:
+    return [
+        {
+            "date": shift_date(week_start, offset),
+            "plan_items": list_workout_plan(shift_date(week_start, offset)),
+            "summary": build_workout_completion_summary(shift_date(week_start, offset)),
+            "recommendations": build_adaptive_training_recommendations(shift_date(week_start, offset), limit=3),
+        }
+        for offset in range(7)
+    ]
+
+
+def generate_weekly_plan(week_start: str) -> int:
+    created = 0
+    for offset in range(7):
+        workout_date = shift_date(week_start, offset)
+        if list_workout_plan(workout_date):
+            continue
+        recommendations = build_adaptive_training_recommendations(workout_date, limit=3)
+        if not recommendations:
+            recommendations = list_workout_focus_recommendations(workout_date, limit=3)
+        for item in recommendations[:3]:
+            create_workout_plan_item(
+                workout_date,
+                str(item["body_part"]),
+                str(item["exercise_name"]),
+                int(item.get("target_sets") or 3),
+            )
+            created += 1
+    return created
+
+
+def list_reminder_settings() -> dict[str, dict[str, object]]:
+    defaults = {
+        "workout": {"enabled": 0, "time_text": "18:30", "message": "운동 기록 시간입니다."},
+        "meal": {"enabled": 0, "time_text": "12:30", "message": "식단 기록을 확인하세요."},
+        "weekly": {"enabled": 0, "time_text": "20:00", "message": "주간 기록을 점검하세요."},
+    }
+    rows = get_db().execute("SELECT * FROM reminder_settings").fetchall()
+    settings = {key: value.copy() for key, value in defaults.items()}
+    for row in rows:
+        settings[row["key"]] = {
+            "enabled": int(row["enabled"] or 0),
+            "time_text": row["time_text"] or defaults.get(row["key"], {}).get("time_text", ""),
+            "message": row["message"] or defaults.get(row["key"], {}).get("message", ""),
+        }
+    return settings
+
+
+def save_reminder_settings(key: str, enabled: bool, time_text: str, message: str) -> None:
+    if key not in {"workout", "meal", "weekly"}:
+        return
+    get_db().execute(
+        """
+        INSERT INTO reminder_settings (key, enabled, time_text, message, updated_at)
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(key) DO UPDATE SET
+            enabled = excluded.enabled,
+            time_text = excluded.time_text,
+            message = excluded.message,
+            updated_at = CURRENT_TIMESTAMP
+        """,
+        (key, 1 if enabled else 0, time_text[:5], message[:120]),
+    )
+    get_db().commit()
 
 
 def save_goal(key: str, value: int) -> None:

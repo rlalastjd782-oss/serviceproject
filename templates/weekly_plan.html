@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}주간 계획{% endblock %}
+
+{% block content %}
+  <section class="section plan-board-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">주간 계획</div>
+        <div class="section-subtitle">{{ week_start }} ~ {{ week_end }}</div>
+      </div>
+      <div class="settings-action-row">
+        <a class="btn-small" href="{{ url_for('weekly_plan_page', week=prev_week) }}">이전</a>
+        <a class="btn-small" href="{{ url_for('weekly_plan_page', week=next_week) }}">다음</a>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('generate_weekly_plan_route') }}" class="settings-action-row">
+      <input type="hidden" name="week_start" value="{{ week_start }}">
+      <button class="btn-primary" type="submit">추천으로 빈 날짜 채우기</button>
+    </form>
+    <div class="plan-board-grid">
+      {% for day in plan_board %}
+        <article class="plan-day-card">
+          <div class="library-card-head">
+            <strong>{{ day.date }}</strong>
+            <span class="mini-badge">{{ day.summary.plan_done }} / {{ day.summary.plan_total }}</span>
+          </div>
+          {% if day.plan_items %}
+            <div class="detail-list compact-detail-list">
+              {% for item in day.plan_items %}
+                <div class="detail-row">
+                  <span><span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span> {{ item.exercise_name }}</span>
+                  <strong>{{ item.completed_sets }} / {{ item.target_sets }}</strong>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="detail-list compact-detail-list">
+              {% for item in day.recommendations %}
+                <form method="post" action="{{ url_for('add_recommendation_plan_route') }}" class="detail-row">
+                  <input type="hidden" name="workout_date" value="{{ day.date }}">
+                  <input type="hidden" name="body_part" value="{{ item.body_part }}">
+                  <input type="hidden" name="exercise_name" value="{{ item.exercise_name }}">
+                  <span><span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span> {{ item.exercise_name }}</span>
+                  <button class="btn-small" type="submit">추가</button>
+                </form>
+              {% else %}
+                <div class="detail-row"><span>추천 데이터 없음</span><strong>-</strong></div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <a class="btn-small" href="{{ url_for('index', date=day.date, mode='workout') }}">열기</a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

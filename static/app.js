@@ -1,6 +1,8 @@
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/static/sw.js").catch(() => {});
+    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {
+      navigator.serviceWorker.register("/static/sw.js").catch(() => {});
+    });
   });
 }
 
@@ -54,6 +56,8 @@ initWorkoutClock();
 restoreSavedScrollPosition();
 initWorkoutTools();
 startRestTimerFromUrl();
+processOfflineQueue();
+initNotificationTools();
 
 document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   applyBodyPartSelectColor(select);
@@ -104,6 +108,9 @@ document.addEventListener("submit", (event) => {
     event.preventDefault();
     return;
   }
+  if (queueOfflineForm(form, event)) {
+    return;
+  }
   if (form?.method?.toLowerCase() === "post" && !form.dataset.noScrollRestore) {
     saveScrollPosition();
   }
@@ -117,6 +124,10 @@ document.addEventListener("submit", (event) => {
   const minutes = Number(durationForm.querySelector('input[name="duration_minutes"]')?.value || 0);
   const durationSeconds = action === "reset" ? 0 : Math.max(0, hours * 3600 + minutes * 60);
   saveWorkoutClock({ startedAt: null, elapsedMs: durationSeconds * 1000, manualStarted: false });
+});
+
+window.addEventListener("online", () => {
+  processOfflineQueue();
 });
 
 document.addEventListener("click", (event) => {
@@ -997,6 +1008,124 @@ function formatToolWeight(value) {
     return String(numberValue);
   }
   return numberValue.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+const offlineQueueKey = "health-tracker-offline-queue-v1";
+
+function queueOfflineForm(form, event) {
+  if (!form || form.method?.toLowerCase() !== "post" || navigator.onLine) {
+    return false;
+  }
+  const actionUrl = new URL(form.getAttribute("action") || window.location.href, window.location.origin);
+  const queueablePaths = ["/sets", "/meals", "/body-metrics", "/recovery-checkins", "/rest-days", "/plans"];
+  if (!queueablePaths.includes(actionUrl.pathname) || form.enctype === "multipart/form-data") {
+    return false;
+  }
+  const formData = new FormData(form);
+  const entries = Array.from(formData.entries()).map(([key, value]) => [key, String(value)]);
+  const queue = readOfflineQueue();
+  queue.push({
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    action: actionUrl.pathname + actionUrl.search,
+    entries,
+    createdAt: new Date().toISOString(),
+  });
+  writeOfflineQueue(queue);
+  event.preventDefault();
+  showOfflineQueueStatus(`오프라인 저장 ${queue.length}건`);
+  return true;
+}
+
+function readOfflineQueue() {
+  try {
+    return JSON.parse(localStorage.getItem(offlineQueueKey) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function writeOfflineQueue(queue) {
+  localStorage.setItem(offlineQueueKey, JSON.stringify(queue));
+}
+
+async function processOfflineQueue() {
+  if (!navigator.onLine) {
+    return;
+  }
+  const queue = readOfflineQueue();
+  if (!queue.length) {
+    return;
+  }
+  const remaining = [];
+  for (const item of queue) {
+    try {
+      const body = new URLSearchParams();
+      item.entries.forEach(([key, value]) => body.append(key, value));
+      const response = await fetch(item.action, {
+        method: "POST",
+        body,
+        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+        redirect: "manual",
+      });
+      if (!(response.ok || response.type === "opaqueredirect" || response.status === 0 || response.status === 302)) {
+        remaining.push(item);
+      }
+    } catch {
+      remaining.push(item);
+    }
+  }
+  writeOfflineQueue(remaining);
+  if (remaining.length !== queue.length) {
+    showOfflineQueueStatus(remaining.length ? `동기화 후 ${remaining.length}건 대기` : "오프라인 입력 동기화 완료");
+  }
+}
+
+function showOfflineQueueStatus(message) {
+  let panel = document.querySelector("[data-offline-queue-status]");
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.dataset.offlineQueueStatus = "1";
+    panel.className = "offline-queue-status";
+    document.body.append(panel);
+  }
+  panel.textContent = message;
+  panel.classList.add("is-visible");
+  window.setTimeout(() => panel.classList.remove("is-visible"), 3500);
+}
+
+function initNotificationTools() {
+  document.querySelector("[data-enable-notifications]")?.addEventListener("click", async () => {
+    if (!("Notification" in window)) {
+      showOfflineQueueStatus("이 브라우저는 알림을 지원하지 않습니다.");
+      return;
+    }
+    const permission = await Notification.requestPermission();
+    showOfflineQueueStatus(permission === "granted" ? "알림이 허용되었습니다." : "알림이 허용되지 않았습니다.");
+  });
+
+  const settingsPanel = document.querySelector("[data-reminder-settings]");
+  if (!settingsPanel || !("Notification" in window) || Notification.permission !== "granted") {
+    return;
+  }
+  const settings = parseJsonData(settingsPanel, "reminderSettings");
+  const now = new Date();
+  const todayKey = now.toISOString().slice(0, 10);
+  Object.entries(settings).forEach(([key, item]) => {
+    if (!item.enabled || !item.time_text) {
+      return;
+    }
+    const [hour, minute] = item.time_text.split(":").map(Number);
+    if (Number.isNaN(hour) || Number.isNaN(minute)) {
+      return;
+    }
+    const due = new Date(now);
+    due.setHours(hour, minute, 0, 0);
+    const firedKey = `health-tracker-reminder-${key}-${todayKey}`;
+    if (now >= due && localStorage.getItem(firedKey) !== "1") {
+      new Notification(item.message || "기록을 확인하세요.");
+      localStorage.setItem(firedKey, "1");
+    }
+  });
 }
 
 window.addEventListener("visibilitychange", () => {
