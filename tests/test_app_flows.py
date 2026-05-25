@@ -180,6 +180,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
+        self.assertIn("workout-pwa-v34", response.data.decode("utf-8"))
 
     def test_workout_cardio_meal_flow(self) -> None:
         workout_date = "2026-05-20"
