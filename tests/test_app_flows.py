@@ -111,6 +111,22 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("data-workout-quick-tab=\"routine\"", workout_html)
         self.assertIn("data-readiness-coach", workout_html)
         self.assertIn("id=\"routine-library\"", workout_html)
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-26",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ timer",
+                "set_weight": ["40"],
+                "set_reps": ["8"],
+                "set_type": ["본세트"],
+            },
+        )
+        workout_html = self.client.get("/?date=2026-05-26&mode=workout").data.decode("utf-8")
+        self.assertIn("rest-start-button", workout_html)
+        self.assertIn(">타이머 시작</button>", workout_html)
+        self.assertNotIn("초 휴식</button>", workout_html)
 
         search_html = self.client.get("/records/search").data.decode("utf-8")
         self.assertIn("record-filter-details", search_html)
@@ -277,7 +293,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.6.6", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.6.7", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")

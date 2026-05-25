@@ -275,7 +275,7 @@
           <div class="section-subtitle">지금 할 운동과 다음 입력을 짧게 확인합니다.</div>
         </div>
         {% if workout_session_flow.last_set %}
-          <button class="btn-small" type="button" data-rest-seconds="{{ workout_session_flow.rest_seconds }}">{{ workout_session_flow.rest_seconds }}초 휴식</button>
+          <button class="btn-small rest-start-button" type="button" data-rest-seconds="{{ workout_session_flow.rest_seconds }}">타이머 시작</button>
         {% endif %}
       </div>
       <div class="session-flow-grid">

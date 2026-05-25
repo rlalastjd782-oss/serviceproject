@@ -1,4 +1,4 @@
-const CACHE_NAME = "workout-pwa-v1.6.6";
+const CACHE_NAME = "workout-pwa-v1.6.7";
 const ASSETS = [
   "/summaries/daily",
   "/summaries/weekly",
