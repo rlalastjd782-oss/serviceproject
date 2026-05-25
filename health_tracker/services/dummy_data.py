@@ -43,6 +43,11 @@ def get_qa_dummy_status(db: sqlite3.Connection) -> dict[str, object]:
     ).fetchone()[0]
     meal_count = db.execute("SELECT COUNT(id) FROM meal_entries WHERE food_name LIKE ?", (f"{QA_PREFIX}%",)).fetchone()[0]
     pr_count = db.execute("SELECT COUNT(id) FROM pr_events WHERE exercise_name LIKE ?", (f"{QA_PREFIX}%",)).fetchone()[0]
+    metric_count = db.execute("SELECT COUNT(*) FROM body_metrics WHERE metric_date BETWEEN ? AND ?", (QA_START_DATE, QA_END_DATE)).fetchone()[0]
+    recovery_count = db.execute(
+        "SELECT COUNT(*) FROM recovery_checkins WHERE checkin_date BETWEEN ? AND ? AND memo LIKE ?",
+        (QA_START_DATE, QA_END_DATE, f"{QA_PREFIX}%"),
+    ).fetchone()[0]
     range_row = db.execute("SELECT value FROM app_settings WHERE key = 'qa_dummy_range'").fetchone()
     return {
         "exists": bool(exercise_count or set_count or meal_count),
@@ -51,13 +56,86 @@ def get_qa_dummy_status(db: sqlite3.Connection) -> dict[str, object]:
         "sets": int(set_count or 0),
         "meals": int(meal_count or 0),
         "prs": int(pr_count or 0),
+        "body_metrics": int(metric_count or 0),
+        "recovery": int(recovery_count or 0),
     }
+
+
+def enrich_year_qa_dummy_data(db: sqlite3.Connection) -> None:
+    start = parse_iso_date(QA_START_DATE)
+    for day_index in range(QA_DAYS):
+        current = start + timedelta(days=day_index)
+        day_text = current.isoformat()
+        week_phase = day_index % 28
+        is_rest_day = day_index % 7 == 6
+        is_deload = week_phase >= 21
+        condition = 3 + (1 if not is_deload and not is_rest_day else 0)
+        sleep = 4 if day_index % 11 not in {0, 1} else 2
+        soreness = 4 if week_phase in {18, 19, 20} else 2 + (day_index % 2)
+        fatigue = 4 if is_deload else 2 + (day_index % 3 == 0)
+        db.execute(
+            """
+            INSERT INTO recovery_checkins (
+                checkin_date, condition_score, sleep_score, soreness_score, fatigue_score,
+                is_rest_day, rest_reason, memo, updated_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+            ON CONFLICT(checkin_date) DO UPDATE SET
+                condition_score = excluded.condition_score,
+                sleep_score = excluded.sleep_score,
+                soreness_score = excluded.soreness_score,
+                fatigue_score = excluded.fatigue_score,
+                is_rest_day = excluded.is_rest_day,
+                rest_reason = excluded.rest_reason,
+                memo = excluded.memo,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (
+                day_text,
+                condition,
+                sleep,
+                soreness,
+                fatigue,
+                1 if is_rest_day else 0,
+                f"{QA_PREFIX} 휴식" if is_rest_day else "",
+                f"{QA_PREFIX} 회복 패턴 {'디로드' if is_deload else '훈련'}",
+            ),
+        )
+
+        if day_index % 7 == 0:
+            month_wave = (day_index // 30) % 4
+            body_weight = 82.0 - day_index * 0.018 + month_wave * 0.2
+            muscle_mass = 34.5 + min(day_index, 240) * 0.006 - (0.2 if is_deload else 0)
+            body_fat = 24.0 - day_index * 0.022 + (0.3 if is_deload else 0)
+            waist = 89.0 - day_index * 0.025
+            db.execute(
+                """
+                INSERT INTO body_metrics (metric_date, body_weight, muscle_mass, body_fat, waist, updated_at)
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+                ON CONFLICT(metric_date) DO UPDATE SET
+                    body_weight = excluded.body_weight,
+                    muscle_mass = excluded.muscle_mass,
+                    body_fat = excluded.body_fat,
+                    waist = excluded.waist,
+                    updated_at = CURRENT_TIMESTAMP
+                """,
+                (
+                    day_text,
+                    round(body_weight, 1),
+                    round(muscle_mass, 1),
+                    round(max(12, body_fat), 1),
+                    round(max(72, waist), 1),
+                ),
+            )
 
 
 def generate_year_qa_dummy_data(db: sqlite3.Connection) -> dict[str, object]:
     status = get_qa_dummy_status(db)
     if status["exists"]:
-        return status
+        enrich_year_qa_dummy_data(db)
+        save_dummy_meta(db)
+        db.commit()
+        return get_qa_dummy_status(db)
 
     exercise_ids: list[int] = []
     for index in range(100):
@@ -190,6 +268,7 @@ def generate_year_qa_dummy_data(db: sqlite3.Connection) -> dict[str, object]:
                 ),
             )
 
+    enrich_year_qa_dummy_data(db)
     save_dummy_meta(db)
     db.commit()
     return get_qa_dummy_status(db)

@@ -55,6 +55,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
     def test_fold_ui_regression_markers_render(self) -> None:
         overview_html = self.client.get("/").data.decode("utf-8")
         self.assertIn("data-quality-card", overview_html)
+        self.assertIn("분석 신뢰도", overview_html)
+        self.assertIn("quality-metric-list", overview_html)
         self.assertIn("today-mode-actions", overview_html)
 
         workout_html = self.client.get("/?mode=workout").data.decode("utf-8")
@@ -135,6 +137,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertGreaterEqual(status["exercises"], 100)
             self.assertGreaterEqual(status["sets"], 3000)
             self.assertGreaterEqual(status["meals"], 1400)
+            self.assertGreaterEqual(status["body_metrics"], 50)
+            self.assertGreaterEqual(status["recovery"], 360)
 
         for path in [
             "/summaries/yearly?year=2025",
@@ -180,7 +184,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.0.0", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.1.0", response.data.decode("utf-8"))
 
     def test_workout_cardio_meal_flow(self) -> None:
         workout_date = "2026-05-20"
