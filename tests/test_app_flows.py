@@ -8,9 +8,13 @@ from pathlib import Path
 import app as app_module
 
 
+TEST_TMP_DIR = Path(__file__).resolve().parents[1] / ".test-tmp"
+
+
 class HealthTrackerFlowTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.tmpdir = tempfile.TemporaryDirectory()
+        TEST_TMP_DIR.mkdir(exist_ok=True)
+        self.tmpdir = tempfile.TemporaryDirectory(dir=TEST_TMP_DIR)
         self.original_database = app_module.DATABASE
         app_module.DATABASE = Path(self.tmpdir.name) / "test-workout.db"
         self.app = app_module.app
