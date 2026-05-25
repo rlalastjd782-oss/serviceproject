@@ -853,16 +853,41 @@
         {% endfor %}
       </datalist>
 
-      <div class="section-header compact-header">
-        <div class="section-title">세트</div>
+      <div class="section-header compact-header set-builder-header">
+        <div>
+          <div class="section-title">세트 빌더</div>
+          <div class="section-subtitle">여러 세트를 만든 뒤 한 번에 저장합니다. lb 입력은 kg로 변환되어 저장됩니다.</div>
+        </div>
         <button class="btn-small" type="button" data-add-set-row>+ 세트 추가</button>
+      </div>
+      <div class="set-builder-toolbar">
+        <label class="set-count-control">
+          <span>세트 수</span>
+          <input name="set_count_builder" type="number" min="1" max="20" step="1" value="3" inputmode="numeric" data-set-count-input>
+        </label>
+        <div class="set-preset-list" aria-label="세트 수 빠른 선택">
+          <button type="button" class="btn-small" data-set-count-preset="3">3세트</button>
+          <button type="button" class="btn-small" data-set-count-preset="4">4세트</button>
+          <button type="button" class="btn-small" data-set-count-preset="5">5세트</button>
+        </div>
+        <div class="set-builder-actions">
+          <button type="button" class="btn-small" data-fill-weight>같은 무게</button>
+          <button type="button" class="btn-small" data-ramp-weight data-ramp-step="5">+5씩</button>
+        </div>
       </div>
       <div class="set-entry-list" data-set-list>
         <div class="set-entry-row">
           <div class="compact-field-grid">
-            <label data-strength-fields>
-              <span>무게 kg</span>
-              <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+            <label class="weight-unit-field" data-strength-fields>
+              <span>무게</span>
+              <div class="weight-unit-control">
+                <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+                <select name="set_weight_unit" aria-label="무게 단위">
+                  <option value="kg">kg</option>
+                  <option value="lb">lb</option>
+                </select>
+              </div>
+              <small class="weight-preview" data-weight-preview>kg 기준 저장</small>
             </label>
             <label data-strength-fields>
               <span>횟수</span>

@@ -4,6 +4,14 @@ from __future__ import annotations
 def register_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
 
+    def parse_weight_kg(value: str, unit: str) -> float | None:
+        parsed = parse_float(value)
+        if parsed is None:
+            return None
+        if (unit or "").strip().lower() in {"lb", "lbs"}:
+            return round(parsed * 0.45359237, 2)
+        return parsed
+
     @app.get("/")
     def index():
         selected_date = normalize_date(request.args.get("date"))
@@ -478,6 +486,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
 
         set_weights = request.form.getlist("set_weight") or [request.form.get("weight", "")]
+        set_weight_units = request.form.getlist("set_weight_unit") or [request.form.get("weight_unit", "kg")]
         set_reps = request.form.getlist("set_reps") or [request.form.get("reps", "")]
         cardio_inclines = request.form.getlist("cardio_incline") or [request.form.get("cardio_incline", "")]
         cardio_speeds = request.form.getlist("cardio_speed") or [request.form.get("cardio_speed", "")]
@@ -487,6 +496,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         set_rpes = request.form.getlist("set_rpe") or [request.form.get("rpe", "")]
         set_count = max(
             len(set_weights),
+            len(set_weight_units),
             len(set_reps),
             len(cardio_inclines),
             len(cardio_speeds),
@@ -498,6 +508,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         set_rows = []
         for index in range(set_count):
             weight_value = value_at(set_weights, index)
+            weight_unit = value_at(set_weight_units, index).strip() or "kg"
             reps_value = value_at(set_reps, index)
             incline_value = value_at(cardio_inclines, index)
             speed_value = value_at(cardio_speeds, index)
@@ -517,7 +528,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 continue
             set_rows.append(
                 (
-                    None if is_cardio else parse_float(weight_value),
+                    None if is_cardio else parse_weight_kg(weight_value, weight_unit),
                     None if is_cardio else parse_int(reps_value),
                     parse_float(incline_value) if is_cardio else None,
                     parse_float(speed_value) if is_cardio else None,
@@ -1092,7 +1103,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 (
                     exercise_id,
                     body_part,
-                    parse_float(request.form.get("weight")),
+                    parse_weight_kg(request.form.get("weight"), request.form.get("weight_unit", "kg")),
                     parse_int(request.form.get("reps")),
                     request.form.get("set_type", "본세트").strip() or "본세트",
                     parse_float(request.form.get("rpe")),

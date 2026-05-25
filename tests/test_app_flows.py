@@ -198,7 +198,45 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.4.0", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.5.0", response.data.decode("utf-8"))
+
+    def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
+        html = self.client.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn("data-set-count-input", html)
+        self.assertIn("data-set-count-preset=\"5\"", html)
+        self.assertIn("name=\"set_weight_unit\"", html)
+        self.assertIn("data-weight-preview", html)
+
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-21",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ LB Bench",
+                "set_weight": ["135", "155", "155"],
+                "set_weight_unit": ["lb", "lb", "lb"],
+                "set_reps": ["10", "8", "8"],
+                "set_type": ["본세트", "본세트", "본세트"],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        with self.app.app_context():
+            rows = app_module.get_db().execute(
+                """
+                SELECT ws.weight, ws.reps
+                FROM workout_sets ws
+                JOIN exercises e ON e.id = ws.exercise_id
+                WHERE e.name = ?
+                ORDER BY ws.id
+                """,
+                ("__TEST__ LB Bench",),
+            ).fetchall()
+            self.assertEqual(len(rows), 3)
+            self.assertAlmostEqual(rows[0]["weight"], 61.23, places=2)
+            self.assertAlmostEqual(rows[1]["weight"], 70.31, places=2)
+            self.assertEqual(rows[2]["reps"], 8)
 
     def test_workout_cardio_meal_flow(self) -> None:
         workout_date = "2026-05-20"

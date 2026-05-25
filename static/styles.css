@@ -2496,6 +2496,72 @@ label span {
   grid-template-columns: minmax(0, 1fr) minmax(84px, 0.4fr) 88px;
 }
 
+.set-builder-header {
+  align-items: end;
+}
+
+.set-builder-toolbar {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.6fr) minmax(180px, 1fr) minmax(170px, 0.8fr);
+  gap: 8px;
+  align-items: end;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 9px;
+}
+
+.set-count-control {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.set-count-control input {
+  min-height: 42px;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.set-preset-list,
+.set-builder-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.set-builder-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.weight-unit-field {
+  display: grid;
+  gap: 4px;
+}
+
+.weight-unit-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 70px;
+  gap: 6px;
+}
+
+.weight-unit-control input,
+.weight-unit-control select {
+  min-width: 0;
+  width: 100%;
+}
+
+.weight-preview {
+  min-height: 16px;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 900;
+}
+
 .meal-entry-row {
   grid-template-columns: minmax(190px, 1fr) minmax(260px, 0.9fr) 34px;
   align-items: stretch;
@@ -3990,7 +4056,34 @@ tbody tr:last-child td {
   }
 
   .set-entry-row {
-    grid-template-columns: minmax(0, 1fr) minmax(82px, 0.45fr) 84px;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .set-builder-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .set-preset-list,
+  .set-builder-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .set-builder-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weight-unit-control {
+    grid-template-columns: minmax(0, 1fr) 76px;
+  }
+
+  .weight-unit-control input,
+  .weight-unit-control select,
+  .set-count-control input {
+    min-height: 46px;
+    font-size: 16px;
   }
 
   .meal-compact-grid {
@@ -4284,6 +4377,17 @@ tbody tr:last-child td {
   .meal-entry-row input {
     min-height: 36px;
     font-size: 13px;
+  }
+
+  .weight-unit-control input,
+  .weight-unit-control select,
+  .set-count-control input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .set-builder-toolbar {
+    grid-template-columns: 1fr;
   }
 
   .row-copy-button,

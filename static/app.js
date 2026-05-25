@@ -60,6 +60,7 @@ initWorkoutClock();
 restoreSavedScrollPosition();
 scrollActiveTabIntoView();
 initWorkoutTools();
+initSetBuilder();
 renderReadinessCoach();
 startRestTimerFromUrl();
 processOfflineQueue();
@@ -78,6 +79,11 @@ document.querySelectorAll("[data-meal-type-select]").forEach((select) => {
 });
 
 document.addEventListener("change", (event) => {
+  if (event.target.matches('select[name="set_weight_unit"]')) {
+    updateSetWeightPreviews();
+    return;
+  }
+
   const bodyPartSelect = event.target.closest("[data-body-part-select]");
   if (bodyPartSelect) {
     applyBodyPartSelectColor(bodyPartSelect);
@@ -102,6 +108,12 @@ document.addEventListener("change", (event) => {
 });
 
 document.addEventListener("input", (event) => {
+  if (event.target.closest("[data-set-count-input]")) {
+    syncSetRowsToCount();
+  }
+  if (event.target.matches('input[name="set_weight"], select[name="set_weight_unit"]')) {
+    updateSetWeightPreviews();
+  }
   if (event.target.closest("[data-plate-tool]") || event.target.closest("[data-warmup-tool]")) {
     renderWorkoutTools();
   }
@@ -155,6 +167,9 @@ document.addEventListener("click", (event) => {
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
   const copySetButton = event.target.closest("[data-copy-set-row]");
   const copySavedSetButton = event.target.closest("[data-copy-saved-set]");
+  const setCountPresetButton = event.target.closest("[data-set-count-preset]");
+  const fillWeightButton = event.target.closest("[data-fill-weight]");
+  const rampWeightButton = event.target.closest("[data-ramp-weight]");
   const foodQuickButton = event.target.closest("[data-food-entry]");
   const restButton = event.target.closest("[data-rest-seconds]");
   const restStopButton = event.target.closest("[data-rest-stop]");
@@ -250,6 +265,21 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  if (setCountPresetButton && setList) {
+    setBuilderCount(Number(setCountPresetButton.dataset.setCountPreset || 1));
+    return;
+  }
+
+  if (fillWeightButton && setList) {
+    fillSetWeightsFromFirst(setList);
+    return;
+  }
+
+  if (rampWeightButton && setList) {
+    rampSetWeights(setList, Number(rampWeightButton.dataset.rampStep || 5));
+    return;
+  }
+
   if (foodQuickButton && mealList) {
     if (mealForm?.classList.contains("is-collapsed")) {
       mealForm.classList.remove("is-collapsed");
@@ -266,12 +296,16 @@ document.addEventListener("click", (event) => {
     if (setList.querySelectorAll(".set-entry-row").length > 1) {
       removeSetButton.closest(".set-entry-row").remove();
       renumberRows(setList, ".set-entry-row");
+      updateSetCountInput();
+      updateSetWeightPreviews();
     }
     return;
   }
 
   if (addSetButton && setList) {
     addRow(setList, "set");
+    updateSetCountInput();
+    updateSetWeightPreviews();
     return;
   }
 
@@ -564,6 +598,96 @@ function renderFoodQuickList(mealType) {
   foodQuickEmpty.hidden = foods.length > 0;
 }
 
+function initSetBuilder() {
+  const setList = document.querySelector("[data-set-list]");
+  if (!setList) {
+    return;
+  }
+  syncSetRowsToCount();
+  updateSetWeightPreviews();
+}
+
+function getSetRows(setList = document.querySelector("[data-set-list]")) {
+  return setList ? Array.from(setList.querySelectorAll(".set-entry-row")) : [];
+}
+
+function setBuilderCount(count) {
+  const input = document.querySelector("[data-set-count-input]");
+  if (input) {
+    input.value = String(Math.min(20, Math.max(1, count || 1)));
+  }
+  syncSetRowsToCount();
+}
+
+function syncSetRowsToCount() {
+  const setList = document.querySelector("[data-set-list]");
+  const input = document.querySelector("[data-set-count-input]");
+  if (!setList || !input) {
+    return;
+  }
+  const targetCount = Math.min(20, Math.max(1, Number(input.value || 1)));
+  while (getSetRows(setList).length < targetCount) {
+    addRow(setList, "set", { focus: false });
+  }
+  while (getSetRows(setList).length > targetCount) {
+    getSetRows(setList).at(-1)?.remove();
+  }
+  renumberRows(setList, ".set-entry-row");
+  applyWorkoutInputMode(workoutForm?.querySelector("[data-body-part-select]")?.value || "");
+  updateSetWeightPreviews();
+}
+
+function updateSetCountInput() {
+  const input = document.querySelector("[data-set-count-input]");
+  if (input) {
+    input.value = String(getSetRows().length || 1);
+  }
+}
+
+function updateSetWeightPreviews() {
+  getSetRows().forEach((row) => {
+    const input = row.querySelector('input[name="set_weight"]');
+    const unit = row.querySelector('select[name="set_weight_unit"]')?.value || "kg";
+    const preview = row.querySelector("[data-weight-preview]");
+    if (!input || !preview) {
+      return;
+    }
+    const value = Number(input.value || 0);
+    if (!input.value || Number.isNaN(value)) {
+      preview.textContent = unit === "lb" ? "lb 입력 시 kg로 저장" : "kg 기준 저장";
+      return;
+    }
+    const kgValue = unit === "lb" ? value * 0.45359237 : value;
+    preview.textContent = `${formatToolWeight(kgValue)}kg 저장`;
+  });
+}
+
+function fillSetWeightsFromFirst(setList) {
+  const rows = getSetRows(setList);
+  const firstWeight = rows[0]?.querySelector('input[name="set_weight"]')?.value || "";
+  const firstUnit = rows[0]?.querySelector('select[name="set_weight_unit"]')?.value || "kg";
+  if (!firstWeight) {
+    return;
+  }
+  rows.slice(1).forEach((row) => {
+    setInputValue(row, 'input[name="set_weight"]', firstWeight);
+    setInputValue(row, 'select[name="set_weight_unit"]', firstUnit);
+  });
+  updateSetWeightPreviews();
+}
+
+function rampSetWeights(setList, step) {
+  const rows = getSetRows(setList);
+  const first = Number(rows[0]?.querySelector('input[name="set_weight"]')?.value || 0);
+  if (!first || Number.isNaN(first)) {
+    return;
+  }
+  rows.forEach((row, index) => {
+    setInputValue(row, 'input[name="set_weight"]', formatToolWeight(first + step * index));
+  });
+  updateSetWeightPreviews();
+}
+
 function loadRecentSets(exerciseName, setList) {
   const sets = recentSetsByExercise[exerciseName] || [];
   if (!sets.length) {
@@ -578,6 +702,8 @@ function loadRecentSets(exerciseName, setList) {
     row.querySelector('input[name="set_reps"]').value = set.reps ?? "";
     setList.append(row);
   });
+  updateSetCountInput();
+  updateSetWeightPreviews();
   applyWorkoutInputMode(workoutForm?.querySelector("[data-body-part-select]")?.value || "");
 }
 
@@ -587,6 +713,7 @@ function copySetRow(sourceRow, setList) {
   }
   const row = addRow(setList, "set");
   copyFieldValue(sourceRow, row, 'input[name="set_weight"]');
+  copyFieldValue(sourceRow, row, 'select[name="set_weight_unit"]');
   copyFieldValue(sourceRow, row, 'input[name="set_reps"]');
   copyFieldValue(sourceRow, row, 'select[name="set_type"]');
   copyFieldValue(sourceRow, row, 'input[name="cardio_incline"]');
@@ -595,6 +722,7 @@ function copySetRow(sourceRow, setList) {
   copyFieldValue(sourceRow, row, 'input[name="set_rpe"]');
   copyFieldValue(sourceRow, row, 'input[name="set_memo"]');
   applyWorkoutInputMode(workoutForm?.querySelector("[data-body-part-select]")?.value || "");
+  updateSetWeightPreviews();
 }
 
 function copySavedSet(button, setList) {
@@ -613,12 +741,15 @@ function copySavedSet(button, setList) {
   const hasValue = firstRow && [...firstRow.querySelectorAll("input")].some((input) => input.value);
   const row = firstRow && !hasValue ? firstRow : addRow(setList, "set");
   setInputValue(row, 'input[name="set_weight"]', button.dataset.weight);
+  setInputValue(row, 'select[name="set_weight_unit"]', "kg");
   setInputValue(row, 'input[name="set_reps"]', button.dataset.reps);
   setInputValue(row, 'select[name="set_type"]', button.dataset.setType || "본세트");
   setInputValue(row, 'input[name="cardio_incline"]', button.dataset.cardioIncline);
   setInputValue(row, 'input[name="cardio_speed"]', button.dataset.cardioSpeed);
   setInputValue(row, 'input[name="cardio_minutes"]', button.dataset.cardioMinutes);
   row.scrollIntoView({ behavior: "smooth", block: "center" });
+  updateSetCountInput();
+  updateSetWeightPreviews();
 }
 
 function copyFieldValue(sourceRow, targetRow, selector) {
@@ -702,14 +833,16 @@ function scrollActiveTabIntoView() {
   });
 }
 
-function addRow(list, type) {
+function addRow(list, type, options = {}) {
   const selector = type === "set" ? ".set-entry-row" : ".meal-entry-row";
   const index = list.querySelectorAll(selector).length + 1;
   const row = document.createElement("div");
   row.className = type === "set" ? "set-entry-row" : "meal-entry-row";
   row.innerHTML = type === "set" ? setRowHtml(index) : mealRowHtml(index);
   list.append(row);
-  row.querySelector("input").focus();
+  if (options.focus !== false) {
+    row.querySelector("input").focus();
+  }
   return row;
 }
 
@@ -730,9 +863,16 @@ function resetMealForm(form, mealList) {
 function setRowHtml(index) {
   return `
     <div class="compact-field-grid" data-strength-fields>
-      <label>
-        <span>무게 kg</span>
-        <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+      <label class="weight-unit-field">
+        <span>무게</span>
+        <div class="weight-unit-control">
+          <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+          <select name="set_weight_unit" aria-label="무게 단위">
+            <option value="kg">kg</option>
+            <option value="lb">lb</option>
+          </select>
+        </div>
+        <small class="weight-preview" data-weight-preview>kg 기준 저장</small>
       </label>
       <label>
         <span>횟수</span>
