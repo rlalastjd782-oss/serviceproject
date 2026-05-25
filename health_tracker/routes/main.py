@@ -50,6 +50,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
             daily_calorie_goal=get_goal_value("daily_calories", 2200),
+            data_quality_profile=build_data_quality_profile(today_session["workout_date"]),
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
             recovery_statuses=list_recovery_statuses(today_session["workout_date"]),
             recovery_checkin=get_recovery_checkin(today_session["workout_date"]),

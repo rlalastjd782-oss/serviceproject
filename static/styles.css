@@ -674,6 +674,53 @@ input[type="month"] {
   font-weight: 800;
 }
 
+.data-quality-section {
+  border-color: rgb(96 165 250 / 28%);
+}
+
+.data-quality-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #101827;
+  padding: 12px;
+}
+
+.data-quality-score {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  min-width: 74px;
+}
+
+.data-quality-score strong {
+  color: var(--strong);
+  font-size: 30px;
+  line-height: 1;
+}
+
+.data-quality-score span,
+.data-quality-copy span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.data-quality-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.data-quality-copy strong {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
 .section-header {
   display: flex;
   align-items: center;
@@ -3744,6 +3791,7 @@ tbody tr:last-child td {
 
   .focus-grid,
   .focus-shortcuts,
+  .data-quality-card,
   .readiness-coach-card,
   .readiness-form,
   .period-filter-form {

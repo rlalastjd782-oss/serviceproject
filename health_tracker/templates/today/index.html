@@ -31,6 +31,26 @@
     </a>
   </section>
 
+  <section class="section overview-only data-quality-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">기록 상태</div>
+        <div class="section-subtitle">{{ data_quality_profile.period }}</div>
+      </div>
+      <span class="badge">{{ data_quality_profile.label }}</span>
+    </div>
+    <div class="data-quality-card">
+      <div class="data-quality-score">
+        <strong>{{ data_quality_profile.score }}</strong>
+        <span>/100</span>
+      </div>
+      <div class="data-quality-copy">
+        <strong>{{ data_quality_profile.message }}</strong>
+        <span>운동 {{ data_quality_profile.workout_days }}일 · 식단 {{ data_quality_profile.meal_days }}일 · 체성분 {{ data_quality_profile.metric_days }}회 · 누락 {{ data_quality_profile.missing_days }}일</span>
+      </div>
+    </div>
+  </section>
+
   <section class="section overview-only">
     <div class="section-header">
       <div>

@@ -1034,6 +1034,58 @@ def list_record_gaps(date_text: str, days: int = 7) -> list[dict[str, object]]:
     return gaps
 
 
+def build_data_quality_profile(date_text: str, days: int = 14) -> dict[str, object]:
+    end = normalize_date(date_text)
+    start = shift_date(end, -(days - 1))
+    db = get_db()
+    workout_days = db.execute(
+        """
+        SELECT COUNT(DISTINCT s.workout_date)
+        FROM workout_sessions s
+        JOIN workout_sets ws ON ws.session_id = s.id
+        WHERE s.workout_date BETWEEN ? AND ?
+        """,
+        (start, end),
+    ).fetchone()[0] or 0
+    meal_days = db.execute(
+        "SELECT COUNT(DISTINCT meal_date) FROM meal_entries WHERE meal_date BETWEEN ? AND ?",
+        (start, end),
+    ).fetchone()[0] or 0
+    metric_days = db.execute(
+        "SELECT COUNT(*) FROM body_metrics WHERE metric_date BETWEEN ? AND ?",
+        (start, end),
+    ).fetchone()[0] or 0
+    missing_days = len(list_record_gaps(end, days=days))
+    score = round(
+        min(
+            100,
+            (workout_days / days * 35)
+            + (meal_days / days * 35)
+            + (metric_days / max(1, min(days, 7)) * 20)
+            + max(0, 10 - missing_days),
+        )
+    )
+    if score >= 75:
+        label = "안정"
+        message = "분석에 쓸 기록 밀도가 충분합니다."
+    elif score >= 50:
+        label = "보강 필요"
+        message = "식단 또는 체성분 기록을 조금 더 채우면 분석 정확도가 올라갑니다."
+    else:
+        label = "부족"
+        message = "운동, 식단, 휴식 중 최소 하나는 매일 남기는 흐름이 필요합니다."
+    return {
+        "score": score,
+        "label": label,
+        "message": message,
+        "workout_days": workout_days,
+        "meal_days": meal_days,
+        "metric_days": metric_days,
+        "missing_days": missing_days,
+        "period": f"{start} ~ {end}",
+    }
+
+
 def create_workout_plan_item(workout_date: str, body_part: str, exercise_name: str, target_sets: int) -> None:
     db = get_db()
     next_order = db.execute(
