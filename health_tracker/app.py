@@ -21,6 +21,12 @@ from health_tracker.constants import (
     RECOMMENDED_EXERCISE_MAP,
 )
 from health_tracker.meta import get_app_updated_at, get_app_version
+from health_tracker.security import (
+    ADMIN_GET_ENDPOINTS,
+    PUBLIC_POST_ENDPOINTS,
+    ensure_csrf_token,
+    validate_csrf_token,
+)
 from health_tracker.services.admin import build_app_health_status
 from health_tracker.services.data import (
     get_backup_status as build_backup_status,
@@ -391,33 +397,6 @@ def get_or_create_secret_key() -> str:
     secret = secrets.token_urlsafe(32)
     secret_path.write_text(secret, encoding="utf-8")
     return secret
-
-
-PUBLIC_POST_ENDPOINTS = {"unlock_settings_route", "save_settings_password_route"}
-
-ADMIN_GET_ENDPOINTS = {
-    "export_json",
-    "export_csv",
-    "export_meal_csv_route",
-    "export_yearly_json_route",
-    "export_yearly_workouts_csv_route",
-    "export_yearly_meals_csv_route",
-    "qa_report_page",
-    "api_sessions",
-}
-
-
-def ensure_csrf_token() -> str:
-    token = session.get("csrf_token")
-    if not token:
-        token = secrets.token_urlsafe(32)
-        session["csrf_token"] = token
-    return str(token)
-
-
-def validate_csrf_token(token: object) -> bool:
-    expected = session.get("csrf_token")
-    return bool(expected and token and hmac.compare_digest(str(expected), str(token)))
 
 
 def get_app_setting(key: str, default: str = "") -> str:
