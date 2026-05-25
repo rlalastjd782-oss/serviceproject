@@ -27,6 +27,10 @@ from health_tracker.services.data import (
     get_data_counts as build_data_counts,
     get_sample_data_counts as build_sample_data_counts,
 )
+from health_tracker.services.data_quality import (
+    build_data_quality_profile_from_db,
+    list_record_gaps_from_db,
+)
 from health_tracker.services.dummy_data import generate_year_qa_dummy_data as generate_year_qa_dummy_data_in_db
 from health_tracker.services.dummy_data import get_qa_dummy_status as get_qa_dummy_status_from_db
 from health_tracker.services.export import (
@@ -993,97 +997,11 @@ def build_workout_session_flow(workout_date: str) -> dict[str, object]:
 
 
 def list_record_gaps(date_text: str, days: int = 7) -> list[dict[str, object]]:
-    start = shift_date(date_text, -(days - 1))
-    db = get_db()
-    workout_dates = {
-        row["workout_date"]
-        for row in db.execute(
-            """
-            SELECT DISTINCT s.workout_date
-            FROM workout_sessions s
-            JOIN workout_sets ws ON ws.session_id = s.id
-            WHERE s.workout_date BETWEEN ? AND ?
-            """,
-            (start, date_text),
-        ).fetchall()
-    }
-    meal_dates = {
-        row["meal_date"]
-        for row in db.execute(
-            "SELECT DISTINCT meal_date FROM meal_entries WHERE meal_date BETWEEN ? AND ?",
-            (start, date_text),
-        ).fetchall()
-    }
-    rest_dates = {
-        row["checkin_date"]
-        for row in db.execute(
-            """
-            SELECT checkin_date
-            FROM recovery_checkins
-            WHERE checkin_date BETWEEN ? AND ? AND is_rest_day = 1
-            """,
-            (start, date_text),
-        ).fetchall()
-    }
-    gaps = []
-    for offset in range(days):
-        day = shift_date(start, offset)
-        if day in workout_dates or day in meal_dates or day in rest_dates:
-            continue
-        gaps.append({"date": day, "label": "기록 없음"})
-    return gaps
+    return list_record_gaps_from_db(get_db(), date_text, days)
 
 
 def build_data_quality_profile(date_text: str, days: int = 14) -> dict[str, object]:
-    end = normalize_date(date_text)
-    start = shift_date(end, -(days - 1))
-    db = get_db()
-    workout_days = db.execute(
-        """
-        SELECT COUNT(DISTINCT s.workout_date)
-        FROM workout_sessions s
-        JOIN workout_sets ws ON ws.session_id = s.id
-        WHERE s.workout_date BETWEEN ? AND ?
-        """,
-        (start, end),
-    ).fetchone()[0] or 0
-    meal_days = db.execute(
-        "SELECT COUNT(DISTINCT meal_date) FROM meal_entries WHERE meal_date BETWEEN ? AND ?",
-        (start, end),
-    ).fetchone()[0] or 0
-    metric_days = db.execute(
-        "SELECT COUNT(*) FROM body_metrics WHERE metric_date BETWEEN ? AND ?",
-        (start, end),
-    ).fetchone()[0] or 0
-    missing_days = len(list_record_gaps(end, days=days))
-    score = round(
-        min(
-            100,
-            (workout_days / days * 35)
-            + (meal_days / days * 35)
-            + (metric_days / max(1, min(days, 7)) * 20)
-            + max(0, 10 - missing_days),
-        )
-    )
-    if score >= 75:
-        label = "안정"
-        message = "분석에 쓸 기록 밀도가 충분합니다."
-    elif score >= 50:
-        label = "보강 필요"
-        message = "식단 또는 체성분 기록을 조금 더 채우면 분석 정확도가 올라갑니다."
-    else:
-        label = "부족"
-        message = "운동, 식단, 휴식 중 최소 하나는 매일 남기는 흐름이 필요합니다."
-    return {
-        "score": score,
-        "label": label,
-        "message": message,
-        "workout_days": workout_days,
-        "meal_days": meal_days,
-        "metric_days": metric_days,
-        "missing_days": missing_days,
-        "period": f"{start} ~ {end}",
-    }
+    return build_data_quality_profile_from_db(get_db(), normalize_date(date_text), days)
 
 
 def create_workout_plan_item(workout_date: str, body_part: str, exercise_name: str, target_sets: int) -> None:

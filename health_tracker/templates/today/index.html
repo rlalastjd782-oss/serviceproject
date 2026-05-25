@@ -34,21 +34,45 @@
   <section class="section overview-only data-quality-section">
     <div class="section-header">
       <div>
-        <div class="section-title">기록 상태</div>
+        <div class="section-title">분석 신뢰도</div>
         <div class="section-subtitle">{{ data_quality_profile.period }}</div>
       </div>
       <span class="badge">{{ data_quality_profile.label }}</span>
     </div>
-    <div class="data-quality-card">
-      <div class="data-quality-score">
+    <div class="data-quality-card state-{{ data_quality_profile.tone }}" data-quality-card>
+      <div
+        class="data-quality-ring"
+        style="--score: {{ data_quality_profile.score }}%;"
+        aria-label="분석 신뢰도 {{ data_quality_profile.score }}점"
+      >
         <strong>{{ data_quality_profile.score }}</strong>
-        <span>/100</span>
+        <span>%</span>
       </div>
       <div class="data-quality-copy">
         <strong>{{ data_quality_profile.message }}</strong>
-        <span>운동 {{ data_quality_profile.workout_days }}일 · 식단 {{ data_quality_profile.meal_days }}일 · 체성분 {{ data_quality_profile.metric_days }}회 · 누락 {{ data_quality_profile.missing_days }}일</span>
+        <span>{{ data_quality_profile.criteria }}</span>
       </div>
     </div>
+    <div class="quality-metric-list">
+      {% for item in data_quality_profile.components %}
+        <article class="quality-metric">
+          <div>
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.count }} / {{ item.target }}{{ item.unit }}</span>
+          </div>
+          <div class="quality-bar" aria-label="{{ item.label }} {{ item.percent }}%">
+            <span style="width: {{ item.percent }}%"></span>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+    {% if data_quality_profile.actions %}
+      <div class="quality-action-list">
+        {% for action in data_quality_profile.actions %}
+          <a class="btn-small" href="{{ action.href }}">{{ action.label }}</a>
+        {% endfor %}
+      </div>
+    {% endif %}
   </section>
 
   <section class="section overview-only">
@@ -618,7 +642,7 @@
     </form>
   </section>
 
-  <section class="section optional-section">
+  <section class="section optional-section" id="body-metrics">
     <div class="section-header">
       <div>
         <div class="section-title">목표 달성률</div>
