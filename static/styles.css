@@ -599,6 +599,19 @@ input[type="month"] {
   gap: 7px;
 }
 
+.record-search-form > * {
+  min-width: 0;
+}
+
+.record-search-form .list-toolbar {
+  grid-column: 1 / -2;
+  margin: 2px 0 0;
+}
+
+.record-search-submit {
+  min-height: 38px;
+}
+
 .record-list-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -3485,7 +3498,6 @@ tbody tr:last-child td {
   .routine-form,
   .routine-manage-form,
   .tool-form,
-  .record-search-form,
   .record-list-toolbar,
   .body-metric-form,
   .body-photo-form,
@@ -3495,6 +3507,27 @@ tbody tr:last-child td {
   .settings-action-grid,
   .health-grid {
     grid-template-columns: 1fr;
+  }
+
+  .record-search-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .record-search-query,
+  .record-search-form .list-toolbar,
+  .record-search-submit {
+    grid-column: 1 / -1;
+  }
+
+  .record-search-part,
+  .record-search-equipment,
+  .record-search-start,
+  .record-search-end {
+    grid-column: auto;
+  }
+
+  .record-search-form .list-toolbar {
+    margin-top: 2px;
   }
 
   .list-toolbar {
@@ -3823,6 +3856,10 @@ tbody tr:last-child td {
 
   .record-toggle > span:last-child {
     grid-column: 1 / -1;
+  }
+
+  .record-search-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .progress-metrics,
