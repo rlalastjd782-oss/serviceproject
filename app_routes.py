@@ -208,6 +208,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             base_report=base_report,
             compare_report=compare_report,
             comparison_rows=compare_yearly_reports(base_report, compare_report),
+            qa_dummy_status=get_qa_dummy_status(),
         )
 
     @app.get("/summaries/exercises")
@@ -386,6 +387,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             health_status=get_app_health_status(),
             reminder_settings=list_reminder_settings(),
             has_settings_password=has_settings_password(),
+            qa_dummy_status=get_qa_dummy_status(),
         )
 
     @app.post("/settings/unlock")
@@ -415,6 +417,12 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     @app.post("/settings/lock")
     def lock_settings_route():
         session.pop("settings_unlocked", None)
+        return redirect(url_for("settings_page"))
+
+    @app.post("/qa-dummy/year")
+    def generate_year_qa_dummy_route():
+        if settings_unlocked():
+            generate_year_qa_dummy_data()
         return redirect(url_for("settings_page"))
 
     from app_aux_routes import register_aux_routes

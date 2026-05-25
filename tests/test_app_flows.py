@@ -30,6 +30,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/summaries/daily",
             "/summaries/weekly",
             "/summaries/monthly",
+            "/summaries/yearly",
+            "/summaries/yearly/compare",
             "/summaries/exercises",
             "/summaries/equipment",
             "/summaries/pr",
@@ -107,6 +109,36 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("설정 보안", html)
         self.assertNotIn("settings-lock-section", html)
 
+    def test_yearly_qa_dummy_data_crosses_year_boundary(self) -> None:
+        response = self.client.post("/qa-dummy/year")
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            status = app_module.get_qa_dummy_status()
+            self.assertTrue(status["exists"])
+            self.assertGreaterEqual(status["exercises"], 100)
+            self.assertGreaterEqual(status["sets"], 3000)
+            self.assertGreaterEqual(status["meals"], 1400)
+
+        for path in [
+            "/summaries/yearly?year=2025",
+            "/summaries/yearly?year=2026",
+            "/summaries/yearly/compare?base_year=2025&compare_year=2026",
+            "/summaries/monthly?month=2025-12",
+            "/summaries/monthly?month=2026-01",
+            "/records/search?start=2025-12-31&end=2026-01-01&q=QA-",
+        ]:
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn("QA-", response.data.decode("utf-8", errors="ignore"))
+
+        response = self.client.get("/export/yearly.json?year=2026")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('"year": "2026"', response.data.decode("utf-8"))
+        response = self.client.get("/export/yearly-workouts.csv?year=2026")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("QA-", response.data.decode("utf-8-sig"))
+
     def test_service_worker_precache_assets_are_valid(self) -> None:
         sw_path = Path(__file__).resolve().parents[1] / "static" / "sw.js"
         sw_source = sw_path.read_text(encoding="utf-8")
@@ -116,6 +148,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("/calendar", assets)
         self.assertIn("/meals/weekly", assets)
         self.assertIn("/summaries/exercises", assets)
+        self.assertIn("/summaries/yearly", assets)
         self.assertIn("/sw.js", assets)
         self.assertIn("self.skipWaiting()", sw_source)
         self.assertIn("self.clients.claim()", sw_source)

@@ -26,6 +26,8 @@ from app_data_service import (
     get_data_counts as build_data_counts,
     get_sample_data_counts as build_sample_data_counts,
 )
+from app_dummy_data_service import generate_year_qa_dummy_data as generate_year_qa_dummy_data_in_db
+from app_dummy_data_service import get_qa_dummy_status as get_qa_dummy_status_from_db
 from app_export_service import (
     export_all_data_from_db,
     export_meal_csv_from_db,
@@ -429,6 +431,14 @@ def settings_unlocked() -> bool:
 def reset_settings_password() -> None:
     save_app_setting("settings_password_hash", "")
     session.pop("settings_unlocked", None)
+
+
+def get_qa_dummy_status() -> dict[str, object]:
+    return get_qa_dummy_status_from_db(get_db())
+
+
+def generate_year_qa_dummy_data() -> dict[str, object]:
+    return generate_year_qa_dummy_data_in_db(get_db())
 
 
 def get_or_create_session(workout_date: str | None = None) -> sqlite3.Row:

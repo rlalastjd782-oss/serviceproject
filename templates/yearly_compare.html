@@ -12,6 +12,9 @@
         <div class="section-title">연간 비교</div>
         <div class="section-subtitle">{{ base_year }}년과 {{ compare_year }}년의 주요 기록을 비교합니다.</div>
       </div>
+      {% if qa_dummy_status.exists %}
+        <span class="badge">QA-연간 데이터 포함</span>
+      {% endif %}
     </div>
     <form method="get" action="{{ url_for('yearly_compare_page') }}" class="period-filter-form">
       <label class="month-picker">
