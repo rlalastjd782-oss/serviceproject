@@ -8,27 +8,20 @@
     <meta name="theme-color" content="#0f0f14">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <title>{% block title %}헬스 트래커{% endblock %}</title>
+    <title>{% block title %}피트니스 트래커{% endblock %}</title>
   </head>
   <body>
     <div id="app">
       <header class="header">
-        <div class="header-title">🏋️ 헬스 트래커</div>
+        <div class="header-title">피트니스 트래커</div>
         <div class="app-version" title="업데이트 {{ app_updated_at }}">{{ app_version }}</div>
       </header>
       <nav class="tabs" aria-label="주요 메뉴">
         <a class="tab-btn {% if active_page == 'today' %}active{% endif %}" href="{{ url_for('index') }}">오늘</a>
-        <a class="tab-btn {% if active_page == 'daily' %}active{% endif %}" href="{{ url_for('daily_summary_page') }}">기록</a>
-        <a class="tab-btn {% if active_page == 'search' %}active{% endif %}" href="{{ url_for('record_search_page') }}">검색</a>
-        <a class="tab-btn {% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주별</a>
-        <a class="tab-btn {% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월별</a>
-        <a class="tab-btn {% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>
-        <a class="tab-btn {% if active_page == 'library' %}active{% endif %}" href="{{ url_for('exercise_library_page') }}">라이브러리</a>
-        <a class="tab-btn {% if active_page == 'pr' %}active{% endif %}" href="{{ url_for('pr_summary_page') }}">PR</a>
-        <a class="tab-btn {% if active_page == 'plans' %}active{% endif %}" href="{{ url_for('weekly_plan_page') }}">계획</a>
-        <a class="tab-btn {% if active_page == 'equipment' %}active{% endif %}" href="{{ url_for('equipment_summary_page') }}">장비</a>
+        <a class="tab-btn {% if active_page in ['daily', 'search'] %}active{% endif %}" href="{{ url_for('daily_summary_page') }}">기록</a>
+        <a class="tab-btn {% if active_page in ['weekly', 'monthly', 'exercises', 'pr', 'equipment'] %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">분석</a>
         <a class="tab-btn {% if active_page == 'meals' %}active{% endif %}" href="{{ url_for('meal_weekly_page') }}">식단</a>
-        <a class="tab-btn {% if active_page == 'calendar' %}active{% endif %}" href="{{ url_for('calendar_page') }}">달력</a>
+        <a class="tab-btn {% if active_page in ['more', 'library', 'plans', 'calendar'] %}active{% endif %}" href="{{ url_for('more_page') }}">더보기</a>
         <a class="tab-btn {% if active_page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}">설정</a>
       </nav>
       <main class="content">

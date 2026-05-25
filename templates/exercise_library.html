@@ -10,7 +10,7 @@
         <div class="section-subtitle">즐겨찾기, 장비, 목표, 메모를 한 화면에서 확인합니다.</div>
       </div>
     </div>
-    <form method="get" action="{{ url_for('exercise_library_page') }}" class="filter-form">
+    <form method="get" action="{{ url_for('exercise_library_page') }}" class="filter-form library-filter-form">
       <input name="q" value="{{ search_query }}" placeholder="운동명 검색" list="library-exercise-list">
       <select name="part">
         <option value="">전체 부위</option>
@@ -29,6 +29,10 @@
         <option value="{{ item.name }}"></option>
       {% endfor %}
     </datalist>
+    <div class="library-result-head">
+      <strong>{{ exercises|length }}개 운동</strong>
+      <span>검색 조건에 맞는 라이브러리 결과입니다.</span>
+    </div>
     <div class="library-grid">
       {% for item in exercises %}
         <article class="library-card">

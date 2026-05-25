@@ -41,6 +41,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/records/search",
             "/exercises/library",
             "/plans/weekly",
+            "/more",
             "/sw.js",
         ]
         for path in paths:

@@ -14,10 +14,14 @@
         <a class="btn-small" href="{{ url_for('weekly_plan_page', week=next_week) }}">다음</a>
       </div>
     </div>
-    <form method="post" action="{{ url_for('generate_weekly_plan_route') }}" class="settings-action-row">
+    <form method="post" action="{{ url_for('generate_weekly_plan_route') }}" class="settings-action-row plan-board-actions">
       <input type="hidden" name="week_start" value="{{ week_start }}">
       <button class="btn-primary" type="submit">추천으로 빈 날짜 채우기</button>
     </form>
+    <div class="library-result-head">
+      <strong>7일 계획</strong>
+      <span>빈 날짜는 추천 운동을 바로 추가할 수 있습니다.</span>
+    </div>
     <div class="plan-board-grid">
       {% for day in plan_board %}
         <article class="plan-day-card">

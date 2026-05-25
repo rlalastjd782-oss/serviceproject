@@ -75,6 +75,10 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     def summaries():
         return redirect(url_for("weekly_summary_page"))
 
+    @app.get("/more")
+    def more_page():
+        return render_template("more.html", active_page="more")
+
     @app.get("/summaries/daily")
     def daily_summary_page():
         days = parse_int(request.args.get("days")) or 7
