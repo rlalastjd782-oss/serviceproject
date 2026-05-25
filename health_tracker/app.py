@@ -8,7 +8,7 @@ import secrets
 import sqlite3
 from datetime import datetime, timedelta
 
-from flask import Flask, Response, g, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, Response, abort, g, jsonify, redirect, render_template, request, session, url_for
 
 from health_tracker.config import BASE_DIR, DATABASE, PHOTO_DIR
 from health_tracker.constants import (
@@ -75,10 +75,25 @@ def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder=str(BASE_DIR / "static"), static_url_path="/static")
     app.config["DATABASE"] = DATABASE
     app.secret_key = get_or_create_secret_key()
+    app.config.update(
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE="Lax",
+        SESSION_COOKIE_SECURE=False,
+    )
 
     @app.before_request
     def before_request() -> None:
         init_db()
+        ensure_csrf_token()
+        if request.method == "POST":
+            json_payload = request.get_json(silent=True) if request.is_json else None
+            json_token = json_payload.get("csrf_token") if isinstance(json_payload, dict) else None
+            if not validate_csrf_token(request.form.get("csrf_token") or request.headers.get("X-CSRF-Token") or json_token):
+                abort(400)
+            if request.endpoint not in PUBLIC_POST_ENDPOINTS and not settings_unlocked():
+                abort(403)
+        if request.method == "GET" and request.endpoint in ADMIN_GET_ENDPOINTS and not settings_unlocked():
+            return redirect(url_for("settings_page"))
 
     @app.teardown_appcontext
     def close_db(error: Exception | None = None) -> None:
@@ -91,6 +106,8 @@ def create_app() -> Flask:
         return {
             "app_version": get_app_version(),
             "app_updated_at": get_app_updated_at(),
+            "is_admin": settings_unlocked(),
+            "csrf_token": ensure_csrf_token,
             "per_page_options": PER_PAGE_OPTIONS,
             "query_url": lambda **updates: query_url(request.path, request.args, **updates),
         }
@@ -376,6 +393,33 @@ def get_or_create_secret_key() -> str:
     return secret
 
 
+PUBLIC_POST_ENDPOINTS = {"unlock_settings_route", "save_settings_password_route"}
+
+ADMIN_GET_ENDPOINTS = {
+    "export_json",
+    "export_csv",
+    "export_meal_csv_route",
+    "export_yearly_json_route",
+    "export_yearly_workouts_csv_route",
+    "export_yearly_meals_csv_route",
+    "qa_report_page",
+    "api_sessions",
+}
+
+
+def ensure_csrf_token() -> str:
+    token = session.get("csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["csrf_token"] = token
+    return str(token)
+
+
+def validate_csrf_token(token: object) -> bool:
+    expected = session.get("csrf_token")
+    return bool(expected and token and hmac.compare_digest(str(expected), str(token)))
+
+
 def get_app_setting(key: str, default: str = "") -> str:
     row = get_db().execute("SELECT value FROM app_settings WHERE key = ?", (key,)).fetchone()
     return str(row["value"]) if row else default
@@ -429,7 +473,7 @@ def verify_settings_password(password: str) -> bool:
 
 
 def settings_unlocked() -> bool:
-    return not has_settings_password() or bool(session.get("settings_unlocked"))
+    return has_settings_password() and bool(session.get("settings_unlocked"))
 
 
 def reset_settings_password() -> None:

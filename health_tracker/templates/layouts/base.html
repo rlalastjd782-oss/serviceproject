@@ -6,15 +6,16 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f0f14">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <title>{% block title %}피트니스 트래커{% endblock %}</title>
   </head>
-  <body>
+  <body class="{% if is_admin %}admin-mode{% else %}visitor-mode{% endif %}">
     <div id="app">
       <header class="header">
         <div class="header-title">피트니스 트래커</div>
-        <div class="app-version" title="업데이트 {{ app_updated_at }}">{{ app_version }}</div>
+        <div class="app-version" title="업데이트 {{ app_updated_at }}">{{ app_version }} · {% if is_admin %}관리자{% else %}보기{% endif %}</div>
       </header>
       <nav class="tabs" aria-label="주요 메뉴">
         <a class="tab-btn {% if active_page == 'today' %}active{% endif %}" href="{{ url_for('index') }}">오늘</a>
@@ -22,7 +23,7 @@
         <a class="tab-btn {% if active_page in ['weekly', 'monthly', 'yearly', 'exercises', 'pr', 'equipment'] %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">분석</a>
         <a class="tab-btn {% if active_page == 'meals' %}active{% endif %}" href="{{ url_for('meal_weekly_page') }}">식단</a>
         <a class="tab-btn {% if active_page in ['more', 'library', 'plans', 'calendar'] %}active{% endif %}" href="{{ url_for('more_page') }}">더보기</a>
-        <a class="tab-btn {% if active_page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}">설정</a>
+        <a class="tab-btn {% if active_page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}">{% if is_admin %}설정{% else %}관리자{% endif %}</a>
       </nav>
       <main class="content">
         {% block content %}{% endblock %}

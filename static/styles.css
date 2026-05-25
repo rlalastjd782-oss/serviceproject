@@ -205,6 +205,35 @@
   min-height: 42px;
 }
 
+.visitor-mode form[method="post"]:not(.settings-password-form),
+.visitor-mode button[data-copy-saved-set],
+.visitor-mode button[data-toggle-edit],
+.visitor-mode button[data-open-set-edit],
+.visitor-mode button[data-toggle-add],
+.visitor-mode button[data-workout-clock-start],
+.visitor-mode button[data-workout-clock-pause],
+.visitor-mode button[data-workout-clock-save],
+.visitor-mode button[data-workout-clock-reset],
+.visitor-mode a[href*="export"] {
+  display: none !important;
+}
+
+.visitor-mode .workout-action-dock,
+.visitor-mode #workout-input,
+.visitor-mode .meal-form,
+.visitor-mode .inline-add-panel,
+.visitor-mode .item-actions,
+.visitor-mode .edit-actions,
+.visitor-mode .settings-panel,
+.visitor-mode .danger-zone {
+  display: none !important;
+}
+
+.visitor-mode .settings-lock-section,
+.visitor-mode .settings-lock-section form {
+  display: grid !important;
+}
+
 .offline-queue-status {
   position: fixed;
   left: 50%;

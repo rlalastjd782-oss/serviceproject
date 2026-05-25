@@ -124,6 +124,7 @@ document.addEventListener("input", (event) => {
 
 document.addEventListener("submit", (event) => {
   const form = event.target.closest("form");
+  attachCsrfToken(form);
   const confirmMessage = form?.dataset.confirmSubmit;
   if (confirmMessage && !window.confirm(confirmMessage)) {
     event.preventDefault();
@@ -146,6 +147,24 @@ document.addEventListener("submit", (event) => {
   const durationSeconds = action === "reset" ? 0 : Math.max(0, hours * 3600 + minutes * 60);
   saveWorkoutClock({ startedAt: null, elapsedMs: durationSeconds * 1000, manualStarted: false });
 });
+
+function attachCsrfToken(form) {
+  if (!form || form.method?.toLowerCase() !== "post") {
+    return;
+  }
+  const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+  if (!token) {
+    return;
+  }
+  let input = form.querySelector('input[name="csrf_token"]');
+  if (!input) {
+    input = document.createElement("input");
+    input.type = "hidden";
+    input.name = "csrf_token";
+    form.append(input);
+  }
+  input.value = token;
+}
 
 window.addEventListener("online", () => {
   processOfflineQueue();
@@ -1081,7 +1100,7 @@ function persistWorkoutClock(successMessage = "자동 저장됨") {
   updateWorkoutClockStatus("저장 중");
   fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-CSRF-Token": currentCsrfToken() },
     body: JSON.stringify({ duration_seconds: currentWorkoutSeconds() }),
     keepalive: true,
   })
@@ -1116,10 +1135,14 @@ function sendWorkoutClockBeacon() {
   if (!state.startedAt || !state.manualStarted) {
     return;
   }
-  const payload = new Blob([JSON.stringify({ duration_seconds: currentWorkoutSeconds() })], {
+  const payload = new Blob([JSON.stringify({ duration_seconds: currentWorkoutSeconds(), csrf_token: currentCsrfToken() })], {
     type: "application/json",
   });
   navigator.sendBeacon(url, payload);
+}
+
+function currentCsrfToken() {
+  return document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
 }
 
 function updateWorkoutClockDisplay() {

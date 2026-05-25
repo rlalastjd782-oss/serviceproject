@@ -19,10 +19,44 @@ class HealthTrackerFlowTest(unittest.TestCase):
         app_module.DATABASE = Path(self.tmpdir.name) / "test-workout.db"
         self.app = app_module.app
         self.client = self.app.test_client()
+        self.raw_post = self.client.post
+        self.client.post = self._post_with_csrf
+        self.client.get("/settings")
+        response = self.client.post(
+            "/settings/password",
+            data={"password": "1234", "password_confirm": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
 
     def tearDown(self) -> None:
         app_module.DATABASE = self.original_database
         self.tmpdir.cleanup()
+
+    def _csrf_token(self, client=None) -> str:
+        target_client = client or self.client
+        with target_client.session_transaction() as sess:
+            return str(sess.get("csrf_token", ""))
+
+    def _post_with_csrf(self, *args, **kwargs):
+        headers = dict(kwargs.pop("headers", {}) or {})
+        token = self._csrf_token(self.client)
+        if kwargs.get("json") is not None:
+            headers["X-CSRF-Token"] = token
+            kwargs["headers"] = headers
+            return self.raw_post(*args, **kwargs)
+        data = kwargs.pop("data", None)
+        if data is None:
+            data = {}
+        if isinstance(data, dict):
+            data = {**data, "csrf_token": token}
+        kwargs["data"] = data
+        kwargs["headers"] = headers
+        return self.raw_post(*args, **kwargs)
+
+    def _visitor_post(self, client, path: str, data: dict[str, object] | None = None):
+        payload = dict(data or {})
+        payload["csrf_token"] = self._csrf_token(client)
+        return client.post(path, data=payload)
 
     def test_main_pages_render(self) -> None:
         paths = [
@@ -109,16 +143,46 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertNotIn("장비 분석", html)
         self.assertNotIn(">PR<", html)
 
+    def test_visitor_is_read_only_and_admin_routes_are_locked(self) -> None:
+        visitor = self.app.test_client()
+        html = visitor.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn("visitor-mode", html)
+        self.assertIn("data-quality-card", html)
+
+        visitor.get("/")
+        response = self._visitor_post(
+            visitor,
+            "/sets",
+            {
+                "workout_date": "2026-05-20",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ blocked",
+                "set_weight": ["80"],
+                "set_reps": ["10"],
+            },
+        )
+        self.assertEqual(response.status_code, 403)
+
+        response = visitor.get("/export.json")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/settings", response.headers.get("Location", ""))
+
+        response = self.raw_post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-20",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ csrf",
+                "set_weight": ["80"],
+                "set_reps": ["10"],
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+
     def test_settings_password_lock_unlock_and_reset(self) -> None:
         response = self.client.get("/settings")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("설정 보안", response.data.decode("utf-8"))
-
-        response = self.client.post(
-            "/settings/password",
-            data={"password": "1234", "password_confirm": "1234"},
-        )
-        self.assertEqual(response.status_code, 302)
+        self.assertIn("settings-overview-section", response.data.decode("utf-8"))
 
         response = self.client.post("/settings/lock")
         self.assertEqual(response.status_code, 302)
@@ -140,8 +204,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.post("/settings/password/reset", data={"confirm_reset": "RESET"})
         self.assertEqual(response.status_code, 302)
         html = self.client.get("/settings").data.decode("utf-8")
-        self.assertIn("설정 보안", html)
-        self.assertNotIn("settings-lock-section", html)
+        self.assertIn("설정 잠금", html)
+        self.assertIn("settings-lock-section", html)
 
     def test_yearly_qa_dummy_data_crosses_year_boundary(self) -> None:
         response = self.client.post("/qa-dummy/year")
@@ -199,7 +263,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.5.3", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.6.0", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")
