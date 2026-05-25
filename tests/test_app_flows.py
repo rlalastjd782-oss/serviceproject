@@ -60,6 +60,15 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("analysis-subnav", weekly_html)
         self.assertNotIn("record-subnav", weekly_html)
 
+    def test_more_page_does_not_duplicate_record_or_analysis_menu(self) -> None:
+        html = self.client.get("/more").data.decode("utf-8")
+        self.assertIn("운동 라이브러리", html)
+        self.assertIn("주간 계획", html)
+        self.assertIn("캘린더", html)
+        self.assertNotIn("기록 검색", html)
+        self.assertNotIn("장비 분석", html)
+        self.assertNotIn(">PR<", html)
+
     def test_service_worker_precache_assets_are_valid(self) -> None:
         sw_path = Path(__file__).resolve().parents[1] / "static" / "sw.js"
         sw_source = sw_path.read_text(encoding="utf-8")
