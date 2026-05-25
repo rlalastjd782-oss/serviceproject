@@ -277,7 +277,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.6.5", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.6.6", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")
@@ -536,6 +536,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(sample["meals"], 150)
 
         target_part = app_module.body_part_options()[0]
+        all_html = self.client.get("/summaries/daily", query_string={"days": "90"}).data.decode("utf-8")
+        self.assertIn("#body-part-analysis", all_html)
+        visible_parts = [part for part in app_module.body_part_options() if f'data-body-part-summary="{part}"' in all_html]
+        self.assertGreaterEqual(len(visible_parts), 4)
+
         html = self.client.get("/summaries/daily", query_string={"days": "90", "part": target_part}).data.decode("utf-8")
         self.assertIn("body-part-filter-list", html)
         self.assertIn(f'data-body-part-summary="{target_part}"', html)

@@ -2253,6 +2253,10 @@ label span {
   gap: 8px;
 }
 
+.record-pagination-block {
+  margin-bottom: 16px;
+}
+
 .cat-stat-card {
   display: grid;
   gap: 3px;
@@ -2505,7 +2509,13 @@ label span {
   margin-bottom: 10px;
 }
 
+.record-body-part-section {
+  scroll-margin-top: 116px;
+}
+
 .record-body-part-section .cat-stat-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   margin-top: 0;
 }
 

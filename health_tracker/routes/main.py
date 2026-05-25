@@ -117,7 +117,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             daily_pagination=daily_pagination,
             daily_sort=daily_sort,
             selected_days=days,
-            body_part_summary=filter_body_part_summary(list_body_part_summary("daily"), selected_body_part),
+            body_part_summary=filter_body_part_summary(list_body_part_summary("daily", limit=120), selected_body_part),
             body_parts=body_part_options(),
             selected_body_part=selected_body_part,
             active_page="daily",

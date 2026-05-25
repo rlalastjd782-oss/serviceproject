@@ -58,7 +58,9 @@
         <div class="empty">기록 없음</div>
       {% endfor %}
     </div>
-    {{ pagination_nav(daily_pagination) }}
+    <div class="record-pagination-block">
+      {{ pagination_nav(daily_pagination) }}
+    </div>
   {% elif table_kind == "period" %}
     {% if active_page == "weekly" and weekly_report %}
       <section class="section">
@@ -814,7 +816,7 @@
   {% endif %}
 
   {% if body_part_summary is defined and (body_part_summary or (table_kind == "daily" and body_parts)) %}
-    <section class="section record-body-part-section">
+    <section id="body-part-analysis" class="section record-body-part-section">
       <div class="section-header">
         <div>
           <div class="section-title">💪 부위별 분석</div>
@@ -825,9 +827,9 @@
       </div>
       {% if table_kind == "daily" and body_parts %}
         <div class="body-part-filter-list" aria-label="부위별 분석 필터">
-          <a class="body-part-filter-chip {% if not selected_body_part %}is-active{% endif %}" href="{{ query_url(part=None, page=None) }}">전체</a>
+          <a class="body-part-filter-chip {% if not selected_body_part %}is-active{% endif %}" href="{{ query_url(part=None, page=None) }}#body-part-analysis">전체</a>
           {% for part in body_parts %}
-            <a class="body-part-filter-chip {{ body_part_class(part) }} {% if selected_body_part == part %}is-active{% endif %}" href="{{ query_url(part=part, page=None) }}">{{ part }}</a>
+            <a class="body-part-filter-chip {{ body_part_class(part) }} {% if selected_body_part == part %}is-active{% endif %}" href="{{ query_url(part=part, page=None) }}#body-part-analysis">{{ part }}</a>
           {% endfor %}
         </div>
       {% endif %}
