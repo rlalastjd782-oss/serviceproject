@@ -49,6 +49,17 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
 
+    def test_record_and_analysis_submenus_are_separated(self) -> None:
+        daily_html = self.client.get("/summaries/daily").data.decode("utf-8")
+        self.assertIn("record-subnav", daily_html)
+        self.assertNotIn("analysis-subnav", daily_html)
+        search_html = self.client.get("/records/search").data.decode("utf-8")
+        self.assertIn("record-subnav", search_html)
+        self.assertNotIn("analysis-subnav", search_html)
+        weekly_html = self.client.get("/summaries/weekly").data.decode("utf-8")
+        self.assertIn("analysis-subnav", weekly_html)
+        self.assertNotIn("record-subnav", weekly_html)
+
     def test_service_worker_precache_assets_are_valid(self) -> None:
         sw_path = Path(__file__).resolve().parents[1] / "static" / "sw.js"
         sw_source = sw_path.read_text(encoding="utf-8")

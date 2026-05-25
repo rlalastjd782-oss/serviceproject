@@ -3,6 +3,11 @@
 {% block title %}기록 검색{% endblock %}
 
 {% block content %}
+  <nav class="subnav record-subnav" aria-label="기록 메뉴">
+    <a href="{{ url_for('daily_summary_page') }}">일별</a>
+    <a class="active" href="{{ url_for('record_search_page') }}">검색</a>
+  </nav>
+
   <section class="section">
     <div class="section-header">
       <div>
