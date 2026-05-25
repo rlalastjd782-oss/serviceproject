@@ -775,14 +775,16 @@ function initWorkoutClock() {
   }
   const state = readWorkoutClock();
   const initialElapsedMs = Number(workoutClockPanel.dataset.initialDuration || 0) * 1000;
-  if (state.startedAt) {
+  let statusMessage = "시작 대기";
+  if (state.startedAt && state.manualStarted) {
+    statusMessage = "측정 중";
+  } else if (state.startedAt) {
     const elapsedMs = Number(state.elapsedMs || 0) + Math.max(0, Date.now() - Number(state.startedAt));
-    saveWorkoutClock({ startedAt: null, elapsedMs, manualStarted: false });
-    persistWorkoutClock("정지됨");
+    saveWorkoutClock({ startedAt: null, elapsedMs: Math.max(elapsedMs, initialElapsedMs), manualStarted: false });
   } else if (state.elapsedMs === undefined || Math.abs(Number(state.elapsedMs || 0) - initialElapsedMs) > 1000) {
     saveWorkoutClock({ startedAt: null, elapsedMs: initialElapsedMs, manualStarted: false });
   }
-  updateWorkoutClockStatus("시작 대기");
+  updateWorkoutClockStatus(statusMessage);
   updateWorkoutClockDisplay();
   clearInterval(workoutClockId);
   workoutClockId = setInterval(updateWorkoutClockDisplay, 1000);
@@ -998,8 +1000,17 @@ function formatToolWeight(value) {
 }
 
 window.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "hidden" && workoutClockPanel) {
+  if (!workoutClockPanel) {
+    return;
+  }
+  if (document.visibilityState === "hidden") {
     sendWorkoutClockBeacon();
+    return;
+  }
+  updateWorkoutClockDisplay();
+  const currentState = readWorkoutClock();
+  if (currentState.startedAt && currentState.manualStarted) {
+    updateWorkoutClockStatus("측정 중");
   }
 });
 
