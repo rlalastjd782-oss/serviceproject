@@ -25,3 +25,13 @@
     <a class="arrow-btn" href="{{ next_href }}" aria-label="{{ next_label }}">›</a>
   </form>
 {% endmacro %}
+
+{% macro analysis_subnav(active_page) %}
+  <nav class="subnav analysis-subnav" aria-label="분석 메뉴">
+    <a class="{% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주간</a>
+    <a class="{% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월간</a>
+    <a class="{% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>
+    <a class="{% if active_page == 'pr' %}active{% endif %}" href="{{ url_for('pr_summary_page') }}">PR</a>
+    <a class="{% if active_page == 'equipment' %}active{% endif %}" href="{{ url_for('equipment_summary_page') }}">장비</a>
+  </nav>
+{% endmacro %}

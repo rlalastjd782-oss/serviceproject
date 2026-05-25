@@ -1,8 +1,10 @@
 {% extends "base.html" %}
+{% from "macros.html" import analysis_subnav %}
 
 {% block title %}운동 PR{% endblock %}
 
 {% block content %}
+  {{ analysis_subnav(active_page) }}
   <section class="section pr-hero-section">
     <div class="section-header">
       <div>

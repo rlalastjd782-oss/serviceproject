@@ -59,6 +59,10 @@ class HealthTrackerFlowTest(unittest.TestCase):
         weekly_html = self.client.get("/summaries/weekly").data.decode("utf-8")
         self.assertIn("analysis-subnav", weekly_html)
         self.assertNotIn("record-subnav", weekly_html)
+        pr_html = self.client.get("/summaries/pr").data.decode("utf-8")
+        self.assertIn("analysis-subnav", pr_html)
+        self.assertNotIn("record-subnav", pr_html)
+        self.assertIn('href="/summaries/equipment"', pr_html)
 
     def test_more_page_does_not_duplicate_record_or_analysis_menu(self) -> None:
         html = self.client.get("/more").data.decode("utf-8")

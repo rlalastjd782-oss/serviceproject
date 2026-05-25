@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import goal_cards, period_picker %}
+{% from "macros.html" import analysis_subnav, goal_cards, period_picker %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -10,13 +10,7 @@
       <a href="{{ url_for('record_search_page') }}">검색</a>
     </nav>
   {% else %}
-    <nav class="subnav analysis-subnav" aria-label="분석 메뉴">
-      <a class="{% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주간</a>
-      <a class="{% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월간</a>
-      <a class="{% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>
-      <a class="{% if active_page == 'pr' %}active{% endif %}" href="{{ url_for('pr_summary_page') }}">PR</a>
-      <a class="{% if active_page == 'equipment' %}active{% endif %}" href="{{ url_for('equipment_summary_page') }}">장비</a>
-    </nav>
+    {{ analysis_subnav(active_page) }}
   {% endif %}
   {% if table_kind == "daily" %}
     <section class="section">
