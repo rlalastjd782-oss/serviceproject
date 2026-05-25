@@ -199,7 +199,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.5.2", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.5.3", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")

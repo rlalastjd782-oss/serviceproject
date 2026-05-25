@@ -2493,9 +2493,20 @@ label span {
 }
 
 .set-entry-row {
-  grid-template-columns: 58px minmax(0, 1fr) 88px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "number actions"
+    "fields fields"
+    "type type"
+    "rpe rpe"
+    "memo memo";
   align-items: stretch;
   gap: 8px;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent),
+    var(--bg);
+  padding: 10px;
 }
 
 .set-builder-header {
@@ -2582,14 +2593,19 @@ label span {
 }
 
 .set-row-number {
-  grid-column: 1;
-  grid-row: 1 / span 4;
-  align-self: stretch;
+  grid-area: number;
+  align-self: center;
+  min-height: 34px;
+  padding-inline: 12px;
   text-align: center;
 }
 
 .row-remove-button {
-  min-height: 38px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 900;
   padding: 0;
 }
 
@@ -2597,7 +2613,11 @@ label span {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  grid-column: 2;
+  grid-column: 1;
+}
+
+.set-entry-row > .compact-field-grid {
+  grid-area: fields;
 }
 
 .meal-compact-grid {
@@ -2608,33 +2628,44 @@ label span {
 .set-entry-row > input,
 .meal-entry-row > input,
 .set-entry-row > select {
-  grid-column: 2;
   width: 100%;
   min-width: 0;
 }
 
+.set-entry-row > select[name="set_type"] {
+  grid-area: type;
+}
+
+.set-entry-row > input[name="set_rpe"] {
+  grid-area: rpe;
+}
+
+.set-entry-row > input[name="set_memo"] {
+  grid-area: memo;
+}
+
 .set-entry-row .set-row-actions,
 .meal-entry-row .row-remove-button {
-  grid-column: 3;
-  grid-row: 1 / span 4;
+  grid-area: actions;
 }
 
 .set-row-actions {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
   gap: 5px;
-  align-self: stretch;
+  align-self: center;
 }
 
 .row-copy-button {
-  min-height: 38px;
+  min-height: 40px;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: 10px;
   background: #121a29;
   color: var(--blue);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
-  padding: 0 6px;
+  padding: 0 12px;
 }
 
 .meal-entry-row .row-remove-button {
@@ -4067,15 +4098,20 @@ tbody tr:last-child td {
   }
 
   .set-entry-row {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "number actions"
+      "fields fields"
+      "type type"
+      "rpe rpe"
+      "memo memo";
     align-items: stretch;
     gap: 8px;
     padding: 10px;
   }
 
   .set-row-number {
-    grid-column: 1;
-    grid-row: auto;
+    grid-area: number;
     justify-content: flex-start;
     min-height: 34px;
     padding-inline: 10px;
@@ -4083,18 +4119,17 @@ tbody tr:last-child td {
 
   .set-entry-row .compact-field-grid,
   .set-entry-row .cardio-field-grid {
-    grid-column: 1;
+    grid-area: fields;
   }
 
-  .set-entry-row > select,
-  .set-entry-row > input,
   .set-entry-row .set-row-actions {
-    grid-column: 1;
-    grid-row: auto;
+    grid-area: actions;
+    justify-content: flex-end;
   }
 
   .set-row-actions {
     grid-template-columns: minmax(0, 1fr) 44px;
+    display: grid;
   }
 
   .set-builder-toolbar {
@@ -4390,21 +4425,35 @@ tbody tr:last-child td {
   }
 
   .set-entry-row {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "number actions"
+      "fields fields"
+      "type type"
+      "rpe rpe"
+      "memo memo";
     gap: 5px;
     padding: 7px;
   }
 
-  .set-entry-row > select,
-  .set-entry-row > input,
+  .set-row-number {
+    grid-area: number;
+  }
+
+  .set-entry-row .compact-field-grid,
+  .set-entry-row .cardio-field-grid {
+    grid-area: fields;
+  }
+
   .set-entry-row .set-row-actions {
-    grid-column: 1;
-    grid-row: auto;
+    grid-area: actions;
+    justify-content: flex-end;
   }
 
   .set-row-actions {
     grid-template-columns: minmax(0, 1fr) 40px;
-    width: 100%;
+    display: grid;
+    width: auto;
   }
 
   .set-entry-row input,
