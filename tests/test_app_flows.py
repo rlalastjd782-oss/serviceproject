@@ -52,6 +52,22 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
 
+    def test_fold_ui_regression_markers_render(self) -> None:
+        overview_html = self.client.get("/").data.decode("utf-8")
+        self.assertIn("data-quality-card", overview_html)
+        self.assertIn("today-mode-actions", overview_html)
+
+        workout_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn("data-workout-quick-tab=\"recent\"", workout_html)
+        self.assertIn("data-workout-quick-tab=\"favorite\"", workout_html)
+        self.assertIn("data-workout-quick-tab=\"routine\"", workout_html)
+        self.assertIn("data-readiness-coach", workout_html)
+        self.assertIn("id=\"routine-library\"", workout_html)
+
+        search_html = self.client.get("/records/search").data.decode("utf-8")
+        self.assertIn("record-filter-details", search_html)
+        self.assertIn("<summary>상세 필터</summary>", search_html)
+
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")
         self.assertIn("record-subnav", daily_html)
