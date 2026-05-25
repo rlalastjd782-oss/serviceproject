@@ -20,9 +20,19 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/exercises/library")
     def exercise_library_page():
+        page, per_page = page_params(request.args)
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
         favorite_only = request.args.get("favorite") == "1"
+        library_sort = request.args.get("sort", "favorite")
+        exercises, pagination, library_sort = paged_exercise_library(
+            selected_part,
+            search_query,
+            favorite_only,
+            library_sort,
+            page,
+            per_page,
+        )
         return render_template(
             "exercise_library.html",
             active_page="library",
@@ -30,7 +40,9 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             selected_part=selected_part,
             search_query=search_query,
             favorite_only=favorite_only,
-            exercises=list_exercise_library(selected_part, search_query, favorite_only),
+            exercises=exercises,
+            pagination=pagination,
+            library_sort=library_sort,
         )
 
     @app.get("/plans/weekly")

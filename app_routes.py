@@ -92,16 +92,29 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/weekly")
     def weekly_summary_page():
+        page, per_page = page_params(request.args)
+        period_sort = request.args.get("sort", "newest")
         selected_week = normalize_date(request.args.get("week"))
         week_start = week_start_for_date(selected_week)
         week_end = shift_date(week_start, 6)
         chart_rows = list_daily_summary(start_date=week_start, end_date=week_end)
+        all_period_rows = list_weekly_summary(limit=240)
+        if period_sort == "oldest":
+            all_period_rows = list(reversed(all_period_rows))
+        elif period_sort == "volume":
+            all_period_rows = sorted(all_period_rows, key=lambda row: float(row["volume"] or 0), reverse=True)
+        else:
+            period_sort = "newest"
+        period_pagination = build_pagination(len(all_period_rows), page, per_page)
+        period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
         return render_template(
             "summary_page.html",
             page_title="주간 집계",
             page_kicker="Weekly",
             table_kind="period",
-            period_rows=list_weekly_summary(),
+            period_rows=period_rows,
+            period_pagination=period_pagination,
+            period_sort=period_sort,
             period_label="기간",
             chart_items=build_daily_chart(chart_rows),
             chart_title="일별 추이",
@@ -124,15 +137,27 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/monthly")
     def monthly_summary_page():
+        page, per_page = page_params(request.args)
+        period_sort = request.args.get("sort", "newest")
         selected_month = request.args.get("month") or current_local_date()[:7]
         month_start = normalize_month(selected_month)
-        period_rows = list_weekly_summary(month_start=month_start, limit=6)
+        all_period_rows = list_weekly_summary(month_start=month_start, limit=12)
+        if period_sort == "oldest":
+            all_period_rows = list(reversed(all_period_rows))
+        elif period_sort == "volume":
+            all_period_rows = sorted(all_period_rows, key=lambda row: float(row["volume"] or 0), reverse=True)
+        else:
+            period_sort = "newest"
+        period_pagination = build_pagination(len(all_period_rows), page, per_page)
+        period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
         return render_template(
             "summary_page.html",
             page_title="월간 집계",
             page_kicker="Monthly",
             table_kind="period",
             period_rows=period_rows,
+            period_pagination=period_pagination,
+            period_sort=period_sort,
             period_label="기간",
             chart_items=build_period_chart(period_rows),
             chart_title="주간별 추이",
@@ -187,10 +212,21 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/exercises")
     def exercise_summary_page():
+        page, per_page = page_params(request.args)
+        exercise_sort = request.args.get("sort", "sets")
         exercise_id = parse_int(request.args.get("exercise_id"))
         search_query = request.args.get("q", "").strip()
         exercise_choices = list_exercises()
-        exercise_summary = list_exercise_summary()
+        exercise_summary, exercise_pagination, exercise_sort = paged_exercise_summary(exercise_sort, page, per_page)
+        if search_query:
+            search_results, search_pagination, search_sort = paged_search_workout_records(
+                search_query,
+                sort=request.args.get("search_sort", "newest"),
+                page=page,
+                per_page=per_page,
+            )
+        else:
+            search_results, search_pagination, search_sort = [], build_pagination(0, 1, per_page), "newest"
         selected_exercise = exercise_id or (int(exercise_summary[0]["id"]) if exercise_summary else None)
         return render_template(
             "summary_page.html",
@@ -198,6 +234,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             page_kicker="Exercise",
             table_kind="exercise",
             exercise_summary=exercise_summary,
+            exercise_pagination=exercise_pagination,
+            exercise_sort=exercise_sort,
             body_part_exercise_summary=list_exercise_summary_by_body_part(),
             body_parts=body_part_options(),
             exercise_choices=exercise_choices,
@@ -210,24 +248,39 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             exercise_pr_history=list_exercise_pr_history(selected_exercise),
             recent_pr_events=list_recent_pr_events(limit=20),
             search_query=search_query,
-            search_results=search_workout_records(search_query) if search_query else [],
+            search_results=search_results,
+            search_pagination=search_pagination,
+            search_sort=search_sort,
             active_page="exercises",
         )
 
     @app.get("/summaries/equipment")
     def equipment_summary_page():
+        page, per_page = page_params(request.args)
         selected_equipment = request.args.get("equipment", "").strip()
         selected_scope = request.args.get("scope", "month").strip() or "month"
-        equipment_rows = list_equipment_summary(selected_scope)
+        equipment_sort = request.args.get("sort", "sets")
+        equipment_rows, equipment_pagination, equipment_sort = paged_equipment_summary(selected_scope, equipment_sort, page, per_page)
         selected_equipment = selected_equipment or (equipment_rows[0]["equipment"] if equipment_rows else "")
+        if selected_equipment:
+            equipment_detail, equipment_detail_pagination = paged_equipment_detail(selected_equipment, selected_scope, page, per_page)
+            equipment_daily, equipment_daily_pagination = paged_equipment_daily(selected_equipment, selected_scope, page, per_page)
+        else:
+            equipment_detail, equipment_daily = [], []
+            equipment_detail_pagination = build_pagination(0, 1, per_page)
+            equipment_daily_pagination = build_pagination(0, 1, per_page)
         return render_template(
             "summary_page.html",
             page_title="장비별 기록",
             page_kicker="Equipment",
             table_kind="equipment",
             equipment_summary=equipment_rows,
-            equipment_detail=list_equipment_detail(selected_equipment, selected_scope) if selected_equipment else [],
-            equipment_daily=list_equipment_daily(selected_equipment, selected_scope) if selected_equipment else [],
+            equipment_pagination=equipment_pagination,
+            equipment_sort=equipment_sort,
+            equipment_detail=equipment_detail,
+            equipment_detail_pagination=equipment_detail_pagination,
+            equipment_daily=equipment_daily,
+            equipment_daily_pagination=equipment_daily_pagination,
             selected_equipment=selected_equipment,
             selected_scope=selected_scope,
             active_page="equipment",
@@ -235,9 +288,11 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/pr")
     def pr_summary_page():
+        page, per_page = page_params(request.args)
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
-        pr_rows = list_exercise_pr_summary(selected_part, search_query)
+        pr_sort = request.args.get("sort", "weight")
+        pr_rows, pr_pagination, pr_sort = paged_exercise_pr_summary(selected_part, search_query, pr_sort, page, per_page)
         recent_pr_events = list_recent_pr_events_filtered(selected_part, search_query, limit=30)
         selected_exercise = parse_int(request.args.get("exercise_id"))
         selected_exercise = selected_exercise or (int(pr_rows[0]["id"]) if pr_rows else None)
@@ -248,6 +303,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             selected_part=selected_part,
             search_query=search_query,
             pr_rows=pr_rows,
+            pr_pagination=pr_pagination,
+            pr_sort=pr_sort,
             pr_dashboard=build_pr_dashboard(pr_rows, recent_pr_events),
             selected_exercise_id=selected_exercise,
             selected_profile=get_exercise_profile(selected_exercise),
@@ -737,11 +794,23 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/records/search")
     def record_search_page():
+        page, per_page = page_params(request.args)
         selected_end = normalize_optional_date(request.args.get("end"), max_future_days=365) or current_local_date()
         selected_start = normalize_optional_date(request.args.get("start"), max_future_days=365) or shift_date(selected_end, -6)
         selected_part = request.args.get("part", "").strip()
         selected_equipment = request.args.get("equipment", "").strip()
         query = request.args.get("q", "").strip()
+        sort = request.args.get("sort", "newest")
+        results, pagination, selected_sort = paged_search_workout_records_filtered(
+            query,
+            selected_part,
+            selected_equipment,
+            selected_start,
+            selected_end,
+            sort,
+            page,
+            per_page,
+        )
         return render_template(
             "record_search.html",
             active_page="search",
@@ -752,7 +821,9 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             selected_part=selected_part,
             selected_equipment=selected_equipment,
             search_query=query,
-            results=search_workout_records_filtered(query, selected_part, selected_equipment, selected_start, selected_end),
+            results=results,
+            pagination=pagination,
+            selected_sort=selected_sort,
         )
 
     @app.post("/programs/apply")

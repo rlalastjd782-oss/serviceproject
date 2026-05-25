@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import analysis_subnav, goal_cards, period_picker %}
+{% from "macros.html" import analysis_subnav, goal_cards, pagination_nav, period_picker, result_toolbar with context %}
 
 {% block title %}{{ page_title }}{% endblock %}
 
@@ -366,6 +366,12 @@
       <div class="section-header">
         <div class="section-title">{% if active_page == "weekly" %}📋 주별 기록{% else %}📋 월별 기록{% endif %}</div>
       </div>
+      <form method="get" action="{{ request.path }}" class="filter-form">
+        {% if selected_week %}<input type="hidden" name="week" value="{{ selected_week }}">{% endif %}
+        {% if selected_month %}<input type="hidden" name="month" value="{{ selected_month }}">{% endif %}
+        {{ result_toolbar(period_pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("volume", "운동량순")], period_sort, request.path) }}
+        <button class="btn-small" type="submit">적용</button>
+      </form>
       <div class="record-list">
         {% for item in period_rows %}
           <article class="record-card">
@@ -386,6 +392,7 @@
           <div class="empty">기록 없음</div>
         {% endfor %}
       </div>
+      {{ pagination_nav(period_pagination) }}
     </section>
   {% elif table_kind == "exercise" %}
     <section class="section">
@@ -555,6 +562,12 @@
         {% endfor %}
       </datalist>
       {% if search_query %}
+        <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form">
+          <input type="hidden" name="q" value="{{ search_query }}">
+          <input type="hidden" name="sort" value="{{ exercise_sort }}">
+          {{ result_toolbar(search_pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("weight", "중량순"), ("volume", "볼륨순")], search_sort, url_for('exercise_summary_page')) }}
+          <button class="btn-small" type="submit">적용</button>
+        </form>
         <div class="detail-list search-result-list">
           {% for result in search_results %}
             <div class="detail-row">
@@ -576,6 +589,7 @@
             <div class="empty">검색 결과가 없습니다.</div>
           {% endfor %}
         </div>
+        {{ pagination_nav(search_pagination) }}
       {% endif %}
     </section>
 
@@ -593,6 +607,10 @@
           {% endfor %}
         </div>
       {% endif %}
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form">
+        {{ result_toolbar(exercise_pagination, [("sets", "세트순"), ("volume", "볼륨순"), ("recent", "최근순"), ("name", "이름순")], exercise_sort, url_for('exercise_summary_page')) }}
+        <button class="btn-small" type="submit">적용</button>
+      </form>
       <div class="record-list">
         {% for item in exercise_summary %}
           <a class="ex-rank-item {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">
@@ -616,6 +634,7 @@
           <div class="empty">운동 기록 없음</div>
         {% endfor %}
       </div>
+      {{ pagination_nav(exercise_pagination) }}
       <div class="body-part-toggle-panel">
         <div class="quick-panel-title">부위별 운동 리스트</div>
         <div class="body-part-toggle-list">
@@ -683,6 +702,12 @@
       <div class="section-header">
         <div class="section-title">장비 요약</div>
       </div>
+      <form method="get" action="{{ url_for('equipment_summary_page') }}" class="filter-form">
+        <input type="hidden" name="scope" value="{{ selected_scope }}">
+        {% if selected_equipment %}<input type="hidden" name="equipment" value="{{ selected_equipment }}">{% endif %}
+        {{ result_toolbar(equipment_pagination, [("sets", "세트순"), ("recent", "최근 사용순"), ("days", "운동일순"), ("volume", "볼륨순")], equipment_sort, url_for('equipment_summary_page')) }}
+        <button class="btn-small" type="submit">적용</button>
+      </form>
       <div class="record-list">
         {% for item in equipment_summary %}
           <a class="record-card equipment-summary-card {% if item.equipment == selected_equipment %}is-selected{% endif %}" href="{{ url_for('equipment_summary_page', scope=selected_scope, equipment=item.equipment) }}">
@@ -700,6 +725,7 @@
           <div class="empty">장비 기록 없음</div>
         {% endfor %}
       </div>
+      {{ pagination_nav(equipment_pagination) }}
     </section>
 
     {% if selected_equipment %}

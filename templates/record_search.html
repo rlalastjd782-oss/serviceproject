@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import pagination_nav, result_toolbar with context %}
 
 {% block title %}기록 검색{% endblock %}
 
@@ -31,6 +32,7 @@
       </select>
       <input name="start" type="date" value="{{ selected_start }}" aria-label="시작일">
       <input name="end" type="date" value="{{ selected_end }}" aria-label="종료일">
+      {{ result_toolbar(pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("weight", "중량순"), ("volume", "볼륨순")], selected_sort, url_for('record_search_page')) }}
       <button class="btn-small" type="submit">검색</button>
     </form>
   </section>
@@ -38,7 +40,7 @@
   <section class="section">
     <div class="section-header">
       <div class="section-title">검색 결과</div>
-      <span class="badge">{{ results|length }}개</span>
+      <span class="badge">총 {{ pagination.total }}개</span>
     </div>
     <div class="detail-list">
       {% for item in results %}
@@ -57,5 +59,6 @@
         <div class="empty compact-empty">검색 결과가 없습니다.</div>
       {% endfor %}
     </div>
+    {{ pagination_nav(pagination) }}
   </section>
 {% endblock %}

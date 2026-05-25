@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros.html" import analysis_subnav %}
+{% from "macros.html" import analysis_subnav, pagination_nav, result_toolbar with context %}
 
 {% block title %}운동 PR{% endblock %}
 
@@ -68,6 +68,13 @@
         <div class="section-subtitle">운동을 누르면 아래에 상세 기록과 변화 그래프가 나옵니다.</div>
       </div>
     </div>
+    <form method="get" action="{{ url_for('pr_summary_page') }}" class="filter-form">
+      <input type="hidden" name="part" value="{{ selected_part }}">
+      <input type="hidden" name="q" value="{{ search_query }}">
+      {% if selected_exercise_id %}<input type="hidden" name="exercise_id" value="{{ selected_exercise_id }}">{% endif %}
+      {{ result_toolbar(pr_pagination, [("weight", "중량순"), ("1rm", "1RM순"), ("volume", "볼륨순"), ("recent", "최근 갱신순")], pr_sort, url_for('pr_summary_page')) }}
+      <button class="btn-small" type="submit">적용</button>
+    </form>
     <div class="pr-rank-grid">
       {% for item in pr_rows %}
         <a class="pr-rank-card {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('pr_summary_page', part=selected_part, q=search_query, exercise_id=item.id) }}">
@@ -91,6 +98,7 @@
         <div class="empty">PR을 계산할 웨이트 기록이 없습니다.</div>
       {% endfor %}
     </div>
+    {{ pagination_nav(pr_pagination) }}
   </section>
 
   {% if selected_profile %}

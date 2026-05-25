@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros.html" import pagination_nav, result_toolbar with context %}
 
 {% block title %}운동 라이브러리{% endblock %}
 
@@ -22,6 +23,7 @@
         <input type="checkbox" name="favorite" value="1" {% if favorite_only %}checked{% endif %}>
         <span>즐겨찾기</span>
       </label>
+      {{ result_toolbar(pagination, [("favorite", "즐겨찾기순"), ("recent", "최근 사용순"), ("name", "이름순"), ("sets", "세트순")], library_sort, url_for('exercise_library_page')) }}
       <button class="btn-small" type="submit">검색</button>
     </form>
     <datalist id="library-exercise-list">
@@ -62,5 +64,6 @@
         <div class="empty-state">조건에 맞는 운동이 없습니다.</div>
       {% endfor %}
     </div>
+    {{ pagination_nav(pagination) }}
   </section>
 {% endblock %}
