@@ -765,6 +765,29 @@ select {
   min-height: 38px;
 }
 
+button,
+.btn-primary,
+.btn-small,
+.secondary-button,
+.detail-button,
+input,
+select {
+  min-height: 38px;
+}
+
+.btn-primary,
+.btn-small,
+.secondary-button,
+.detail-button,
+.mode-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
 label {
   display: grid;
   gap: 4px;
@@ -1977,30 +2000,65 @@ label span {
 
 .exercise-quick-panel {
   display: grid;
-  gap: 7px;
+  gap: 8px;
+  border: 1px solid rgb(41 56 84 / 72%);
+  border-radius: var(--radius);
+  background: rgb(17 24 39 / 45%);
+  padding: 9px;
+}
+
+.quick-panel-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.quick-panel-head > div {
+  min-width: 0;
 }
 
 .quick-panel-title {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.quick-panel-subtitle {
+  margin-top: 2px;
   color: var(--dim);
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .exercise-quick-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
 .exercise-quick-button {
-  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  min-height: 32px;
   border: 1px solid #293854;
-  border-radius: 999px;
+  border-radius: 8px;
   background: #121a29;
   color: #d8e7ff;
   font-size: 12px;
   font-weight: 800;
-  padding: 0 11px;
+  line-height: 1.25;
+  padding: 5px 9px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.exercise-quick-more {
+  border-style: dashed;
+  color: var(--blue);
 }
 
 .exercise-quick-button:active {
@@ -3644,6 +3702,27 @@ tbody tr:last-child td {
 }
 
 @media (max-width: 900px) {
+  body {
+    max-width: 100%;
+  }
+
+  .content {
+    padding-inline: 12px;
+  }
+
+  .section {
+    padding: 12px;
+  }
+
+  .mode-actions,
+  .today-mode-actions,
+  .summary-grid,
+  .focus-grid,
+  .health-grid,
+  .settings-action-grid {
+    gap: 7px;
+  }
+
   .month-picker-form-wide {
     position: relative;
     width: 100%;
@@ -3683,6 +3762,16 @@ tbody tr:last-child td {
 
   .content {
     padding-inline: 10px;
+  }
+
+  button,
+  .btn-primary,
+  .btn-small,
+  .secondary-button,
+  .detail-button,
+  input,
+  select {
+    min-height: 40px;
   }
 
   .tabs {

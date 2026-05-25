@@ -724,8 +724,15 @@
         data-overload-suggestions='{{ overload_suggestions|tojson }}'
         data-exercise-notes='{{ exercise_notes|tojson }}'
         data-exercise-settings='{{ exercise_settings|tojson }}'
+        data-library-url='{{ url_for("exercise_library_page") }}'
       >
-        <div class="quick-panel-title">이전에 입력한 운동</div>
+        <div class="quick-panel-head">
+          <div>
+            <div class="quick-panel-title">최근 사용 운동</div>
+            <div class="quick-panel-subtitle">선택한 부위에서 자주 쓰는 운동만 먼저 보여줍니다.</div>
+          </div>
+          <a class="btn-small" href="{{ url_for('exercise_library_page') }}">전체</a>
+        </div>
         <div class="exercise-quick-list" data-exercise-quick-list></div>
         <div class="quick-empty" data-exercise-quick-empty>선택한 부위의 이전 운동 기록이 없습니다.</div>
         <div class="quick-panel-title" data-recent-set-title hidden>지난 세트</div>

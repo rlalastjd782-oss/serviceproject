@@ -376,12 +376,21 @@ function renderExerciseQuickList(bodyPart) {
   }
 
   const names = exercisesByBodyPart[bodyPart] || [];
-  exerciseQuickList.innerHTML = names
+  const visibleNames = names.slice(0, 8);
+  const hiddenCount = Math.max(0, names.length - visibleNames.length);
+  exerciseQuickList.innerHTML = visibleNames
     .map((name) => {
       const safeName = escapeHtml(name);
       return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}">${safeName}</button>`;
     })
     .join("");
+  if (hiddenCount > 0) {
+    const libraryUrl = exerciseQuickPanel.dataset.libraryUrl || "/exercises/library";
+    exerciseQuickList.insertAdjacentHTML(
+      "beforeend",
+      `<a class="exercise-quick-button exercise-quick-more" href="${libraryUrl}?part=${encodeURIComponent(bodyPart)}">+${hiddenCount}개</a>`,
+    );
+  }
   if (exerciseDatalist) {
     exerciseDatalist.innerHTML = names
       .map((name) => `<option value="${escapeHtml(name)}"></option>`)
