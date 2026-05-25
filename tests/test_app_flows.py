@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -39,6 +40,25 @@ class HealthTrackerFlowTest(unittest.TestCase):
             with self.subTest(path=path):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
+
+    def test_service_worker_precache_assets_are_valid(self) -> None:
+        sw_path = Path(__file__).resolve().parents[1] / "static" / "sw.js"
+        sw_source = sw_path.read_text(encoding="utf-8")
+        assets_match = re.search(r"const ASSETS = \[(.*?)\];", sw_source, re.S)
+        self.assertIsNotNone(assets_match)
+        assets = re.findall(r'"([^"]+)"', assets_match.group(1))
+        self.assertIn("/calendar", assets)
+        self.assertIn("/meals/weekly", assets)
+        self.assertIn("/summaries/exercises", assets)
+        self.assertIn("self.skipWaiting()", sw_source)
+        self.assertIn("self.clients.claim()", sw_source)
+        self.assertIn("offlineFallback", sw_source)
+
+        for asset in assets:
+            with self.subTest(asset=asset):
+                response = self.client.get(asset)
+                self.assertEqual(response.status_code, 200)
+                response.close()
 
     def test_workout_cardio_meal_flow(self) -> None:
         workout_date = "2026-05-20"

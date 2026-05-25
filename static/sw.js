@@ -1,11 +1,17 @@
-const CACHE_NAME = "workout-pwa-v30";
+const CACHE_NAME = "workout-pwa-v31";
 const ASSETS = [
   "/",
   "/?mode=workout",
   "/?mode=meal",
+  "/summaries/daily",
   "/summaries/weekly",
   "/summaries/monthly",
+  "/summaries/exercises",
+  "/summaries/equipment",
   "/summaries/pr",
+  "/calendar",
+  "/meals/weekly",
+  "/meals/monthly",
   "/records/search",
   "/settings",
   "/static/styles.css",
@@ -16,14 +22,21 @@ const ASSETS = [
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))),
-    ),
+    ).then(() => self.clients.claim()),
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("fetch", (event) => {
@@ -41,6 +54,23 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/"))),
+      .catch(() => offlineFallback(event.request, requestUrl)),
   );
 });
+
+function offlineFallback(request, requestUrl) {
+  return caches.match(request).then((cached) => {
+    if (cached) {
+      return cached;
+    }
+    if (request.mode !== "navigate") {
+      return caches.match(requestUrl.pathname);
+    }
+
+    const mode = requestUrl.searchParams.get("mode");
+    if (requestUrl.pathname === "/" && (mode === "workout" || mode === "meal")) {
+      return caches.match(`/?mode=${mode}`);
+    }
+    return caches.match(requestUrl.pathname).then((page) => page || caches.match("/"));
+  });
+}
