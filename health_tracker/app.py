@@ -2867,6 +2867,35 @@ def list_daily_coaching(date_text: str) -> list[str]:
     return messages[:4]
 
 
+def build_readiness_profile(date_text: str) -> dict[str, object]:
+    checkin = get_recovery_checkin(date_text)
+    condition = int(checkin["condition_score"] or 3)
+    sleep = int(checkin["sleep_score"] or 3)
+    soreness = int(checkin["soreness_score"] or 3)
+    fatigue = int(checkin["fatigue_score"] or 3)
+    score = condition + sleep + (6 - soreness) + (6 - fatigue)
+    percent = round(score / 20 * 100)
+    if percent >= 75:
+        label = "공격 가능"
+        guide = "메인 운동은 지난 기록보다 1회 또는 2.5kg 상향을 시도하세요."
+        tone = "high"
+    elif percent >= 55:
+        label = "표준 진행"
+        guide = "지난 기록과 같은 중량에서 세트 완성도를 우선하세요."
+        tone = "normal"
+    else:
+        label = "회복 우선"
+        guide = "고중량보다 낮은 강도, 보조 운동, 유산소 위주로 조정하세요."
+        tone = "low"
+    return {
+        "score": score,
+        "percent": percent,
+        "label": label,
+        "guide": guide,
+        "tone": tone,
+    }
+
+
 def build_period_highlights(scope: str, date_text: str) -> list[dict[str, str]]:
     if scope == "weekly":
         start = week_start_for_date(date_text)

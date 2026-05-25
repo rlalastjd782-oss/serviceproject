@@ -53,6 +53,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
             recovery_statuses=list_recovery_statuses(today_session["workout_date"]),
             recovery_checkin=get_recovery_checkin(today_session["workout_date"]),
+            readiness_profile=build_readiness_profile(today_session["workout_date"]),
             recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
             adaptive_training_recommendations=build_adaptive_training_recommendations(today_session["workout_date"]),
             nutrition_training_link=build_nutrition_training_link("weekly", today_session["workout_date"]),

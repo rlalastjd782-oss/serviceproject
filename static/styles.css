@@ -1394,11 +1394,68 @@ label span {
   border-color: rgb(34 197 94 / 35%);
 }
 
+.readiness-coach-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgb(148 163 184 / 26%);
+  border-radius: 8px;
+  background: #101827;
+  padding: 12px;
+}
+
+.readiness-coach-card > div:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.readiness-coach-card span,
+.readiness-coach-card small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.readiness-coach-card strong {
+  color: var(--strong);
+  font-size: 18px;
+}
+
+.readiness-coach-card.state-high {
+  border-color: rgb(34 197 94 / 42%);
+  background: rgb(20 83 45 / 24%);
+}
+
+.readiness-coach-card.state-normal {
+  border-color: rgb(96 165 250 / 38%);
+  background: rgb(30 64 175 / 18%);
+}
+
+.readiness-coach-card.state-low {
+  border-color: rgb(251 191 36 / 42%);
+  background: rgb(113 63 18 / 22%);
+}
+
+.readiness-score {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.readiness-score strong {
+  font-size: 22px;
+}
+
 .readiness-form {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
   align-items: end;
+  margin-top: 10px;
 }
 
 .readiness-form label {
@@ -3687,9 +3744,14 @@ tbody tr:last-child td {
 
   .focus-grid,
   .focus-shortcuts,
+  .readiness-coach-card,
   .readiness-form,
   .period-filter-form {
     grid-template-columns: 1fr;
+  }
+
+  .readiness-score {
+    justify-items: start;
   }
 
   .readiness-form > input[name="memo"] {

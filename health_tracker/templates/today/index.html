@@ -291,7 +291,18 @@
           <div class="section-subtitle">운동 강도 추천에 쓰는 간단 체크입니다.</div>
         </div>
       </div>
-      <form method="post" action="{{ url_for('save_recovery_checkin_route') }}" class="readiness-form">
+      <div class="readiness-coach-card state-{{ readiness_profile.tone }}" data-readiness-coach>
+        <div>
+          <span>오늘 강도</span>
+          <strong data-readiness-label>{{ readiness_profile.label }}</strong>
+          <small data-readiness-guide>{{ readiness_profile.guide }}</small>
+        </div>
+        <div class="readiness-score">
+          <strong><span data-readiness-percent>{{ readiness_profile.percent }}</span>%</strong>
+          <span><span data-readiness-score>{{ readiness_profile.score }}</span>/20</span>
+        </div>
+      </div>
+      <form method="post" action="{{ url_for('save_recovery_checkin_route') }}" class="readiness-form" data-readiness-form>
         <input type="hidden" name="checkin_date" value="{{ session.workout_date }}">
         <input type="hidden" name="mode" value="workout">
         <label>
