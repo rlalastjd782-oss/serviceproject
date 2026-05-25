@@ -838,6 +838,11 @@
       <form method="post" action="{{ url_for('save_food_favorite_route') }}" class="routine-form">
         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
         <input name="food_name" placeholder="즐겨찾기 음식">
+        <div class="compact-field-grid meal-compact-grid">
+          <input name="quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
+          <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
+          <input name="calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+        </div>
         <button class="btn-small" type="submit">고정</button>
       </form>
     </div>

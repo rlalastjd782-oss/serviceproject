@@ -132,13 +132,11 @@ node --check static/app.js
 
 ```bash
 cd ~/serviceproject
-git pull origin master
-source .venv/bin/activate
-pip install -r requirements.txt
-touch /var/www/kimmins_pythonanywhere_com_wsgi.py
+bash deploy_pythonanywhere.sh
 ```
 
-또는 Web 탭에서 `Reload kimmins.pythonanywhere.com` 버튼을 눌러도 됩니다.
+스크립트가 `git pull`, 패키지 설치 확인, WSGI reload를 한 번에 처리합니다.
+문제가 생기면 Web 탭에서 `Reload kimmins.pythonanywhere.com` 버튼을 눌러도 됩니다.
 
 ## 새 Codex 세션 시작 프롬프트
 

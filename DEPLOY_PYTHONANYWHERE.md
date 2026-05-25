@@ -44,12 +44,26 @@ Directory: /home/YOUR_PYTHONANYWHERE_USERNAME/serviceproject/static
 
 ```bash
 cd ~/serviceproject
+bash deploy_pythonanywhere.sh
+```
+
+이 스크립트는 `git pull`, 패키지 설치 확인, WSGI reload까지 한 번에 처리합니다.
+첫 실행 때 권한을 주고 싶으면 아래처럼 실행해도 됩니다.
+
+```bash
+chmod +x deploy_pythonanywhere.sh
+./deploy_pythonanywhere.sh
+```
+
+문제가 생기면 수동으로 아래 명령을 실행한 뒤 PythonAnywhere `Web` 탭에서 `Reload`를 누릅니다.
+
+```bash
+cd ~/serviceproject
 git pull origin master
 source .venv/bin/activate
 pip install -r requirements.txt
+touch /var/www/kimmins_pythonanywhere_com_wsgi.py
 ```
-
-그다음 PythonAnywhere `Web` 탭에서 `Reload`를 누릅니다.
 
 ## 배포 전 확인
 
@@ -57,7 +71,7 @@ pip install -r requirements.txt
 - 로컬에서 `node --check static/app.js` 통과
 - GitHub에 최신 커밋 push 완료
 - 설정 화면에서 JSON 백업 다운로드
-- PythonAnywhere에서 `git pull` 후 Web Reload
+- PythonAnywhere에서 `bash deploy_pythonanywhere.sh` 실행
 - 모바일에서 새로고침 후 버전 표시 변경 확인
 
 ## 데이터 백업 위치
