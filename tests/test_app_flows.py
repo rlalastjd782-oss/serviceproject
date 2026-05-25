@@ -70,6 +70,13 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("record-filter-details", search_html)
         self.assertIn("<summary>상세 필터</summary>", search_html)
 
+        weekly_html = self.client.get("/summaries/weekly").data.decode("utf-8")
+        self.assertIn("analysis-dashboard-section", weekly_html)
+        self.assertIn("주간 분석", weekly_html)
+        monthly_html = self.client.get("/summaries/monthly").data.decode("utf-8")
+        self.assertIn("analysis-dashboard-section", monthly_html)
+        self.assertIn("월간 분석", monthly_html)
+
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")
         self.assertIn("record-subnav", daily_html)
@@ -184,7 +191,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.1.0", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.2.0", response.data.decode("utf-8"))
 
     def test_workout_cardio_meal_flow(self) -> None:
         workout_date = "2026-05-20"

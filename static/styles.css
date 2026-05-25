@@ -1120,14 +1120,16 @@ label span {
 }
 
 .yearly-hero-section,
-.yearly-dashboard-section {
+.yearly-dashboard-section,
+.analysis-dashboard-section {
   border-color: rgb(96 165 250 / 34%);
   background:
     linear-gradient(135deg, rgb(29 78 216 / 22%), transparent 42%),
     linear-gradient(180deg, #151a28, var(--panel));
 }
 
-.yearly-dashboard-section {
+.yearly-dashboard-section,
+.analysis-dashboard-section {
   display: grid;
   gap: 13px;
 }
@@ -1169,10 +1171,18 @@ label span {
   text-align: center;
 }
 
+.analysis-action-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .yearly-metric-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+}
+
+.analysis-metric-grid {
+  margin-top: 0;
 }
 
 .yearly-metric-card {

@@ -71,44 +71,55 @@
         {{ period_picker(url_for('weekly_summary_page'), url_for('weekly_summary_page', week=prev_week), url_for('weekly_summary_page', week=next_week), "week", selected_week, "date", "기준 주", "이전 주", "다음 주") }}
       </section>
 
-      <section class="section">
-        <div class="section-header">
-          <div>
-            <div class="section-title">주간 리포트</div>
-            <div class="section-subtitle">{{ weekly_report.period }}</div>
-          </div>
-          <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
+      <section class="section analysis-dashboard-section">
+        <div class="yearly-dashboard-head">
+          <div class="yearly-kicker">주간 분석</div>
+          <h1>{{ weekly_report.workout_days }}일 운동 · {{ weekly_report.meal_days }}일 식단</h1>
+          <p>{{ weekly_report.period }} 기준으로 운동량, 유산소, 식단 기록, 목표 상태를 한 번에 비교합니다.</p>
         </div>
-        <div class="summary-grid">
-          <article class="summary-card">
-            <div class="summary-value">{{ weekly_report.workout_days }}</div>
-            <div class="summary-label">운동일</div>
+        <div class="yearly-action-grid analysis-action-grid">
+          <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
+          <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
+          <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
+          <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
+        </div>
+        <div class="yearly-metric-grid analysis-metric-grid">
+          <article class="yearly-metric-card is-primary">
+            <span>운동일</span>
+            <strong>{{ weekly_report.workout_days }}</strong>
+            <small>주간 훈련 빈도</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ weekly_report.set_count }}</div>
-            <div class="summary-label">세트</div>
+          <article class="yearly-metric-card">
+            <span>세트</span>
+            <strong>{{ weekly_report.set_count }}</strong>
+            <small>{{ weekly_report.rep_count }}회 반복</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ format_duration(weekly_report.duration_seconds) }}</div>
-            <div class="summary-label">운동 시간</div>
+          <article class="yearly-metric-card">
+            <span>운동 시간</span>
+            <strong>{{ format_duration(weekly_report.duration_seconds) }}</strong>
+            <small>저장된 운동 시간</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ "%.0f"|format(weekly_report.volume) }}</div>
-            <div class="summary-label">웨이트 kg</div>
+          <article class="yearly-metric-card">
+            <span>웨이트</span>
+            <strong>{{ "%.0f"|format(weekly_report.volume) }}</strong>
+            <small>kg 누적 볼륨</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ "%.0f"|format(weekly_report.cardio_minutes) }}</div>
-            <div class="summary-label">유산소 분</div>
+          <article class="yearly-metric-card">
+            <span>유산소</span>
+            <strong>{{ "%.0f"|format(weekly_report.cardio_minutes) }}</strong>
+            <small>분 누적</small>
           </article>
           {% if weekly_report.exercise_calories %}
-            <article class="summary-card">
-              <div class="summary-value">{{ "%.0f"|format(weekly_report.exercise_calories) }}</div>
-              <div class="summary-label">유산소 kcal</div>
+            <article class="yearly-metric-card">
+              <span>유산소 kcal</span>
+              <strong>{{ "%.0f"|format(weekly_report.exercise_calories) }}</strong>
+              <small>운동 소모 추정</small>
             </article>
           {% endif %}
-          <article class="summary-card">
-            <div class="summary-value">{{ weekly_report.meal_days }}</div>
-            <div class="summary-label">식단일</div>
+          <article class="yearly-metric-card">
+            <span>식단일</span>
+            <strong>{{ weekly_report.meal_days }}</strong>
+            <small>기록된 식단일</small>
           </article>
         </div>
         <div class="detail-list">
@@ -178,37 +189,48 @@
         {{ period_picker(url_for('monthly_summary_page'), url_for('monthly_summary_page', month=prev_month), url_for('monthly_summary_page', month=next_month), "month", selected_month, "month", "기준 월", "이전 월", "다음 월") }}
       </section>
 
-      <section class="section">
-        <div class="section-header">
-          <div>
-            <div class="section-title">월간 리포트</div>
-            <div class="section-subtitle">{{ monthly_report.period }}</div>
-          </div>
+      <section class="section analysis-dashboard-section">
+        <div class="yearly-dashboard-head">
+          <div class="yearly-kicker">월간 분석</div>
+          <h1>{{ monthly_report.workout_days }}일 운동 · {{ monthly_report.pr_count }}개 PR</h1>
+          <p>{{ monthly_report.period }} 기준으로 볼륨, 부위 균형, 체성분 변화를 연간 화면과 같은 흐름으로 정리했습니다.</p>
         </div>
-        <div class="summary-grid">
-          <article class="summary-card">
-            <div class="summary-value">{{ monthly_report.workout_days }}</div>
-            <div class="summary-label">운동일</div>
+        <div class="yearly-action-grid analysis-action-grid">
+          <a class="btn-small" href="{{ url_for('yearly_summary_page', year=selected_month[:4]) }}">연간</a>
+          <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
+          <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
+          <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
+        </div>
+        <div class="yearly-metric-grid analysis-metric-grid">
+          <article class="yearly-metric-card is-primary">
+            <span>운동일</span>
+            <strong>{{ monthly_report.workout_days }}</strong>
+            <small>월간 훈련 빈도</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ monthly_report.set_count }}</div>
-            <div class="summary-label">세트</div>
+          <article class="yearly-metric-card">
+            <span>세트</span>
+            <strong>{{ monthly_report.set_count }}</strong>
+            <small>누적 세트</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ format_duration(monthly_report.duration_seconds) }}</div>
-            <div class="summary-label">운동 시간</div>
+          <article class="yearly-metric-card">
+            <span>운동 시간</span>
+            <strong>{{ format_duration(monthly_report.duration_seconds) }}</strong>
+            <small>총 소요 시간</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ "%.0f"|format(monthly_report.volume) }}</div>
-            <div class="summary-label">웨이트 kg</div>
+          <article class="yearly-metric-card">
+            <span>웨이트</span>
+            <strong>{{ "%.0f"|format(monthly_report.volume) }}</strong>
+            <small>kg 누적 볼륨</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ monthly_report.balance_score }}%</div>
-            <div class="summary-label">부위 균형</div>
+          <article class="yearly-metric-card">
+            <span>부위 균형</span>
+            <strong>{{ monthly_report.balance_score }}%</strong>
+            <small>주요 부위 분산</small>
           </article>
-          <article class="summary-card">
-            <div class="summary-value">{{ monthly_report.pr_count }}</div>
-            <div class="summary-label">신기록</div>
+          <article class="yearly-metric-card">
+            <span>신기록</span>
+            <strong>{{ monthly_report.pr_count }}</strong>
+            <small>PR 이벤트</small>
           </article>
         </div>
         {% if monthly_goals %}
