@@ -1708,6 +1708,11 @@ label span {
   line-height: 1;
 }
 
+.readiness-score strong > span {
+  font-size: inherit;
+  line-height: inherit;
+}
+
 .readiness-score > span {
   min-width: 64px;
   text-align: right;
