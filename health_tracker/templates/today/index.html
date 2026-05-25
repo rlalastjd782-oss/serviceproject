@@ -631,7 +631,7 @@
     {% endif %}
   </section>
 
-  <section class="section workout-only routine-library-section workout-secondary-section">
+  <section class="section workout-only routine-library-section workout-secondary-section" id="routine-library">
     <div class="section-header">
       <div class="section-title">루틴</div>
     </div>
@@ -728,13 +728,49 @@
       >
         <div class="quick-panel-head">
           <div>
-            <div class="quick-panel-title">최근 사용 운동</div>
-            <div class="quick-panel-subtitle">선택한 부위에서 자주 쓰는 운동만 먼저 보여줍니다.</div>
+            <div class="quick-panel-title">운동 바로 선택</div>
+            <div class="quick-panel-subtitle">최근 기록, 즐겨찾기, 저장 루틴을 탭으로 나눠 보여줍니다.</div>
           </div>
           <a class="btn-small" href="{{ url_for('exercise_library_page') }}">전체</a>
         </div>
-        <div class="exercise-quick-list" data-exercise-quick-list></div>
-        <div class="quick-empty" data-exercise-quick-empty>선택한 부위의 이전 운동 기록이 없습니다.</div>
+        <div class="quick-tab-list" role="tablist" aria-label="운동 빠른 선택">
+          <button class="quick-tab-button is-active" type="button" role="tab" aria-selected="true" data-workout-quick-tab="recent">최근</button>
+          <button class="quick-tab-button" type="button" role="tab" aria-selected="false" data-workout-quick-tab="favorite">즐겨찾기</button>
+          <button class="quick-tab-button" type="button" role="tab" aria-selected="false" data-workout-quick-tab="routine">루틴</button>
+        </div>
+        <div class="quick-pane" data-workout-quick-pane="recent">
+          <div class="exercise-quick-list" data-exercise-quick-list></div>
+          <div class="quick-empty" data-exercise-quick-empty>선택한 부위의 이전 운동 기록이 없습니다.</div>
+        </div>
+        <div class="quick-pane" data-workout-quick-pane="favorite" hidden>
+          {% if favorite_exercises %}
+            <div class="exercise-quick-list">
+              {% for exercise in favorite_exercises %}
+                {% if loop.index <= 8 %}
+                  <button type="button" class="exercise-quick-button" data-copy-saved-set data-body-part="{{ exercise.body_part or '기타' }}" data-exercise-name="{{ exercise.exercise_name }}">{{ exercise.exercise_name }} · {{ exercise.rest_seconds }}초</button>
+                {% endif %}
+              {% endfor %}
+              {% if favorite_exercises|length > 8 %}
+                <a class="exercise-quick-button exercise-quick-more" href="{{ url_for('exercise_library_page') }}">+{{ favorite_exercises|length - 8 }}개</a>
+              {% endif %}
+            </div>
+          {% else %}
+            <div class="quick-empty">즐겨찾기 운동이 없습니다.</div>
+          {% endif %}
+        </div>
+        <div class="quick-pane" data-workout-quick-pane="routine" hidden>
+          <div class="exercise-quick-list quick-routine-list">
+            <a class="exercise-quick-button" href="#routine-library">루틴 관리로 이동</a>
+            {% if routines %}
+              {% for routine in routines %}
+                {% if loop.index <= 5 %}
+                  <a class="exercise-quick-button" href="#routine-library">{{ routine.name }}</a>
+                {% endif %}
+              {% endfor %}
+            {% endif %}
+          </div>
+          <div class="quick-empty">루틴 적용은 아래 루틴 영역에서 처리합니다.</div>
+        </div>
         <div class="quick-panel-title" data-recent-set-title hidden>지난 세트</div>
         <div class="exercise-quick-list" data-recent-set-list></div>
         <div class="quick-note" data-exercise-stat-view hidden></div>

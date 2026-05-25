@@ -595,21 +595,44 @@ input[type="month"] {
 
 .record-search-form {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) repeat(4, minmax(0, 0.8fr)) auto;
-  gap: 7px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
 }
 
 .record-search-form > * {
   min-width: 0;
 }
 
-.record-search-form .list-toolbar {
-  grid-column: 1 / -2;
-  margin: 2px 0 0;
-}
-
 .record-search-submit {
   min-height: 38px;
+}
+
+.record-filter-details {
+  grid-column: 1 / -1;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 3%);
+  padding: 8px;
+}
+
+.record-filter-details summary {
+  min-height: 32px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  list-style-position: inside;
+}
+
+.record-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.record-filter-details .list-toolbar {
+  margin: 9px 0 0;
 }
 
 .record-list-toolbar {
@@ -759,6 +782,16 @@ select {
 input:focus,
 select:focus {
   border-color: #3b82f6;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
 }
 
 select {
@@ -2030,6 +2063,38 @@ label span {
   font-size: 11px;
   font-weight: 700;
   line-height: 1.35;
+}
+
+.quick-tab-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.quick-tab-button {
+  min-width: 0;
+  min-height: 34px;
+  border: 1px solid #293854;
+  border-radius: 8px;
+  background: #101827;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.quick-tab-button.is-active {
+  border-color: rgb(96 165 250 / 75%);
+  background: rgb(59 130 246 / 20%);
+  color: #e5f0ff;
+}
+
+.quick-pane {
+  display: grid;
+  gap: 6px;
+}
+
+.quick-pane[hidden] {
+  display: none;
 }
 
 .exercise-quick-list {
@@ -3567,25 +3632,18 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 
-  .record-search-form {
+  .record-search-form,
+  .record-filter-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .record-search-query,
-  .record-search-form .list-toolbar,
-  .record-search-submit {
+  .record-filter-details {
     grid-column: 1 / -1;
   }
 
-  .record-search-part,
-  .record-search-equipment,
-  .record-search-start,
-  .record-search-end {
-    grid-column: auto;
-  }
-
-  .record-search-form .list-toolbar {
-    margin-top: 2px;
+  .record-filter-details .list-toolbar {
+    margin-top: 8px;
   }
 
   .list-toolbar {
@@ -3947,7 +4005,8 @@ tbody tr:last-child td {
     grid-column: 1 / -1;
   }
 
-  .record-search-form {
+  .record-search-form,
+  .record-filter-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

@@ -18,22 +18,27 @@
     </div>
     <form method="get" action="{{ url_for('record_search_page') }}" class="record-search-form">
       <input class="record-search-query" name="q" value="{{ search_query }}" placeholder="운동명 또는 메모">
-      <select class="record-search-part" name="part" aria-label="부위">
-        <option value="">전체 부위</option>
-        {% for part in body_parts %}
-          <option value="{{ part }}" {% if selected_part == part %}selected{% endif %}>{{ part }}</option>
-        {% endfor %}
-      </select>
-      <select class="record-search-equipment" name="equipment" aria-label="장비">
-        <option value="">전체 장비</option>
-        {% for option in equipment_options %}
-          <option value="{{ option }}" {% if selected_equipment == option %}selected{% endif %}>{{ option }}</option>
-        {% endfor %}
-      </select>
-      <input class="record-search-start" name="start" type="date" value="{{ selected_start }}" aria-label="시작일">
-      <input class="record-search-end" name="end" type="date" value="{{ selected_end }}" aria-label="종료일">
-      {{ result_toolbar(pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("weight", "중량순"), ("volume", "볼륨순")], selected_sort, url_for('record_search_page')) }}
       <button class="btn-small record-search-submit" type="submit">검색</button>
+      <details class="record-filter-details" {% if selected_part or selected_equipment or selected_start or selected_end %}open{% endif %}>
+        <summary>상세 필터</summary>
+        <div class="record-filter-grid">
+          <select class="record-search-part" name="part" aria-label="부위">
+            <option value="">전체 부위</option>
+            {% for part in body_parts %}
+              <option value="{{ part }}" {% if selected_part == part %}selected{% endif %}>{{ part }}</option>
+            {% endfor %}
+          </select>
+          <select class="record-search-equipment" name="equipment" aria-label="장비">
+            <option value="">전체 장비</option>
+            {% for option in equipment_options %}
+              <option value="{{ option }}" {% if selected_equipment == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+          <input class="record-search-start" name="start" type="date" value="{{ selected_start }}" aria-label="시작일">
+          <input class="record-search-end" name="end" type="date" value="{{ selected_end }}" aria-label="종료일">
+        </div>
+        {{ result_toolbar(pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("weight", "중량순"), ("volume", "볼륨순")], selected_sort, url_for('record_search_page')) }}
+      </details>
     </form>
   </section>
 

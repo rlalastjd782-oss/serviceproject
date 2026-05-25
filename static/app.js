@@ -27,6 +27,8 @@ const mealTypeClassMap = {
 const exerciseQuickPanel = document.querySelector("[data-exercise-quick-panel]");
 const exerciseQuickList = document.querySelector("[data-exercise-quick-list]");
 const exerciseQuickEmpty = document.querySelector("[data-exercise-quick-empty]");
+const workoutQuickTabs = document.querySelectorAll("[data-workout-quick-tab]");
+const workoutQuickPanes = document.querySelectorAll("[data-workout-quick-pane]");
 const recentSetTitle = document.querySelector("[data-recent-set-title]");
 const recentSetList = document.querySelector("[data-recent-set-list]");
 const exerciseDatalist = document.querySelector("[data-exercise-datalist]");
@@ -142,6 +144,7 @@ document.addEventListener("click", (event) => {
   const inlineAddButton = event.target.closest("[data-toggle-add]");
   const inlineAddCancelButton = event.target.closest("[data-cancel-inline-add]");
   const detailButton = event.target.closest("[data-toggle-detail]");
+  const workoutQuickTab = event.target.closest("[data-workout-quick-tab]");
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
   const copySetButton = event.target.closest("[data-copy-set-row]");
@@ -165,6 +168,11 @@ document.addEventListener("click", (event) => {
     const card = cardToggleButton.closest("[data-collapsible-card]");
     const isCollapsed = card?.classList.toggle("is-collapsed");
     cardToggleButton.setAttribute("aria-expanded", String(!isCollapsed));
+    return;
+  }
+
+  if (workoutQuickTab) {
+    setWorkoutQuickTab(workoutQuickTab.dataset.workoutQuickTab || "recent");
     return;
   }
 
@@ -368,6 +376,17 @@ function parseJsonData(element, key) {
 
 function parseExerciseQuickData() {
   return parseJsonData(exerciseQuickPanel, "exercisesByBodyPart");
+}
+
+function setWorkoutQuickTab(tabName) {
+  workoutQuickTabs.forEach((button) => {
+    const isActive = button.dataset.workoutQuickTab === tabName;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+  workoutQuickPanes.forEach((pane) => {
+    pane.hidden = pane.dataset.workoutQuickPane !== tabName;
+  });
 }
 
 function renderExerciseQuickList(bodyPart) {
