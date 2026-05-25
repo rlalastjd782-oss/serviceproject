@@ -7,7 +7,7 @@ from urllib.parse import urlencode
 
 
 PER_PAGE_OPTIONS = (10, 20, 50)
-DEFAULT_PER_PAGE = 20
+DEFAULT_PER_PAGE = 10
 
 
 @dataclass(frozen=True)

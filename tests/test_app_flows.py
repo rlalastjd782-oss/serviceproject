@@ -72,6 +72,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("<summary>상세 필터</summary>", search_html)
         self.assertIn("record-search-dashboard", search_html)
         self.assertIn("record-result-list", search_html)
+        self.assertIn('<option value="10" selected>', search_html)
 
         weekly_html = self.client.get("/summaries/weekly").data.decode("utf-8")
         self.assertIn("analysis-dashboard-section", weekly_html)
@@ -198,7 +199,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.5.0", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.5.1", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")
