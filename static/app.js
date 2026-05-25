@@ -862,6 +862,7 @@ function resetMealForm(form, mealList) {
 
 function setRowHtml(index) {
   return `
+    <strong class="set-row-number">${index}세트</strong>
     <div class="compact-field-grid" data-strength-fields>
       <label class="weight-unit-field">
         <span>무게</span>
@@ -924,7 +925,7 @@ function renumberRows(list, selector) {
   list.querySelectorAll(selector).forEach((row, index) => {
     const number = row.querySelector("strong");
     if (number) {
-      number.textContent = index + 1;
+      number.textContent = row.classList.contains("set-entry-row") ? `${index + 1}세트` : index + 1;
     }
   });
 }
