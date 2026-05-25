@@ -292,6 +292,15 @@ def init_db() -> None:
             value TEXT NOT NULL DEFAULT '',
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
+
+        CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(workout_date);
+        CREATE INDEX IF NOT EXISTS idx_workout_sets_session ON workout_sets(session_id);
+        CREATE INDEX IF NOT EXISTS idx_workout_sets_exercise ON workout_sets(exercise_id);
+        CREATE INDEX IF NOT EXISTS idx_workout_sets_body_part ON workout_sets(body_part);
+        CREATE INDEX IF NOT EXISTS idx_workout_sets_equipment ON workout_sets(equipment);
+        CREATE INDEX IF NOT EXISTS idx_meal_entries_date ON meal_entries(meal_date);
+        CREATE INDEX IF NOT EXISTS idx_pr_events_exercise ON pr_events(exercise_id);
+        CREATE INDEX IF NOT EXISTS idx_pr_events_date ON pr_events(workout_date);
         """
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
