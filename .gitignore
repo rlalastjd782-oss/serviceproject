@@ -8,5 +8,6 @@ env/
 .env
 instance/
 *.db
+local-server*.log
 .DS_Store
 Thumbs.db
