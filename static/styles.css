@@ -2470,7 +2470,8 @@ label span {
   display: flex;
   gap: 7px;
   overflow-x: auto;
-  padding: 2px 0 10px;
+  margin: 2px 0 14px;
+  padding: 2px 0 4px;
   scrollbar-width: none;
 }
 
@@ -2498,6 +2499,14 @@ label span {
   box-shadow: var(--shadow-soft);
   outline: 2px solid rgb(255 255 255 / 14%);
   outline-offset: 1px;
+}
+
+.record-body-part-section .section-header {
+  margin-bottom: 10px;
+}
+
+.record-body-part-section .cat-stat-grid {
+  margin-top: 0;
 }
 
 .body-part-toggle-list {

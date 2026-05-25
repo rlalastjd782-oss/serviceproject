@@ -277,7 +277,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.6.4", response.data.decode("utf-8"))
+        self.assertIn("workout-pwa-v1.6.5", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")
@@ -535,11 +535,15 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(sample["sets"], 325)
             self.assertEqual(sample["meals"], 150)
 
-        html = self.client.get("/summaries/weekly", query_string={"week": "2026-05-04", "part": "하체"}).data.decode("utf-8")
+        target_part = app_module.body_part_options()[0]
+        html = self.client.get("/summaries/daily", query_string={"days": "90", "part": target_part}).data.decode("utf-8")
         self.assertIn("body-part-filter-list", html)
-        self.assertIn('data-body-part-summary="하체"', html)
-        self.assertNotIn('data-body-part-summary="어깨"', html)
-        self.assertNotIn('data-body-part-summary="등"', html)
+        self.assertIn(f'data-body-part-summary="{target_part}"', html)
+        for other_part in app_module.body_part_options()[1:]:
+            self.assertNotIn(f'data-body-part-summary="{other_part}"', html)
+
+        weekly_html = self.client.get("/summaries/weekly", query_string={"week": "2026-05-04"}).data.decode("utf-8")
+        self.assertNotIn("body-part-filter-list", weekly_html)
 
     def test_update_set_can_rename_exercise_and_body_part(self) -> None:
         parts = app_module.body_part_options()
