@@ -700,7 +700,8 @@ input[type="month"] {
 }
 
 .month-picker input[type="month"],
-.month-picker input[type="date"] {
+.month-picker input[type="date"],
+.month-picker input[type="number"] {
   width: 100%;
   min-height: 44px;
   padding: 18px 12px 6px;
@@ -1628,6 +1629,14 @@ label span {
   margin-top: 8px;
 }
 
+.section-header > .settings-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  margin-top: 0;
+  min-width: 0;
+}
+
 .danger-zone {
   border-color: rgb(239 68 68 / 45%);
   background: #1f1115;
@@ -1930,6 +1939,7 @@ label span {
 }
 
 .record-card {
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--panel-2);
@@ -2551,6 +2561,7 @@ label span {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
 }
 
 .daily-metric-grid {
@@ -2611,6 +2622,7 @@ label span {
 .cat-badge,
 .body-part-badge,
 .meal-type-badge {
+  max-width: 100%;
   border: 1px solid var(--line-strong);
   border-radius: 6px;
   background: #1f2937;
@@ -2618,6 +2630,7 @@ label span {
   font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
+  overflow-wrap: anywhere;
 }
 
 .cat-badge {
@@ -3132,25 +3145,67 @@ tbody tr:last-child td {
 .detail-list-head,
 .detail-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
 }
 
 .detail-list-head strong,
 .detail-row strong {
+  min-width: 0;
   color: var(--text);
   font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .detail-list-head span,
 .detail-row span {
+  min-width: 0;
   color: var(--muted);
   font-size: 11px;
   text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 560px) {
+  .section-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .section-header > .settings-action-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .section-header > .settings-action-row .btn-small {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .record-summary .badge {
+    flex: 1 1 calc(50% - 6px);
+    text-align: center;
+  }
+
+  .detail-list-head,
+  .detail-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .detail-list-head span,
+  .detail-row span {
+    text-align: left;
+  }
+
   .ex-input-row {
     grid-template-columns: minmax(78px, 92px) minmax(0, 1fr);
   }
