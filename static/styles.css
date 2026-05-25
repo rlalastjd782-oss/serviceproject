@@ -80,6 +80,64 @@
   font-size: 12px;
 }
 
+.list-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 12px 0;
+  color: var(--muted);
+}
+
+.list-count {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.list-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.compact-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.compact-select select {
+  min-height: 34px;
+  padding: 6px 28px 6px 10px;
+}
+
+.pagination-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.pagination-nav span {
+  min-width: 72px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.pagination-nav .is-disabled {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
 .plan-board-actions {
   margin-top: 10px;
   margin-bottom: 16px;
@@ -3138,6 +3196,17 @@ tbody tr:last-child td {
   .settings-action-grid,
   .health-grid {
     grid-template-columns: 1fr;
+  }
+
+  .list-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .list-tools,
+  .compact-select,
+  .compact-select select {
+    width: 100%;
   }
 
   .timer-actions {

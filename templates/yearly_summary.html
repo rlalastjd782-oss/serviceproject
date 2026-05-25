@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% from "macros.html" import analysis_subnav, period_picker %}
+
+{% block title %}연간 기록{% endblock %}
+
+{% block content %}
+  {{ analysis_subnav(active_page) }}
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">연도별 기록</div>
+        <div class="section-subtitle">{{ yearly_report.period }} 기준으로 운동, 식단, PR을 묶어 봅니다.</div>
+      </div>
+    </div>
+    {{ period_picker(url_for('yearly_summary_page'), url_for('yearly_summary_page', year=prev_year), url_for('yearly_summary_page', year=next_year), "year", selected_year, "number", "기준 연도", "이전 연도", "다음 연도") }}
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">{{ selected_year }}년 요약</div>
+        <div class="section-subtitle">연도 경계가 있는 장기 기록 QA 기준 화면입니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('yearly_compare_page', base_year=selected_year|int - 1, compare_year=selected_year) }}">전년 비교</a>
+    </div>
+    <div class="summary-grid">
+      <article class="summary-card"><div class="summary-value">{{ yearly_report.workout_days }}</div><div class="summary-label">운동일</div></article>
+      <article class="summary-card"><div class="summary-value">{{ yearly_report.set_count }}</div><div class="summary-label">세트</div></article>
+      <article class="summary-card"><div class="summary-value">{{ yearly_report.rep_count }}</div><div class="summary-label">반복</div></article>
+      <article class="summary-card"><div class="summary-value">{{ "%.0f"|format(yearly_report.volume) }}</div><div class="summary-label">볼륨 kg</div></article>
+      <article class="summary-card"><div class="summary-value">{{ format_duration(yearly_report.duration_seconds) }}</div><div class="summary-label">운동 시간</div></article>
+      <article class="summary-card"><div class="summary-value">{{ "%.0f"|format(yearly_report.cardio_minutes) }}</div><div class="summary-label">유산소 분</div></article>
+      <article class="summary-card"><div class="summary-value">{{ yearly_report.meal_days }}</div><div class="summary-label">식단일</div></article>
+      <article class="summary-card"><div class="summary-value">{{ yearly_report.pr_count }}</div><div class="summary-label">PR</div></article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">월별 기록</div>
+    </div>
+    <div class="record-list">
+      {% for item in month_rows %}
+        <a class="record-card" href="{{ url_for('monthly_summary_page', month=item.period) }}">
+          <div class="record-date">{{ item.period }}</div>
+          <div class="record-summary">
+            {% if item.workout_days %}<span class="badge">운동 {{ item.workout_days }}일</span>{% endif %}
+            {% if item.set_count %}<span class="badge">{{ item.set_count }}세트</span>{% endif %}
+            {% if item.volume %}<span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
+            {% if item.cardio_minutes %}<span class="badge">유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+            {% if item.meal_days %}<span class="badge">식단 {{ item.meal_days }}일</span>{% endif %}
+            {% if item.pr_count %}<span class="badge">PR {{ item.pr_count }}개</span>{% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">연간 부위별 분석</div>
+    </div>
+    <div class="cat-stat-grid">
+      {% for item in body_part_summary %}
+        <article class="cat-stat-card active {{ body_part_class(item.body_part) }}">
+          <div class="cat-stat-name">{{ item.body_part }}</div>
+          <div class="cat-stat-count">{{ item.set_count }}</div>
+          <div class="cat-stat-unit">
+            {% if item.body_part == "유산소" %}
+              {{ "%.0f"|format(item.cardio_minutes) }}분
+            {% else %}
+              {{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg
+            {% endif %}
+          </div>
+        </article>
+      {% else %}
+        <div class="empty">연간 부위별 기록이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">상위 운동</div>
+    </div>
+    <div class="detail-list">
+      {% for item in top_exercises %}
+        <div class="detail-row">
+          <strong>{{ item.name }}</strong>
+          <span>{{ item.body_part }} · {{ item.set_count }}세트 · {{ "%.0f"|format(item.volume) }}kg · 최근 {{ item.last_date }}</span>
+        </div>
+      {% else %}
+        <div class="empty compact-empty">상위 운동 기록이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

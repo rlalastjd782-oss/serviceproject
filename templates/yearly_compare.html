@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% from "macros.html" import analysis_subnav %}
+
+{% block title %}연간 비교{% endblock %}
+
+{% block content %}
+  {{ analysis_subnav(active_page) }}
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">연간 비교</div>
+        <div class="section-subtitle">{{ base_year }}년과 {{ compare_year }}년의 주요 기록을 비교합니다.</div>
+      </div>
+    </div>
+    <form method="get" action="{{ url_for('yearly_compare_page') }}" class="period-filter-form">
+      <label class="month-picker">
+        <span>기준 연도</span>
+        <input name="base_year" type="number" value="{{ base_year }}" min="2000" max="2100">
+      </label>
+      <label class="month-picker">
+        <span>비교 연도</span>
+        <input name="compare_year" type="number" value="{{ compare_year }}" min="2000" max="2100">
+      </label>
+      <button class="btn-primary" type="submit">비교</button>
+    </form>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title">비교 결과</div>
+    </div>
+    <div class="detail-list">
+      {% for item in comparison_rows %}
+        <div class="detail-row">
+          <strong>{{ item.label }}</strong>
+          <span>
+            {{ "%.0f"|format(item.base) }}{{ item.unit }} → {{ "%.0f"|format(item.compare) }}{{ item.unit }}
+            · {% if item.diff >= 0 %}+{% endif %}{{ "%.0f"|format(item.diff) }}{{ item.unit }}
+            {% if item.percent is not none %}({% if item.percent >= 0 %}+{% endif %}{{ "%.1f"|format(item.percent) }}%){% endif %}
+          </span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

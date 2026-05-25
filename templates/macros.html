@@ -30,8 +30,52 @@
   <nav class="subnav analysis-subnav" aria-label="분석 메뉴">
     <a class="{% if active_page == 'weekly' %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">주간</a>
     <a class="{% if active_page == 'monthly' %}active{% endif %}" href="{{ url_for('monthly_summary_page') }}">월간</a>
+    <a class="{% if active_page == 'yearly' %}active{% endif %}" href="{{ url_for('yearly_summary_page') }}">연간</a>
     <a class="{% if active_page == 'exercises' %}active{% endif %}" href="{{ url_for('exercise_summary_page') }}">운동</a>
     <a class="{% if active_page == 'pr' %}active{% endif %}" href="{{ url_for('pr_summary_page') }}">PR</a>
     <a class="{% if active_page == 'equipment' %}active{% endif %}" href="{{ url_for('equipment_summary_page') }}">장비</a>
   </nav>
+{% endmacro %}
+
+{% macro result_toolbar(pagination=None, sort_options=None, current_sort="", reset_href=None) %}
+  <div class="list-toolbar">
+    {% if pagination %}
+      <div class="list-count">
+        총 {{ pagination.total }}개 · {{ pagination.page }} / {{ pagination.total_pages }}페이지
+      </div>
+    {% endif %}
+    <div class="list-tools">
+      {% if sort_options %}
+        <label class="compact-select">
+          <span>정렬</span>
+          <select name="sort">
+            {% for value, label in sort_options %}
+              <option value="{{ value }}" {% if current_sort == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      {% endif %}
+      <label class="compact-select">
+        <span>표시</span>
+        <select name="per_page">
+          {% for option in per_page_options %}
+            <option value="{{ option }}" {% if pagination and pagination.per_page == option %}selected{% endif %}>{{ option }}개</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% if reset_href %}
+        <a class="btn-small" href="{{ reset_href }}">초기화</a>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro pagination_nav(pagination) %}
+  {% if pagination and pagination.total_pages > 1 %}
+    <nav class="pagination-nav" aria-label="페이지 이동">
+      <a class="btn-small {% if not pagination.has_prev %}is-disabled{% endif %}" href="{% if pagination.has_prev %}{{ query_url(page=pagination.page - 1) }}{% else %}#{% endif %}">이전</a>
+      <span>{{ pagination.page }} / {{ pagination.total_pages }}</span>
+      <a class="btn-small {% if not pagination.has_next %}is-disabled{% endif %}" href="{% if pagination.has_next %}{{ query_url(page=pagination.page + 1) }}{% else %}#{% endif %}">다음</a>
+    </nav>
+  {% endif %}
 {% endmacro %}

@@ -152,6 +152,39 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             active_page="monthly",
         )
 
+    @app.get("/summaries/yearly")
+    def yearly_summary_page():
+        selected_year = normalize_year(request.args.get("year"), current_local_date())
+        prev_year = str(int(selected_year) - 1)
+        next_year = str(int(selected_year) + 1)
+        return render_template(
+            "yearly_summary.html",
+            active_page="yearly",
+            selected_year=selected_year,
+            prev_year=prev_year,
+            next_year=next_year,
+            yearly_report=build_yearly_report(selected_year),
+            month_rows=list_yearly_month_rows(selected_year),
+            body_part_summary=list_yearly_body_part_summary(selected_year),
+            top_exercises=list_yearly_top_exercises(selected_year),
+        )
+
+    @app.get("/summaries/yearly/compare")
+    def yearly_compare_page():
+        compare_year = normalize_year(request.args.get("compare_year"), current_local_date())
+        base_year = normalize_year(request.args.get("base_year"), str(int(compare_year) - 1))
+        base_report = build_yearly_report(base_year)
+        compare_report = build_yearly_report(compare_year)
+        return render_template(
+            "yearly_compare.html",
+            active_page="yearly",
+            base_year=base_year,
+            compare_year=compare_year,
+            base_report=base_report,
+            compare_report=compare_report,
+            comparison_rows=compare_yearly_reports(base_report, compare_report),
+        )
+
     @app.get("/summaries/exercises")
     def exercise_summary_page():
         exercise_id = parse_int(request.args.get("exercise_id"))

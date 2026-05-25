@@ -40,6 +40,7 @@ from app_meal_service import (
     list_weekly_meal_days_from_db,
 )
 from app_meta import get_app_updated_at, get_app_version
+from app_pagination import PER_PAGE_OPTIONS, build_pagination, page_params, query_url
 from app_pr_service import build_pr_cards_from_rows, build_pr_dashboard_from_rows
 from app_summary_service import build_daily_chart_from_rows, build_period_chart_from_rows
 from app_utils import (
@@ -52,6 +53,14 @@ from app_utils import (
     value_at,
 )
 from app_workout_service import grouped_sets_for_session_from_db, list_sets_for_session_from_db
+from app_yearly_service import (
+    build_yearly_report as build_yearly_report_from_db,
+    compare_yearly_reports,
+    list_yearly_body_part_summary as list_yearly_body_part_summary_from_db,
+    list_yearly_month_rows as list_yearly_month_rows_from_db,
+    list_yearly_top_exercises as list_yearly_top_exercises_from_db,
+    normalize_year,
+)
 
 
 def create_app() -> Flask:
@@ -70,10 +79,12 @@ def create_app() -> Flask:
             db.close()
 
     @app.context_processor
-    def inject_app_meta() -> dict[str, str]:
+    def inject_app_meta() -> dict[str, object]:
         return {
             "app_version": get_app_version(),
             "app_updated_at": get_app_updated_at(),
+            "per_page_options": PER_PAGE_OPTIONS,
+            "query_url": lambda **updates: query_url(request.path, request.args, **updates),
         }
 
     from app_routes import register_routes
@@ -3366,6 +3377,22 @@ def build_period_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | 
 
 def build_daily_chart(rows: list[sqlite3.Row]) -> list[dict[str, float | int | str]]:
     return build_daily_chart_from_rows(rows)
+
+
+def build_yearly_report(year: str) -> dict[str, object]:
+    return build_yearly_report_from_db(get_db(), year)
+
+
+def list_yearly_month_rows(year: str) -> list[sqlite3.Row]:
+    return list_yearly_month_rows_from_db(get_db(), year)
+
+
+def list_yearly_body_part_summary(year: str) -> list[sqlite3.Row]:
+    return list_yearly_body_part_summary_from_db(get_db(), year)
+
+
+def list_yearly_top_exercises(year: str, limit: int = 10) -> list[sqlite3.Row]:
+    return list_yearly_top_exercises_from_db(get_db(), year, limit)
 
 
 def list_exercise_summary(limit: int = 20) -> list[sqlite3.Row]:
