@@ -45,6 +45,20 @@ from health_tracker.services.export import (
     export_meal_csv_from_db,
     export_workout_csv_from_db,
 )
+from health_tracker.services.location import (
+    bootstrap_locations,
+    deactivate_location,
+    deactivate_location_equipment,
+    get_location as get_location_from_db,
+    get_recent_or_default_location as get_recent_or_default_location_from_db,
+    list_location_equipment as list_location_equipment_from_db,
+    list_locations as list_locations_from_db,
+    location_equipment_names as location_equipment_names_from_db,
+    save_location as save_location_to_db,
+    set_default_location as set_default_location_in_db,
+    set_session_location as set_session_location_in_db,
+    upsert_location_equipment,
+)
 from health_tracker.services.meal import (
     build_monthly_meal_summary_from_db,
     build_weekly_meal_summary_from_db,
@@ -147,6 +161,7 @@ def init_db() -> None:
         CREATE TABLE IF NOT EXISTS workout_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             workout_date TEXT NOT NULL UNIQUE,
+            location_id INTEGER,
             note TEXT NOT NULL DEFAULT '',
             completed INTEGER NOT NULL DEFAULT 0,
             duration_seconds INTEGER NOT NULL DEFAULT 0,
@@ -191,6 +206,7 @@ def init_db() -> None:
         CREATE TABLE IF NOT EXISTS routine_templates (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
+            location_id INTEGER,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -224,6 +240,7 @@ def init_db() -> None:
 
         CREATE TABLE IF NOT EXISTS exercise_settings (
             exercise_name TEXT PRIMARY KEY,
+            location_id INTEGER,
             rest_seconds INTEGER NOT NULL DEFAULT 90,
             is_favorite INTEGER NOT NULL DEFAULT 0,
             equipment TEXT NOT NULL DEFAULT '',
@@ -319,6 +336,30 @@ def init_db() -> None:
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
 
+        CREATE TABLE IF NOT EXISTS workout_locations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            address TEXT NOT NULL DEFAULT '',
+            memo TEXT NOT NULL DEFAULT '',
+            is_default INTEGER NOT NULL DEFAULT 0,
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS location_equipment (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            location_id INTEGER NOT NULL,
+            equipment_name TEXT NOT NULL,
+            equipment_type TEXT NOT NULL DEFAULT '',
+            memo TEXT NOT NULL DEFAULT '',
+            is_active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(location_id, equipment_name),
+            FOREIGN KEY (location_id) REFERENCES workout_locations (id) ON DELETE CASCADE
+        );
+
         CREATE TABLE IF NOT EXISTS app_settings (
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL DEFAULT '',
@@ -326,6 +367,7 @@ def init_db() -> None:
         );
 
         CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(workout_date);
+        CREATE INDEX IF NOT EXISTS idx_workout_sessions_location ON workout_sessions(location_id);
         CREATE INDEX IF NOT EXISTS idx_workout_sets_session ON workout_sets(session_id);
         CREATE INDEX IF NOT EXISTS idx_workout_sets_exercise ON workout_sets(exercise_id);
         CREATE INDEX IF NOT EXISTS idx_workout_sets_body_part ON workout_sets(body_part);
@@ -333,9 +375,11 @@ def init_db() -> None:
         CREATE INDEX IF NOT EXISTS idx_meal_entries_date ON meal_entries(meal_date);
         CREATE INDEX IF NOT EXISTS idx_pr_events_exercise ON pr_events(exercise_id);
         CREATE INDEX IF NOT EXISTS idx_pr_events_date ON pr_events(workout_date);
+        CREATE INDEX IF NOT EXISTS idx_location_equipment_location ON location_equipment(location_id);
         """
     )
     ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
+    ensure_column(db, "workout_sessions", "location_id", "INTEGER")
     ensure_column(db, "workout_sessions", "completed", "INTEGER NOT NULL DEFAULT 0")
     ensure_column(db, "workout_sessions", "duration_seconds", "INTEGER NOT NULL DEFAULT 0")
     ensure_column(db, "workout_sets", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
@@ -346,6 +390,7 @@ def init_db() -> None:
     ensure_column(db, "workout_sets", "rpe", "REAL")
     ensure_column(db, "workout_sets", "equipment", "TEXT NOT NULL DEFAULT ''")
     ensure_column(db, "exercise_settings", "equipment", "TEXT NOT NULL DEFAULT ''")
+    ensure_column(db, "exercise_settings", "location_id", "INTEGER")
     ensure_column(db, "exercise_settings", "target_weight", "REAL")
     ensure_column(db, "exercise_settings", "target_reps", "INTEGER")
     ensure_column(db, "exercise_settings", "target_sets", "INTEGER")
@@ -354,6 +399,7 @@ def init_db() -> None:
     ensure_column(db, "routine_items", "cardio_speed", "REAL")
     ensure_column(db, "routine_items", "cardio_minutes", "REAL")
     ensure_column(db, "routine_items", "equipment", "TEXT NOT NULL DEFAULT ''")
+    ensure_column(db, "routine_templates", "location_id", "INTEGER")
     ensure_column(db, "meal_entries", "quantity", "REAL")
     ensure_column(db, "meal_entries", "grams", "REAL")
     ensure_column(db, "recovery_checkins", "is_rest_day", "INTEGER NOT NULL DEFAULT 0")
@@ -378,6 +424,7 @@ def init_db() -> None:
         """
     )
     recalculate_missing_exercise_calories()
+    bootstrap_locations(db)
     delete_internal_test_data()
     db.commit()
 
@@ -452,17 +499,28 @@ def generate_year_qa_dummy_data() -> dict[str, object]:
     return generate_year_qa_dummy_data_in_db(get_db())
 
 
-def get_or_create_session(workout_date: str | None = None) -> sqlite3.Row:
+def get_or_create_session(workout_date: str | None = None, location_id: int | None = None) -> sqlite3.Row:
     db = get_db()
     date_value = normalize_date(workout_date)
+    location = get_location_from_db(db, location_id) if location_id else get_recent_or_default_location_from_db(db)
     existing = db.execute(
         "SELECT * FROM workout_sessions WHERE workout_date = ?",
         (date_value,),
     ).fetchone()
     if existing:
+        if location_id and existing["location_id"] != location["id"]:
+            db.execute(
+                "UPDATE workout_sessions SET location_id = ? WHERE id = ?",
+                (location["id"], existing["id"]),
+            )
+            db.commit()
+            return get_session_by_date(date_value)
         return existing
 
-    db.execute("INSERT INTO workout_sessions (workout_date) VALUES (?)", (date_value,))
+    db.execute(
+        "INSERT INTO workout_sessions (workout_date, location_id) VALUES (?, ?)",
+        (date_value, location["id"]),
+    )
     db.commit()
     return db.execute(
         "SELECT * FROM workout_sessions WHERE workout_date = ?",
@@ -2131,6 +2189,70 @@ def equipment_options() -> list[str]:
     return EQUIPMENT_OPTIONS
 
 
+def list_workout_locations(include_inactive: bool = False) -> list[sqlite3.Row]:
+    return list_locations_from_db(get_db(), include_inactive)
+
+
+def get_workout_location(location_id: int | None = None) -> sqlite3.Row:
+    return get_location_from_db(get_db(), location_id)
+
+
+def get_recent_or_default_location() -> sqlite3.Row:
+    return get_recent_or_default_location_from_db(get_db())
+
+
+def save_workout_location(
+    name: str,
+    address: str = "",
+    memo: str = "",
+    location_id: int | None = None,
+    is_default: bool = False,
+) -> int:
+    saved_id = save_location_to_db(get_db(), name, address, memo, location_id, is_default)
+    get_db().commit()
+    return saved_id
+
+
+def set_default_workout_location(location_id: int) -> None:
+    set_default_location_in_db(get_db(), location_id)
+    get_db().commit()
+
+
+def deactivate_workout_location(location_id: int) -> None:
+    deactivate_location(get_db(), location_id)
+    get_db().commit()
+
+
+def set_workout_session_location(session_id: int, location_id: int | None) -> sqlite3.Row:
+    location = set_session_location_in_db(get_db(), session_id, location_id)
+    get_db().commit()
+    return location
+
+
+def list_location_equipment(location_id: int | None = None, include_inactive: bool = False) -> list[sqlite3.Row]:
+    return list_location_equipment_from_db(get_db(), location_id, include_inactive)
+
+
+def save_location_equipment(
+    location_id: int,
+    equipment_name: str,
+    equipment_type: str = "",
+    memo: str = "",
+) -> None:
+    upsert_location_equipment(get_db(), location_id, equipment_name, equipment_type, memo)
+    get_db().commit()
+
+
+def delete_location_equipment(equipment_id: int) -> None:
+    deactivate_location_equipment(get_db(), equipment_id)
+    get_db().commit()
+
+
+def equipment_options_for_location(location_id: int | None = None) -> list[str]:
+    names = location_equipment_names_from_db(get_db(), location_id)
+    return list(dict.fromkeys([*names, *EQUIPMENT_OPTIONS]))
+
+
 def get_body_metric(metric_date: str) -> sqlite3.Row | None:
     return get_db().execute("SELECT * FROM body_metrics WHERE metric_date = ?", (metric_date,)).fetchone()
 
@@ -3555,6 +3677,7 @@ def paged_search_workout_records_filtered(
     query: str = "",
     body_part: str = "",
     equipment: str = "",
+    location_id: int | None = None,
     start_date: str = "",
     end_date: str = "",
     sort: str = "newest",
@@ -3579,6 +3702,9 @@ def paged_search_workout_records_filtered(
     if equipment:
         where.append("COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') = ?")
         params.append(equipment)
+    if location_id:
+        where.append("s.location_id = ?")
+        params.append(location_id)
     if start_date:
         where.append("s.workout_date >= ?")
         params.append(start_date)
@@ -3591,12 +3717,14 @@ def paged_search_workout_records_filtered(
         JOIN workout_sessions s ON s.id = ws.session_id
         JOIN exercises e ON e.id = ws.exercise_id
         LEFT JOIN exercise_settings es ON es.exercise_name = e.name
+        LEFT JOIN workout_locations wl ON wl.id = s.location_id
         {where_sql}
     """
     rows, pagination = paged_rows(
         f"""
         SELECT
             s.workout_date,
+            wl.name AS location_name,
             e.name AS exercise_name,
             COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
             COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') AS equipment,
