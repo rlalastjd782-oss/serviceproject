@@ -20,7 +20,7 @@ MEAL_TYPE_CLASSES = {
     "기타": "meal-type-other",
 }
 
-EQUIPMENT_OPTIONS = ["바벨", "덤벨", "머신", "케이블", "맨몸", "유산소기구"]
+EQUIPMENT_OPTIONS = ["바벨", "덤벨", "머신", "케이블", "프리웨이트", "맨몸", "유산소기구"]
 
 DEFAULT_PROGRAMS = {
     "5x5": [

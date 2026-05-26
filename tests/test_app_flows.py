@@ -490,6 +490,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(rows[2]["reps"], 8)
 
     def test_workout_cardio_meal_flow(self) -> None:
+        default_workout_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn('<option value="프리웨이트">프리웨이트</option>', default_workout_html)
+
         workout_date = "2026-05-20"
         strength_name = "__TEST__ 벤치"
         cardio_name = "__TEST__ 러닝"
