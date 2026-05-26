@@ -4,6 +4,11 @@
 
 ## 2026-05-26 작업 기록
 
+- `v1.11.0` 소스트리 리빌딩:
+  - `app.py`에서 날짜/칼로리/샘플 데이터/캘린더/부위 분석/기록 검색/장비 분석/PR 조회 로직을 서비스 모듈로 분리했습니다.
+  - 오늘 운동 화면의 운동 시간, 휴식 타이머, 장소 패널을 partial 템플릿으로 분리했습니다.
+  - 운동 시간/휴식 타이머 스크립트를 `static/timers.js`로 분리하고 서비스워커 캐시에 반영했습니다.
+  - 검증: `python -m compileall health_tracker tests`, `node --check static\app.js`, `node --check static\timers.js`, `python -m unittest discover -v` 19개 테스트 통과.
 - `v1.10.0` 하드코딩 제거 1차:
   - 앱 기본값 설정 서비스를 추가하고 `app_settings` 기반으로 휴식 타이머, 기본 세트 수, 입력 힌트, 세트 타입, 목표 기본값을 조회/저장하게 했습니다.
   - 설정 화면에 앱 기본값 관리 섹션을 추가했습니다.

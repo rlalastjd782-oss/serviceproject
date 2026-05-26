@@ -1,0 +1,12 @@
+<section class="section workout-only" id="rest-timer">
+  <div class="section-header">
+    <div class="section-title">휴식 타이머</div>
+    <div class="timer-display" data-rest-timer-display>00:00</div>
+  </div>
+  <div class="timer-actions">
+    {% for seconds in app_preferences.rest_timer_presets %}
+      <button class="btn-small" type="button" data-rest-seconds="{{ seconds }}">{{ seconds }}초</button>
+    {% endfor %}
+    <button class="btn-danger" type="button" data-rest-stop>정지</button>
+  </div>
+</section>
