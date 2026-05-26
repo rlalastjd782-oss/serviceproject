@@ -21,7 +21,7 @@
         </div>
       </div>
       <form method="get" action="{{ url_for('daily_summary_page') }}" class="period-filter-form">
-        {% for option in [7, 14, 30, 90] %}
+        {% for option in app_preferences.summary_day_options %}
           <button class="{% if selected_days == option %}btn-primary{% else %}btn-small{% endif %}" type="submit" name="days" value="{{ option }}">{{ option }}일</button>
         {% endfor %}
       </form>

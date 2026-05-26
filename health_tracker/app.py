@@ -72,7 +72,7 @@ from health_tracker.services.meal import (
     list_monthly_meal_weeks_from_db,
     list_weekly_meal_days_from_db,
 )
-from health_tracker.services.pagination import PER_PAGE_OPTIONS, build_pagination, page_params, query_url
+from health_tracker.services.pagination import build_pagination, page_params, query_url
 from health_tracker.services.preferences import app_preferences as build_app_preferences
 from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
 from health_tracker.services.pr import build_pr_cards_from_rows, build_pr_dashboard_from_rows
@@ -131,13 +131,14 @@ def create_app() -> Flask:
 
     @app.context_processor
     def inject_app_meta() -> dict[str, object]:
+        preferences = get_app_preferences()
         return {
             "app_version": get_app_version(),
             "app_updated_at": get_app_updated_at(),
             "is_admin": settings_unlocked(),
             "csrf_token": ensure_csrf_token,
-            "per_page_options": PER_PAGE_OPTIONS,
-            "app_preferences": get_app_preferences(),
+            "per_page_options": preferences["per_page_options"],
+            "app_preferences": preferences,
             "query_url": lambda **updates: query_url(request.path, request.args, **updates),
         }
 
@@ -474,6 +475,16 @@ def save_app_setting(key: str, value: str) -> None:
 
 def get_app_preferences() -> dict[str, object]:
     return build_app_preferences(get_db())
+
+
+def configured_page_params(args) -> tuple[int, int]:
+    return page_params(args, int(get_app_preferences()["default_per_page"]))
+
+
+def normalize_summary_days(value: str | None) -> int:
+    options = [int(item) for item in get_app_preferences()["summary_day_options"]]
+    parsed = parse_int(value) or options[0]
+    return min(max(parsed, min(options)), max(options))
 
 
 def save_app_preferences(form) -> None:

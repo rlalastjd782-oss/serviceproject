@@ -251,6 +251,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn('placeholder="11"', html)
         self.assertIn('<option value="탑세트">탑세트</option>', html)
         self.assertIn('"default_daily_calories": 2550', html)
+        daily_html = self.client.get("/summaries/daily").data.decode("utf-8")
+        self.assertIn('name="days" value="28"', daily_html)
+        self.assertIn('<option value="20" selected>', daily_html)
+        check_html = self.client.get("/records/check").data.decode("utf-8")
+        self.assertIn('<option value="28"', check_html)
 
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")

@@ -105,9 +105,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/daily")
     def daily_summary_page():
-        page, per_page = page_params(request.args)
-        days = parse_int(request.args.get("days")) or 7
-        days = min(max(days, 7), 90)
+        page, per_page = configured_page_params(request.args)
+        days = normalize_summary_days(request.args.get("days"))
         daily_sort = request.args.get("sort", "newest")
         daily_rows = list_daily_summary(days=days)
         if daily_sort == "oldest":
@@ -134,7 +133,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/weekly")
     def weekly_summary_page():
-        page, per_page = page_params(request.args)
+        page, per_page = configured_page_params(request.args)
         period_sort = request.args.get("sort", "newest")
         selected_week = normalize_date(request.args.get("week"))
         week_start = week_start_for_date(selected_week)
@@ -179,7 +178,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/monthly")
     def monthly_summary_page():
-        page, per_page = page_params(request.args)
+        page, per_page = configured_page_params(request.args)
         period_sort = request.args.get("sort", "newest")
         selected_month = request.args.get("month") or current_local_date()[:7]
         month_start = normalize_month(selected_month)
@@ -255,7 +254,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/exercises")
     def exercise_summary_page():
-        page, per_page = page_params(request.args)
+        page, per_page = configured_page_params(request.args)
         exercise_sort = request.args.get("sort", "sets")
         exercise_id = parse_int(request.args.get("exercise_id"))
         search_query = request.args.get("q", "").strip()
@@ -299,7 +298,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/equipment")
     def equipment_summary_page():
-        page, per_page = page_params(request.args)
+        page, per_page = configured_page_params(request.args)
         selected_equipment = request.args.get("equipment", "").strip()
         selected_scope = request.args.get("scope", "month").strip() or "month"
         equipment_sort = request.args.get("sort", "sets")
@@ -331,7 +330,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/pr")
     def pr_summary_page():
-        page, per_page = page_params(request.args)
+        page, per_page = configured_page_params(request.args)
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
         pr_sort = request.args.get("sort", "weight")
@@ -864,7 +863,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/records/search")
     def record_search_page():
-        page, per_page = page_params(request.args)
+        page, per_page = configured_page_params(request.args)
         selected_end = normalize_optional_date(request.args.get("end"), max_future_days=365) or current_local_date()
         selected_start = normalize_optional_date(request.args.get("start"), max_future_days=365) or shift_date(selected_end, -6)
         selected_part = request.args.get("part", "").strip()

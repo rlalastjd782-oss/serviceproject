@@ -44,8 +44,7 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
     @app.get("/records/check")
     def record_check_page():
         selected_date = normalize_date(request.args.get("date"))
-        days = parse_int(request.args.get("days")) or 14
-        days = min(max(days, 7), 90)
+        days = normalize_summary_days(request.args.get("days"))
         return render_template(
             "more/record_check.html",
             active_page="record_check",
@@ -163,7 +162,7 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/exercises/library")
     def exercise_library_page():
-        page, per_page = page_params(request.args)
+        page, per_page = configured_page_params(request.args)
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
         favorite_only = request.args.get("favorite") == "1"

@@ -15,7 +15,7 @@
     <form method="get" action="{{ url_for('record_check_page') }}" class="filter-form more-tool-filter">
       <input name="date" type="date" value="{{ selected_date }}" aria-label="기준일">
       <select name="days" aria-label="점검 기간">
-        {% for option in [7, 14, 30, 60, 90] %}
+        {% for option in app_preferences.summary_day_options %}
           <option value="{{ option }}" {% if selected_days == option %}selected{% endif %}>{{ option }}일</option>
         {% endfor %}
       </select>
