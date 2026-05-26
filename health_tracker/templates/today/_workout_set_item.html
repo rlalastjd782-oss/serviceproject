@@ -1,0 +1,116 @@
+<div class="ex-item editable-list-item" data-set-item-id="{{ item.id }}">
+  <button type="button" class="item-read-view ex-item-info item-edit-trigger" data-toggle-edit aria-label="{{ loop.index }}세트 수정">
+    <div class="ex-name">
+      <span class="set-index">{{ loop.index }}세트</span>
+      <span class="set-result">
+      {% if group.body_part == "유산소" %}
+        {% if item.equipment %}<span class="badge">{{ item.equipment }}</span>{% endif %}
+        인클라인 {% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% else %}-{% endif %}
+        · 속도 {% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% else %}-{% endif %}
+        · {% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}-분{% endif %}
+        {% if item.estimated_calories %} · 예상 {{ "%.0f"|format(item.estimated_calories) }}kcal{% endif %}
+      {% else %}
+        {% if item.equipment %}<span class="badge">{{ item.equipment }}</span>{% endif %}
+        <span class="badge">{{ item.set_type or set_type_options[0] }}</span>
+        {% if item.weight is not none %}<span class="blue-text">{{ "%.1f"|format(item.weight) }}kg</span>{% else %}-kg{% endif %}
+        ·
+        {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
+      {% endif %}
+      </span>
+    </div>
+  </button>
+  <form method="post" action="{{ url_for('update_set', set_id=item.id) }}" class="inline-edit-form set-edit-form">
+    <input type="hidden" name="mode" value="workout">
+    <label class="edit-field edit-field-type">
+      <span>부위</span>
+      <select name="body_part" data-body-part-select>
+        {% for part in body_parts %}
+          {% if (group.body_part == "유산소" and part == "유산소") or (group.body_part != "유산소" and part != "유산소") %}
+            <option value="{{ part }}" {% if group.body_part == part %}selected{% endif %}>{{ part }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </label>
+    <label class="edit-field edit-field-name">
+      <span>운동명</span>
+      <input list="exercise-list" name="exercise_name" value="{{ group.exercise_name }}" autocomplete="off" required>
+    </label>
+    <label class="edit-field edit-field-small">
+      <span>세트</span>
+      <input name="set_number" type="number" min="1" step="1" inputmode="numeric" value="{{ loop.index }}" aria-label="세트 번호" placeholder="세트">
+    </label>
+    <label class="edit-field edit-field-type">
+      <span>장비</span>
+      <select name="equipment">
+        <option value="">미지정</option>
+        {% for option in equipment_options %}
+          <option value="{{ option }}" {% if (item.equipment or setting.get('equipment', '')) == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    {% if group.body_part == "유산소" %}
+      <label class="edit-field">
+        <span>인클라인</span>
+        <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% endif %}" placeholder="인클라인">
+      </label>
+      <label class="edit-field">
+        <span>속도</span>
+        <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% endif %}" placeholder="속도">
+      </label>
+      <label class="edit-field">
+        <span>분</span>
+        <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" value="{% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}{% endif %}" placeholder="분">
+      </label>
+      <label class="edit-field edit-field-small">
+        <span>체감강도</span>
+        <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="1~10">
+      </label>
+    {% else %}
+      <label class="edit-field">
+        <span>무게</span>
+        <input name="weight" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}{% endif %}" placeholder="kg">
+      </label>
+      <label class="edit-field">
+        <span>횟수</span>
+        <input name="reps" type="number" min="0" step="1" inputmode="numeric" value="{% if item.reps is not none %}{{ item.reps }}{% endif %}" placeholder="회">
+      </label>
+      <label class="edit-field edit-field-type">
+        <span>타입</span>
+        <select name="set_type">
+          {% for option in set_type_options %}
+            <option value="{{ option }}" {% if (item.set_type or set_type_options[0]) == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="edit-field edit-field-small">
+        <span>체감강도</span>
+        <input name="rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" value="{% if item.rpe is not none %}{{ "%.1f"|format(item.rpe) }}{% endif %}" placeholder="1~10">
+      </label>
+    {% endif %}
+    <div class="edit-actions">
+      <button type="submit" class="btn-primary">저장</button>
+      <button type="button" class="btn-small" data-cancel-edit>취소</button>
+    </div>
+  </form>
+  <div class="item-actions">
+    <button type="button" class="btn-small" data-toggle-edit>수정</button>
+    <button
+      type="button"
+      class="btn-small"
+      data-copy-saved-set
+      data-body-part="{{ group.body_part }}"
+      data-exercise-name="{{ group.exercise_name }}"
+      data-equipment="{{ item.equipment or setting.get('equipment', '') }}"
+      data-weight="{% if item.weight is not none %}{{ item.weight }}{% endif %}"
+      data-reps="{% if item.reps is not none %}{{ item.reps }}{% endif %}"
+      data-set-type="{{ item.set_type or set_type_options[0] }}"
+      data-cardio-incline="{% if item.cardio_incline is not none %}{{ item.cardio_incline }}{% endif %}"
+      data-cardio-speed="{% if item.cardio_speed is not none %}{{ item.cardio_speed }}{% endif %}"
+      data-cardio-minutes="{% if item.cardio_minutes is not none %}{{ item.cardio_minutes }}{% endif %}"
+    >복사</button>
+    <form method="post" action="{{ url_for('delete_set', set_id=item.id) }}">
+      <input type="hidden" name="mode" value="workout">
+      <button type="submit" class="btn-danger" aria-label="세트 삭제">×</button>
+    </form>
+  </div>
+</div>

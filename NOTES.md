@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.9 오늘 운동 세트 행 분리
+
+- `today/index.html`의 세트별 읽기/수정/복사/삭제 행을 `today/_workout_set_item.html`로 분리했습니다.
+- 운동 기록 카드 내부 반복 구조를 partial로 빼서 `today/index.html` 과밀도를 낮췄습니다.
+- 검증: `python -m compileall health_tracker tests`, `node --check static\app.js`, 운동/식단 핵심 회귀 테스트, 오늘 운동 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.8 템플릿 구조 정리
 
 - 2.0 준비 전 코드 정리로 긴 템플릿 블록을 partial로 분리했습니다.

@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.25.9 - 2026-05-26
+
+- 오늘 운동 기록의 세트 행 읽기/수정/복사/삭제 블록을 `today/_workout_set_item.html` partial로 분리했습니다.
+- `today/index.html`의 반복 세트 행 본문을 include로 줄여 수정 UI와 세트 표시 구조를 한 곳에서 관리하도록 정리했습니다.
+- 렌더링 유지 검증과 운동/식단 회귀 테스트를 통과했습니다.
+
 ## v1.25.8 - 2026-05-26
 
 - 날짜별 기록 UI를 `summaries/_daily_records.html` partial로 분리해 `summaries/summary.html` 본문을 줄였습니다.
