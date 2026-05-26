@@ -7,9 +7,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0f0f14">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='rules.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='rules.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ui_rebuild.css') }}?v={{ app_version }}">
     <title>{% block title %}피트니스 트래커{% endblock %}</title>
   </head>
   <body class="{% if is_admin %}admin-mode{% else %}visitor-mode{% endif %}">
@@ -30,8 +31,8 @@
         {% block content %}{% endblock %}
       </main>
     </div>
-    <script src="{{ url_for('static', filename='timers.js') }}"></script>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
-    <script src="{{ url_for('static', filename='workout_entry.js') }}"></script>
+    <script src="{{ url_for('static', filename='timers.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', filename='app.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', filename='workout_entry.js') }}?v={{ app_version }}"></script>
   </body>
 </html>
