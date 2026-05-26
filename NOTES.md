@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v2.0.4 운동 완료 시 타이머 표시 리셋
+
+- 운동 완료 버튼을 누르면 저장된 운동시간은 유지하고, 브라우저 로컬 타이머 표시만 `00:00:00`으로 리셋되도록 했습니다.
+- `data-workout-complete-form` submit 시 `resetWorkoutClockDisplayOnly("운동 완료")`를 실행하며, 별도 duration 저장 API는 호출하지 않습니다.
+- 검증: 컴파일, JS 문법 검사, 전체 회귀 테스트, 운동/서비스워커 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v2.0.3 오늘 식단 공통 selector 덮어쓰기 수정
 
 - `v2.0.2`의 식단 전용 CSS가 기존 `.record-list > .record-card:not(...)` 공통 selector보다 약해서 실제 화면에서 2열 규칙이 계속 적용됐습니다.

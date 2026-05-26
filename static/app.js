@@ -121,6 +121,13 @@ document.addEventListener("submit", (event) => {
     saveScrollPosition();
   }
 
+  if (form?.matches("[data-workout-complete-form]")) {
+    const completedValue = form.querySelector('input[name="completed"]')?.value;
+    if (completedValue === "1" && typeof resetWorkoutClockDisplayOnly === "function") {
+      resetWorkoutClockDisplayOnly("운동 완료");
+    }
+  }
+
   const durationForm = event.target.closest(".duration-edit-form");
   if (!durationForm || !document.querySelector("[data-workout-clock]")) {
     return;

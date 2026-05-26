@@ -187,6 +187,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
         workout_html = self.client.get("/?date=2026-05-26&mode=workout").data.decode("utf-8")
         self.assertLess(workout_html.index("workout-clock-section"), workout_html.index('id="rest-timer"'))
         self.assertLess(workout_html.index('id="rest-timer"'), workout_html.index("workout-action-dock"))
+        self.assertIn("data-workout-complete-form", workout_html)
+        self.assertIn("resetWorkoutClockDisplayOnly", Path("static/timers.js").read_text(encoding="utf-8"))
         self.assertIn("rest-start-button", workout_html)
         self.assertIn(">타이머 시작</button>", workout_html)
         self.assertNotIn("초 휴식</button>", workout_html)

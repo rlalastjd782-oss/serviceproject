@@ -551,7 +551,7 @@
   <section class="section overview-only workout-only workout-finish-section">
     <div class="section-header">
       <div class="section-title">오늘 상태</div>
-      <form method="post" action="{{ url_for('toggle_session_complete', session_id=session.id) }}">
+      <form method="post" action="{{ url_for('toggle_session_complete', session_id=session.id) }}" data-workout-complete-form>
         <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
         <input type="hidden" name="completed" value="{% if session.completed %}0{% else %}1{% endif %}">
         <button class="{% if session.completed %}btn-danger{% else %}btn-small{% endif %}" type="submit">

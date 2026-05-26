@@ -123,6 +123,12 @@ function resetWorkoutClock() {
   persistWorkoutClock("시간 삭제됨");
 }
 
+function resetWorkoutClockDisplayOnly(message = "운동 완료") {
+  saveWorkoutClock({ startedAt: null, elapsedMs: 0, manualStarted: false });
+  updateWorkoutClockDisplay();
+  updateWorkoutClockStatus(message);
+}
+
 function currentWorkoutElapsedMs() {
   const state = readWorkoutClock();
   return Number(state.elapsedMs || 0) + (state.startedAt ? Date.now() - Number(state.startedAt) : 0);
