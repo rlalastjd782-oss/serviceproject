@@ -183,6 +183,40 @@
   {% endif %}
 
   {% if workout_mode %}
+    <section class="section workout-location-section workout-only">
+      <div class="section-header">
+        <div>
+          <div class="section-title">운동 장소</div>
+          <div class="section-subtitle">장소별 장비 목록을 기준으로 오늘 입력 장비를 먼저 보여줍니다.</div>
+        </div>
+        <a class="btn-small" href="{{ url_for('locations_page') }}">관리</a>
+      </div>
+      <form method="get" action="{{ url_for('index') }}" class="location-select-form">
+        <input type="hidden" name="date" value="{{ session.workout_date }}">
+        <input type="hidden" name="mode" value="workout">
+        <label>
+          <span>현재 장소</span>
+          <select name="location_id" aria-label="운동 장소">
+            {% for location in locations %}
+              <option value="{{ location.id }}" {% if current_location and location.id == current_location.id %}selected{% endif %}>
+                {{ location.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+        <button class="btn-primary" type="submit">적용</button>
+      </form>
+      <div class="location-equipment-strip">
+        {% if location_equipment %}
+          {% for item in location_equipment[:8] %}
+            <span class="badge">{{ item.equipment_name }}</span>
+          {% endfor %}
+        {% else %}
+          <span class="muted">아직 등록된 장비가 없습니다. 운동 저장 시 자동으로 추가됩니다.</span>
+        {% endif %}
+      </div>
+    </section>
+
     <section class="section workout-focus-section workout-only">
       <div class="section-header">
         <div>
@@ -770,6 +804,7 @@
     <form method="post" action="{{ url_for('create_set') }}" class="record-form workout-form" data-workout-form>
      <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
       <input type="hidden" name="mode" value="workout">
+      <input type="hidden" name="location_id" value="{{ current_location.id if current_location else '' }}">
       <div class="ex-input-row">
         <select name="body_part" class="body-part-select" data-body-part-select aria-label="운동 부위">
           {% for part in body_parts %}

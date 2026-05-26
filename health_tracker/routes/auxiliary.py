@@ -8,6 +8,58 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
     def more_page():
         return render_template("more/index.html", active_page="more")
 
+    @app.get("/locations")
+    def locations_page():
+        return render_template(
+            "more/locations.html",
+            active_page="locations",
+            locations=list_workout_locations(include_inactive=True),
+            active_locations=list_workout_locations(),
+            selected_location_id=parse_int(request.args.get("location_id")),
+            equipment_by_location={
+                location["id"]: list_location_equipment(location["id"], include_inactive=True)
+                for location in list_workout_locations(include_inactive=True)
+            },
+        )
+
+    @app.post("/locations")
+    def save_location_route():
+        location_id = parse_int(request.form.get("location_id"))
+        saved_id = save_workout_location(
+            request.form.get("name", ""),
+            request.form.get("address", ""),
+            request.form.get("memo", ""),
+            location_id,
+            request.form.get("is_default") == "1",
+        )
+        return redirect(url_for("locations_page", location_id=saved_id))
+
+    @app.post("/locations/<int:location_id>/default")
+    def set_default_location_route(location_id: int):
+        set_default_workout_location(location_id)
+        return redirect(url_for("locations_page", location_id=location_id))
+
+    @app.post("/locations/<int:location_id>/delete")
+    def delete_location_route(location_id: int):
+        deactivate_workout_location(location_id)
+        return redirect(url_for("locations_page"))
+
+    @app.post("/locations/<int:location_id>/equipment")
+    def save_location_equipment_route(location_id: int):
+        save_location_equipment(
+            location_id,
+            request.form.get("equipment_name", ""),
+            request.form.get("equipment_type", ""),
+            request.form.get("memo", ""),
+        )
+        return redirect(url_for("locations_page", location_id=location_id))
+
+    @app.post("/location-equipment/<int:equipment_id>/delete")
+    def delete_location_equipment_route(equipment_id: int):
+        location_id = parse_int(request.form.get("location_id"))
+        delete_location_equipment(equipment_id)
+        return redirect(url_for("locations_page", location_id=location_id))
+
     @app.get("/qa/report")
     def qa_report_page():
         return render_template(

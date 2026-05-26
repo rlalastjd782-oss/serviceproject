@@ -56,6 +56,12 @@
               <option value="{{ option }}" {% if selected_equipment == option %}selected{% endif %}>{{ option }}</option>
             {% endfor %}
           </select>
+          <select name="location_id" aria-label="운동 장소">
+            <option value="">전체 장소</option>
+            {% for location in locations %}
+              <option value="{{ location.id }}" {% if selected_location_id == location.id %}selected{% endif %}>{{ location.name }}</option>
+            {% endfor %}
+          </select>
           <input class="record-search-start" name="start" type="date" value="{{ selected_start }}" aria-label="시작일">
           <input class="record-search-end" name="end" type="date" value="{{ selected_end }}" aria-label="종료일">
         </div>
@@ -75,7 +81,7 @@
           <div>
             <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
             <strong>{{ item.exercise_name }}</strong>
-            <small>{{ item.workout_date }}{% if item.equipment %} · {{ item.equipment }}{% endif %}</small>
+            <small>{{ item.workout_date }}{% if item.location_name %} · {{ item.location_name }}{% endif %}{% if item.equipment %} · {{ item.equipment }}{% endif %}</small>
           </div>
           <b>
             {% if item.body_part == "유산소" %}

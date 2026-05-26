@@ -29,7 +29,9 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             today_mode = "overview"
         workout_mode = today_mode == "workout"
         meal_mode = today_mode == "meal"
-        today_session = get_or_create_session(selected_date)
+        selected_location_id = parse_int(request.args.get("location_id"))
+        today_session = get_or_create_session(selected_date, selected_location_id)
+        current_location = get_workout_location(today_session["location_id"])
         sessions = list_recent_sessions()
         exercises = list_exercises()
         meals = list_meals_for_date(today_session["workout_date"])
@@ -80,7 +82,10 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             workout_session_flow=build_workout_session_flow(today_session["workout_date"]),
             record_gaps=list_record_gaps(today_session["workout_date"]),
             meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
-            equipment_options=equipment_options(),
+            locations=list_workout_locations(),
+            current_location=current_location,
+            location_equipment=list_location_equipment(current_location["id"]),
+            equipment_options=equipment_options_for_location(current_location["id"]),
             today_mode=today_mode,
             workout_mode=workout_mode,
             meal_mode=meal_mode,
@@ -489,13 +494,14 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.post("/sets")
     def create_set():
-        session = get_or_create_session(request.form.get("workout_date"))
+        location_id = parse_int(request.form.get("location_id"))
+        session = get_or_create_session(request.form.get("workout_date"), location_id)
         mode = request.form.get("mode")
         body_part = request.form.get("body_part", "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", "").strip()
         equipment = request.form.get("equipment", "").strip()
         if not exercise_name:
-            return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
+            return redirect(url_for("index", date=session["workout_date"], mode=mode or None, location_id=session["location_id"]))
 
         set_weights = request.form.getlist("set_weight") or [request.form.get("weight", "")]
         set_weight_units = request.form.getlist("set_weight_unit") or [request.form.get("weight_unit", "kg")]
@@ -552,12 +558,13 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             )
 
         if not set_rows:
-            return redirect(url_for("index", date=session["workout_date"], mode=mode or None))
+            return redirect(url_for("index", date=session["workout_date"], mode=mode or None, location_id=session["location_id"]))
 
         db = get_db()
         exercise_id = get_or_create_exercise(exercise_name)
         if equipment:
             save_exercise_equipment(exercise_name, equipment)
+            upsert_location_equipment(db, int(session["location_id"]), equipment)
         previous_records = get_exercise_record_values(exercise_id)
         next_order = db.execute(
             "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
@@ -601,7 +608,15 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 previous_records = update_record_values(previous_records, weight, reps)
         db.commit()
         rest_seconds = get_exercise_rest_seconds(exercise_name)
-        return redirect(url_for("index", date=session["workout_date"], mode=mode or None, rest=rest_seconds if mode == "workout" else None))
+        return redirect(
+            url_for(
+                "index",
+                date=session["workout_date"],
+                mode=mode or None,
+                location_id=session["location_id"],
+                rest=rest_seconds if mode == "workout" else None,
+            )
+        )
 
     @app.post("/routines/from-day")
     def create_routine_from_day():
@@ -843,12 +858,14 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         selected_start = normalize_optional_date(request.args.get("start"), max_future_days=365) or shift_date(selected_end, -6)
         selected_part = request.args.get("part", "").strip()
         selected_equipment = request.args.get("equipment", "").strip()
+        selected_location_id = parse_int(request.args.get("location_id"))
         query = request.args.get("q", "").strip()
         sort = request.args.get("sort", "newest")
         results, pagination, selected_sort = paged_search_workout_records_filtered(
             query,
             selected_part,
             selected_equipment,
+            selected_location_id,
             selected_start,
             selected_end,
             sort,
@@ -860,6 +877,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             active_page="search",
             body_parts=body_part_options(),
             equipment_options=equipment_options(),
+            locations=list_workout_locations(),
+            selected_location_id=selected_location_id,
             selected_start=selected_start,
             selected_end=selected_end,
             selected_part=selected_part,

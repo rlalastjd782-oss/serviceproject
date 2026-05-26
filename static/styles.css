@@ -177,6 +177,87 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
+.location-create-form,
+.location-edit-form,
+.location-equipment-form {
+  display: grid;
+  gap: 8px;
+}
+
+.location-create-form {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.location-create-form .wide-field {
+  grid-column: 1 / -1;
+}
+
+.location-card-list {
+  display: grid;
+  gap: 12px;
+}
+
+.location-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #111721;
+  padding: 14px;
+}
+
+.location-card.is-disabled,
+.location-equipment-item.is-disabled {
+  opacity: 0.58;
+}
+
+.location-card-head,
+.location-card-actions,
+.location-equipment-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.location-card-head strong {
+  display: block;
+  color: var(--strong);
+  font-size: 16px;
+}
+
+.location-card-head span,
+.location-equipment-item span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.location-card-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.location-edit-form {
+  grid-template-columns: 1fr 1fr 1.4fr auto;
+}
+
+.location-equipment-form {
+  grid-template-columns: 1fr 0.8fr 1.2fr auto;
+}
+
+.location-equipment-list {
+  display: grid;
+  gap: 7px;
+}
+
+.location-equipment-item {
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #0c111a;
+  padding: 9px;
+}
+
 .more-link-card {
   display: grid;
   gap: 6px;
@@ -1543,6 +1624,36 @@ label span {
 .workout-focus-section {
   border-color: rgb(34 197 94 / 30%);
   background: var(--panel);
+}
+
+.workout-location-section {
+  border-color: rgb(96 165 250 / 30%);
+  background: linear-gradient(180deg, #101827, var(--panel));
+}
+
+.location-select-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.location-select-form label {
+  display: grid;
+  gap: 6px;
+}
+
+.location-select-form span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.location-equipment-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
 }
 
 .workout-action-dock {
@@ -4126,6 +4237,19 @@ tbody tr:last-child td {
   .inline-add-form,
   .meal-add-form {
     grid-template-columns: 1fr;
+  }
+
+  .location-select-form,
+  .location-create-form,
+  .location-edit-form,
+  .location-equipment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .location-card-head,
+  .location-equipment-item {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .set-edit-form {

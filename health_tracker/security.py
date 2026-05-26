@@ -18,6 +18,7 @@ ADMIN_GET_ENDPOINTS = {
     "export_yearly_meals_csv_route",
     "qa_report_page",
     "api_sessions",
+    "locations_page",
 }
 
 
