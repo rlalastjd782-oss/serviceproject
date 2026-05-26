@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.15 요약 조회 서비스 분리
+
+- `app.py`에 있던 `get_day_summary`, `list_daily_summary`, `list_weekly_summary` SQL 본문을 `health_tracker/services/summary.py`로 이동했습니다.
+- 분석/기록 화면의 데이터 조회 책임을 서비스 계층으로 넘기고, app.py는 기존 함수명 wrapper만 유지했습니다.
+- 검증: `python -m compileall health_tracker tests`, 샘플 데이터/메인 페이지/분석 메뉴 회귀 테스트, 일별/주별/월별 분석 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.14 데이터 복원 로직 분리
 
 - `app.py`의 전체 데이터 import/복원 로직을 `health_tracker/services/export.py`의 `import_all_data_to_db`로 이동했습니다.
