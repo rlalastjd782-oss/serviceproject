@@ -2,6 +2,14 @@
 
 이 프로젝트는 Semantic Versioning(`MAJOR.MINOR.PATCH`)을 기준으로 관리합니다.
 
+## v1.13.0 - 2026-05-26
+
+- DB 테이블 생성, 인덱스, 컬럼 보정, 초기 bootstrap 흐름을 `health_tracker/database/schema.py`로 분리했습니다.
+- 운동 세트 순서 변경과 운동 생성 helper를 `services/workout.py`로 이동했습니다.
+- 운동 메모, 운동별 휴식시간, 즐겨찾기, 기본 장비/목표 설정 로직을 `services/exercise_settings.py`로 분리했습니다.
+- `app.py`를 `3555`라인에서 `3200`라인까지 추가 경량화했습니다.
+- 전체 테스트와 컴파일 검증을 통과했고, PWA 캐시와 앱 버전을 `v1.13.0`으로 갱신했습니다.
+
 ## v1.12.0 - 2026-05-26
 
 - `app.py`의 추천/회복/코칭 로직을 `services/coaching.py`로 분리했습니다.

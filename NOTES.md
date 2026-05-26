@@ -4,6 +4,12 @@
 
 ## 2026-05-26 작업 기록
 
+- `v1.13.0` DB/운동 설정 분리:
+  - DB schema, index, migration성 컬럼 보정, 식단 legacy 보정, 장소 bootstrap 호출을 `health_tracker/database/schema.py`로 분리했습니다.
+  - 운동 세트 순서 변경과 운동 생성 helper를 `services/workout.py`로 이동했습니다.
+  - 운동 메모/휴식시간/즐겨찾기/장비/목표 설정 로직을 `services/exercise_settings.py`로 분리했습니다.
+  - `app.py`는 `3555`라인에서 `3200`라인까지 줄었습니다.
+  - 검증: `python -m compileall health_tracker tests`, `python -m unittest discover -v` 19개 테스트 통과.
 - `v1.12.0` app.py 추가 경량화:
   - 추천 세션, 운동 부위 추천, 회복 체크인, readiness, 일일 코칭, 적응형 추천을 `services/coaching.py`로 분리했습니다.
   - 루틴 템플릿 적용/저장/삭제와 운동 계획 생성/요약/기본 프로그램 적용을 각각 `services/routine.py`, `services/workout_plan.py`로 분리했습니다.
