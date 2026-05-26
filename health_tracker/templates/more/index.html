@@ -62,6 +62,32 @@
   <section class="section more-group-section">
     <div class="section-header">
       <div>
+        <div class="section-title">헬스장 도구</div>
+        <div class="section-subtitle">운동 중 바로 쓰는 계산기와 분석 도구입니다.</div>
+      </div>
+    </div>
+    <div class="more-link-grid">
+      <a class="more-link-card" href="{{ url_for('plate_calculator_page') }}">
+        <b>Plates</b>
+        <strong>플레이트 계산기</strong>
+        <span>목표 중량 기준 한쪽 원판과 워밍업 세트를 계산합니다.</span>
+      </a>
+      <a class="more-link-card" href="{{ url_for('exercise_summary_page') }}">
+        <b>Overload</b>
+        <strong>과부하 분석</strong>
+        <span>운동별 상승, 정체, 회복 필요 상태를 확인합니다.</span>
+      </a>
+      <a class="more-link-card" href="{{ url_for('exercise_summary_page') }}#muscle-balance">
+        <b>Balance</b>
+        <strong>부위 밸런스</strong>
+        <span>최근 7일 부위별 세트 분포와 부족 부위를 봅니다.</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="section more-group-section">
+    <div class="section-header">
+      <div>
         <div class="section-title">분석과 기록</div>
         <div class="section-subtitle">기록 품질, 실행 추천, 캘린더를 확인합니다.</div>
       </div>

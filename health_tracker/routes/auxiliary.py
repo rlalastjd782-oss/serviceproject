@@ -41,6 +41,13 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             action_insights=build_action_insights(selected_date),
         )
 
+    @app.get("/tools/plate-calculator")
+    def plate_calculator_page():
+        return render_template(
+            "more/plate_calculator.html",
+            active_page="plate_calculator",
+        )
+
     @app.get("/records/check")
     def record_check_page():
         selected_date = normalize_date(request.args.get("date"))

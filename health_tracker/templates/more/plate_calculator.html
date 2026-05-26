@@ -1,0 +1,51 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}플레이트 계산기{% endblock %}
+
+{% block content %}
+  <section class="section more-tool-section plate-tool-page">
+    <div class="section-header">
+      <div>
+        <div class="section-title">플레이트 계산기</div>
+        <div class="section-subtitle">목표 중량과 바벨 무게를 기준으로 한쪽 원판 조합을 계산합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
+    </div>
+    <div class="workout-tool-grid">
+      <div class="tool-card tool-card-large" data-plate-tool>
+        <div class="tool-card-head">
+          <strong>원판 계산</strong>
+          <span>kg 기준</span>
+        </div>
+        <div class="tool-input-row">
+          <label>
+            <span>목표 중량</span>
+            <input type="number" min="0" step="0.5" inputmode="decimal" value="60" data-plate-target>
+          </label>
+          <label>
+            <span>바벨</span>
+            <input type="number" min="0" step="0.5" inputmode="decimal" value="20" data-plate-bar>
+          </label>
+        </div>
+        <div class="plate-result plate-result-large" data-plate-result>20kg x 1</div>
+      </div>
+      <div class="tool-card tool-card-large" data-warmup-tool>
+        <div class="tool-card-head">
+          <strong>워밍업 세트</strong>
+          <span>40/60/80%</span>
+        </div>
+        <div class="tool-input-row">
+          <label>
+            <span>본세트</span>
+            <input type="number" min="0" step="0.5" inputmode="decimal" value="60" data-warmup-target>
+          </label>
+          <label>
+            <span>단위</span>
+            <input type="number" min="0.5" step="0.5" inputmode="decimal" value="2.5" data-warmup-step>
+          </label>
+        </div>
+        <div class="plate-result warmup-result" data-warmup-result></div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

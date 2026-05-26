@@ -2608,6 +2608,116 @@ label span {
   word-break: keep-all;
 }
 
+.next-set-advice {
+  border-color: rgba(80, 160, 255, 0.28);
+  background: rgba(28, 71, 130, 0.18);
+}
+
+.next-set-advice-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.next-set-advice-row span,
+.next-set-advice small {
+  color: var(--muted);
+}
+
+.next-set-advice-row strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.overload-card-grid,
+.muscle-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.overload-card,
+.muscle-balance-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 12px;
+}
+
+.overload-card-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.overload-card-head strong {
+  display: block;
+  margin-top: 5px;
+}
+
+.overload-card-head b {
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.overload-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.overload-metrics span {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 7px 6px;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.overload-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.muscle-balance-card {
+  display: grid;
+  gap: 10px;
+}
+
+.muscle-balance-card strong,
+.muscle-balance-card span {
+  display: block;
+}
+
+.muscle-balance-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.muscle-heatbar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.muscle-heatbar i {
+  display: block;
+  height: 100%;
+  min-width: 5%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #50a0ff, #58d68d);
+}
+
+.tool-card-large {
+  min-height: 180px;
+}
+
 .period-filter-form {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

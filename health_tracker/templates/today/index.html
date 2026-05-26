@@ -760,6 +760,7 @@
         data-recent-sets-by-exercise='{{ recent_sets_by_exercise|tojson }}'
         data-exercise-stats-by-name='{{ exercise_stats_by_name|tojson }}'
         data-overload-suggestions='{{ overload_suggestions|tojson }}'
+        data-next-set-suggestions='{{ next_set_suggestions|tojson }}'
         data-exercise-notes='{{ exercise_notes|tojson }}'
         data-exercise-settings='{{ exercise_settings|tojson }}'
         data-library-url='{{ url_for("exercise_library_page") }}'
@@ -812,6 +813,7 @@
         <div class="quick-panel-title" data-recent-set-title hidden>지난 세트</div>
         <div class="exercise-quick-list" data-recent-set-list></div>
         <div class="quick-note" data-exercise-stat-view hidden></div>
+        <div class="quick-note next-set-advice" data-next-set-advice hidden></div>
         <div class="quick-note" data-overload-suggestion hidden></div>
         <div class="quick-note" data-exercise-note-view hidden></div>
         <div class="quick-note" data-exercise-target-view hidden></div>

@@ -578,6 +578,56 @@
       {% endif %}
     </section>
 
+    <section class="section overload-dashboard-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">과부하 분석</div>
+          <div class="section-subtitle">최근 기록 기준으로 상승, 정체, 회복 필요 상태를 분류합니다.</div>
+        </div>
+      </div>
+      <div class="overload-card-grid">
+        {% for item in progressive_overload_rows[:10] %}
+          <article class="overload-card state-{{ item.state|replace(' ', '-') }}">
+            <div class="overload-card-head">
+              <div>
+                <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+                <strong>{{ item.exercise_name }}</strong>
+              </div>
+              <b>{{ item.state }}</b>
+            </div>
+            <div class="overload-metrics">
+              <span>{{ "%.1f"|format(item.max_weight) }}kg</span>
+              <span>1RM {{ "%.1f"|format(item.estimated_1rm) }}</span>
+              <span>{{ "%+.0f"|format(item.volume_delta) }}kg</span>
+            </div>
+            <p>{{ item.reason }}</p>
+          </article>
+        {% else %}
+          <div class="empty">과부하 분석에 사용할 기록이 없습니다.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section muscle-balance-section" id="muscle-balance">
+      <div class="section-header">
+        <div>
+          <div class="section-title">부위 밸런스</div>
+          <div class="section-subtitle">{{ muscle_balance.period }} · {{ muscle_balance.message }}</div>
+        </div>
+      </div>
+      <div class="muscle-balance-grid">
+        {% for item in muscle_balance["items"] %}
+          <article class="muscle-balance-card {{ item.class_name }}">
+            <div>
+              <strong>{{ item.body_part }}</strong>
+              <span>{{ item.state }} · {{ item.set_count }}세트</span>
+            </div>
+            <div class="muscle-heatbar"><i style="width: {{ item.intensity }}%"></i></div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
     <section class="section">
       <div class="section-header">
         <div class="section-title">운동 기록 검색</div>

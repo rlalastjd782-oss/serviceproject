@@ -27,9 +27,11 @@ const exercisesByBodyPart = parseExerciseQuickData();
 const recentSetsByExercise = parseJsonData(exerciseQuickPanel, "recentSetsByExercise");
 const exerciseStatsByName = parseJsonData(exerciseQuickPanel, "exerciseStatsByName");
 const overloadSuggestions = parseJsonData(exerciseQuickPanel, "overloadSuggestions");
+const nextSetSuggestions = parseJsonData(exerciseQuickPanel, "nextSetSuggestions");
 const exerciseNotes = parseJsonData(exerciseQuickPanel, "exerciseNotes");
 const exerciseSettings = parseJsonData(exerciseQuickPanel, "exerciseSettings");
 const overloadSuggestionView = document.querySelector("[data-overload-suggestion]");
+const nextSetAdviceView = document.querySelector("[data-next-set-advice]");
 const exerciseStatView = document.querySelector("[data-exercise-stat-view]");
 const exerciseNoteView = document.querySelector("[data-exercise-note-view]");
 const exerciseTargetView = document.querySelector("[data-exercise-target-view]");
@@ -165,6 +167,7 @@ document.addEventListener("click", (event) => {
   const detailButton = event.target.closest("[data-toggle-detail]");
   const workoutQuickTab = event.target.closest("[data-workout-quick-tab]");
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
+  const applyNextSetButton = event.target.closest("[data-apply-next-set]");
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
   const copySetButton = event.target.closest("[data-copy-set-row]");
   const copySavedSetButton = event.target.closest("[data-copy-saved-set]");
@@ -258,6 +261,11 @@ document.addEventListener("click", (event) => {
 
   if (copySavedSetButton && setList) {
     copySavedSet(copySavedSetButton, setList);
+    return;
+  }
+
+  if (applyNextSetButton && setList) {
+    applyNextSetSuggestion(applyNextSetButton.dataset.applyNextSet || "", setList);
     return;
   }
 
@@ -566,6 +574,27 @@ function renderExerciseGuidance(exerciseName) {
     overloadSuggestionView.textContent = suggestion;
     overloadSuggestionView.hidden = !suggestion;
   }
+  if (nextSetAdviceView) {
+    const advice = nextSetSuggestions[exerciseName];
+    if (advice) {
+      const weight = advice.weight ? `${Number(advice.weight).toFixed(1)}kg` : "";
+      const reps = advice.reps ? `${Number(advice.reps)}회` : "";
+      const minutes = advice.cardio_minutes ? `${Number(advice.cardio_minutes)}분` : "";
+      const target = [weight, reps, minutes, advice.sets ? `${advice.sets}세트` : ""].filter(Boolean).join(" · ");
+      nextSetAdviceView.innerHTML = `
+        <div class="next-set-advice-row">
+          <span>다음 세트 · ${escapeHtml(advice.type || "추천")}</span>
+          <strong>${escapeHtml(target || "기준 기록")}</strong>
+          <button type="button" class="btn-small" data-apply-next-set="${escapeHtml(exerciseName)}">적용</button>
+        </div>
+        <small>${escapeHtml(advice.reason || "")}</small>
+      `;
+      nextSetAdviceView.hidden = false;
+    } else {
+      nextSetAdviceView.innerHTML = "";
+      nextSetAdviceView.hidden = true;
+    }
+  }
   if (exerciseNoteView) {
     const note = exerciseNotes[exerciseName] || "";
     exerciseNoteView.textContent = note ? `메모: ${note}` : "";
@@ -599,6 +628,33 @@ function setWorkoutExerciseName(exerciseName) {
   renderRecentSetList(exerciseNameInput.value);
   renderExerciseGuidance(exerciseNameInput.value);
   exerciseNameInput.focus();
+}
+
+function applyNextSetSuggestion(exerciseName, setList) {
+  const advice = nextSetSuggestions[exerciseName];
+  if (!advice || !setList) {
+    return;
+  }
+  if (advice.sets) {
+    setBuilderCount(Number(advice.sets));
+  }
+  const rows = getSetRows(setList);
+  rows.forEach((row) => {
+    if (advice.weight) {
+      setInputValue(row, 'input[name="set_weight"]', Number(advice.weight).toFixed(1));
+      const unit = row.querySelector('select[name="set_weight_unit"]');
+      if (unit) {
+        unit.value = "kg";
+      }
+    }
+    if (advice.reps) {
+      setInputValue(row, 'input[name="set_reps"]', String(advice.reps));
+    }
+    if (advice.cardio_minutes) {
+      setInputValue(row, 'input[name="cardio_minutes"]', String(advice.cardio_minutes));
+    }
+  });
+  updateSetWeightPreviews();
 }
 
 function renderFoodQuickList(mealType) {
