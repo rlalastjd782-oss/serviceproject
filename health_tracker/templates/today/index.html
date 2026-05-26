@@ -161,13 +161,13 @@
   {% if workout_mode %}
     {% include "today/_location_panel.html" %}
 
-    <section class="section workout-focus-section workout-only">
+    <section class="section today-task-section workout-focus-section workout-only">
       <div class="section-header">
         <div>
-          <div class="section-title">운동 집중</div>
-          <div class="section-subtitle">운동 중에는 입력, 이전 기록, 휴식만 빠르게 확인합니다.</div>
+          <div class="section-title">오늘 할 일</div>
+          <div class="section-subtitle">운동 중 필요한 다음 동작, 기록, 추천만 먼저 보여줍니다.</div>
         </div>
-        <a class="btn-small" href="#workout-input">입력</a>
+        <button class="btn-small" type="button" data-toggle-workout-form>운동 추가</button>
       </div>
       <div class="focus-grid">
         <article>
@@ -183,9 +183,49 @@
           <span>볼륨 kg</span>
         </article>
       </div>
+      <div class="today-task-grid">
+        <article class="today-task-card primary-task-card">
+          <span>다음 입력</span>
+          {% if workout_session_flow.next_item %}
+            <strong>{{ workout_session_flow.next_item.exercise_name }}</strong>
+            <small>{{ workout_session_flow.next_item.completed_sets }} / {{ workout_session_flow.next_item.target_sets }}세트</small>
+          {% elif workout_session_flow.last_set %}
+            <strong>{{ workout_session_flow.last_set.exercise_name }}</strong>
+            <small>마지막 입력에서 이어서 진행</small>
+          {% else %}
+            <strong>첫 세트 입력</strong>
+            <small>운동 추가를 눌러 바로 기록합니다.</small>
+          {% endif %}
+        </article>
+        <article class="today-task-card">
+          <span>마지막 기록</span>
+          {% if workout_session_flow.last_set %}
+            <strong>{{ workout_session_flow.last_set.exercise_name }}</strong>
+            <small>
+              {% if workout_session_flow.last_set.body_part == "유산소" %}
+                {{ "%.0f"|format(workout_session_flow.last_set.cardio_minutes or 0) }}분
+              {% else %}
+                {{ "%.1f"|format(workout_session_flow.last_set.weight or 0) }}kg x {{ workout_session_flow.last_set.reps or 0 }}회
+              {% endif %}
+            </small>
+          {% else %}
+            <strong>기록 없음</strong>
+            <small>오늘 운동을 시작하면 표시됩니다.</small>
+          {% endif %}
+        </article>
+        <article class="today-task-card task-action-card">
+          <span>휴식</span>
+          <strong>{{ workout_session_flow.rest_seconds }}초</strong>
+          {% if workout_session_flow.last_set %}
+            <button class="btn-small rest-start-button" type="button" data-rest-seconds="{{ workout_session_flow.rest_seconds }}">타이머 시작</button>
+          {% else %}
+            <a class="btn-small" href="#rest-timer">타이머 보기</a>
+          {% endif %}
+        </article>
+      </div>
       {% if workout_focus_recommendations %}
         <div class="focus-suggestion-list">
-          {% for item in workout_focus_recommendations %}
+          {% for item in workout_focus_recommendations[:3] %}
             <article class="focus-suggestion-card">
               <div>
                 <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
@@ -215,8 +255,10 @@
         </div>
       {% endif %}
       {% if adaptive_training_recommendations %}
-        <div class="focus-suggestion-list adaptive-recommendation-list">
-          {% for item in adaptive_training_recommendations %}
+        <details class="optional-workout-panel">
+          <summary>추가 추천 보기</summary>
+          <div class="focus-suggestion-list adaptive-recommendation-list">
+          {% for item in adaptive_training_recommendations[:4] %}
             <article class="focus-suggestion-card adaptive-recommendation-card">
               <div>
                 <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
@@ -235,54 +277,13 @@
               >적용</button>
             </article>
           {% endfor %}
-        </div>
+          </div>
+        </details>
       {% endif %}
       <div class="focus-shortcuts">
         <a class="btn-small" href="#today-workout">오늘 운동</a>
         <a class="btn-small" href="#rest-timer">휴식 타이머</a>
         <a class="btn-small" href="#workout-plan">루틴 진행</a>
-      </div>
-    </section>
-  {% endif %}
-
-  {% if workout_mode %}
-    <section class="section workout-only session-flow-section">
-      <div class="section-header">
-        <div>
-          <div class="section-title">운동 진행</div>
-          <div class="section-subtitle">지금 할 운동과 다음 입력을 짧게 확인합니다.</div>
-        </div>
-        {% if workout_session_flow.last_set %}
-          <button class="btn-small rest-start-button" type="button" data-rest-seconds="{{ workout_session_flow.rest_seconds }}">타이머 시작</button>
-        {% endif %}
-      </div>
-      <div class="session-flow-grid">
-        <article class="session-flow-card">
-          <span>마지막 입력</span>
-          {% if workout_session_flow.last_set %}
-            <strong>{{ workout_session_flow.last_set.exercise_name }}</strong>
-            <small>
-              {% if workout_session_flow.last_set.body_part == "유산소" %}
-                {{ "%.0f"|format(workout_session_flow.last_set.cardio_minutes or 0) }}분
-              {% else %}
-                {{ "%.1f"|format(workout_session_flow.last_set.weight or 0) }}kg x {{ workout_session_flow.last_set.reps or 0 }}회
-              {% endif %}
-            </small>
-          {% else %}
-            <strong>아직 입력 없음</strong>
-            <small>첫 세트를 저장하면 여기에 표시됩니다.</small>
-          {% endif %}
-        </article>
-        <article class="session-flow-card">
-          <span>다음 운동</span>
-          {% if workout_session_flow.next_item %}
-            <strong>{{ workout_session_flow.next_item.exercise_name }}</strong>
-            <small>{{ workout_session_flow.next_item.completed_sets }} / {{ workout_session_flow.next_item.target_sets }}세트</small>
-          {% else %}
-            <strong>루틴 미설정</strong>
-            <small>루틴을 불러오거나 직접 입력하세요.</small>
-          {% endif %}
-        </article>
       </div>
     </section>
   {% endif %}
@@ -414,13 +415,11 @@
     </section>
   {% endif %}
 
-  <section class="section workout-only workout-secondary-section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">운동 도구</div>
-        <div class="section-subtitle">중량 세팅과 워밍업을 빠르게 계산합니다.</div>
-      </div>
-    </div>
+  <details class="section workout-only workout-secondary-section optional-workout-panel">
+    <summary>
+      <span>운동 도구</span>
+      <small>중량 세팅과 워밍업 계산</small>
+    </summary>
     <div class="workout-tool-grid">
       <div class="tool-card" data-plate-tool>
         <div class="tool-card-head">
@@ -457,15 +456,13 @@
         <div class="warmup-result" data-warmup-result></div>
       </div>
     </div>
-  </section>
+  </details>
 
-  <section class="section workout-only workout-secondary-section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">오늘 운동 계획</div>
-        <div class="section-subtitle">운동 전에 할 종목을 먼저 잡아둡니다.</div>
-      </div>
-    </div>
+  <details class="section workout-only workout-secondary-section optional-workout-panel" id="workout-plan">
+    <summary>
+      <span>오늘 운동 계획</span>
+      <small>운동 전 종목 관리</small>
+    </summary>
     <form method="post" action="{{ url_for('create_plan_item_route') }}" class="routine-form">
       <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
       <select name="body_part" class="body-part-select" data-body-part-select aria-label="계획 부위">
@@ -488,7 +485,7 @@
         <div class="empty compact-empty">오늘 계획 없음</div>
       {% endfor %}
     </div>
-  </section>
+  </details>
 
   <div class="summary-grid overview-only">
     <article class="summary-card">
@@ -730,9 +727,13 @@
 
   <section class="section workout-only" id="workout-input">
     <div class="section-header">
-      <div class="section-title">🏃 운동 입력</div>
+      <div>
+        <div class="section-title">🏃 운동 입력</div>
+        <div class="section-subtitle">필요할 때 열어서 여러 세트를 한 번에 저장합니다.</div>
+      </div>
+      <button class="btn-small" type="button" data-toggle-workout-form>운동 추가</button>
     </div>
-    <form method="post" action="{{ url_for('create_set') }}" class="record-form workout-form" data-workout-form>
+    <form method="post" action="{{ url_for('create_set') }}" class="record-form workout-form is-collapsed" data-workout-form>
      <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
       <input type="hidden" name="mode" value="workout">
       <input type="hidden" name="location_id" value="{{ current_location.id if current_location else '' }}">
@@ -891,7 +892,10 @@
           </div>
         </div>
       </div>
-      <button class="btn-primary" type="submit">운동 저장</button>
+      <div class="form-action-row">
+        <button class="btn-primary" type="submit">운동 저장</button>
+        <button class="btn-small" type="button" data-cancel-workout-form>닫기</button>
+      </div>
     </form>
   </section>
 

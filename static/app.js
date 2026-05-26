@@ -181,6 +181,8 @@ document.addEventListener("click", (event) => {
   const workoutClockPauseButton = event.target.closest("[data-workout-clock-pause]");
   const workoutClockSaveButton = event.target.closest("[data-workout-clock-save]");
   const workoutClockResetButton = event.target.closest("[data-workout-clock-reset]");
+  const workoutFormToggleButton = event.target.closest("[data-toggle-workout-form]");
+  const workoutFormCancelButton = event.target.closest("[data-cancel-workout-form]");
   const mealFormToggleButton = event.target.closest("[data-toggle-meal-form]");
   const mealFormCancelButton = event.target.closest("[data-cancel-meal-form]");
   const cardToggleButton = event.target.closest("[data-toggle-card]");
@@ -198,6 +200,16 @@ document.addEventListener("click", (event) => {
 
   if (workoutQuickTab) {
     setWorkoutQuickTab(workoutQuickTab.dataset.workoutQuickTab || "recent");
+    return;
+  }
+
+  if (workoutFormToggleButton && workoutForm) {
+    toggleWorkoutForm();
+    return;
+  }
+
+  if (workoutFormCancelButton && workoutForm) {
+    closeWorkoutForm();
     return;
   }
 
@@ -260,16 +272,19 @@ document.addEventListener("click", (event) => {
   }
 
   if (copySavedSetButton && setList) {
+    openWorkoutForm();
     copySavedSet(copySavedSetButton, setList);
     return;
   }
 
   if (applyNextSetButton && setList) {
+    openWorkoutForm();
     applyNextSetSuggestion(applyNextSetButton.dataset.applyNextSet || "", setList);
     return;
   }
 
   if (quickExerciseButton && exerciseNameInput) {
+    openWorkoutForm();
     setWorkoutExerciseName(quickExerciseButton.dataset.exerciseName || "");
     const equipmentSelect = workoutForm?.querySelector('select[name="equipment"]');
     if (equipmentSelect && quickExerciseButton.dataset.equipment) {
@@ -628,6 +643,44 @@ function setWorkoutExerciseName(exerciseName) {
   renderRecentSetList(exerciseNameInput.value);
   renderExerciseGuidance(exerciseNameInput.value);
   exerciseNameInput.focus();
+}
+
+function getWorkoutFormToggleButtons() {
+  return Array.from(document.querySelectorAll("[data-toggle-workout-form]"));
+}
+
+function setWorkoutFormToggleText(isCollapsed) {
+  getWorkoutFormToggleButtons().forEach((button) => {
+    button.textContent = isCollapsed ? "운동 추가" : "입력 닫기";
+    button.setAttribute("aria-expanded", String(!isCollapsed));
+  });
+}
+
+function openWorkoutForm() {
+  if (!workoutForm) {
+    return;
+  }
+  workoutForm.classList.remove("is-collapsed");
+  setWorkoutFormToggleText(false);
+}
+
+function closeWorkoutForm() {
+  if (!workoutForm) {
+    return;
+  }
+  workoutForm.classList.add("is-collapsed");
+  setWorkoutFormToggleText(true);
+}
+
+function toggleWorkoutForm() {
+  if (!workoutForm) {
+    return;
+  }
+  const isCollapsed = workoutForm.classList.toggle("is-collapsed");
+  setWorkoutFormToggleText(isCollapsed);
+  if (!isCollapsed) {
+    workoutForm.querySelector("input:not([type='hidden']), select")?.focus();
+  }
 }
 
 function applyNextSetSuggestion(exerciseName, setList) {

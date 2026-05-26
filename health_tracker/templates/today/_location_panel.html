@@ -1,8 +1,8 @@
-<section class="section workout-location-section workout-only">
+<section class="section workout-location-section compact-location-section workout-only">
   <div class="section-header">
     <div>
-      <div class="section-title">운동 장소</div>
-      <div class="section-subtitle">운동명 후보는 현재 장소 기준으로 좁히고, 장비 카테고리는 전체 기본값을 사용합니다.</div>
+      <div class="section-title">현재 장소{% if current_location %} · {{ current_location.name }}{% endif %}</div>
+      <div class="section-subtitle">장소별로 최근 운동 후보를 먼저 보여줍니다.</div>
     </div>
     <a class="btn-small" href="{{ url_for('locations_page') }}">관리</a>
   </div>
@@ -21,8 +21,8 @@
     </label>
     <button class="btn-primary" type="submit">적용</button>
   </form>
-  <div class="location-equipment-strip">
-    <strong>장비 카테고리</strong>
+  <div class="location-equipment-strip compact-strip">
+    <strong>장비</strong>
     {% if location_equipment %}
       <div class="location-equipment-chip-row">
         {% for item in location_equipment[:8] %}
@@ -34,7 +34,8 @@
     {% endif %}
   </div>
   {% if location_quick_exercises %}
-    <div class="location-quick-title">이 장소의 최근 운동</div>
+    <details class="location-quick-panel">
+      <summary>이 장소의 최근 운동</summary>
     <div class="location-quick-exercise-list">
       {% for item in location_quick_exercises %}
         <button
@@ -51,5 +52,6 @@
         </button>
       {% endfor %}
     </div>
+    </details>
   {% endif %}
 </section>
