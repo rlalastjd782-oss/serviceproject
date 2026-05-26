@@ -125,9 +125,14 @@ from health_tracker.services.meal import (
     list_recent_meal_days_from_db,
     list_weekly_meal_days_from_db,
 )
+from health_tracker.services.muscle_balance import build_muscle_balance as build_muscle_balance_from_db
 from health_tracker.services.pagination import build_pagination, page_params, query_url
 from health_tracker.services.preferences import app_preferences as build_app_preferences
 from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
+from health_tracker.services.progressive_overload import (
+    build_next_set_suggestions as build_next_set_suggestions_from_db,
+    list_progressive_overload_rows as list_progressive_overload_rows_from_db,
+)
 from health_tracker.services.pr import (
     build_pr_cards_from_rows,
     build_pr_dashboard_from_rows,
@@ -672,6 +677,19 @@ def list_workout_focus_recommendations(workout_date: str, limit: int = 5) -> lis
 
 def build_adaptive_training_recommendations(workout_date: str, limit: int = 6) -> list[dict[str, object]]:
     return build_adaptive_training_recommendations_from_db(get_db(), workout_date, shift_date, limit)
+
+
+def build_next_set_suggestions(exercise_names: list[str], workout_date: str, limit: int = 8) -> dict[str, dict[str, object]]:
+    readiness = build_readiness_profile(workout_date)
+    return build_next_set_suggestions_from_db(get_db(), exercise_names, int(readiness["percent"] or 60), limit)
+
+
+def list_progressive_overload_rows(limit: int = 30) -> list[dict[str, object]]:
+    return list_progressive_overload_rows_from_db(get_db(), limit)
+
+
+def build_muscle_balance(start_date: str, end_date: str) -> dict[str, object]:
+    return build_muscle_balance_from_db(get_db(), start_date, end_date, body_part_class)
 
 
 def build_nutrition_training_link(scope: str = "weekly", date_text: str | None = None) -> dict[str, object]:

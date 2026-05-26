@@ -35,6 +35,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         preferences = get_app_preferences()
         sessions = list_recent_sessions()
         exercises = list_exercises(current_location["id"])
+        quick_names = [row["name"] for row in exercises[:12]]
         meals = list_meals_for_date(today_session["workout_date"])
         return render_template(
             "today/index.html",
@@ -45,6 +46,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             recent_sets_by_exercise=list_recent_sets_by_exercise(location_id=current_location["id"]),
             exercise_stats_by_name=list_exercise_stats_by_name(current_location["id"]),
             overload_suggestions=list_overload_suggestions(),
+            next_set_suggestions=build_next_set_suggestions(quick_names, today_session["workout_date"]),
             exercise_notes=list_exercise_notes(),
             exercise_settings=list_exercise_settings(),
             pr_events=list_pr_events(today_session["workout_date"]),
@@ -294,6 +296,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             search_pagination=search_pagination,
             search_sort=search_sort,
             active_page="exercises",
+            progressive_overload_rows=list_progressive_overload_rows(limit=24),
+            muscle_balance=build_muscle_balance(shift_date(current_local_date(), -6), current_local_date()),
         )
 
     @app.get("/summaries/equipment")
