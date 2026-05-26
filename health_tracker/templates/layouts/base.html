@@ -9,6 +9,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='rules.css') }}">
     <title>{% block title %}피트니스 트래커{% endblock %}</title>
   </head>
   <body class="{% if is_admin %}admin-mode{% else %}visitor-mode{% endif %}">

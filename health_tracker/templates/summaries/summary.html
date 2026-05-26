@@ -180,32 +180,7 @@
       </section>
     {% endif %}
 
-    {% if active_page == "weekly" and weekly_rule_report %}
-      <section class="section rule-card-section">
-        <div class="section-header">
-          <div>
-            <div class="section-title">운동 지식 룰셋</div>
-            <div class="section-subtitle">{{ weekly_rule_report.period }} · {{ weekly_rule_report.summary }}</div>
-          </div>
-        </div>
-        <div class="rule-card-grid">
-          {% for item in weekly_rule_report["items"] %}
-            <article class="rule-card state-{{ item.state }}">
-              <div>
-                <span>{{ item.body_part }} · {{ item.state }}</span>
-                <strong>{{ item.set_count }} / {{ item.target_min }}-{{ item.target_max }}세트</strong>
-              </div>
-              <p>{{ item.advice }}</p>
-              <small>
-                평균 RPE {% if item.avg_rpe %}{{ "%.1f"|format(item.avg_rpe) }}{% else %}-{% endif %}
-                · 휴식 {{ item.rest_seconds }}초
-                {% if item.alternatives %} · 대체 {{ item.alternatives|join(", ") }}{% endif %}
-              </small>
-            </article>
-          {% endfor %}
-        </div>
-      </section>
-    {% endif %}
+    {% include "summaries/_rule_report.html" %}
 
     {% if active_page == "monthly" and monthly_report %}
       <section class="section">

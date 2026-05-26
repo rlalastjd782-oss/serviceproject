@@ -307,28 +307,7 @@
     </section>
   {% endif %}
 
-  {% if workout_mode and today_rule_cards %}
-    <section class="section workout-only rule-card-section">
-      <div class="section-header">
-        <div>
-          <div class="section-title">운동 룰셋</div>
-          <div class="section-subtitle">권장 주간 세트, RPE, 휴식 기준으로 해석합니다.</div>
-        </div>
-      </div>
-      <div class="rule-card-grid">
-        {% for item in today_rule_cards %}
-          <article class="rule-card state-{{ item.state }}">
-            <div>
-              <span>{{ item.title }}</span>
-              <strong>{{ item.detail }}</strong>
-            </div>
-            <p>{{ item.advice }}</p>
-            <small>권장 휴식 {{ item.rest_seconds }}초{% if item.alternatives %} · 대체 {{ item.alternatives|join(", ") }}{% endif %}</small>
-          </article>
-        {% endfor %}
-      </div>
-    </section>
-  {% endif %}
+  {% include "today/_rule_cards.html" %}
 
   {% if workout_mode and recovery_statuses %}
     <section class="section workout-only workout-secondary-section">
