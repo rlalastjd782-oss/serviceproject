@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.17 최근 세션 조회 서비스 분리
+
+- `app.py`에 있던 최근 운동 세션 SQL을 `health_tracker/services/workout.py`의 `list_recent_sessions_from_db`로 이동했습니다.
+- `/api/sessions`가 사용하는 기존 wrapper는 유지해 라우트 변경 없이 app.py SQL 본문을 줄였습니다.
+- 검증: `python -m compileall health_tracker tests`, 메인/운동·식단 회귀 테스트, `/api/sessions`와 오늘 운동 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.16 연간 export 서비스 분리
 
 - `app.py`의 연간 JSON payload 조립, CSV 직렬화, 연간 운동/식단 CSV export 본문을 `health_tracker/services/yearly.py`로 이동했습니다.

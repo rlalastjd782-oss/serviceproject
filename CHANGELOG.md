@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.25.17 - 2026-05-26
+
+- 최근 운동 세션 API 조회 SQL을 `services/workout.py`로 이동했습니다.
+- `/api/sessions`가 쓰는 `app.py` 함수는 wrapper만 남겨 workout 데이터 조회 책임을 서비스 계층으로 정리했습니다.
+- 최근 세션 API, 오늘 운동 렌더링, 메인/운동·식단 회귀 테스트를 통과했습니다.
+
 ## v1.25.16 - 2026-05-26
 
 - 연간 JSON/CSV export 조립 로직을 `services/yearly.py`로 이동했습니다.

@@ -75,3 +75,25 @@ def grouped_sets_for_session_from_db(db: sqlite3.Connection, session_id: int | N
             groups.append(group)
         group_map[key]["sets"].append(row)
     return groups
+
+
+def list_recent_sessions_from_db(db: sqlite3.Connection, limit: int = 10) -> list[sqlite3.Row]:
+    return db.execute(
+        """
+        SELECT
+            s.id,
+            s.workout_date,
+            COALESCE(s.duration_seconds, 0) AS duration_seconds,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
+            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories
+        FROM workout_sessions s
+        LEFT JOIN workout_sets ws ON ws.session_id = s.id
+        GROUP BY s.id, s.duration_seconds
+        HAVING COUNT(ws.id) > 0 OR COALESCE(s.completed, 0) = 1
+        ORDER BY s.workout_date DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
