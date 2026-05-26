@@ -2993,12 +2993,14 @@ label span {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 70px;
   gap: 6px;
+  min-height: 42px;
 }
 
 .weight-unit-control input,
 .weight-unit-control select {
   min-width: 0;
   width: 100%;
+  min-height: 42px;
 }
 
 .weight-preview {
@@ -3047,10 +3049,24 @@ label span {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
   grid-column: 1;
+  align-items: start;
 }
 
 .set-entry-row > .compact-field-grid {
   grid-area: fields;
+}
+
+.set-entry-row .compact-field-grid label {
+  display: grid;
+  grid-template-rows: 16px 42px 16px;
+  gap: 4px;
+  min-width: 0;
+}
+
+.set-entry-row .compact-field-grid label:not(.weight-unit-field)::after {
+  content: "";
+  display: block;
+  min-height: 16px;
 }
 
 .meal-compact-grid {
