@@ -466,3 +466,342 @@
   }
 }
 
+/* v1.25.6: unified post-cache UI pass */
+.section {
+  overflow: hidden;
+}
+
+.section-header {
+  gap: 12px;
+}
+
+.section-header > .settings-action-row,
+.section-header > form,
+.section-header > a.btn-small {
+  flex: 0 0 auto;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.calendar-weekday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  border: 1px solid rgb(71 85 105 / 48%);
+  border-radius: 8px;
+  background: #0b1220;
+  color: #bfdbfe;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.calendar-cell {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 7px;
+  min-height: 104px;
+  border: 1px solid rgb(71 85 105 / 68%);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 4%), transparent), #101722;
+  color: #e5edf9;
+  padding: 9px;
+  text-decoration: none;
+}
+
+.calendar-cell:hover {
+  border-color: rgb(96 165 250 / 70%);
+  background: #122036;
+}
+
+.calendar-cell.is-complete {
+  border-color: rgb(34 197 94 / 48%);
+  background: linear-gradient(180deg, rgb(34 197 94 / 9%), transparent), #101722;
+}
+
+.calendar-cell.is-empty {
+  pointer-events: none;
+  border-color: transparent;
+  background: transparent;
+}
+
+.calendar-cell strong {
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.calendar-cell small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.38;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.calendar-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-height: 8px;
+}
+
+.calendar-dots span {
+  width: 8px;
+  height: 8px;
+}
+
+.library-section .filter-form,
+.library-filter-form,
+.record-list-toolbar,
+.period-filter-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) repeat(auto-fit, minmax(118px, auto));
+  gap: 9px;
+  align-items: center;
+}
+
+.library-filter-form .list-toolbar,
+.record-list-toolbar .list-toolbar {
+  grid-column: 1 / -1;
+}
+
+.library-filter-form .inline-check {
+  min-height: 42px;
+  justify-content: center;
+  border: 1px solid rgb(71 85 105 / 58%);
+  border-radius: 8px;
+  background: #0b1220;
+  padding: 0 10px;
+}
+
+.library-result-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid rgb(71 85 105 / 62%);
+  border-radius: 8px;
+  background: #0b1220;
+  padding: 10px 12px;
+}
+
+.library-result-head strong {
+  color: #e5edf9;
+  font-size: 15px;
+}
+
+.library-result-head span {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.library-grid {
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  gap: 12px;
+}
+
+.library-card {
+  align-content: start;
+  gap: 11px;
+  border-color: rgb(71 85 105 / 72%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 4%), transparent), #111823;
+  padding: 13px;
+}
+
+.library-card > strong {
+  color: #f8fafc;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.library-card .compact-detail-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.library-card .detail-row {
+  grid-template-columns: 1fr;
+  gap: 3px;
+  min-height: 44px;
+  padding: 7px 9px;
+}
+
+.library-card .detail-row span {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.library-card .detail-row strong {
+  color: #e5edf9;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.library-card .settings-action-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0;
+}
+
+.exercise-quick-panel {
+  border-radius: 8px;
+}
+
+.quick-tab-button {
+  border-color: rgb(71 85 105 / 72%);
+  background: #111827;
+  color: #cbd5e1;
+}
+
+.quick-tab-button.is-active,
+.quick-tab-button[aria-selected="true"] {
+  border-color: rgb(96 165 250 / 78%);
+  background: rgb(37 99 235 / 24%);
+  color: #eff6ff;
+}
+
+.settings-action-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 11px;
+}
+
+.settings-action-card {
+  align-content: start;
+  border-color: rgb(71 85 105 / 68%);
+  background: linear-gradient(180deg, rgb(255 255 255 / 4%), transparent), #111823;
+  padding: 13px;
+}
+
+.settings-action-card .settings-action-row,
+.settings-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.settings-action-card .import-form,
+.import-form {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(140px, 0.75fr) auto;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.danger-zone,
+.settings-action-card:has(.btn-danger) {
+  border-color: rgb(248 113 113 / 44%);
+  background: linear-gradient(180deg, rgb(127 29 29 / 15%), transparent), #16131a;
+}
+
+.summary-card,
+.health-card,
+.data-center-card {
+  border-radius: 8px;
+}
+
+.record-body-part-section .cat-stat-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "name action"
+    "count action"
+    "meta meta";
+  min-height: 116px;
+}
+
+.cat-stat-name {
+  grid-area: name;
+}
+
+.cat-stat-count {
+  grid-area: count;
+  line-height: 1;
+}
+
+.cat-stat-unit,
+.cat-stat-pr {
+  grid-area: meta;
+}
+
+.cat-stat-card .detail-inline-btn {
+  grid-area: action;
+  align-self: start;
+}
+
+@media (max-width: 900px) {
+  .calendar-grid {
+    gap: 6px;
+  }
+
+  .calendar-cell {
+    min-height: 94px;
+    padding: 7px;
+  }
+
+  .library-card .compact-detail-list {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-action-card .import-form,
+  .import-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .calendar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-weekday,
+  .calendar-cell.is-empty {
+    display: none;
+  }
+
+  .calendar-cell {
+    min-height: auto;
+    grid-template-columns: 42px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "day dots"
+      "day meta";
+  }
+
+  .calendar-cell strong {
+    grid-area: day;
+  }
+
+  .calendar-dots {
+    grid-area: dots;
+  }
+
+  .calendar-cell small {
+    grid-area: meta;
+    -webkit-line-clamp: 2;
+  }
+
+  .library-section .filter-form,
+  .library-filter-form,
+  .record-list-toolbar,
+  .period-filter-form,
+  .library-result-head,
+  .library-card .settings-action-row {
+    grid-template-columns: 1fr;
+  }
+
+  .library-result-head {
+    align-items: stretch;
+  }
+}
+

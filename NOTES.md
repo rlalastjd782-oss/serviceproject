@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.6 전체 UI 점검
+
+- 업데이트 후 캘린더가 세로 텍스트처럼 무너진 핵심 원인은 `static/styles.css`의 `.next-set-advice-row {.next-set-advice-row {` 중괄호 오류였습니다. 이 줄 때문에 뒤쪽 CSS 블록이 브라우저에서 정상 적용되지 않았습니다.
+- 오류를 `.next-set-advice-row {`로 바로잡고 `styles.css`, `rules.css`, `ui_rebuild.css`의 중괄호 균형을 검사했습니다.
+- `static/ui_rebuild.css`에 캘린더, 운동 라이브러리, 빠른 운동 선택, 날짜별 기록, 부위별 분석, 데이터 관리/QA 카드의 공통 UI 보정 규칙을 추가했습니다.
+- 브라우저 DOM 기준으로 `/calendar`, `/exercises/library`, `/summaries/daily`, `/summaries/weekly`의 주요 그리드와 카드가 적용되고 가로 overflow가 0인 것을 확인했습니다.
+- 버전, manifest, service worker cache를 `v1.25.6`으로 올려 PWA 캐시가 예전 깨진 CSS를 잡고 있지 않게 했습니다.
+
 ## 2026-05-26 추가 UI 리빌딩 메모
 
 - `v1.25.5` 보정 CSS가 일부 화면에서 캐시/로드 순서 영향으로 바로 반영되지 않는 문제가 있어 `static/ui_rebuild.css`를 별도 파일로 분리하고 `rules.css` 뒤에서 마지막으로 로드되게 했습니다.

@@ -2794,7 +2794,7 @@ label span {
   border-color: rgb(168 85 247 / 32%);
 }
 
-.next-set-advice-row {.next-set-advice-row {
+.next-set-advice-row {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) auto;
   align-items: center;
