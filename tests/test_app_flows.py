@@ -314,6 +314,36 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 "set_type": ["본세트"],
             },
         )
+        other_location_response = self.client.post(
+            "/locations",
+            data={"name": "다른장소", "address": "", "memo": ""},
+        )
+        self.assertEqual(other_location_response.status_code, 302)
+        with self.app.app_context():
+            other_location = app_module.get_db().execute(
+                "SELECT id FROM workout_locations WHERE name = ?",
+                ("다른장소",),
+            ).fetchone()
+            other_location_id = int(other_location["id"])
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-27",
+                "mode": "workout",
+                "location_id": str(other_location_id),
+                "body_part": "가슴",
+                "exercise_name": "다른장소 전용운동",
+                "equipment": "덤벨",
+                "set_weight": ["20"],
+                "set_reps": ["10"],
+                "set_type": ["본세트"],
+            },
+        )
+        scoped_workout_html = self.client.get(f"/?mode=workout&location_id={location_id}").data.decode("utf-8")
+        self.assertIn("장소 테스트 스쿼트", scoped_workout_html)
+        self.assertNotIn('<option value="다른장소 전용운동">', scoped_workout_html)
+        self.assertNotIn('data-exercise-name="다른장소 전용운동"', scoped_workout_html)
+
         search_html = self.client.get(
             "/records/search",
             query_string={

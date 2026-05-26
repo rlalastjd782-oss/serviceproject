@@ -601,13 +601,27 @@ def get_or_create_exercise(name: str) -> int:
     return int(cursor.lastrowid)
 
 
-def list_exercises() -> list[sqlite3.Row]:
+def list_exercises(location_id: int | None = None) -> list[sqlite3.Row]:
+    if location_id:
+        return get_db().execute(
+            """
+            SELECT DISTINCT e.id, e.name
+            FROM exercises e
+            JOIN workout_sets ws ON ws.exercise_id = e.id
+            JOIN workout_sessions s ON s.id = ws.session_id
+            WHERE s.location_id = ?
+            ORDER BY e.name
+            """,
+            (location_id,),
+        ).fetchall()
     return get_db().execute("SELECT id, name FROM exercises ORDER BY name").fetchall()
 
 
-def list_exercises_by_body_part() -> dict[str, list[str]]:
+def list_exercises_by_body_part(location_id: int | None = None) -> dict[str, list[str]]:
+    location_where = "WHERE s.location_id = ?" if location_id else ""
+    params = (location_id,) if location_id else ()
     rows = get_db().execute(
-        """
+        f"""
         SELECT
             COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
             e.name,
@@ -616,9 +630,11 @@ def list_exercises_by_body_part() -> dict[str, list[str]]:
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
         JOIN workout_sessions s ON s.id = ws.session_id
+        {location_where}
         GROUP BY body_part, e.name
         ORDER BY body_part, last_date DESC, use_count DESC, e.name
-        """
+        """,
+        params,
     ).fetchall()
     exercises_by_part = {part: [] for part in body_part_options()}
     for row in rows:
@@ -627,16 +643,23 @@ def list_exercises_by_body_part() -> dict[str, list[str]]:
     return exercises_by_part
 
 
-def list_recent_sets_by_exercise(limit: int = 6) -> dict[str, list[dict[str, float | int | None]]]:
+def list_recent_sets_by_exercise(
+    limit: int = 6,
+    location_id: int | None = None,
+) -> dict[str, list[dict[str, float | int | None]]]:
+    location_filter = "AND s.location_id = ?" if location_id else ""
+    params = (location_id,) if location_id else ()
     rows = get_db().execute(
-        """
+        f"""
         SELECT e.name, ws.weight, ws.reps, s.workout_date, ws.sort_order
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
         JOIN workout_sessions s ON s.id = ws.session_id
         WHERE ws.weight IS NOT NULL OR ws.reps IS NOT NULL
+        {location_filter}
         ORDER BY s.workout_date DESC, ws.sort_order ASC, ws.id ASC
-        """
+        """,
+        params,
     ).fetchall()
     grouped: dict[str, list[dict[str, float | int | None]]] = {}
     seen_dates: set[str] = set()
@@ -653,9 +676,12 @@ def list_recent_sets_by_exercise(limit: int = 6) -> dict[str, list[dict[str, flo
     return grouped
 
 
-def list_exercise_stats_by_name() -> dict[str, dict[str, object]]:
+def list_exercise_stats_by_name(location_id: int | None = None) -> dict[str, dict[str, object]]:
+    location_filter = "AND s.location_id = ?" if location_id else ""
+    recent_location_filter = "AND s2.location_id = ?" if location_id else ""
+    params: tuple[object, ...] = (location_id, location_id) if location_id else ()
     rows = get_db().execute(
-        """
+        f"""
         SELECT
             e.name,
             MAX(ws.weight) AS best_weight,
@@ -667,14 +693,18 @@ def list_exercise_stats_by_name() -> dict[str, dict[str, object]]:
                 JOIN workout_sessions s2 ON s2.id = ws2.session_id
                 WHERE ws2.exercise_id = e.id
                   AND (ws2.weight IS NOT NULL OR ws2.reps IS NOT NULL)
+                  {recent_location_filter}
                 ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
                 LIMIT 1
             ) AS recent
         FROM exercises e
         JOIN workout_sets ws ON ws.exercise_id = e.id
+        JOIN workout_sessions s ON s.id = ws.session_id
         WHERE ws.weight IS NOT NULL OR ws.reps IS NOT NULL
+        {location_filter}
         GROUP BY e.id, e.name
-        """
+        """,
+        params,
     ).fetchall()
     return {
         row["name"]: {
@@ -752,9 +782,11 @@ def delete_food_favorite(food_name: str) -> None:
     get_db().commit()
 
 
-def list_routines() -> list[dict[str, object]]:
+def list_routines(location_id: int | None = None) -> list[dict[str, object]]:
+    location_where = "WHERE rt.location_id = ?" if location_id else ""
+    params = (location_id,) if location_id else ()
     rows = get_db().execute(
-        """
+        f"""
         SELECT
             rt.id,
             rt.name,
@@ -763,9 +795,11 @@ def list_routines() -> list[dict[str, object]]:
             COALESCE(SUM(COALESCE(ri.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM routine_templates rt
         LEFT JOIN routine_items ri ON ri.routine_id = rt.id
+        {location_where}
         GROUP BY rt.id
         ORDER BY rt.created_at DESC, rt.id DESC
-        """
+        """,
+        params,
     ).fetchall()
     routines = []
     for row in rows:
@@ -795,6 +829,7 @@ def delete_routine_template(routine_id: int) -> None:
 
 def create_routine_template(name: str, session_id: int) -> None:
     db = get_db()
+    source_session = db.execute("SELECT location_id FROM workout_sessions WHERE id = ?", (session_id,)).fetchone()
     items = db.execute(
         """
         SELECT
@@ -817,7 +852,10 @@ def create_routine_template(name: str, session_id: int) -> None:
     ).fetchall()
     if not items:
         return
-    cursor = db.execute("INSERT INTO routine_templates (name) VALUES (?)", (name,))
+    cursor = db.execute(
+        "INSERT INTO routine_templates (name, location_id) VALUES (?, ?)",
+        (name, source_session["location_id"] if source_session else None),
+    )
     routine_id = int(cursor.lastrowid)
     for index, item in enumerate(items, start=1):
         db.execute(
@@ -2162,9 +2200,23 @@ def get_exercise_rest_seconds(exercise_name: str) -> int:
     return int(row["rest_seconds"]) if row else 90
 
 
-def list_favorite_exercises() -> list[sqlite3.Row]:
-    return get_db().execute(
+def list_favorite_exercises(location_id: int | None = None) -> list[sqlite3.Row]:
+    location_filter = (
         """
+        AND EXISTS (
+            SELECT 1
+            FROM workout_sets lws
+            JOIN workout_sessions ls ON ls.id = lws.session_id
+            JOIN exercises le ON le.id = lws.exercise_id
+            WHERE le.name = es.exercise_name AND ls.location_id = ?
+        )
+        """
+        if location_id
+        else ""
+    )
+    params = (location_id,) if location_id else ()
+    return get_db().execute(
+        f"""
         SELECT
             es.exercise_name,
             es.rest_seconds,
@@ -2182,8 +2234,10 @@ def list_favorite_exercises() -> list[sqlite3.Row]:
             ) AS body_part
         FROM exercise_settings es
         WHERE es.is_favorite = 1
+        {location_filter}
         ORDER BY es.updated_at DESC, es.exercise_name
-        """
+        """,
+        params,
     ).fetchall()
 
 

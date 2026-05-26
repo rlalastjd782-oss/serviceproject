@@ -33,16 +33,16 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         today_session = get_or_create_session(selected_date, selected_location_id)
         current_location = get_workout_location(today_session["location_id"])
         sessions = list_recent_sessions()
-        exercises = list_exercises()
+        exercises = list_exercises(current_location["id"])
         meals = list_meals_for_date(today_session["workout_date"])
         return render_template(
             "today/index.html",
             session=today_session,
             sessions=sessions,
             exercises=exercises,
-            exercises_by_body_part=list_exercises_by_body_part(),
-            recent_sets_by_exercise=list_recent_sets_by_exercise(),
-            exercise_stats_by_name=list_exercise_stats_by_name(),
+            exercises_by_body_part=list_exercises_by_body_part(current_location["id"]),
+            recent_sets_by_exercise=list_recent_sets_by_exercise(location_id=current_location["id"]),
+            exercise_stats_by_name=list_exercise_stats_by_name(current_location["id"]),
             overload_suggestions=list_overload_suggestions(),
             exercise_notes=list_exercise_notes(),
             exercise_settings=list_exercise_settings(),
@@ -50,8 +50,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             recent_pr_events=list_recent_pr_events(limit=8),
             foods_by_meal_type=list_foods_by_meal_type(),
             favorite_foods=list_favorite_foods(),
-            favorite_exercises=list_favorite_exercises(),
-            routines=list_routines(),
+            favorite_exercises=list_favorite_exercises(current_location["id"]),
+            routines=list_routines(current_location["id"]),
             workout_plan=list_workout_plan(today_session["workout_date"]),
             workout_completion_summary=build_workout_completion_summary(today_session["workout_date"]),
             pr_cards=build_pr_cards(today_session["workout_date"]),
