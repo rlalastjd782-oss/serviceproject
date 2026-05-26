@@ -23,6 +23,45 @@ class SecurityHelperTest(unittest.TestCase):
         self.assertFalse(verify_password_hash("1234", "legacy-or-broken-hash"))
 
 
+class LegacyMigrationTest(unittest.TestCase):
+    def test_legacy_workout_sessions_without_location_id_migrates_before_index(self) -> None:
+        TEST_TMP_DIR.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=TEST_TMP_DIR) as tmpdir:
+            original_database = app_module.DATABASE
+            app_module.DATABASE = Path(tmpdir) / "legacy-workout.db"
+            try:
+                db = sqlite3.connect(app_module.DATABASE)
+                try:
+                    db.execute(
+                        """
+                        CREATE TABLE workout_sessions (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            workout_date TEXT NOT NULL UNIQUE,
+                            note TEXT NOT NULL DEFAULT '',
+                            completed INTEGER NOT NULL DEFAULT 0,
+                            duration_seconds INTEGER NOT NULL DEFAULT 0,
+                            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                        )
+                        """
+                    )
+                    db.commit()
+                finally:
+                    db.close()
+
+                with app_module.app.app_context():
+                    app_module.init_db()
+                db = sqlite3.connect(app_module.DATABASE)
+                try:
+                    columns = [row[1] for row in db.execute("PRAGMA table_info(workout_sessions)").fetchall()]
+                    indexes = [row[1] for row in db.execute("PRAGMA index_list(workout_sessions)").fetchall()]
+                finally:
+                    db.close()
+                self.assertIn("location_id", columns)
+                self.assertIn("idx_workout_sessions_location", indexes)
+            finally:
+                app_module.DATABASE = original_database
+
+
 class HealthTrackerFlowTest(unittest.TestCase):
     def setUp(self) -> None:
         TEST_TMP_DIR.mkdir(exist_ok=True)
