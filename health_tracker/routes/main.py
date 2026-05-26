@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+from health_tracker.services.settings_context import build_settings_context
+from health_tracker.services.summary_context import (
+    build_daily_summary_context,
+    build_monthly_summary_context,
+    build_weekly_summary_context,
+)
 from health_tracker.services.today_context import build_today_context
 
 
@@ -14,15 +20,6 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             return round(parsed * 0.45359237, 2)
         return parsed
 
-    def selected_body_part_filter() -> str:
-        selected = request.args.get("part", "").strip()
-        return selected if selected in body_part_options() else ""
-
-    def filter_body_part_summary(rows, selected_part: str):
-        if not selected_part:
-            return rows
-        return [row for row in rows if row["body_part"] == selected_part]
-
     @app.get("/")
     def index():
         return render_template("today/index.html", **build_today_context(request.args, globals()))
@@ -33,119 +30,15 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/summaries/daily")
     def daily_summary_page():
-        page, per_page = configured_page_params(request.args)
-        days = normalize_summary_days(request.args.get("days"))
-        daily_sort = request.args.get("sort", "newest")
-        daily_rows = list_daily_summary(days=days)
-        if daily_sort == "oldest":
-            daily_rows = list(reversed(daily_rows))
-        else:
-            daily_sort = "newest"
-        daily_pagination = build_pagination(len(daily_rows), page, per_page)
-        daily_summary = daily_rows[daily_pagination.offset : daily_pagination.offset + daily_pagination.per_page]
-        selected_body_part = selected_body_part_filter()
-        return render_template(
-            "summaries/summary.html",
-            page_title="일간 집계",
-            page_kicker="Daily",
-            table_kind="daily",
-            daily_summary=daily_summary,
-            daily_pagination=daily_pagination,
-            daily_sort=daily_sort,
-            selected_days=days,
-            body_part_summary=filter_body_part_summary(list_body_part_summary("daily", limit=120), selected_body_part),
-            body_parts=body_part_options(),
-            selected_body_part=selected_body_part,
-            active_page="daily",
-        )
+        return render_template("summaries/summary.html", **build_daily_summary_context(request.args, globals()))
 
     @app.get("/summaries/weekly")
     def weekly_summary_page():
-        page, per_page = configured_page_params(request.args)
-        period_sort = request.args.get("sort", "newest")
-        selected_week = normalize_date(request.args.get("week"))
-        week_start = week_start_for_date(selected_week)
-        week_end = shift_date(week_start, 6)
-        chart_rows = list_daily_summary(start_date=week_start, end_date=week_end)
-        all_period_rows = list_weekly_summary(limit=240)
-        if period_sort == "oldest":
-            all_period_rows = list(reversed(all_period_rows))
-        elif period_sort == "volume":
-            all_period_rows = sorted(all_period_rows, key=lambda row: float(row["volume"] or 0), reverse=True)
-        else:
-            period_sort = "newest"
-        period_pagination = build_pagination(len(all_period_rows), page, per_page)
-        period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
-        return render_template(
-            "summaries/summary.html",
-            page_title="주간 집계",
-            page_kicker="Weekly",
-            table_kind="period",
-            period_rows=period_rows,
-            period_pagination=period_pagination,
-            period_sort=period_sort,
-            period_label="기간",
-            chart_items=build_daily_chart(chart_rows),
-            chart_title="일별 추이",
-            chart_note="선택한 주를 일별로 표시합니다.",
-            body_part_summary=list_body_part_summary("weekly", date_text=week_start),
-            body_part_details=list_weekly_body_part_details(week_start),
-            weekly_report=build_weekly_report(week_start),
-            weekly_rule_report=build_weekly_rule_report(week_start),
-            weekly_goals=get_goal_progress(week_start),
-            weekly_goal_insights=build_goal_insights("weekly", week_start),
-            rpe_report=build_rpe_report("weekly", week_start),
-            report_insights=build_period_insights("weekly", week_start),
-            period_highlights=build_period_highlights("weekly", week_start),
-            balance_warnings=list_balance_warnings("weekly", week_start),
-            nutrition_training_link=build_nutrition_training_link("weekly", week_start),
-            selected_week=week_start,
-            prev_week=shift_date(week_start, -7),
-            next_week=shift_date(week_start, 7),
-            active_page="weekly",
-        )
+        return render_template("summaries/summary.html", **build_weekly_summary_context(request.args, globals()))
 
     @app.get("/summaries/monthly")
     def monthly_summary_page():
-        page, per_page = configured_page_params(request.args)
-        period_sort = request.args.get("sort", "newest")
-        selected_month = request.args.get("month") or current_local_date()[:7]
-        month_start = normalize_month(selected_month)
-        all_period_rows = list_weekly_summary(month_start=month_start, limit=12)
-        if period_sort == "oldest":
-            all_period_rows = list(reversed(all_period_rows))
-        elif period_sort == "volume":
-            all_period_rows = sorted(all_period_rows, key=lambda row: float(row["volume"] or 0), reverse=True)
-        else:
-            period_sort = "newest"
-        period_pagination = build_pagination(len(all_period_rows), page, per_page)
-        period_rows = all_period_rows[period_pagination.offset : period_pagination.offset + period_pagination.per_page]
-        return render_template(
-            "summaries/summary.html",
-            page_title="월간 집계",
-            page_kicker="Monthly",
-            table_kind="period",
-            period_rows=period_rows,
-            period_pagination=period_pagination,
-            period_sort=period_sort,
-            period_label="기간",
-            chart_items=build_period_chart(period_rows),
-            chart_title="주간별 추이",
-            chart_note="선택한 월을 주간 단위로 표시합니다.",
-            body_part_summary=list_body_part_summary("monthly", date_text=month_start),
-            monthly_report=build_monthly_report(month_start),
-            body_monthly_report=build_body_monthly_report(month_start),
-            body_metric_trend=list_body_metric_trend(month_start),
-            monthly_goals=get_goal_progress(month_start),
-            monthly_goal_insights=build_goal_insights("monthly", month_start),
-            report_insights=build_period_insights("monthly", month_start),
-            period_highlights=build_period_highlights("monthly", month_start),
-            nutrition_training_link=build_nutrition_training_link("monthly", month_start),
-            selected_month=month_start[:7],
-            prev_month=shift_month(month_start, -1)[:7],
-            next_month=shift_month(month_start, 1)[:7],
-            active_page="monthly",
-        )
+        return render_template("summaries/summary.html", **build_monthly_summary_context(request.args, globals()))
 
     @app.get("/summaries/yearly")
     def yearly_summary_page():
@@ -349,20 +242,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 has_password=has_settings_password(),
                 error=request.args.get("error", ""),
             )
-        return render_template(
-            "settings/index.html",
-            active_page="settings",
-            error=request.args.get("error", ""),
-            sample_counts=get_sample_data_counts(),
-            data_counts=get_data_counts(),
-            backup_status=get_backup_status(),
-            data_safety_status=get_data_safety_status(),
-            health_status=get_app_health_status(),
-            reminder_settings=list_reminder_settings(),
-            has_settings_password=has_settings_password(),
-            qa_dummy_status=get_qa_dummy_status(),
-            app_preferences=get_app_preferences(),
-        )
+        return render_template("settings/index.html", **build_settings_context(request.args, globals()))
 
     @app.post("/settings/unlock")
     def unlock_settings_route():
