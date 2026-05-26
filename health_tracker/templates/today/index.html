@@ -831,11 +831,18 @@
         </select>
         <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="운동 이름" data-workout-exercise-input required>
         <select name="equipment" class="equipment-select" aria-label="운동 장비">
-          <option value="">장비</option>
+          <option value="">{% if has_location_equipment %}{{ current_location.name }} 장비{% else %}장비{% endif %}</option>
           {% for option in equipment_options %}
             <option value="{{ option }}">{{ option }}</option>
           {% endfor %}
         </select>
+      </div>
+      <div class="field-help equipment-scope-help">
+        {% if has_location_equipment %}
+          {{ current_location.name }}에 자동 수집된 장비만 표시합니다. 새 장비는 운동 저장 후 이 장소에 추가됩니다.
+        {% else %}
+          아직 이 장소에 수집된 장비가 없어 기본 장비 목록을 표시합니다.
+        {% endif %}
       </div>
       <div
         class="exercise-quick-panel"
