@@ -121,7 +121,7 @@ document.addEventListener("submit", (event) => {
     saveScrollPosition();
   }
 
-  if (form?.matches("[data-workout-complete-form]")) {
+  if (form?.matches("[data-workout-complete-form]") || /\/sessions\/\d+\/complete$/.test(form?.getAttribute("action") || "")) {
     const completedValue = form.querySelector('input[name="completed"]')?.value;
     if (completedValue === "1" && typeof resetWorkoutClockDisplayOnly === "function") {
       resetWorkoutClockDisplayOnly("운동 완료");

@@ -73,7 +73,10 @@ function initWorkoutClock() {
   const state = readWorkoutClock();
   const initialElapsedMs = Number(workoutClockPanel.dataset.initialDuration || 0) * 1000;
   let statusMessage = "시작 대기";
-  if (state.startedAt && state.manualStarted) {
+  if (state.completedReset) {
+    saveWorkoutClock({ startedAt: null, elapsedMs: 0, manualStarted: false, completedReset: true });
+    statusMessage = "운동 완료";
+  } else if (state.startedAt && state.manualStarted) {
     statusMessage = "측정 중";
   } else if (state.startedAt) {
     const elapsedMs = Number(state.elapsedMs || 0) + Math.max(0, Date.now() - Number(state.startedAt));
@@ -99,7 +102,7 @@ function startWorkoutClock(shouldUpdate = true) {
   if (state.startedAt) {
     return;
   }
-  saveWorkoutClock({ startedAt: Date.now(), elapsedMs: Number(state.elapsedMs || 0), manualStarted: true });
+  saveWorkoutClock({ startedAt: Date.now(), elapsedMs: Number(state.elapsedMs || 0), manualStarted: true, completedReset: false });
   updateWorkoutClockStatus("측정 중");
   if (shouldUpdate) {
     updateWorkoutClockDisplay();
@@ -124,7 +127,7 @@ function resetWorkoutClock() {
 }
 
 function resetWorkoutClockDisplayOnly(message = "운동 완료") {
-  saveWorkoutClock({ startedAt: null, elapsedMs: 0, manualStarted: false });
+  saveWorkoutClock({ startedAt: null, elapsedMs: 0, manualStarted: false, completedReset: true });
   updateWorkoutClockDisplay();
   updateWorkoutClockStatus(message);
 }

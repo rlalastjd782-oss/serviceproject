@@ -188,7 +188,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertLess(workout_html.index("workout-clock-section"), workout_html.index('id="rest-timer"'))
         self.assertLess(workout_html.index('id="rest-timer"'), workout_html.index("workout-action-dock"))
         self.assertIn("data-workout-complete-form", workout_html)
-        self.assertIn("resetWorkoutClockDisplayOnly", Path("static/timers.js").read_text(encoding="utf-8"))
+        timer_source = Path("static/timers.js").read_text(encoding="utf-8")
+        app_source = Path("static/app.js").read_text(encoding="utf-8")
+        self.assertIn("resetWorkoutClockDisplayOnly", timer_source)
+        self.assertIn("completedReset", timer_source)
+        self.assertIn(r"/\/sessions\/\d+\/complete$/.test", app_source)
         self.assertIn("rest-start-button", workout_html)
         self.assertIn(">타이머 시작</button>", workout_html)
         self.assertNotIn("초 휴식</button>", workout_html)
@@ -398,7 +402,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 "set_type": ["본세트"],
             },
         )
-        scoped_workout_html = self.client.get(f"/?mode=workout&location_id={location_id}").data.decode("utf-8")
+        scoped_workout_html = self.client.get(f"/?date=2026-05-26&mode=workout&location_id={location_id}").data.decode("utf-8")
         self.assertIn("장소 테스트 스쿼트", scoped_workout_html)
         self.assertNotIn('<option value="다른장소 전용운동">', scoped_workout_html)
         self.assertNotIn('data-exercise-name="다른장소 전용운동"', scoped_workout_html)
@@ -585,7 +589,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         default_workout_html = self.client.get("/?mode=workout").data.decode("utf-8")
         self.assertIn('<option value="프리웨이트">프리웨이트</option>', default_workout_html)
 
-        workout_date = "2026-05-20"
+        workout_date = "2026-05-26"
         strength_name = "__TEST__ 벤치"
         cardio_name = "__TEST__ 러닝"
 
