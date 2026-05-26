@@ -810,6 +810,62 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(changed["reps"], 9)
             self.assertEqual(changed["equipment"], "머신")
 
+    def test_session_exercise_rename_updates_group_and_shows_equipment(self) -> None:
+        workout_date = "2026-05-22"
+        body_part = app_module.body_part_options()[0]
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": workout_date,
+                "mode": "workout",
+                "body_part": body_part,
+                "exercise_name": "__TEST__ 암풀다온",
+                "equipment": "케이블",
+                "set_weight": ["35", "37.5"],
+                "set_reps": ["12", "10"],
+                "set_type": ["본세트", "본세트"],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            app_module.save_exercise_settings("__TEST__ 암풀다온", 75, True, "케이블", None, None, 3)
+            db = app_module.get_db()
+            session_id = db.execute(
+                "SELECT id FROM workout_sessions WHERE workout_date = ?",
+                (workout_date,),
+            ).fetchone()["id"]
+
+        html = self.client.get("/", query_string={"date": workout_date, "mode": "workout"}).data.decode("utf-8")
+        self.assertIn("운동명 일괄 수정", html)
+        self.assertIn("__TEST__ 암풀다온", html)
+        self.assertIn("케이블", html)
+
+        response = self.client.post(
+            f"/sessions/{session_id}/exercise-name/update",
+            data={
+                "mode": "workout",
+                "old_exercise_name": "__TEST__ 암풀다온",
+                "exercise_name": "__TEST__ 암풀다운",
+                "body_part": body_part,
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            db = app_module.get_db()
+            rows = db.execute(
+                """
+                SELECT e.name AS exercise_name, ws.equipment
+                FROM workout_sets ws
+                JOIN exercises e ON e.id = ws.exercise_id
+                WHERE ws.session_id = ?
+                ORDER BY ws.id
+                """,
+                (session_id,),
+            ).fetchall()
+            self.assertEqual([row["exercise_name"] for row in rows], ["__TEST__ 암풀다운", "__TEST__ 암풀다운"])
+            copied_setting = app_module.list_exercise_settings()["__TEST__ 암풀다운"]
+            self.assertEqual(copied_setting["equipment"], "케이블")
+
     def test_adaptive_recommendations_library_plan_and_reminders(self) -> None:
         workout_date = "2026-05-22"
         self.client.post(

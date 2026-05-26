@@ -269,11 +269,6 @@ document.addEventListener("click", (event) => {
     return;
   }
 
-  if (quickExerciseButton && exerciseNameInput) {
-    setWorkoutExerciseName(quickExerciseButton.dataset.exerciseName || "");
-    return;
-  }
-
   if (copySetButton && setList) {
     copySetRow(copySetButton.closest(".set-entry-row"), setList);
     return;
@@ -281,6 +276,15 @@ document.addEventListener("click", (event) => {
 
   if (copySavedSetButton && setList) {
     copySavedSet(copySavedSetButton, setList);
+    return;
+  }
+
+  if (quickExerciseButton && exerciseNameInput) {
+    setWorkoutExerciseName(quickExerciseButton.dataset.exerciseName || "");
+    const equipmentSelect = workoutForm?.querySelector('select[name="equipment"]');
+    if (equipmentSelect && quickExerciseButton.dataset.equipment) {
+      equipmentSelect.value = quickExerciseButton.dataset.equipment;
+    }
     return;
   }
 
@@ -496,7 +500,10 @@ function renderExerciseQuickList(bodyPart) {
   exerciseQuickList.innerHTML = visibleNames
     .map((name) => {
       const safeName = escapeHtml(name);
-      return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}">${safeName}</button>`;
+      const setting = exerciseSettings[name] || {};
+      const equipment = setting.equipment ? escapeHtml(setting.equipment) : "";
+      const label = equipment ? `${safeName} · ${equipment}` : safeName;
+      return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}" data-equipment="${equipment}">${label}</button>`;
     })
     .join("");
   if (hiddenCount > 0) {
@@ -579,6 +586,9 @@ function renderExerciseGuidance(exerciseName) {
   if (exerciseTargetView) {
     const setting = exerciseSettings[exerciseName] || {};
     const parts = [];
+    if (setting.equipment) {
+      parts.push(`장비 ${setting.equipment}`);
+    }
     if (setting.target_weight) {
       parts.push(`${Number(setting.target_weight).toFixed(1)}kg`);
     }

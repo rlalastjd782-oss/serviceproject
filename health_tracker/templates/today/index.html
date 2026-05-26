@@ -789,7 +789,7 @@
         <div class="quick-panel-title">즐겨찾기 운동</div>
         <div class="exercise-quick-list">
           {% for exercise in favorite_exercises %}
-            <button type="button" class="exercise-quick-button" data-copy-saved-set data-body-part="{{ exercise.body_part or '기타' }}" data-exercise-name="{{ exercise.exercise_name }}">{{ exercise.exercise_name }} · {{ exercise.rest_seconds }}초</button>
+            <button type="button" class="exercise-quick-button" data-copy-saved-set data-body-part="{{ exercise.body_part or '기타' }}" data-exercise-name="{{ exercise.exercise_name }}" data-equipment="{{ exercise.equipment or '' }}">{{ exercise.exercise_name }}{% if exercise.equipment %} · {{ exercise.equipment }}{% endif %} · {{ exercise.rest_seconds }}초</button>
           {% endfor %}
         </div>
       {% endif %}
@@ -872,7 +872,7 @@
             <div class="exercise-quick-list">
               {% for exercise in favorite_exercises %}
                 {% if loop.index <= 8 %}
-                  <button type="button" class="exercise-quick-button" data-copy-saved-set data-body-part="{{ exercise.body_part or '기타' }}" data-exercise-name="{{ exercise.exercise_name }}">{{ exercise.exercise_name }} · {{ exercise.rest_seconds }}초</button>
+                  <button type="button" class="exercise-quick-button" data-copy-saved-set data-body-part="{{ exercise.body_part or '기타' }}" data-exercise-name="{{ exercise.exercise_name }}" data-equipment="{{ exercise.equipment or '' }}">{{ exercise.exercise_name }}{% if exercise.equipment %} · {{ exercise.equipment }}{% endif %} · {{ exercise.rest_seconds }}초</button>
                 {% endif %}
               {% endfor %}
               {% if favorite_exercises|length > 8 %}
@@ -1154,12 +1154,13 @@
       {% if workout_groups %}
         {% for group in workout_groups %}
           {% set group_pr_events = pr_events | selectattr("exercise_name", "equalto", group.exercise_name) | list %}
+          {% set setting = exercise_settings.get(group.exercise_name, {}) %}
           <article class="record-card workout-summary-card is-collapsed" data-collapsible-card>
             <div class="record-date workout-record-head">
               <button class="record-toggle" type="button" data-toggle-card aria-expanded="false">
                 <span class="cat-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>
                 <strong>{{ group.exercise_name }}</strong>
-                <span>{{ group.sets|length }}세트{% if group_pr_events %} · PR {{ group_pr_events|length }}{% endif %}</span>
+                <span>{{ group.sets|length }}세트{% if setting.get('equipment') %} · {{ setting.get('equipment') }}{% endif %}{% if group_pr_events %} · PR {{ group_pr_events|length }}{% endif %}</span>
               </button>
             </div>
             <div class="compact-set-preview">
@@ -1181,6 +1182,16 @@
                 {% endfor %}
               </div>
             {% endif %}
+            <form method="post" action="{{ url_for('update_session_exercise_name', session_id=session.id) }}" class="exercise-rename-form">
+              <input type="hidden" name="mode" value="workout">
+              <input type="hidden" name="old_exercise_name" value="{{ group.exercise_name }}">
+              <input type="hidden" name="body_part" value="{{ group.body_part }}">
+              <label class="edit-field edit-field-name">
+                <span>운동명 일괄 수정</span>
+                <input list="exercise-list" name="exercise_name" value="{{ group.exercise_name }}" autocomplete="off" required>
+              </label>
+              <button class="btn-small" type="submit">운동명 변경</button>
+            </form>
             <form method="post" action="{{ url_for('update_exercise_note') }}" class="note-form">
               <input type="hidden" name="target_date" value="{{ session.workout_date }}">
               <input type="hidden" name="mode" value="workout">
@@ -1191,7 +1202,6 @@
             <form method="post" action="{{ url_for('save_exercise_settings_route') }}" class="routine-form routine-manage-form">
               <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
               <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
-              {% set setting = exercise_settings.get(group.exercise_name, {}) %}
               <input name="rest_seconds" type="number" min="15" max="600" step="15" value="{{ setting.get('rest_seconds', 90) }}" aria-label="휴식초">
               <input name="target_weight" type="number" min="0" step="0.5" value="{% if setting.get('target_weight') is not none %}{{ setting.get('target_weight') }}{% endif %}" placeholder="목표 kg">
               <input name="target_reps" type="number" min="0" step="1" value="{% if setting.get('target_reps') is not none %}{{ setting.get('target_reps') }}{% endif %}" placeholder="목표 회">
@@ -1308,6 +1318,7 @@
                     data-copy-saved-set
                     data-body-part="{{ group.body_part }}"
                     data-exercise-name="{{ group.exercise_name }}"
+                    data-equipment="{{ item.equipment or setting.get('equipment', '') }}"
                     data-weight="{% if item.weight is not none %}{{ item.weight }}{% endif %}"
                     data-reps="{% if item.reps is not none %}{{ item.reps }}{% endif %}"
                     data-set-type="{{ item.set_type or '본세트' }}"

@@ -2220,6 +2220,7 @@ def list_favorite_exercises(location_id: int | None = None) -> list[sqlite3.Row]
         SELECT
             es.exercise_name,
             es.rest_seconds,
+            es.equipment,
             COALESCE(
                 (
                     SELECT ws.body_part

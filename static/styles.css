@@ -4251,6 +4251,10 @@ label span {
   grid-column: 1 / -1;
 }
 
+.editable-list-item.is-editing {
+  grid-template-columns: 1fr;
+}
+
 .editable-list-item.is-editing .item-actions {
   display: none;
 }
@@ -4263,7 +4267,7 @@ label span {
 }
 
 .set-edit-form {
-  grid-template-columns: minmax(86px, 0.85fr) minmax(160px, 1.35fr) minmax(54px, 0.55fr) minmax(94px, 0.9fr) repeat(3, minmax(76px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: end;
   border: 1px solid #2b3a55;
   border-radius: 12px;
@@ -4299,15 +4303,16 @@ label span {
 }
 
 .edit-field-small {
-  max-width: 72px;
+  min-width: 0;
 }
 
 .edit-field-type {
-  min-width: 94px;
+  min-width: 0;
 }
 
 .edit-field-name {
-  min-width: 150px;
+  grid-column: span 2;
+  min-width: 0;
 }
 
 .edit-actions {
@@ -4318,6 +4323,22 @@ label span {
 }
 
 .edit-actions button {
+  min-height: 40px;
+}
+
+.exercise-rename-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(15 23 42 / 58%);
+  padding: 8px;
+}
+
+.exercise-rename-form button {
   min-height: 40px;
 }
 
@@ -4758,6 +4779,10 @@ tbody tr:last-child td {
 
   .edit-actions {
     grid-column: 1 / -1;
+  }
+
+  .exercise-rename-form {
+    grid-template-columns: 1fr;
   }
 
   .goal-form,

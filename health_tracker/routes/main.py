@@ -1150,6 +1150,73 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         db.commit()
         return redirect(url_for("index", date=workout_date, mode=mode or None))
 
+    @app.post("/sessions/<int:session_id>/exercise-name/update")
+    def update_session_exercise_name(session_id: int):
+        db = get_db()
+        workout = db.execute(
+            "SELECT workout_date FROM workout_sessions WHERE id = ?",
+            (session_id,),
+        ).fetchone()
+        workout_date = workout["workout_date"] if workout else current_local_date()
+        mode = request.form.get("mode")
+        old_name = request.form.get("old_exercise_name", "").strip()
+        new_name = request.form.get("exercise_name", "").strip()
+        body_part = request.form.get("body_part", "").strip()
+        if old_name and new_name and old_name != new_name:
+            rows = db.execute(
+                """
+                SELECT ws.id
+                FROM workout_sets ws
+                JOIN exercises e ON e.id = ws.exercise_id
+                WHERE ws.session_id = ?
+                  AND e.name = ?
+                  AND COALESCE(ws.body_part, '기타') = ?
+                """,
+                (session_id, old_name, body_part or "기타"),
+            ).fetchall()
+            set_ids = [row["id"] for row in rows]
+            if set_ids:
+                new_exercise_id = get_or_create_exercise(new_name)
+                placeholders = ",".join("?" for _ in set_ids)
+                db.execute(
+                    f"UPDATE workout_sets SET exercise_id = ? WHERE id IN ({placeholders})",
+                    (new_exercise_id, *set_ids),
+                )
+                db.execute(
+                    f"UPDATE pr_events SET exercise_id = ?, exercise_name = ? WHERE set_id IN ({placeholders})",
+                    (new_exercise_id, new_name, *set_ids),
+                )
+                db.execute(
+                    """
+                    INSERT INTO exercise_settings (
+                        exercise_name, location_id, rest_seconds, is_favorite, equipment,
+                        target_weight, target_reps, target_sets, updated_at
+                    )
+                    SELECT ?, location_id, rest_seconds, is_favorite, equipment,
+                        target_weight, target_reps, target_sets, CURRENT_TIMESTAMP
+                    FROM exercise_settings
+                    WHERE exercise_name = ?
+                      AND NOT EXISTS (
+                          SELECT 1 FROM exercise_settings WHERE exercise_name = ?
+                      )
+                    """,
+                    (new_name, old_name, new_name),
+                )
+                db.execute(
+                    """
+                    INSERT INTO exercise_notes (exercise_name, note, updated_at)
+                    SELECT ?, note, CURRENT_TIMESTAMP
+                    FROM exercise_notes
+                    WHERE exercise_name = ?
+                      AND NOT EXISTS (
+                          SELECT 1 FROM exercise_notes WHERE exercise_name = ?
+                      )
+                    """,
+                    (new_name, old_name, new_name),
+                )
+                db.commit()
+        return redirect(url_for("index", date=workout_date, mode=mode or None))
+
     @app.post("/sets/<int:set_id>/delete")
     def delete_set(set_id: int):
         db = get_db()
