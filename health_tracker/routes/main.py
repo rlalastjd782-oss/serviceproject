@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from health_tracker.services.settings_context import build_settings_context
 from health_tracker.services.summary_context import (
     build_daily_summary_context,

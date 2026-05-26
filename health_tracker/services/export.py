@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import sqlite3
 from datetime import datetime
+from pathlib import Path
 
 
 EXPORT_TABLES = [
@@ -101,3 +103,38 @@ def export_meal_csv_from_db(db: sqlite3.Connection) -> str:
             ]
         )
     return "\ufeff" + output.getvalue()
+
+
+def import_all_data_to_db(db: sqlite3.Connection, base_dir: Path, payload: dict[str, object]) -> None:
+    tables = payload.get("tables", {})
+    if not isinstance(tables, dict):
+        return
+
+    backup_dir = base_dir / "instance" / "restore_backups"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    backup_path = backup_dir / f"before-import-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
+    backup_path.write_text(
+        json.dumps(export_all_data_from_db(db), ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    for table in reversed(EXPORT_TABLES):
+        db.execute(f"DELETE FROM {table}")
+    for table in EXPORT_TABLES:
+        rows = tables.get(table, [])
+        if not isinstance(rows, list):
+            continue
+        columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            insert_columns = [column for column in columns if column in row]
+            if not insert_columns:
+                continue
+            placeholders = ", ".join(["?"] * len(insert_columns))
+            column_sql = ", ".join(insert_columns)
+            db.execute(
+                f"INSERT INTO {table} ({column_sql}) VALUES ({placeholders})",
+                tuple(row[column] for column in insert_columns),
+            )
+    db.commit()

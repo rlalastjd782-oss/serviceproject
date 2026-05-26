@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.14 데이터 복원 로직 분리
+
+- `app.py`의 전체 데이터 import/복원 로직을 `health_tracker/services/export.py`의 `import_all_data_to_db`로 이동했습니다.
+- export와 import가 같은 `EXPORT_TABLES`를 쓰도록 정리해 테이블 순서 중복을 제거했습니다.
+- 연간 JSON export 라우트의 `json` 암묵 의존성을 `routes/main.py` 직접 import로 고쳤습니다.
+- 검증: `python -m compileall health_tracker tests`, 전체 20개 회귀 테스트, 설정/데이터센터/연간 JSON export/서비스워커 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.13 데이터 정리 서비스 분리
 
 - `app.py`에 있던 전체 데이터 삭제 백업, 빈 운동 세션 삭제, 내부 점검 데이터 삭제 로직을 `health_tracker/services/data_maintenance.py`로 이동했습니다.

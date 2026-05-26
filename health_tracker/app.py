@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import argparse
-import json
 import secrets
 import sqlite3
-from datetime import datetime
 
 from flask import Flask, Response, abort, g, jsonify, redirect, render_template, request, session, url_for
 
@@ -91,6 +89,7 @@ from health_tracker.services.export import (
     export_all_data_from_db,
     export_meal_csv_from_db,
     export_workout_csv_from_db,
+    import_all_data_to_db,
 )
 from health_tracker.services.exercise_calorie import estimate_exercise_calories_from_weight
 from health_tracker.services.exercise_settings import (
@@ -2236,53 +2235,7 @@ def export_meal_csv() -> str:
 
 
 def import_all_data(payload: dict[str, object]) -> None:
-    tables = payload.get("tables", {})
-    if not isinstance(tables, dict):
-        return
-    ordered_tables = [
-        "exercises",
-        "workout_sessions",
-        "workout_sets",
-        "meal_entries",
-        "routine_templates",
-        "routine_items",
-        "meal_templates",
-        "meal_template_items",
-        "user_goals",
-        "exercise_notes",
-        "exercise_settings",
-        "food_favorites",
-        "workout_plan_items",
-        "pr_events",
-        "body_metrics",
-        "body_photos",
-        "recovery_checkins",
-    ]
-    db = get_db()
-    backup_dir = BASE_DIR / "instance" / "restore_backups"
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    backup_path = backup_dir / f"before-import-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
-    backup_path.write_text(json.dumps(export_all_data(), ensure_ascii=False, indent=2), encoding="utf-8")
-    for table in reversed(ordered_tables):
-        db.execute(f"DELETE FROM {table}")
-    for table in ordered_tables:
-        rows = tables.get(table, [])
-        if not isinstance(rows, list):
-            continue
-        columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
-        for row in rows:
-            if not isinstance(row, dict):
-                continue
-            insert_columns = [column for column in columns if column in row]
-            if not insert_columns:
-                continue
-            placeholders = ", ".join(["?"] * len(insert_columns))
-            column_sql = ", ".join(insert_columns)
-            db.execute(
-                f"INSERT INTO {table} ({column_sql}) VALUES ({placeholders})",
-                tuple(row[column] for column in insert_columns),
-            )
-    db.commit()
+    import_all_data_to_db(get_db(), BASE_DIR, payload)
 
 
 def body_part_options() -> list[str]:

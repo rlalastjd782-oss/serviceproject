@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.25.14 - 2026-05-26
+
+- 전체 데이터 복원/import 로직을 `services/export.py`의 `import_all_data_to_db`로 이동했습니다.
+- export/import가 같은 `EXPORT_TABLES` 순서를 공유하도록 정리해 테이블 목록 중복을 줄였습니다.
+- 연간 JSON export 라우트가 `json`을 직접 import하도록 고쳐 `app.py` 전역 import에 의존하지 않게 했습니다.
+- 설정/데이터센터 렌더링과 데이터 삭제/설정/메인 회귀 테스트를 통과했습니다.
+
 ## v1.25.13 - 2026-05-26
 
 - 데이터 전체 삭제 백업, 빈 운동 세션 삭제, 내부 점검 데이터 삭제 로직을 `services/data_maintenance.py`로 분리했습니다.
