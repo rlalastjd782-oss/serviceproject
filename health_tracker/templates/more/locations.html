@@ -3,71 +3,74 @@
 {% block title %}운동 장소{% endblock %}
 
 {% block content %}
-  <section class="section analysis-dashboard-section location-admin-section">
-    <div class="yearly-dashboard-head">
+  <section class="section location-page-section">
+    <div class="location-page-head">
       <div>
         <div class="yearly-kicker">Locations</div>
         <h1>운동 장소 관리</h1>
-        <p>헬스장마다 다른 장비를 따로 관리하고 오늘 운동 입력과 기록 검색에 연결합니다.</p>
+        <p>헬스장별 장비와 기록을 분리해서 관리합니다.</p>
       </div>
       <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
     </div>
 
     <div class="location-overview-grid">
       <article class="location-overview-card">
-        <span>활성 장소</span>
+        <span>활성</span>
         <strong>{{ active_locations|length }}</strong>
       </article>
       <article class="location-overview-card">
-        <span>전체 장소</span>
+        <span>전체</span>
         <strong>{{ locations|length }}</strong>
       </article>
       <article class="location-overview-card">
-        <span>등록 장비</span>
+        <span>장비</span>
         <strong>{{ locations|sum(attribute='equipment_count') }}</strong>
       </article>
     </div>
 
-    <form method="post" action="{{ url_for('save_location_route') }}" class="location-create-form">
-      <div class="location-form-head">
-        <strong>새 장소 추가</strong>
-        <span>자주 가는 헬스장을 먼저 등록하면 운동 입력 장비 목록이 정리됩니다.</span>
-      </div>
-      <label>
-        <span>장소명</span>
-        <input name="name" maxlength="60" placeholder="예: 회사 근처 헬스장" required>
-      </label>
-      <label>
-        <span>주소/동네</span>
-        <input name="address" maxlength="120" placeholder="선택 입력">
-      </label>
-      <label class="wide-field">
-        <span>메모</span>
-        <input name="memo" maxlength="240" placeholder="랙, 머신 상태, 주차 등">
-      </label>
-      <div class="location-create-actions">
-        <label class="checkbox-row">
-          <input type="checkbox" name="is_default" value="1">
-          <span>기본 장소</span>
+    <details class="location-create-panel" open>
+      <summary>
+        <span>새 장소 추가</span>
+        <small>처음 등록하거나 기본 장소를 바꿀 때 사용합니다.</small>
+      </summary>
+      <form method="post" action="{{ url_for('save_location_route') }}" class="location-create-form">
+        <label>
+          <span>장소명</span>
+          <input name="name" maxlength="60" placeholder="예: 회사 근처 헬스장" required>
         </label>
-        <button class="btn-primary" type="submit">추가</button>
-      </div>
-    </form>
+        <label>
+          <span>주소/동네</span>
+          <input name="address" maxlength="120" placeholder="선택 입력">
+        </label>
+        <label>
+          <span>메모</span>
+          <input name="memo" maxlength="240" placeholder="장비 상태, 주차, 혼잡 시간 등">
+        </label>
+        <div class="location-form-actions">
+          <label class="checkbox-row">
+            <input type="checkbox" name="is_default" value="1">
+            <span>기본 장소</span>
+          </label>
+          <button class="btn-primary" type="submit">추가</button>
+        </div>
+      </form>
+    </details>
   </section>
 
   <section class="section location-list-section">
     <div class="section-header">
       <div>
         <div class="section-title">등록된 장소</div>
-        <div class="section-subtitle">장소별 수정과 장비 관리를 한 카드에서 처리합니다.</div>
+        <div class="section-subtitle">카드는 요약만 보여주고 수정/장비 추가는 관리 영역에서 처리합니다.</div>
       </div>
     </div>
 
     <div class="location-card-list">
       {% for location in locations %}
         {% set equipment_items = equipment_by_location.get(location.id, []) %}
+        {% set active_equipment = equipment_items|selectattr('is_active')|list %}
         <article class="location-card {% if not location.is_active %}is-disabled{% endif %}">
-          <div class="location-card-head">
+          <div class="location-card-main">
             <div class="location-title-block">
               <div class="location-title-row">
                 <strong>{{ location.name }}</strong>
@@ -86,7 +89,7 @@
             <div class="location-card-actions">
               {% if not location.is_default %}
                 <form method="post" action="{{ url_for('set_default_location_route', location_id=location.id) }}">
-                  <button class="btn-small" type="submit">기본 지정</button>
+                  <button class="btn-small" type="submit">기본</button>
                 </form>
               {% endif %}
               {% if location.is_active and not location.is_default %}
@@ -101,59 +104,75 @@
             <p class="location-memo">{{ location.memo }}</p>
           {% endif %}
 
-          <div class="location-card-body">
-            <form method="post" action="{{ url_for('save_location_route') }}" class="location-edit-form">
-              <input type="hidden" name="location_id" value="{{ location.id }}">
-              <label>
-                <span>장소명</span>
-                <input name="name" maxlength="60" value="{{ location.name }}" aria-label="장소명">
-              </label>
-              <label>
-                <span>주소</span>
-                <input name="address" maxlength="120" value="{{ location.address }}" aria-label="주소">
-              </label>
-              <label>
-                <span>메모</span>
-                <input name="memo" maxlength="240" value="{{ location.memo }}" aria-label="메모">
-              </label>
-              <button class="btn-small" type="submit">수정</button>
-            </form>
+          <div class="location-equipment-chip-list">
+            {% if active_equipment %}
+              {% for item in active_equipment[:8] %}
+                <span>{{ item.equipment_name }}</span>
+              {% endfor %}
+              {% if active_equipment|length > 8 %}
+                <em>+{{ active_equipment|length - 8 }}</em>
+              {% endif %}
+            {% else %}
+              <span class="is-empty">장비 없음</span>
+            {% endif %}
+          </div>
 
-            <div class="location-equipment-panel">
-              <div class="location-panel-title">장비</div>
-              <form method="post" action="{{ url_for('save_location_equipment_route', location_id=location.id) }}" class="location-equipment-form">
-                <input name="equipment_name" maxlength="40" placeholder="장비명" required>
-                <input name="equipment_type" maxlength="40" placeholder="종류">
-                <input name="memo" maxlength="160" placeholder="메모">
-                <button class="btn-small" type="submit">추가</button>
+          <details class="location-manage-details">
+            <summary>관리</summary>
+            <div class="location-manage-grid">
+              <form method="post" action="{{ url_for('save_location_route') }}" class="location-edit-form">
+                <input type="hidden" name="location_id" value="{{ location.id }}">
+                <label>
+                  <span>장소명</span>
+                  <input name="name" maxlength="60" value="{{ location.name }}" aria-label="장소명">
+                </label>
+                <label>
+                  <span>주소</span>
+                  <input name="address" maxlength="120" value="{{ location.address }}" aria-label="주소">
+                </label>
+                <label>
+                  <span>메모</span>
+                  <input name="memo" maxlength="240" value="{{ location.memo }}" aria-label="메모">
+                </label>
+                <button class="btn-small" type="submit">수정</button>
               </form>
 
-              <div class="location-equipment-list">
-                {% if equipment_items %}
-                  {% for item in equipment_items %}
-                    <div class="location-equipment-item {% if not item.is_active %}is-disabled{% endif %}">
-                      <div>
-                        <strong>{{ item.equipment_name }}</strong>
-                        <span>
-                          {% if item.equipment_type %}{{ item.equipment_type }}{% endif %}
-                          {% if item.equipment_type and item.memo %} · {% endif %}
-                          {{ item.memo }}
-                        </span>
+              <div class="location-equipment-panel">
+                <div class="location-panel-title">장비 관리</div>
+                <form method="post" action="{{ url_for('save_location_equipment_route', location_id=location.id) }}" class="location-equipment-form">
+                  <input name="equipment_name" maxlength="40" placeholder="장비명" required>
+                  <input name="equipment_type" maxlength="40" placeholder="종류">
+                  <input name="memo" maxlength="160" placeholder="메모">
+                  <button class="btn-small" type="submit">추가</button>
+                </form>
+
+                <div class="location-equipment-list">
+                  {% if equipment_items %}
+                    {% for item in equipment_items %}
+                      <div class="location-equipment-item {% if not item.is_active %}is-disabled{% endif %}">
+                        <div>
+                          <strong>{{ item.equipment_name }}</strong>
+                          <span>
+                            {% if item.equipment_type %}{{ item.equipment_type }}{% endif %}
+                            {% if item.equipment_type and item.memo %} · {% endif %}
+                            {{ item.memo }}
+                          </span>
+                        </div>
+                        {% if item.is_active %}
+                          <form method="post" action="{{ url_for('delete_location_equipment_route', equipment_id=item.id) }}">
+                            <input type="hidden" name="location_id" value="{{ location.id }}">
+                            <button class="btn-danger" type="submit">제외</button>
+                          </form>
+                        {% endif %}
                       </div>
-                      {% if item.is_active %}
-                        <form method="post" action="{{ url_for('delete_location_equipment_route', equipment_id=item.id) }}">
-                          <input type="hidden" name="location_id" value="{{ location.id }}">
-                          <button class="btn-danger" type="submit">제외</button>
-                        </form>
-                      {% endif %}
-                    </div>
-                  {% endfor %}
-                {% else %}
-                  <div class="empty compact-empty">등록된 장비가 없습니다.</div>
-                {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    <div class="empty compact-empty">등록된 장비가 없습니다.</div>
+                  {% endif %}
+                </div>
               </div>
             </div>
-          </div>
+          </details>
         </article>
       {% endfor %}
     </div>

@@ -189,8 +189,10 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
         locations_html = self.client.get("/locations").data.decode("utf-8")
         self.assertIn("location-overview-grid", locations_html)
-        self.assertIn("location-create-actions", locations_html)
-        self.assertIn("location-card-body", locations_html)
+        self.assertIn("location-create-panel", locations_html)
+        self.assertIn("location-card-main", locations_html)
+        self.assertIn("location-manage-details", locations_html)
+        self.assertIn("location-equipment-chip-list", locations_html)
         self.assertIn("location-equipment-panel", locations_html)
 
     def test_record_and_analysis_submenus_are_separated(self) -> None:
