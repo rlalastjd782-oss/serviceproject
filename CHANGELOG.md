@@ -2,6 +2,14 @@
 
 이 프로젝트는 Semantic Versioning(`MAJOR.MINOR.PATCH`)을 기준으로 관리합니다.
 
+## v1.12.0 - 2026-05-26
+
+- `app.py`의 추천/회복/코칭 로직을 `services/coaching.py`로 분리했습니다.
+- 루틴 템플릿과 운동 계획 로직을 `services/routine.py`, `services/workout_plan.py`로 분리했습니다.
+- 체성분/진행 사진 로직을 `services/body.py`로 분리했습니다.
+- 식단 템플릿, 식단 복사, 자주 쓰는 식단 조합 로직을 `services/meal.py`로 이동했습니다.
+- 전체 테스트와 컴파일 검증을 통과했고, PWA 캐시와 앱 버전을 `v1.12.0`으로 갱신했습니다.
+
 ## v1.11.0 - 2026-05-26
 
 - `app.py`에 남아 있던 날짜, 칼로리, 샘플 데이터, 캘린더, 부위 분석, 기록 검색, 장비 분석, PR 조회 로직을 서비스 모듈로 분리했습니다.

@@ -4,6 +4,12 @@
 
 ## 2026-05-26 작업 기록
 
+- `v1.12.0` app.py 추가 경량화:
+  - 추천 세션, 운동 부위 추천, 회복 체크인, readiness, 일일 코칭, 적응형 추천을 `services/coaching.py`로 분리했습니다.
+  - 루틴 템플릿 적용/저장/삭제와 운동 계획 생성/요약/기본 프로그램 적용을 각각 `services/routine.py`, `services/workout_plan.py`로 분리했습니다.
+  - 체성분/진행 사진 로직을 `services/body.py`로 분리하고, 식단 템플릿/복사/자주 쓰는 식단 조합 로직을 `services/meal.py`로 이동했습니다.
+  - `app.py`는 `4378`라인에서 `3555`라인까지 줄었습니다.
+  - 검증: `python -m compileall health_tracker tests`, `python -m unittest discover -v` 19개 테스트 통과.
 - `v1.11.0` 소스트리 리빌딩:
   - `app.py`에서 날짜/칼로리/샘플 데이터/캘린더/부위 분석/기록 검색/장비 분석/PR 조회 로직을 서비스 모듈로 분리했습니다.
   - 오늘 운동 화면의 운동 시간, 휴식 타이머, 장소 패널을 partial 템플릿으로 분리했습니다.
