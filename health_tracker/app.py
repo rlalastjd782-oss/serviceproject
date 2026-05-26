@@ -4,12 +4,11 @@ import argparse
 import json
 import secrets
 import sqlite3
-from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from datetime import datetime, timedelta
 
 from flask import Flask, Response, abort, g, jsonify, redirect, render_template, request, session, url_for
 
-from health_tracker.config import APP_TIMEZONE, BASE_DIR, DATABASE, PHOTO_DIR
+from health_tracker.config import BASE_DIR, DATABASE, PHOTO_DIR
 from health_tracker.constants import (
     BODY_PART_CLASSES,
     BODY_PARTS,
@@ -22,6 +21,17 @@ from health_tracker.constants import (
     RECOMMENDED_EXERCISE_MAP,
     SET_TYPE_OPTIONS,
     normalize_equipment_category,
+)
+from health_tracker.date_utils import (
+    current_local_date,
+    meal_day_label,
+    meal_week_label,
+    normalize_date,
+    normalize_month,
+    normalize_optional_date,
+    shift_date,
+    shift_month,
+    week_start_for_date,
 )
 from health_tracker.meta import get_app_updated_at, get_app_version
 from health_tracker.security import (
@@ -49,6 +59,7 @@ from health_tracker.services.export import (
     export_meal_csv_from_db,
     export_workout_csv_from_db,
 )
+from health_tracker.services.exercise_calorie import estimate_exercise_calories_from_weight
 from health_tracker.services.location import (
     bootstrap_locations,
     deactivate_location,
@@ -76,6 +87,7 @@ from health_tracker.services.pagination import build_pagination, page_params, qu
 from health_tracker.services.preferences import app_preferences as build_app_preferences
 from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
 from health_tracker.services.pr import build_pr_cards_from_rows, build_pr_dashboard_from_rows
+from health_tracker.services.sample_data import create_may_sample_data_in_db, delete_sample_data_from_db
 from health_tracker.services.summary import build_daily_chart_from_rows, build_period_chart_from_rows
 from health_tracker.services.workout import grouped_sets_for_session_from_db, list_sets_for_session_from_db
 from health_tracker.services.yearly import (
@@ -3368,142 +3380,18 @@ def get_app_health_status() -> list[dict[str, str]]:
 
 
 def delete_sample_data() -> None:
-    db = get_db()
-    db.execute("DELETE FROM pr_events WHERE exercise_name LIKE '샘플%' OR exercise_name LIKE 'PR확인%'")
-    db.execute(
-        """
-        DELETE FROM workout_sets
-        WHERE exercise_id IN (
-            SELECT id FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'
-        )
-        """
-    )
-    db.execute("DELETE FROM exercises WHERE name LIKE '샘플%' OR name LIKE 'PR확인%'")
-    db.execute("DELETE FROM meal_entries WHERE food_name LIKE '샘플%'")
-    delete_empty_workout_sessions()
-    db.commit()
+    delete_sample_data_from_db(get_db(), delete_empty_workout_sessions)
 
 
 def create_may_sample_data() -> None:
-    delete_sample_data()
-    db = get_db()
-    body_part_exercises = {
-        "하체": ["샘플하체 스쿼트", "샘플하체 레그프레스", "샘플하체 런지", "샘플하체 레그컬"],
-        "가슴": ["샘플가슴 벤치프레스", "샘플가슴 인클라인프레스", "샘플가슴 덤벨프레스", "샘플가슴 케이블플라이"],
-        "등": ["샘플등 랫풀다운", "샘플등 바벨로우", "샘플등 시티드로우", "샘플등 풀업"],
-        "어깨": ["샘플어깨 숄더프레스", "샘플어깨 사이드레터럴", "샘플어깨 리어델트", "샘플어깨 업라이트로우"],
-        "팔": ["샘플팔 바벨컬", "샘플팔 해머컬", "샘플팔 케이블푸시다운", "샘플팔 딥스"],
-    }
-    parts = list(body_part_exercises.keys())
-    equipment_by_part = {
-        "하체": "바벨",
-        "가슴": "바벨",
-        "등": "머신",
-        "어깨": "덤벨",
-        "팔": "케이블",
-    }
-    meal_plans = [
-        [
-            ("아침", "샘플현미밥", 1, 180, 290),
-            ("아침", "샘플계란", 2, 100, 150),
-            ("점심", "샘플닭가슴살도시락", 1, 320, 520),
-            ("점심", "샘플바나나", 1, 120, 105),
-            ("저녁", "샘플연어샐러드", 1, 260, 430),
-            ("간식", "샘플그릭요거트", 1, 150, 160),
-        ],
-        [
-            ("아침", "샘플오트밀", 1, 80, 300),
-            ("아침", "샘플프로틴쉐이크", 1, 300, 180),
-            ("점심", "샘플소고기덮밥", 1, 380, 650),
-            ("점심", "샘플방울토마토", 1, 120, 35),
-            ("저녁", "샘플닭가슴살샐러드", 1, 300, 390),
-            ("간식", "샘플아몬드", 1, 25, 145),
-        ],
-        [
-            ("아침", "샘플통밀토스트", 2, 120, 310),
-            ("아침", "샘플우유", 1, 200, 130),
-            ("점심", "샘플돼지고기김치볶음밥", 1, 360, 680),
-            ("점심", "샘플두부", 1, 150, 120),
-            ("저녁", "샘플고구마닭가슴살", 1, 330, 480),
-            ("간식", "샘플사과", 1, 180, 95),
-        ],
-        [
-            ("아침", "샘플김밥", 1, 250, 420),
-            ("아침", "샘플삶은계란", 2, 100, 150),
-            ("점심", "샘플신라면건면", 1, 97, 350),
-            ("점심", "샘플닭가슴살만두", 1, 180, 320),
-            ("저녁", "샘플불고기정식", 1, 420, 720),
-            ("간식", "샘플단백질바", 1, 55, 210),
-        ],
-        [
-            ("아침", "샘플요거트볼", 1, 260, 360),
-            ("아침", "샘플블루베리", 1, 80, 45),
-            ("점심", "샘플참치비빔밥", 1, 380, 610),
-            ("점심", "샘플미역국", 1, 250, 80),
-            ("저녁", "샘플닭다리살구이", 1, 300, 540),
-            ("간식", "샘플프로틴음료", 1, 250, 165),
-        ],
-    ]
-    for day in range(1, 26):
-        workout_date = f"2026-05-{day:02d}"
-        part = parts[(day - 1) % len(parts)]
-        session = get_or_create_session(workout_date)
-        db.execute(
-            "UPDATE workout_sessions SET completed = 1, duration_seconds = ? WHERE id = ?",
-            (90 * 60, session["id"]),
-        )
-        sort_order = 1
-        for exercise_index, exercise_name in enumerate(body_part_exercises[part]):
-            exercise_id = get_or_create_exercise(exercise_name)
-            save_exercise_equipment(exercise_name, equipment_by_part[part])
-            base_weight = 30 + (day % 5) * 2.5 + exercise_index * 5
-            for set_index in range(3):
-                reps = 12 - set_index
-                db.execute(
-                    """
-                    INSERT INTO workout_sets (
-                        session_id, exercise_id, weight, reps, memo, sort_order,
-                        body_part, set_type, rpe, equipment
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        session["id"],
-                        exercise_id,
-                        base_weight + set_index * 2.5,
-                        reps,
-                        "5월 샘플",
-                        sort_order,
-                        part,
-                        "본세트",
-                        7 + (set_index * 0.5),
-                        equipment_by_part[part],
-                    ),
-                )
-                sort_order += 1
-        cardio_id = get_or_create_exercise("샘플런닝 30분")
-        calories = estimate_exercise_calories("유산소", 5.0, 5.5, 30, workout_date)
-        db.execute(
-            """
-            INSERT INTO workout_sets (
-                session_id, exercise_id, cardio_incline, cardio_speed, cardio_minutes,
-                estimated_calories, memo, sort_order, body_part, set_type, rpe, equipment
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (session["id"], cardio_id, 5.0, 5.5, 30, calories, "5월 샘플", sort_order, "유산소", "유산소", 6, "런닝머신"),
-        )
-        for meal_type, food_name, quantity, grams, meal_calories in meal_plans[(day - 1) % len(meal_plans)]:
-            db.execute(
-                """
-                INSERT INTO meal_entries (
-                    meal_date, meal_type, food_name, quantity, grams, calories, memo
-                )
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (workout_date, meal_type, food_name, quantity, grams, meal_calories, "5월 샘플"),
-            )
-    db.commit()
+    create_may_sample_data_in_db(
+        get_db(),
+        delete_sample_data,
+        get_or_create_session,
+        get_or_create_exercise,
+        save_exercise_equipment,
+        estimate_exercise_calories,
+    )
 
 
 def delete_empty_workout_sessions() -> None:
@@ -4767,79 +4655,6 @@ def grouped_sets_for_session(session_id: int | None) -> list[dict[str, object]]:
     return grouped_sets_for_session_from_db(get_db(), session_id)
 
 
-def current_local_date() -> str:
-    try:
-        app_timezone = ZoneInfo(APP_TIMEZONE)
-    except ZoneInfoNotFoundError:
-        app_timezone = timezone(timedelta(hours=9), name="KST")
-    return datetime.now(app_timezone).strftime("%Y-%m-%d")
-
-
-def normalize_date(date_text: str | None, max_future_days: int = 31) -> str:
-    today_text = current_local_date()
-    try:
-        date_value = datetime.strptime((date_text or "").strip(), "%Y-%m-%d")
-    except ValueError:
-        return today_text
-
-    today_value = datetime.strptime(today_text, "%Y-%m-%d")
-    if date_value > today_value + timedelta(days=max_future_days):
-        return today_text
-    return date_value.strftime("%Y-%m-%d")
-
-
-def normalize_optional_date(date_text: str | None, max_future_days: int = 31) -> str:
-    if not (date_text or "").strip():
-        return ""
-    return normalize_date(date_text, max_future_days=max_future_days)
-
-
-def shift_date(date_text: str, days: int) -> str:
-    return (datetime.strptime(date_text, "%Y-%m-%d") + timedelta(days=days)).strftime("%Y-%m-%d")
-
-
-def week_start_for_date(date_text: str) -> str:
-    try:
-        date_value = datetime.strptime(date_text, "%Y-%m-%d")
-    except ValueError:
-        date_value = datetime.strptime(current_local_date(), "%Y-%m-%d")
-    return (date_value - timedelta(days=date_value.weekday())).strftime("%Y-%m-%d")
-
-
-def meal_week_label(week_start: str) -> str:
-    date_value = datetime.strptime(shift_date(week_start, 6), "%Y-%m-%d")
-    week_of_month = ((date_value.day - 1) // 7) + 1
-    return f"{date_value.month}월 {week_of_month}주차"
-
-
-def meal_day_label(date_text: str) -> str:
-    date_value = datetime.strptime(date_text, "%Y-%m-%d")
-    weekdays = ["월", "화", "수", "목", "금", "토", "일"]
-    return f"{date_value.month}/{date_value.day}({weekdays[date_value.weekday()]})"
-
-
-def normalize_month(month_text: str) -> str:
-    today_month = datetime.strptime(current_local_date(), "%Y-%m-%d").replace(day=1)
-    try:
-        if len(month_text) == 7:
-            month_value = datetime.strptime(f"{month_text}-01", "%Y-%m-%d")
-        else:
-            month_value = datetime.strptime(month_text, "%Y-%m-%d").replace(day=1)
-    except ValueError:
-        return today_month.strftime("%Y-%m-01")
-    if month_value > today_month + timedelta(days=62):
-        return today_month.strftime("%Y-%m-01")
-    return month_value.strftime("%Y-%m-%d")
-
-
-def shift_month(month_start: str, months: int) -> str:
-    date_value = datetime.strptime(normalize_month(month_start), "%Y-%m-%d")
-    month_index = date_value.month - 1 + months
-    year = date_value.year + month_index // 12
-    month = month_index % 12 + 1
-    return f"{year:04d}-{month:02d}-01"
-
-
 def get_body_weight_for_date(metric_date: str) -> float:
     row = get_db().execute(
         """
@@ -4856,20 +4671,6 @@ def get_body_weight_for_date(metric_date: str) -> float:
     return float(get_app_preferences()["default_body_weight_kg"])
 
 
-def estimate_cardio_met(speed: float | None, incline: float | None) -> float:
-    speed_value = float(speed or 0)
-    incline_value = max(0.0, float(incline or 0))
-    if speed_value >= 8.0:
-        base_met = 9.0
-    elif speed_value >= 6.5:
-        base_met = 7.0
-    elif speed_value >= 5.0:
-        base_met = 4.8
-    else:
-        base_met = 3.5
-    return min(12.0, base_met + (incline_value * 0.12))
-
-
 def estimate_exercise_calories(
     body_part: str,
     cardio_incline: float | None,
@@ -4877,11 +4678,13 @@ def estimate_exercise_calories(
     cardio_minutes: float | None,
     workout_date: str,
 ) -> float | None:
-    if body_part != "유산소" or not cardio_minutes:
-        return None
-    met = estimate_cardio_met(cardio_speed, cardio_incline)
-    body_weight = get_body_weight_for_date(workout_date)
-    return round(met * body_weight * float(cardio_minutes) / 60)
+    return estimate_exercise_calories_from_weight(
+        body_part,
+        cardio_incline,
+        cardio_speed,
+        cardio_minutes,
+        get_body_weight_for_date(workout_date),
+    )
 
 
 def recalculate_missing_exercise_calories() -> None:
