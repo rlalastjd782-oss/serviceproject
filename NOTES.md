@@ -4,6 +4,11 @@
 
 ## 2026-05-26 작업 기록
 
+- `v1.18.0` 소스 정리 및 QA:
+  - `services/summary_context.py`, `services/settings_context.py`를 추가해 분석/설정 화면 컨텍스트 생성을 라우트에서 분리했습니다.
+  - `today/_rule_cards.html`, `summaries/_rule_report.html` partial을 추가해 룰셋 UI 블록을 템플릿 본문에서 분리했습니다.
+  - `static/rules.css`를 추가하고 `base.html`, service worker 캐시에 반영해 룰셋 스타일을 분리했습니다.
+  - 전체 테스트, JS 문법 검증, 주요 HTTP 렌더링 확인 후 앱 버전/manifest/service worker를 `v1.18.0`으로 갱신했습니다.
 - `v1.17.0` 운동 지식 룰셋:
   - `services/exercise_rules.py`를 추가해 부위별 주간 권장 세트 범위, RPE 기반 조정, 권장 휴식시간, 대체 운동 후보를 로컬 룰셋으로 계산합니다.
   - 오늘 운동 화면에 `운동 룰셋` 카드를 추가해 부족/과다/적정 부위와 다음 액션을 보여줍니다.

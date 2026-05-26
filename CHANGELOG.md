@@ -2,6 +2,13 @@
 
 이 프로젝트는 Semantic Versioning(`MAJOR.MINOR.PATCH`)을 기준으로 관리합니다.
 
+## v1.18.0 - 2026-05-26
+
+- `routes/main.py`의 일간/주간/월간 분석 및 설정 화면 컨텍스트 생성을 `services/summary_context.py`, `services/settings_context.py`로 분리했습니다.
+- 오늘 운동 룰셋 카드와 주간 룰셋 리포트를 각각 partial 템플릿으로 분리했습니다.
+- 룰셋 전용 스타일을 `static/rules.css`로 분리하고 base layout 및 PWA 캐시에 반영했습니다.
+- 전체 QA를 다시 수행하고 앱 버전/PWA 캐시를 `v1.18.0`으로 갱신했습니다.
+
 ## v1.17.0 - 2026-05-26
 
 - 로컬 운동 지식 룰셋을 추가해 부위별 주간 권장 세트 범위, RPE 기반 강도 조절, 권장 휴식시간, 대체 운동 후보를 계산합니다.
