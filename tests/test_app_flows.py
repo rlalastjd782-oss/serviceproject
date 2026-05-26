@@ -226,6 +226,32 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("실행 인사이트", action_insights_html)
         self.assertIn("data-warning-list", action_insights_html)
 
+    def test_app_preferences_drive_workout_defaults(self) -> None:
+        response = self.client.post(
+            "/settings/app-preferences",
+            data={
+                "default_rest_seconds": "150",
+                "rest_timer_presets": "45, 75, 105",
+                "default_set_count": "4",
+                "default_weight_placeholder": "72.5",
+                "default_reps_placeholder": "11",
+                "default_daily_calories": "2550",
+                "default_body_weight_kg": "82.5",
+                "default_per_page": "20",
+                "summary_day_options": "14, 28, 56",
+                "set_type_options": "본세트\n탑세트\n백오프",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        html = self.client.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn('data-rest-seconds="45"', html)
+        self.assertIn('data-rest-seconds="75"', html)
+        self.assertIn('value="4" inputmode="numeric" data-set-count-input', html)
+        self.assertIn('placeholder="72.5"', html)
+        self.assertIn('placeholder="11"', html)
+        self.assertIn('<option value="탑세트">탑세트</option>', html)
+        self.assertIn('"default_daily_calories": 2550', html)
+
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")
         self.assertIn("record-subnav", daily_html)

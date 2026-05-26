@@ -14,10 +14,13 @@ from health_tracker.constants import (
     BODY_PART_CLASSES,
     BODY_PARTS,
     DEFAULT_BODY_WEIGHT_KG,
+    DEFAULT_DAILY_CALORIES,
+    DEFAULT_REST_SECONDS,
     DEFAULT_PROGRAMS,
     EQUIPMENT_OPTIONS,
     MEAL_TYPE_CLASSES,
     RECOMMENDED_EXERCISE_MAP,
+    SET_TYPE_OPTIONS,
     normalize_equipment_category,
 )
 from health_tracker.meta import get_app_updated_at, get_app_version
@@ -70,6 +73,8 @@ from health_tracker.services.meal import (
     list_weekly_meal_days_from_db,
 )
 from health_tracker.services.pagination import PER_PAGE_OPTIONS, build_pagination, page_params, query_url
+from health_tracker.services.preferences import app_preferences as build_app_preferences
+from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
 from health_tracker.services.pr import build_pr_cards_from_rows, build_pr_dashboard_from_rows
 from health_tracker.services.summary import build_daily_chart_from_rows, build_period_chart_from_rows
 from health_tracker.services.workout import grouped_sets_for_session_from_db, list_sets_for_session_from_db
@@ -132,6 +137,7 @@ def create_app() -> Flask:
             "is_admin": settings_unlocked(),
             "csrf_token": ensure_csrf_token,
             "per_page_options": PER_PAGE_OPTIONS,
+            "app_preferences": get_app_preferences(),
             "query_url": lambda **updates: query_url(request.path, request.args, **updates),
         }
 
@@ -464,6 +470,14 @@ def save_app_setting(key: str, value: str) -> None:
         (key, value),
     )
     get_db().commit()
+
+
+def get_app_preferences() -> dict[str, object]:
+    return build_app_preferences(get_db())
+
+
+def save_app_preferences(form) -> None:
+    save_app_preferences_to_db(get_db(), form)
 
 
 def has_settings_password() -> bool:
@@ -1092,7 +1106,11 @@ def build_workout_session_flow(workout_date: str) -> dict[str, object]:
         """,
         (workout_date,),
     ).fetchone()
-    rest_seconds = get_exercise_rest_seconds(last_set["exercise_name"]) if last_set else 90
+    rest_seconds = (
+        get_exercise_rest_seconds(last_set["exercise_name"])
+        if last_set
+        else int(get_app_preferences()["default_rest_seconds"])
+    )
     return {
         "next_item": next_item,
         "last_set": dict(last_set) if last_set else None,
@@ -1500,7 +1518,7 @@ def build_nutrition_training_link(scope: str = "weekly", date_text: str | None =
     low_fuel_days = [
         row["day"]
         for row in workout_days
-        if float(row["calories"] or 0) < float(get_goal_value("daily_calories", 2200)) * 0.75
+        if float(row["calories"] or 0) < float(get_goal_value("daily_calories", int(get_app_preferences()["default_daily_calories"]))) * 0.75
     ]
     message = "운동일 식단 데이터가 쌓이면 섭취량과 퍼포먼스 관계를 보여줍니다."
     if workout_days:
@@ -1545,6 +1563,7 @@ def list_exercise_library(
     favorite_only: bool = False,
     limit: int = 120,
 ) -> list[sqlite3.Row]:
+    default_rest_seconds = int(get_app_preferences()["default_rest_seconds"])
     filters = ["1 = 1"]
     params: list[object] = []
     if body_part:
@@ -1563,7 +1582,7 @@ def list_exercise_library(
             e.name,
             COALESCE(NULLIF(last_sets.body_part, ''), '기타') AS body_part,
             COALESCE(es.is_favorite, 0) AS is_favorite,
-            COALESCE(es.rest_seconds, 90) AS rest_seconds,
+            COALESCE(es.rest_seconds, {default_rest_seconds}) AS rest_seconds,
             COALESCE(es.equipment, last_sets.equipment, '') AS equipment,
             es.target_weight,
             es.target_reps,
@@ -1605,6 +1624,7 @@ def paged_exercise_library(
     page: int = 1,
     per_page: int = 20,
 ) -> tuple[list[sqlite3.Row], object, str]:
+    default_rest_seconds = int(get_app_preferences()["default_rest_seconds"])
     sort_options = {
         "favorite": "COALESCE(es.is_favorite, 0) DESC, last_sets.last_date DESC, set_count DESC, e.name",
         "recent": "last_sets.last_date DESC, set_count DESC, e.name",
@@ -1648,7 +1668,7 @@ def paged_exercise_library(
             e.name,
             COALESCE(NULLIF(last_sets.body_part, ''), '기타') AS body_part,
             COALESCE(es.is_favorite, 0) AS is_favorite,
-            COALESCE(es.rest_seconds, 90) AS rest_seconds,
+            COALESCE(es.rest_seconds, {default_rest_seconds}) AS rest_seconds,
             COALESCE(es.equipment, last_sets.equipment, '') AS equipment,
             es.target_weight,
             es.target_reps,
@@ -2126,9 +2146,10 @@ def save_exercise_note(exercise_name: str, note: str) -> None:
 
 def list_exercise_settings() -> dict[str, dict[str, int | float | bool | str | None]]:
     rows = get_db().execute("SELECT * FROM exercise_settings").fetchall()
+    preferences = get_app_preferences()
     return {
         row["exercise_name"]: {
-            "rest_seconds": int(row["rest_seconds"] or 90),
+            "rest_seconds": int(row["rest_seconds"] or preferences["default_rest_seconds"]),
             "is_favorite": bool(row["is_favorite"]),
             "equipment": row["equipment"] or "",
             "target_weight": row["target_weight"],
@@ -2148,6 +2169,7 @@ def save_exercise_settings(
     target_reps: int | None = None,
     target_sets: int | None = None,
 ) -> None:
+    preferences = get_app_preferences()
     get_db().execute(
         """
         INSERT INTO exercise_settings (
@@ -2166,7 +2188,7 @@ def save_exercise_settings(
         """,
         (
             exercise_name,
-            max(15, min(600, int(rest_seconds or 90))),
+            max(15, min(600, int(rest_seconds or preferences["default_rest_seconds"]))),
             1 if is_favorite else 0,
             equipment[:20],
             target_weight,
@@ -2197,7 +2219,7 @@ def get_exercise_rest_seconds(exercise_name: str) -> int:
         "SELECT rest_seconds FROM exercise_settings WHERE exercise_name = ?",
         (exercise_name,),
     ).fetchone()
-    return int(row["rest_seconds"]) if row else 90
+    return int(row["rest_seconds"]) if row else int(get_app_preferences()["default_rest_seconds"])
 
 
 def list_favorite_exercises(location_id: int | None = None) -> list[sqlite3.Row]:
@@ -4818,7 +4840,7 @@ def get_body_weight_for_date(metric_date: str) -> float:
     ).fetchone()
     if row and row["body_weight"]:
         return float(row["body_weight"])
-    return DEFAULT_BODY_WEIGHT_KG
+    return float(get_app_preferences()["default_body_weight_kg"])
 
 
 def estimate_cardio_met(speed: float | None, incline: float | None) -> float:

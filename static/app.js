@@ -25,6 +25,11 @@ const mealTypeClassMap = {
 };
 
 const exerciseQuickPanel = document.querySelector("[data-exercise-quick-panel]");
+const appPreferenceElement = document.querySelector("[data-app-preferences]");
+const appPreferences = parseJsonData(appPreferenceElement, "appPreferences");
+const setTypeOptions = Array.isArray(appPreferences.set_type_options) && appPreferences.set_type_options.length
+  ? appPreferences.set_type_options
+  : ["본세트"];
 const exerciseQuickList = document.querySelector("[data-exercise-quick-list]");
 const exerciseQuickEmpty = document.querySelector("[data-exercise-quick-empty]");
 const workoutQuickTabs = document.querySelectorAll("[data-workout-quick-tab]");
@@ -775,7 +780,7 @@ function copySavedSet(button, setList) {
   setInputValue(row, 'input[name="set_weight"]', button.dataset.weight);
   setInputValue(row, 'select[name="set_weight_unit"]', "kg");
   setInputValue(row, 'input[name="set_reps"]', button.dataset.reps);
-  setInputValue(row, 'select[name="set_type"]', button.dataset.setType || "본세트");
+  setInputValue(row, 'select[name="set_type"]', button.dataset.setType || setTypeOptions[0]);
   setInputValue(row, 'input[name="cardio_incline"]', button.dataset.cardioIncline);
   setInputValue(row, 'input[name="cardio_speed"]', button.dataset.cardioSpeed);
   setInputValue(row, 'input[name="cardio_minutes"]', button.dataset.cardioMinutes);
@@ -893,13 +898,18 @@ function resetMealForm(form, mealList) {
 }
 
 function setRowHtml(index) {
+  const setTypeOptionHtml = setTypeOptions
+    .map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`)
+    .join("");
+  const weightPlaceholder = appPreferences.default_weight_placeholder ?? 60;
+  const repsPlaceholder = appPreferences.default_reps_placeholder ?? 10;
   return `
     <strong class="set-row-number">${index}세트</strong>
     <div class="compact-field-grid" data-strength-fields>
       <label class="weight-unit-field">
         <span>무게</span>
         <div class="weight-unit-control">
-          <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+          <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="${escapeHtml(weightPlaceholder)}">
           <select name="set_weight_unit" aria-label="무게 단위">
             <option value="kg">kg</option>
             <option value="lb">lb</option>
@@ -909,14 +919,11 @@ function setRowHtml(index) {
       </label>
       <label>
         <span>횟수</span>
-        <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
+        <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="${escapeHtml(repsPlaceholder)}">
       </label>
     </div>
     <select name="set_type" aria-label="세트 타입" data-strength-fields>
-      <option value="본세트">본세트</option>
-      <option value="워밍업">워밍업</option>
-      <option value="드롭세트">드롭세트</option>
-      <option value="실패">실패</option>
+      ${setTypeOptionHtml}
     </select>
     <div class="compact-field-grid cardio-field-grid" data-cardio-fields hidden>
       <label>

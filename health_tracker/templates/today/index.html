@@ -4,7 +4,7 @@
 {% block title %}오늘 기록{% endblock %}
 
 {% block content %}
-  <div class="today-shell {% if workout_mode %}workout-mode{% elif meal_mode %}meal-mode{% endif %}">
+  <div class="today-shell {% if workout_mode %}workout-mode{% elif meal_mode %}meal-mode{% endif %}" data-app-preferences='{{ app_preferences|tojson }}'>
   <div class="date-row">
     <a class="arrow-btn" href="{{ url_for('index', date=prev_date) }}" aria-label="이전 날짜">‹</a>
     <form method="get" action="{{ url_for('index') }}" class="date-picker-form">
@@ -179,9 +179,9 @@
       <div class="timer-display" data-rest-timer-display>00:00</div>
     </div>
     <div class="timer-actions">
-      <button class="btn-small" type="button" data-rest-seconds="60">60초</button>
-      <button class="btn-small" type="button" data-rest-seconds="90">90초</button>
-      <button class="btn-small" type="button" data-rest-seconds="120">120초</button>
+      {% for seconds in app_preferences.rest_timer_presets %}
+        <button class="btn-small" type="button" data-rest-seconds="{{ seconds }}">{{ seconds }}초</button>
+      {% endfor %}
       <button class="btn-danger" type="button" data-rest-stop>정지</button>
     </div>
   </section>
@@ -923,7 +923,7 @@
       <div class="set-builder-toolbar">
         <label class="set-count-control">
           <span>세트 수</span>
-          <input name="set_count_builder" type="number" min="1" max="20" step="1" value="3" inputmode="numeric" data-set-count-input>
+          <input name="set_count_builder" type="number" min="1" max="20" step="1" value="{{ app_preferences.default_set_count }}" inputmode="numeric" data-set-count-input>
         </label>
         <div class="set-preset-list" aria-label="세트 수 빠른 선택">
           <button type="button" class="btn-small" data-set-count-preset="3">3세트</button>
@@ -942,7 +942,7 @@
             <label class="weight-unit-field" data-strength-fields>
               <span>무게</span>
               <div class="weight-unit-control">
-                <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="60">
+                <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="{{ app_preferences.default_weight_placeholder }}">
                 <select name="set_weight_unit" aria-label="무게 단위">
                   <option value="kg">kg</option>
                   <option value="lb">lb</option>
@@ -952,7 +952,7 @@
             </label>
             <label data-strength-fields>
               <span>횟수</span>
-              <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="10">
+              <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="{{ app_preferences.default_reps_placeholder }}">
             </label>
             <label data-cardio-fields hidden>
               <span>인클라인</span>
@@ -968,10 +968,9 @@
             </label>
           </div>
           <select name="set_type" aria-label="세트 타입" data-strength-fields>
-            <option value="본세트">본세트</option>
-            <option value="워밍업">워밍업</option>
-            <option value="드롭세트">드롭세트</option>
-            <option value="실패">실패</option>
+            {% for option in set_type_options %}
+              <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
           </select>
           <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
           <input name="set_memo" autocomplete="off" placeholder="메모">
@@ -1233,7 +1232,7 @@
                       {% if item.estimated_calories %} · 예상 {{ "%.0f"|format(item.estimated_calories) }}kcal{% endif %}
                     {% else %}
                       {% if item.equipment %}<span class="badge">{{ item.equipment }}</span>{% endif %}
-                      <span class="badge">{{ item.set_type or "본세트" }}</span>
+                      <span class="badge">{{ item.set_type or set_type_options[0] }}</span>
                       {% if item.weight is not none %}<span class="blue-text">{{ "%.1f"|format(item.weight) }}kg</span>{% else %}-kg{% endif %}
                       ·
                       {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
@@ -1299,8 +1298,8 @@
                     <label class="edit-field edit-field-type">
                       <span>타입</span>
                       <select name="set_type">
-                        {% for option in ["본세트", "워밍업", "드롭세트", "실패"] %}
-                          <option value="{{ option }}" {% if (item.set_type or "본세트") == option %}selected{% endif %}>{{ option }}</option>
+                        {% for option in set_type_options %}
+                          <option value="{{ option }}" {% if (item.set_type or set_type_options[0]) == option %}selected{% endif %}>{{ option }}</option>
                         {% endfor %}
                       </select>
                     </label>
@@ -1325,7 +1324,7 @@
                     data-equipment="{{ item.equipment or setting.get('equipment', '') }}"
                     data-weight="{% if item.weight is not none %}{{ item.weight }}{% endif %}"
                     data-reps="{% if item.reps is not none %}{{ item.reps }}{% endif %}"
-                    data-set-type="{{ item.set_type or '본세트' }}"
+                    data-set-type="{{ item.set_type or set_type_options[0] }}"
                     data-cardio-incline="{% if item.cardio_incline is not none %}{{ item.cardio_incline }}{% endif %}"
                     data-cardio-speed="{% if item.cardio_speed is not none %}{{ item.cardio_speed }}{% endif %}"
                     data-cardio-minutes="{% if item.cardio_minutes is not none %}{{ item.cardio_minutes }}{% endif %}"
@@ -1353,8 +1352,8 @@
                   <input name="set_weight" type="number" min="0" step="0.1" inputmode="decimal" value="{% if last_set.weight is not none %}{{ "%.1f"|format(last_set.weight) }}{% endif %}" placeholder="kg">
                   <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" value="{% if last_set.reps is not none %}{{ last_set.reps }}{% endif %}" placeholder="회">
                   <select name="set_type">
-                    {% for option in ["본세트", "워밍업", "드롭세트", "실패"] %}
-                      <option value="{{ option }}" {% if (last_set.set_type or "본세트") == option %}selected{% endif %}>{{ option }}</option>
+                    {% for option in set_type_options %}
+                      <option value="{{ option }}" {% if (last_set.set_type or set_type_options[0]) == option %}selected{% endif %}>{{ option }}</option>
                     {% endfor %}
                   </select>
                 {% endif %}

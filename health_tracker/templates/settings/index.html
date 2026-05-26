@@ -31,6 +31,52 @@
     {% endif %}
   </section>
 
+  <section class="section settings-panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">앱 기본값</div>
+        <div class="section-subtitle">운동 입력과 분석 화면에서 쓰는 기본 옵션을 코드 수정 없이 조정합니다.</div>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('save_app_preferences_route') }}" class="settings-action-grid">
+      <div class="settings-action-card">
+        <strong>휴식 타이머</strong>
+        <span>운동별 별도 설정이 없을 때 기본 휴식초와 버튼 목록으로 사용합니다.</span>
+        <input name="default_rest_seconds" type="number" min="15" max="600" step="15" value="{{ app_preferences.default_rest_seconds }}" aria-label="기본 휴식초">
+        <input name="rest_timer_presets" value="{{ app_preferences.rest_timer_presets|join(', ') }}" aria-label="휴식 버튼 목록">
+      </div>
+      <div class="settings-action-card">
+        <strong>운동 입력</strong>
+        <span>새 세트 작성 UI의 기본 행 수와 입력 힌트입니다.</span>
+        <input name="default_set_count" type="number" min="1" max="20" step="1" value="{{ app_preferences.default_set_count }}" aria-label="기본 세트 수">
+        <input name="default_weight_placeholder" type="number" min="0" max="500" step="0.5" value="{{ app_preferences.default_weight_placeholder }}" aria-label="기본 무게 예시">
+        <input name="default_reps_placeholder" type="number" min="0" max="200" step="1" value="{{ app_preferences.default_reps_placeholder }}" aria-label="기본 횟수 예시">
+      </div>
+      <div class="settings-action-card">
+        <strong>세트 타입</strong>
+        <span>쉼표 또는 줄바꿈으로 입력합니다. 첫 번째 값이 기본 세트 타입입니다.</span>
+        <textarea name="set_type_options" rows="4" aria-label="세트 타입 목록">{{ app_preferences.set_type_options|join('\n') }}</textarea>
+      </div>
+      <div class="settings-action-card">
+        <strong>분석 기본값</strong>
+        <span>목표와 목록/분석 기본 표시값입니다.</span>
+        <input name="default_daily_calories" type="number" min="0" max="10000" step="10" value="{{ app_preferences.default_daily_calories }}" aria-label="기본 목표 칼로리">
+        <input name="default_body_weight_kg" type="number" min="20" max="300" step="0.1" value="{{ app_preferences.default_body_weight_kg }}" aria-label="기본 체중">
+        <select name="default_per_page" aria-label="기본 페이지 크기">
+          {% for option in app_preferences.per_page_options %}
+            <option value="{{ option }}" {% if app_preferences.default_per_page == option %}selected{% endif %}>{{ option }}개</option>
+          {% endfor %}
+        </select>
+        <input name="summary_day_options" value="{{ app_preferences.summary_day_options|join(', ') }}" aria-label="분석 기간 옵션">
+      </div>
+      <div class="settings-action-card">
+        <strong>저장</strong>
+        <span>잘못된 값은 안전 범위로 보정하고, 비어 있으면 기본값으로 되돌립니다.</span>
+        <button class="btn-primary" type="submit">앱 기본값 저장</button>
+      </div>
+    </form>
+  </section>
+
   <section class="section settings-overview-section">
     <div class="section-header">
       <div>

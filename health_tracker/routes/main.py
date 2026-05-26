@@ -32,6 +32,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         selected_location_id = parse_int(request.args.get("location_id"))
         today_session = get_or_create_session(selected_date, selected_location_id)
         current_location = get_workout_location(today_session["location_id"])
+        preferences = get_app_preferences()
         sessions = list_recent_sessions()
         exercises = list_exercises(current_location["id"])
         meals = list_meals_for_date(today_session["workout_date"])
@@ -68,7 +69,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             meals=meals,
             meal_groups=grouped_meals_for_date(today_session["workout_date"]),
             today_summary=get_day_summary(today_session["workout_date"]),
-            daily_calorie_goal=get_goal_value("daily_calories", 2200),
+            daily_calorie_goal=get_goal_value("daily_calories", int(preferences["default_daily_calories"])),
             data_quality_profile=build_data_quality_profile(today_session["workout_date"]),
             balance_score=get_balance_score("weekly", today_session["workout_date"]),
             recovery_statuses=list_recovery_statuses(today_session["workout_date"]),
@@ -87,6 +88,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             location_equipment=list_location_equipment(current_location["id"]),
             location_quick_exercises=list_location_quick_exercises(current_location["id"]),
             equipment_options=equipment_options_for_location(current_location["id"]),
+            set_type_options=preferences["set_type_options"],
             has_location_equipment=bool(list_location_equipment(current_location["id"])),
             today_mode=today_mode,
             workout_mode=workout_mode,
@@ -428,6 +430,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             reminder_settings=list_reminder_settings(),
             has_settings_password=has_settings_password(),
             qa_dummy_status=get_qa_dummy_status(),
+            app_preferences=get_app_preferences(),
         )
 
     @app.post("/settings/unlock")
@@ -452,6 +455,12 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     def reset_settings_password_route():
         if settings_unlocked() and request.form.get("confirm_reset", "").strip() == "RESET":
             reset_settings_password()
+        return redirect(url_for("settings_page"))
+
+    @app.post("/settings/app-preferences")
+    def save_app_preferences_route():
+        if settings_unlocked():
+            save_app_preferences(request.form)
         return redirect(url_for("settings_page"))
 
     @app.post("/settings/lock")
@@ -512,7 +521,9 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         cardio_speeds = request.form.getlist("cardio_speed") or [request.form.get("cardio_speed", "")]
         cardio_minutes = request.form.getlist("cardio_minutes") or [request.form.get("cardio_minutes", "")]
         set_memos = request.form.getlist("set_memo") or [request.form.get("memo", "")]
-        set_types = request.form.getlist("set_type") or [request.form.get("set_type", "본세트")]
+        preferences = get_app_preferences()
+        default_set_type = str(preferences["set_type_options"][0]) if preferences["set_type_options"] else "본세트"
+        set_types = request.form.getlist("set_type") or [request.form.get("set_type", default_set_type)]
         set_rpes = request.form.getlist("set_rpe") or [request.form.get("rpe", "")]
         set_count = max(
             len(set_weights),
@@ -534,7 +545,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             speed_value = value_at(cardio_speeds, index)
             minutes_value = value_at(cardio_minutes, index)
             memo_value = value_at(set_memos, index).strip()
-            set_type = value_at(set_types, index).strip() or "본세트"
+            set_type = value_at(set_types, index).strip() or default_set_type
             rpe_value = value_at(set_rpes, index)
             is_cardio = body_part == "유산소"
             if (
@@ -684,7 +695,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         if exercise_name:
             save_exercise_settings(
                 exercise_name,
-                parse_int(request.form.get("rest_seconds")) or 90,
+                parse_int(request.form.get("rest_seconds")) or int(get_app_preferences()["default_rest_seconds"]),
                 request.form.get("is_favorite") == "1",
                 normalize_equipment_category(request.form.get("equipment", "")),
                 parse_float(request.form.get("target_weight")),
@@ -1075,6 +1086,8 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         ).fetchone()
         workout_date = workout["workout_date"] if workout else current_local_date()
         mode = request.form.get("mode")
+        preferences = get_app_preferences()
+        default_set_type = str(preferences["set_type_options"][0]) if preferences["set_type_options"] else "본세트"
         equipment = normalize_equipment_category(request.form.get("equipment", ""))
         body_part = request.form.get("body_part", workout["body_part"] if workout else "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", workout["exercise_name"] if workout else "").strip()
@@ -1136,7 +1149,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                     body_part,
                     parse_weight_kg(request.form.get("weight"), request.form.get("weight_unit", "kg")),
                     parse_int(request.form.get("reps")),
-                    request.form.get("set_type", "본세트").strip() or "본세트",
+                    request.form.get("set_type", default_set_type).strip() or default_set_type,
                     parse_float(request.form.get("rpe")),
                     equipment[:20],
                     set_id,
