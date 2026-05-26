@@ -10,6 +10,32 @@ def ensure_column(db: sqlite3.Connection, table: str, column: str, column_type: 
         db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
 
 
+def migrate_machine_equipment_categories(db: sqlite3.Connection) -> None:
+    for table in ("workout_sets", "exercise_settings", "routine_items"):
+        db.execute(f"UPDATE {table} SET equipment = '핀머신' WHERE equipment = '머신'")
+    db.execute(
+        """
+        UPDATE location_equipment
+        SET equipment_type = '핀머신'
+        WHERE equipment_type = '머신'
+        """
+    )
+    db.execute(
+        """
+        UPDATE location_equipment
+        SET equipment_name = '핀머신'
+        WHERE equipment_name = '머신'
+          AND NOT EXISTS (
+              SELECT 1
+              FROM location_equipment sibling
+              WHERE sibling.location_id = location_equipment.location_id
+                AND sibling.equipment_name = '핀머신'
+          )
+        """
+    )
+    db.execute("UPDATE location_equipment SET is_active = 0 WHERE equipment_name = '머신'")
+
+
 def init_database(
     db: sqlite3.Connection,
     recalculate_missing_exercise_calories: Callable[[], None],
@@ -292,6 +318,7 @@ def init_database(
           AND fat IS NULL
         """
     )
+    migrate_machine_equipment_categories(db)
     recalculate_missing_exercise_calories()
     bootstrap_locations(db)
     delete_internal_test_data()

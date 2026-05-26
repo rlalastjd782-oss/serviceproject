@@ -1582,6 +1582,18 @@ label span {
   width: 100%;
 }
 
+.equipment-select,
+.record-search-equipment,
+.location-equipment-form select[name="equipment_name"],
+.location-equipment-form select[name="equipment_type"],
+.edit-field select[name="equipment"],
+.routine-manage-form select[name="equipment"] {
+  font-size: 12px;
+  line-height: 1.2;
+  padding-inline: 8px;
+  text-overflow: ellipsis;
+}
+
 .ex-input-row input {
   min-width: 0;
   width: 100%;

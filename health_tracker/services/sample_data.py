@@ -40,7 +40,7 @@ def create_may_sample_data_in_db(
     equipment_by_part = {
         "하체": "바벨",
         "가슴": "바벨",
-        "등": "머신",
+        "등": "핀머신",
         "어깨": "덤벨",
         "팔": "케이블",
     }
