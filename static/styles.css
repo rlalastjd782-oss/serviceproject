@@ -268,17 +268,53 @@
 
 .location-create-form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(96px, auto);
   gap: 8px;
   align-items: end;
   border-top: 1px solid #263144;
   padding: 12px;
 }
 
+.location-create-form label,
+.location-edit-form label {
+  min-width: 0;
+}
+
+.location-create-form input,
+.location-edit-form input,
+.location-equipment-form input {
+  width: 100%;
+  min-width: 0;
+}
+
 .location-form-actions {
   display: grid;
   gap: 7px;
-  min-width: 96px;
+  min-width: 0;
+}
+
+.location-form-actions .checkbox-row {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 34px;
+}
+
+.location-form-actions input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  min-height: 0;
+  margin: 0;
+  accent-color: #2563eb;
+}
+
+.location-form-actions .checkbox-row span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 .location-card-list {
