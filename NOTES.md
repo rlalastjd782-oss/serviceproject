@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-27 v2.0.7 PWA 메타 태그 경고 수정
+
+- `health_tracker/templates/layouts/base.html`에 `<meta name="mobile-web-app-capable" content="yes">`를 추가했습니다.
+- 기존 `apple-mobile-web-app-capable`은 iOS Safari 호환 목적으로 유지했습니다.
+- 검증: 컴파일, 전체 회귀 테스트, 로컬 HTTP head/service worker 확인을 통과했습니다.
+
 ## 2026-05-27 v2.0.6 장비 카테고리 머신 분리
 
 - 공통 장비 카테고리에서 `머신`을 제거하고 `핀머신`, `플레이트로디드머신`을 추가했습니다.

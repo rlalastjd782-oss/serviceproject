@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.0.7 - 2026-05-27
+
+- PWA head에 표준 `mobile-web-app-capable` 메타 태그를 추가해 Chrome 계열 경고를 해소했습니다.
+- iOS 홈 화면 호환성을 위해 기존 `apple-mobile-web-app-capable` 태그는 유지했습니다.
+
 ## v2.0.6 - 2026-05-27
 
 - 장비 카테고리의 `머신`을 `핀머신`, `플레이트로디드머신`으로 분리했습니다.
