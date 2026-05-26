@@ -33,6 +33,7 @@ from health_tracker.date_utils import (
     shift_month,
     week_start_for_date,
 )
+from health_tracker.database.schema import init_database
 from health_tracker.meta import get_app_updated_at, get_app_version
 from health_tracker.security import (
     ADMIN_GET_ENDPOINTS,
@@ -85,6 +86,14 @@ from health_tracker.services.export import (
     export_workout_csv_from_db,
 )
 from health_tracker.services.exercise_calorie import estimate_exercise_calories_from_weight
+from health_tracker.services.exercise_settings import (
+    get_exercise_rest_seconds_from_db,
+    list_exercise_notes_from_db,
+    list_exercise_settings_from_db,
+    save_exercise_equipment_to_db,
+    save_exercise_note_to_db,
+    save_exercise_settings_to_db,
+)
 from health_tracker.services.location import (
     bootstrap_locations,
     deactivate_location,
@@ -149,7 +158,12 @@ from health_tracker.services.routine import (
 )
 from health_tracker.services.sample_data import create_may_sample_data_in_db, delete_sample_data_from_db
 from health_tracker.services.summary import build_daily_chart_from_rows, build_period_chart_from_rows
-from health_tracker.services.workout import grouped_sets_for_session_from_db, list_sets_for_session_from_db
+from health_tracker.services.workout import (
+    get_or_create_exercise_in_db,
+    grouped_sets_for_session_from_db,
+    list_sets_for_session_from_db,
+    reorder_set_within_exercise_in_db,
+)
 from health_tracker.services.workout_plan import (
     apply_default_program_to_db,
     build_workout_completion_summary_from_db,
@@ -240,290 +254,13 @@ def get_db() -> sqlite3.Connection:
 
 
 def init_db() -> None:
-    db = get_db()
-    db.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS exercises (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS workout_sessions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            workout_date TEXT NOT NULL UNIQUE,
-            location_id INTEGER,
-            note TEXT NOT NULL DEFAULT '',
-            completed INTEGER NOT NULL DEFAULT 0,
-            duration_seconds INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS workout_sets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            session_id INTEGER NOT NULL,
-            exercise_id INTEGER NOT NULL,
-            body_part TEXT NOT NULL DEFAULT '기타',
-            set_type TEXT NOT NULL DEFAULT '본세트',
-            weight REAL,
-            reps INTEGER,
-            equipment TEXT NOT NULL DEFAULT '',
-            cardio_incline REAL,
-            cardio_speed REAL,
-            cardio_minutes REAL,
-            estimated_calories REAL,
-            memo TEXT NOT NULL DEFAULT '',
-            sort_order INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (session_id) REFERENCES workout_sessions (id) ON DELETE CASCADE,
-            FOREIGN KEY (exercise_id) REFERENCES exercises (id) ON DELETE CASCADE
-        );
-
-        CREATE TABLE IF NOT EXISTS meal_entries (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            meal_date TEXT NOT NULL,
-            meal_type TEXT NOT NULL DEFAULT '',
-            food_name TEXT NOT NULL,
-            quantity REAL,
-            grams REAL,
-            calories REAL,
-            protein REAL,
-            carbs REAL,
-            fat REAL,
-            memo TEXT NOT NULL DEFAULT '',
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS routine_templates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            location_id INTEGER,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS routine_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            routine_id INTEGER NOT NULL,
-            exercise_name TEXT NOT NULL,
-            body_part TEXT NOT NULL DEFAULT '기타',
-            set_type TEXT NOT NULL DEFAULT '본세트',
-            weight REAL,
-            reps INTEGER,
-            cardio_incline REAL,
-            cardio_speed REAL,
-            cardio_minutes REAL,
-            equipment TEXT NOT NULL DEFAULT '',
-            sort_order INTEGER NOT NULL DEFAULT 0,
-            FOREIGN KEY (routine_id) REFERENCES routine_templates (id) ON DELETE CASCADE
-        );
-
-        CREATE TABLE IF NOT EXISTS user_goals (
-            key TEXT PRIMARY KEY,
-            value INTEGER NOT NULL DEFAULT 0,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS exercise_notes (
-            exercise_name TEXT PRIMARY KEY,
-            note TEXT NOT NULL DEFAULT '',
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS exercise_settings (
-            exercise_name TEXT PRIMARY KEY,
-            location_id INTEGER,
-            rest_seconds INTEGER NOT NULL DEFAULT 90,
-            is_favorite INTEGER NOT NULL DEFAULT 0,
-            equipment TEXT NOT NULL DEFAULT '',
-            target_weight REAL,
-            target_reps INTEGER,
-            target_sets INTEGER,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS food_favorites (
-            food_name TEXT PRIMARY KEY,
-            quantity REAL,
-            grams REAL,
-            calories REAL,
-            is_favorite INTEGER NOT NULL DEFAULT 1,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS workout_plan_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            workout_date TEXT NOT NULL,
-            body_part TEXT NOT NULL DEFAULT '기타',
-            exercise_name TEXT NOT NULL,
-            target_sets INTEGER NOT NULL DEFAULT 3,
-            sort_order INTEGER NOT NULL DEFAULT 0,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS pr_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            workout_date TEXT NOT NULL,
-            set_id INTEGER NOT NULL,
-            exercise_id INTEGER NOT NULL,
-            exercise_name TEXT NOT NULL,
-            record_type TEXT NOT NULL,
-            record_value REAL NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS body_metrics (
-            metric_date TEXT PRIMARY KEY,
-            body_weight REAL,
-            muscle_mass REAL,
-            body_fat REAL,
-            waist REAL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS body_photos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            photo_date TEXT NOT NULL,
-            file_path TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS meal_templates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS meal_template_items (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            template_id INTEGER NOT NULL,
-            meal_type TEXT NOT NULL DEFAULT '',
-            food_name TEXT NOT NULL,
-            quantity REAL,
-            grams REAL,
-            calories REAL,
-            sort_order INTEGER NOT NULL DEFAULT 0,
-            FOREIGN KEY (template_id) REFERENCES meal_templates (id) ON DELETE CASCADE
-        );
-
-        CREATE TABLE IF NOT EXISTS recovery_checkins (
-            checkin_date TEXT PRIMARY KEY,
-            condition_score INTEGER NOT NULL DEFAULT 3,
-            sleep_score INTEGER NOT NULL DEFAULT 3,
-            soreness_score INTEGER NOT NULL DEFAULT 3,
-            fatigue_score INTEGER NOT NULL DEFAULT 3,
-            is_rest_day INTEGER NOT NULL DEFAULT 0,
-            rest_reason TEXT NOT NULL DEFAULT '',
-            memo TEXT NOT NULL DEFAULT '',
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS reminder_settings (
-            key TEXT PRIMARY KEY,
-            enabled INTEGER NOT NULL DEFAULT 0,
-            time_text TEXT NOT NULL DEFAULT '',
-            message TEXT NOT NULL DEFAULT '',
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS workout_locations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
-            address TEXT NOT NULL DEFAULT '',
-            memo TEXT NOT NULL DEFAULT '',
-            is_default INTEGER NOT NULL DEFAULT 0,
-            is_active INTEGER NOT NULL DEFAULT 1,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS location_equipment (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            location_id INTEGER NOT NULL,
-            equipment_name TEXT NOT NULL,
-            equipment_type TEXT NOT NULL DEFAULT '',
-            memo TEXT NOT NULL DEFAULT '',
-            is_active INTEGER NOT NULL DEFAULT 1,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(location_id, equipment_name),
-            FOREIGN KEY (location_id) REFERENCES workout_locations (id) ON DELETE CASCADE
-        );
-
-        CREATE TABLE IF NOT EXISTS app_settings (
-            key TEXT PRIMARY KEY,
-            value TEXT NOT NULL DEFAULT '',
-            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_workout_sessions_date ON workout_sessions(workout_date);
-        CREATE INDEX IF NOT EXISTS idx_workout_sets_session ON workout_sets(session_id);
-        CREATE INDEX IF NOT EXISTS idx_workout_sets_exercise ON workout_sets(exercise_id);
-        CREATE INDEX IF NOT EXISTS idx_workout_sets_body_part ON workout_sets(body_part);
-        CREATE INDEX IF NOT EXISTS idx_workout_sets_equipment ON workout_sets(equipment);
-        CREATE INDEX IF NOT EXISTS idx_meal_entries_date ON meal_entries(meal_date);
-        CREATE INDEX IF NOT EXISTS idx_pr_events_exercise ON pr_events(exercise_id);
-        CREATE INDEX IF NOT EXISTS idx_pr_events_date ON pr_events(workout_date);
-        CREATE INDEX IF NOT EXISTS idx_location_equipment_location ON location_equipment(location_id);
-        """
+    init_database(
+        get_db(),
+        recalculate_missing_exercise_calories,
+        bootstrap_locations,
+        delete_internal_test_data,
     )
-    ensure_column(db, "workout_sets", "body_part", "TEXT NOT NULL DEFAULT '기타'")
-    ensure_column(db, "workout_sessions", "location_id", "INTEGER")
-    ensure_column(db, "workout_sessions", "completed", "INTEGER NOT NULL DEFAULT 0")
-    ensure_column(db, "workout_sessions", "duration_seconds", "INTEGER NOT NULL DEFAULT 0")
-    ensure_column(db, "workout_sets", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
-    ensure_column(db, "workout_sets", "cardio_incline", "REAL")
-    ensure_column(db, "workout_sets", "cardio_speed", "REAL")
-    ensure_column(db, "workout_sets", "cardio_minutes", "REAL")
-    ensure_column(db, "workout_sets", "estimated_calories", "REAL")
-    ensure_column(db, "workout_sets", "rpe", "REAL")
-    ensure_column(db, "workout_sets", "equipment", "TEXT NOT NULL DEFAULT ''")
-    ensure_column(db, "exercise_settings", "equipment", "TEXT NOT NULL DEFAULT ''")
-    ensure_column(db, "exercise_settings", "location_id", "INTEGER")
-    ensure_column(db, "exercise_settings", "target_weight", "REAL")
-    ensure_column(db, "exercise_settings", "target_reps", "INTEGER")
-    ensure_column(db, "exercise_settings", "target_sets", "INTEGER")
-    ensure_column(db, "routine_items", "set_type", "TEXT NOT NULL DEFAULT '본세트'")
-    ensure_column(db, "routine_items", "cardio_incline", "REAL")
-    ensure_column(db, "routine_items", "cardio_speed", "REAL")
-    ensure_column(db, "routine_items", "cardio_minutes", "REAL")
-    ensure_column(db, "routine_items", "equipment", "TEXT NOT NULL DEFAULT ''")
-    ensure_column(db, "routine_templates", "location_id", "INTEGER")
-    ensure_column(db, "meal_entries", "quantity", "REAL")
-    ensure_column(db, "meal_entries", "grams", "REAL")
-    ensure_column(db, "recovery_checkins", "is_rest_day", "INTEGER NOT NULL DEFAULT 0")
-    ensure_column(db, "recovery_checkins", "rest_reason", "TEXT NOT NULL DEFAULT ''")
-    ensure_column(db, "reminder_settings", "enabled", "INTEGER NOT NULL DEFAULT 0")
-    ensure_column(db, "reminder_settings", "time_text", "TEXT NOT NULL DEFAULT ''")
-    ensure_column(db, "reminder_settings", "message", "TEXT NOT NULL DEFAULT ''")
-    ensure_column(db, "app_settings", "value", "TEXT NOT NULL DEFAULT ''")
-    db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sessions_location ON workout_sessions(location_id)")
-    db.execute(
-        """
-        UPDATE meal_entries
-        SET
-            quantity = COALESCE(quantity, calories),
-            grams = COALESCE(grams, protein),
-            calories = NULL,
-            protein = NULL
-        WHERE quantity IS NULL
-          AND grams IS NULL
-          AND (calories IS NOT NULL OR protein IS NOT NULL)
-          AND carbs IS NULL
-          AND fat IS NULL
-        """
-    )
-    recalculate_missing_exercise_calories()
-    bootstrap_locations(db)
-    delete_internal_test_data()
-    db.commit()
 
-
-def ensure_column(db: sqlite3.Connection, table: str, column: str, column_type: str) -> None:
-    columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
-    if column not in columns:
-        db.execute(f"ALTER TABLE {table} ADD COLUMN {column} {column_type}")
 
 
 def get_or_create_secret_key() -> str:
@@ -662,50 +399,11 @@ def update_session_duration(session_id: int, duration_seconds: int) -> None:
 
 
 def reorder_set_within_exercise(db: sqlite3.Connection, set_id: int, requested_set_number: int) -> None:
-    current = db.execute(
-        """
-        SELECT session_id, exercise_id, COALESCE(NULLIF(body_part, ''), '기타') AS body_part
-        FROM workout_sets
-        WHERE id = ?
-        """,
-        (set_id,),
-    ).fetchone()
-    if not current:
-        return
-
-    rows = db.execute(
-        """
-        SELECT id, sort_order
-        FROM workout_sets
-        WHERE session_id = ?
-          AND exercise_id = ?
-          AND COALESCE(NULLIF(body_part, ''), '기타') = ?
-        ORDER BY sort_order, id
-        """,
-        (current["session_id"], current["exercise_id"], current["body_part"]),
-    ).fetchall()
-    if len(rows) <= 1:
-        return
-
-    ordered_ids = [int(row["id"]) for row in rows]
-    if set_id not in ordered_ids:
-        return
-    ordered_ids.remove(set_id)
-    target_index = min(max(requested_set_number, 1), len(rows)) - 1
-    ordered_ids.insert(target_index, set_id)
-    sort_orders = [int(row["sort_order"] or 0) for row in rows]
-    for new_order, row_id in zip(sort_orders, ordered_ids):
-        db.execute("UPDATE workout_sets SET sort_order = ? WHERE id = ?", (new_order, row_id))
+    reorder_set_within_exercise_in_db(db, set_id, requested_set_number)
 
 
 def get_or_create_exercise(name: str) -> int:
-    db = get_db()
-    existing = db.execute("SELECT id FROM exercises WHERE name = ?", (name,)).fetchone()
-    if existing:
-        return int(existing["id"])
-    cursor = db.execute("INSERT INTO exercises (name) VALUES (?)", (name,))
-    db.commit()
-    return int(cursor.lastrowid)
+    return get_or_create_exercise_in_db(get_db(), name)
 
 
 def list_exercises(location_id: int | None = None) -> list[sqlite3.Row]:
@@ -1539,36 +1237,15 @@ def list_overload_suggestions() -> dict[str, str]:
 
 
 def list_exercise_notes() -> dict[str, str]:
-    rows = get_db().execute("SELECT exercise_name, note FROM exercise_notes").fetchall()
-    return {row["exercise_name"]: row["note"] for row in rows}
+    return list_exercise_notes_from_db(get_db())
 
 
 def save_exercise_note(exercise_name: str, note: str) -> None:
-    get_db().execute(
-        """
-        INSERT INTO exercise_notes (exercise_name, note, updated_at)
-        VALUES (?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(exercise_name) DO UPDATE SET note = excluded.note, updated_at = CURRENT_TIMESTAMP
-        """,
-        (exercise_name, note),
-    )
-    get_db().commit()
+    save_exercise_note_to_db(get_db(), exercise_name, note)
 
 
 def list_exercise_settings() -> dict[str, dict[str, int | float | bool | str | None]]:
-    rows = get_db().execute("SELECT * FROM exercise_settings").fetchall()
-    preferences = get_app_preferences()
-    return {
-        row["exercise_name"]: {
-            "rest_seconds": int(row["rest_seconds"] or preferences["default_rest_seconds"]),
-            "is_favorite": bool(row["is_favorite"]),
-            "equipment": row["equipment"] or "",
-            "target_weight": row["target_weight"],
-            "target_reps": row["target_reps"],
-            "target_sets": row["target_sets"],
-        }
-        for row in rows
-    }
+    return list_exercise_settings_from_db(get_db(), int(get_app_preferences()["default_rest_seconds"]))
 
 
 def save_exercise_settings(
@@ -1580,57 +1257,25 @@ def save_exercise_settings(
     target_reps: int | None = None,
     target_sets: int | None = None,
 ) -> None:
-    preferences = get_app_preferences()
-    get_db().execute(
-        """
-        INSERT INTO exercise_settings (
-            exercise_name, rest_seconds, is_favorite, equipment,
-            target_weight, target_reps, target_sets, updated_at
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(exercise_name) DO UPDATE SET
-            rest_seconds = excluded.rest_seconds,
-            is_favorite = excluded.is_favorite,
-            equipment = excluded.equipment,
-            target_weight = excluded.target_weight,
-            target_reps = excluded.target_reps,
-            target_sets = excluded.target_sets,
-            updated_at = CURRENT_TIMESTAMP
-        """,
-        (
-            exercise_name,
-            max(15, min(600, int(rest_seconds or preferences["default_rest_seconds"]))),
-            1 if is_favorite else 0,
-            equipment[:20],
-            target_weight,
-            target_reps,
-            target_sets,
-        ),
+    save_exercise_settings_to_db(
+        get_db(),
+        exercise_name,
+        rest_seconds,
+        is_favorite,
+        int(get_app_preferences()["default_rest_seconds"]),
+        equipment,
+        target_weight,
+        target_reps,
+        target_sets,
     )
-    get_db().commit()
 
 
 def save_exercise_equipment(exercise_name: str, equipment: str) -> None:
-    if not exercise_name or not equipment:
-        return
-    get_db().execute(
-        """
-        INSERT INTO exercise_settings (exercise_name, equipment, updated_at)
-        VALUES (?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(exercise_name) DO UPDATE SET
-            equipment = excluded.equipment,
-            updated_at = CURRENT_TIMESTAMP
-        """,
-        (exercise_name, equipment[:20]),
-    )
+    save_exercise_equipment_to_db(get_db(), exercise_name, equipment)
 
 
 def get_exercise_rest_seconds(exercise_name: str) -> int:
-    row = get_db().execute(
-        "SELECT rest_seconds FROM exercise_settings WHERE exercise_name = ?",
-        (exercise_name,),
-    ).fetchone()
-    return int(row["rest_seconds"]) if row else int(get_app_preferences()["default_rest_seconds"])
+    return get_exercise_rest_seconds_from_db(get_db(), exercise_name, int(get_app_preferences()["default_rest_seconds"]))
 
 
 def list_favorite_exercises(location_id: int | None = None) -> list[sqlite3.Row]:
