@@ -282,7 +282,8 @@
 
 .location-create-form input,
 .location-edit-form input,
-.location-equipment-form input {
+.location-equipment-form input,
+.location-equipment-form select {
   width: 100%;
   min-width: 0;
 }
@@ -449,7 +450,7 @@
 }
 
 .location-equipment-form {
-  grid-template-columns: 1fr 0.8fr 1.2fr auto;
+  grid-template-columns: 0.9fr 1.2fr auto;
 }
 
 .location-equipment-list {

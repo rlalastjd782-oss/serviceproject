@@ -80,8 +80,9 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             locations=list_workout_locations(include_inactive=True),
             active_locations=list_workout_locations(),
             selected_location_id=parse_int(request.args.get("location_id")),
+            equipment_options=equipment_options(),
             equipment_by_location={
-                location["id"]: list_location_equipment(location["id"], include_inactive=True)
+                location["id"]: list_location_equipment(location["id"])
                 for location in list_workout_locations(include_inactive=True)
             },
         )

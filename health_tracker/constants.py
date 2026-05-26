@@ -22,6 +22,41 @@ MEAL_TYPE_CLASSES = {
 
 EQUIPMENT_OPTIONS = ["바벨", "덤벨", "머신", "케이블", "프리웨이트", "맨몸", "유산소기구"]
 
+EQUIPMENT_ALIASES = {
+    "스미스 머신": "머신",
+    "스미스머신": "머신",
+    "런닝머신": "유산소기구",
+    "러닝머신": "유산소기구",
+    "트레드밀": "유산소기구",
+    "사이클": "유산소기구",
+    "바이크": "유산소기구",
+}
+
+
+def normalize_equipment_category(value: str | None) -> str:
+    clean = (value or "").strip()
+    if not clean:
+        return ""
+    if clean in EQUIPMENT_OPTIONS:
+        return clean
+    if clean in EQUIPMENT_ALIASES:
+        return EQUIPMENT_ALIASES[clean]
+    for keyword, category in [
+        ("케이블", "케이블"),
+        ("덤벨", "덤벨"),
+        ("바벨", "바벨"),
+        ("프리웨이트", "프리웨이트"),
+        ("머신", "머신"),
+        ("트레드밀", "유산소기구"),
+        ("런닝", "유산소기구"),
+        ("러닝", "유산소기구"),
+        ("사이클", "유산소기구"),
+        ("맨몸", "맨몸"),
+    ]:
+        if keyword in clean:
+            return category
+    return ""
+
 DEFAULT_PROGRAMS = {
     "5x5": [
         ("하체", "스쿼트", "본세트", None, 5),

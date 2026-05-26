@@ -18,6 +18,7 @@ from health_tracker.constants import (
     EQUIPMENT_OPTIONS,
     MEAL_TYPE_CLASSES,
     RECOMMENDED_EXERCISE_MAP,
+    normalize_equipment_category,
 )
 from health_tracker.meta import get_app_updated_at, get_app_version
 from health_tracker.security import (
@@ -2340,7 +2341,7 @@ def list_location_training_insights(limit: int = 20) -> list[dict[str, object]]:
             """,
             (row["id"],),
         ).fetchall()
-        top_equipment = get_db().execute(
+        equipment_rows = get_db().execute(
             """
             SELECT COALESCE(NULLIF(ws.equipment, ''), '미지정') AS equipment, COUNT(ws.id) AS use_count
             FROM workout_sessions s
@@ -2352,6 +2353,15 @@ def list_location_training_insights(limit: int = 20) -> list[dict[str, object]]:
             """,
             (row["id"],),
         ).fetchall()
+        equipment_counts: dict[str, int] = {}
+        for equipment_row in equipment_rows:
+            category = normalize_equipment_category(equipment_row["equipment"])
+            if category:
+                equipment_counts[category] = equipment_counts.get(category, 0) + int(equipment_row["use_count"] or 0)
+        top_equipment = [
+            {"equipment": name, "use_count": count}
+            for name, count in sorted(equipment_counts.items(), key=lambda item: (-item[1], item[0]))[:5]
+        ]
         insights.append(
             {
                 "location": row,

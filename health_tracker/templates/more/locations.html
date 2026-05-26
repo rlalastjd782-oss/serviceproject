@@ -143,10 +143,15 @@
               </form>
 
               <div class="location-equipment-panel">
-                <div class="location-panel-title">장비 관리</div>
+                <div class="location-panel-title">장비 카테고리 관리</div>
                 <form method="post" action="{{ url_for('save_location_equipment_route', location_id=location.id) }}" class="location-equipment-form">
-                  <input name="equipment_name" maxlength="40" placeholder="장비명" required>
-                  <input name="equipment_type" maxlength="40" placeholder="종류">
+                  <select name="equipment_name" aria-label="장비 카테고리" required>
+                    <option value="">장비 카테고리</option>
+                    {% for option in equipment_options %}
+                      <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                  </select>
+                  <input name="equipment_type" type="hidden" value="">
                   <input name="memo" maxlength="160" placeholder="메모">
                   <button class="btn-small" type="submit">추가</button>
                 </form>

@@ -294,10 +294,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
         )
         workout_html = self.client.get(f"/?mode=workout&location_id={location_id}").data.decode("utf-8")
         self.assertIn("운동 장소", workout_html)
-        self.assertIn("스미스 머신", workout_html)
+        self.assertIn('<option value="머신">머신</option>', workout_html)
         self.assertIn("자동 수집된 장비만 표시", workout_html)
         self.assertIn('<option value="프리웨이트">프리웨이트</option>', workout_html)
         self.assertNotIn('<option value="덤벨">덤벨</option>', workout_html)
+        self.assertNotIn('<option value="스미스 머신">스미스 머신</option>', workout_html)
 
         self.client.post(
             "/sets",
@@ -323,7 +324,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             },
         ).data.decode("utf-8")
         self.assertIn("테스트 헬스장", search_html)
-        self.assertIn("스미스 머신", search_html)
+        self.assertIn("머신", search_html)
 
     def test_visitor_is_read_only_and_admin_routes_are_locked(self) -> None:
         visitor = self.app.test_client()
@@ -757,7 +758,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 "weight": "55",
                 "reps": "9",
                 "set_type": "main",
-                "equipment": "test-rack",
+                "equipment": "머신",
                 "set_number": "1",
             },
         )
@@ -777,7 +778,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(changed["exercise_name"], "__TEST__ renamed")
             self.assertEqual(changed["weight"], 55)
             self.assertEqual(changed["reps"], 9)
-            self.assertEqual(changed["equipment"], "test-rack")
+            self.assertEqual(changed["equipment"], "머신")
 
     def test_adaptive_recommendations_library_plan_and_reminders(self) -> None:
         workout_date = "2026-05-22"

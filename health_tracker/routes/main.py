@@ -501,7 +501,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         mode = request.form.get("mode")
         body_part = request.form.get("body_part", "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", "").strip()
-        equipment = request.form.get("equipment", "").strip()
+        equipment = normalize_equipment_category(request.form.get("equipment", ""))
         if not exercise_name:
             return redirect(url_for("index", date=session["workout_date"], mode=mode or None, location_id=session["location_id"]))
 
@@ -688,7 +688,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 exercise_name,
                 parse_int(request.form.get("rest_seconds")) or 90,
                 request.form.get("is_favorite") == "1",
-                request.form.get("equipment", "").strip(),
+                normalize_equipment_category(request.form.get("equipment", "")),
                 parse_float(request.form.get("target_weight")),
                 parse_int(request.form.get("target_reps")),
                 parse_int(request.form.get("target_sets")),
@@ -1077,7 +1077,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         ).fetchone()
         workout_date = workout["workout_date"] if workout else current_local_date()
         mode = request.form.get("mode")
-        equipment = request.form.get("equipment", "").strip()
+        equipment = normalize_equipment_category(request.form.get("equipment", ""))
         body_part = request.form.get("body_part", workout["body_part"] if workout else "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", workout["exercise_name"] if workout else "").strip()
         exercise_id = get_or_create_exercise(exercise_name) if exercise_name else None

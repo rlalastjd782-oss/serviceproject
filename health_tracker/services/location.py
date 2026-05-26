@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import sqlite3
 
+from health_tracker.constants import normalize_equipment_category
+
 
 DEFAULT_LOCATION_NAME = "기본 헬스장"
 
@@ -43,6 +45,7 @@ def bootstrap_locations(db: sqlite3.Connection) -> sqlite3.Row:
         (default_location["id"],),
     )
     sync_location_equipment_from_sets(db, int(default_location["id"]))
+    cleanup_location_equipment_categories(db)
     return default_location
 
 
@@ -57,7 +60,7 @@ def sync_location_equipment_from_sets(db: sqlite3.Connection, default_location_i
         """
     ).fetchall()
     for row in rows:
-        equipment = str(row["equipment"] or "").strip()
+        equipment = normalize_equipment_category(str(row["equipment"] or ""))
         if equipment:
             upsert_location_equipment(db, default_location_id, equipment)
 
@@ -202,9 +205,10 @@ def list_location_equipment(db: sqlite3.Connection, location_id: int | None = No
 def location_equipment_names(db: sqlite3.Connection, location_id: int | None) -> list[str]:
     location = get_location(db, location_id)
     rows = list_location_equipment(db, int(location["id"]))
-    names = [str(row["equipment_name"]) for row in rows]
+    names = [normalize_equipment_category(str(row["equipment_name"])) for row in rows]
+    names = [name for name in names if name]
     if names:
-        return names
+        return list(dict.fromkeys(names))
     rows = db.execute(
         """
         SELECT DISTINCT COALESCE(NULLIF(equipment, ''), '미지정') AS equipment
@@ -213,7 +217,8 @@ def location_equipment_names(db: sqlite3.Connection, location_id: int | None) ->
         ORDER BY equipment
         """
     ).fetchall()
-    return [str(row["equipment"]) for row in rows]
+    normalized = [normalize_equipment_category(str(row["equipment"])) for row in rows]
+    return list(dict.fromkeys([name for name in normalized if name]))
 
 
 def upsert_location_equipment(
@@ -223,9 +228,10 @@ def upsert_location_equipment(
     equipment_type: str = "",
     memo: str = "",
 ) -> None:
-    clean_name = equipment_name.strip()[:40]
+    clean_name = normalize_equipment_category(equipment_name)
     if not clean_name:
         return
+    clean_type = normalize_equipment_category(equipment_type) or clean_name
     db.execute(
         """
         INSERT INTO location_equipment (
@@ -238,8 +244,37 @@ def upsert_location_equipment(
             is_active = 1,
             updated_at = CURRENT_TIMESTAMP
         """,
-        (location_id, clean_name, equipment_type.strip()[:40], memo.strip()[:160]),
+        (location_id, clean_name, clean_type, memo.strip()[:160]),
     )
+
+
+def cleanup_location_equipment_categories(db: sqlite3.Connection) -> None:
+    rows = db.execute("SELECT id, location_id, equipment_name, equipment_type, memo FROM location_equipment").fetchall()
+    for row in rows:
+        category = normalize_equipment_category(row["equipment_name"]) or normalize_equipment_category(row["equipment_type"])
+        if not category:
+            db.execute("UPDATE location_equipment SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (row["id"],))
+            continue
+        db.execute(
+            """
+            INSERT INTO location_equipment (location_id, equipment_name, equipment_type, memo, is_active, updated_at)
+            VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+            ON CONFLICT(location_id, equipment_name) DO UPDATE SET
+                equipment_type = excluded.equipment_type,
+                is_active = 1,
+                updated_at = CURRENT_TIMESTAMP
+            """,
+            (row["location_id"], category, category, row["memo"] or ""),
+        )
+        db.execute(
+            """
+            UPDATE location_equipment
+            SET is_active = CASE WHEN equipment_name = ? THEN is_active ELSE 0 END,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE location_id = ? AND id = ?
+            """,
+            (category, row["location_id"], row["id"]),
+        )
 
 
 def deactivate_location_equipment(db: sqlite3.Connection, equipment_id: int) -> None:
