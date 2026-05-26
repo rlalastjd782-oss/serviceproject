@@ -128,6 +128,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/api/sessions",
             "/records/search",
             "/records/check",
+            "/data/center",
+            "/locations/insights",
+            "/insights/actions",
             "/exercises/library",
             "/meals/templates",
             "/plans/weekly",
@@ -198,6 +201,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("location-equipment-chip-list", locations_html)
         self.assertIn("location-equipment-panel", locations_html)
 
+        location_insights_html = self.client.get("/locations/insights").data.decode("utf-8")
+        self.assertIn("location-insight-list", location_insights_html)
+
         record_check_html = self.client.get("/records/check").data.decode("utf-8")
         self.assertIn("기록 점검", record_check_html)
         self.assertIn("record-gap-list", record_check_html)
@@ -205,6 +211,14 @@ class HealthTrackerFlowTest(unittest.TestCase):
         meal_templates_html = self.client.get("/meals/templates").data.decode("utf-8")
         self.assertIn("식단 템플릿", meal_templates_html)
         self.assertIn("meal-template-grid", meal_templates_html)
+
+        data_center_html = self.client.get("/data/center").data.decode("utf-8")
+        self.assertIn("data-center-grid", data_center_html)
+        self.assertIn("export-link-grid", data_center_html)
+
+        action_insights_html = self.client.get("/insights/actions").data.decode("utf-8")
+        self.assertIn("실행 인사이트", action_insights_html)
+        self.assertIn("data-warning-list", action_insights_html)
 
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")
@@ -223,9 +237,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
     def test_more_page_does_not_duplicate_record_or_analysis_menu(self) -> None:
         html = self.client.get("/more").data.decode("utf-8")
-        self.assertIn("운동 라이브러리", html)
-        self.assertIn("주간 계획", html)
-        self.assertIn("캘린더", html)
+        self.assertIn("운동 관리", html)
+        self.assertIn("장소 인사이트", html)
+        self.assertIn("데이터 센터", html)
         self.assertNotIn("기록 검색", html)
         self.assertNotIn("장비 분석", html)
         self.assertNotIn(">PR<", html)

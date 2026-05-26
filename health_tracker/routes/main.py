@@ -85,6 +85,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             locations=list_workout_locations(),
             current_location=current_location,
             location_equipment=list_location_equipment(current_location["id"]),
+            location_quick_exercises=list_location_quick_exercises(current_location["id"]),
             equipment_options=equipment_options_for_location(current_location["id"]),
             today_mode=today_mode,
             workout_mode=workout_mode,

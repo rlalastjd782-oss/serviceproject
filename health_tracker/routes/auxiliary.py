@@ -6,7 +6,40 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/more")
     def more_page():
-        return render_template("more/index.html", active_page="more")
+        return render_template(
+            "more/index.html",
+            active_page="more",
+            data_center=build_data_center_status(),
+            location_preview=list_location_training_insights(limit=3),
+        )
+
+    @app.get("/data/center")
+    def data_center_page():
+        selected_date = normalize_date(request.args.get("date"))
+        return render_template(
+            "more/data_center.html",
+            active_page="data_center",
+            selected_date=selected_date,
+            data_center=build_data_center_status(selected_date),
+        )
+
+    @app.get("/locations/insights")
+    def location_insights_page():
+        return render_template(
+            "more/location_insights.html",
+            active_page="location_insights",
+            location_insights=list_location_training_insights(limit=24),
+        )
+
+    @app.get("/insights/actions")
+    def action_insights_page():
+        selected_date = normalize_date(request.args.get("date"))
+        return render_template(
+            "more/action_insights.html",
+            active_page="action_insights",
+            selected_date=selected_date,
+            action_insights=build_action_insights(selected_date),
+        )
 
     @app.get("/records/check")
     def record_check_page():

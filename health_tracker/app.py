@@ -2260,6 +2260,178 @@ def equipment_options_for_location(location_id: int | None = None) -> list[str]:
     return list(dict.fromkeys([*names, *EQUIPMENT_OPTIONS]))
 
 
+def build_data_center_status(date_text: str | None = None) -> dict[str, object]:
+    date_value = normalize_date(date_text)
+    counts = get_data_counts()
+    backup_status = get_backup_status()
+    quality = build_data_quality_profile(date_value, 30)
+    gaps = list_record_gaps(date_value, 30)
+    exports = [
+        {"label": "전체 JSON", "href": url_for("export_json"), "note": "복원 가능한 전체 백업"},
+        {"label": "운동 CSV", "href": url_for("export_csv"), "note": "운동 기록 표"},
+        {"label": "식단 CSV", "href": url_for("export_meal_csv_route"), "note": "식단 기록 표"},
+        {
+            "label": f"{date_value[:4]} 운동 CSV",
+            "href": url_for("export_yearly_workouts_csv_route", year=date_value[:4]),
+            "note": "연간 운동 기록",
+        },
+        {
+            "label": f"{date_value[:4]} 식단 CSV",
+            "href": url_for("export_yearly_meals_csv_route", year=date_value[:4]),
+            "note": "연간 식단 기록",
+        },
+    ]
+    warnings = []
+    if gaps:
+        warnings.append(f"최근 30일 중 {len(gaps)}일은 운동/식단/휴식 기록이 없습니다.")
+    if counts["empty_workouts"]:
+        warnings.append(f"비어 있는 운동 세션 {counts['empty_workouts']}개를 정리할 수 있습니다.")
+    if quality["score"] < 70:
+        warnings.append("분석 신뢰도가 낮아 추천과 추세 해석이 제한될 수 있습니다.")
+    if not warnings:
+        warnings.append("백업과 기록 상태가 안정적입니다.")
+    return {
+        "date": date_value,
+        "counts": counts,
+        "backup_status": backup_status,
+        "quality": quality,
+        "gaps": gaps[:8],
+        "exports": exports,
+        "warnings": warnings,
+    }
+
+
+def list_location_training_insights(limit: int = 20) -> list[dict[str, object]]:
+    rows = get_db().execute(
+        """
+        SELECT
+            wl.id,
+            wl.name,
+            wl.is_default,
+            wl.is_active,
+            COUNT(DISTINCT s.workout_date) AS workout_days,
+            COUNT(ws.id) AS set_count,
+            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
+            MAX(s.workout_date) AS last_date
+        FROM workout_locations wl
+        LEFT JOIN workout_sessions s ON s.location_id = wl.id
+        LEFT JOIN workout_sets ws ON ws.session_id = s.id
+        GROUP BY wl.id
+        ORDER BY wl.is_active DESC, workout_days DESC, last_date DESC, wl.name
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    insights = []
+    for row in rows:
+        top_exercises = get_db().execute(
+            """
+            SELECT e.name, COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
+            FROM workout_sessions s
+            JOIN workout_sets ws ON ws.session_id = s.id
+            JOIN exercises e ON e.id = ws.exercise_id
+            WHERE s.location_id = ?
+            GROUP BY e.id, e.name, body_part
+            ORDER BY set_count DESC, MAX(s.workout_date) DESC
+            LIMIT 4
+            """,
+            (row["id"],),
+        ).fetchall()
+        top_equipment = get_db().execute(
+            """
+            SELECT COALESCE(NULLIF(ws.equipment, ''), '미지정') AS equipment, COUNT(ws.id) AS use_count
+            FROM workout_sessions s
+            JOIN workout_sets ws ON ws.session_id = s.id
+            WHERE s.location_id = ?
+            GROUP BY equipment
+            ORDER BY use_count DESC, equipment
+            LIMIT 5
+            """,
+            (row["id"],),
+        ).fetchall()
+        insights.append(
+            {
+                "location": row,
+                "top_exercises": top_exercises,
+                "top_equipment": top_equipment,
+                "message": build_location_message(row, top_exercises),
+            }
+        )
+    return insights
+
+
+def build_location_message(location: sqlite3.Row, top_exercises: list[sqlite3.Row]) -> str:
+    if not location["workout_days"]:
+        return "아직 기록이 없어 오늘 운동을 저장하면 장소별 추천이 시작됩니다."
+    if top_exercises:
+        return f"{top_exercises[0]['name']} 기록이 가장 많습니다. 오늘 입력에서 이 운동을 빠르게 불러올 수 있습니다."
+    return "장소 기록은 있지만 세트 상세가 부족합니다. 장비와 세트를 함께 저장하면 추천 정확도가 올라갑니다."
+
+
+def list_location_quick_exercises(location_id: int | None, limit: int = 6) -> list[sqlite3.Row]:
+    return get_db().execute(
+        """
+        SELECT
+            e.name AS exercise_name,
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            COALESCE(NULLIF(ws.equipment, ''), '') AS equipment,
+            COUNT(ws.id) AS set_count,
+            MAX(s.workout_date) AS last_date,
+            (
+                SELECT recent.weight
+                FROM workout_sets recent
+                JOIN workout_sessions rs ON rs.id = recent.session_id
+                JOIN exercises re ON re.id = recent.exercise_id
+                WHERE rs.location_id = s.location_id AND re.name = e.name
+                ORDER BY rs.workout_date DESC, recent.id DESC
+                LIMIT 1
+            ) AS last_weight,
+            (
+                SELECT recent.reps
+                FROM workout_sets recent
+                JOIN workout_sessions rs ON rs.id = recent.session_id
+                JOIN exercises re ON re.id = recent.exercise_id
+                WHERE rs.location_id = s.location_id AND re.name = e.name
+                ORDER BY rs.workout_date DESC, recent.id DESC
+                LIMIT 1
+            ) AS last_reps
+        FROM workout_sessions s
+        JOIN workout_sets ws ON ws.session_id = s.id
+        JOIN exercises e ON e.id = ws.exercise_id
+        WHERE s.location_id = ?
+        GROUP BY e.name, body_part, equipment
+        ORDER BY set_count DESC, last_date DESC, e.name
+        LIMIT ?
+        """,
+        (location_id, limit),
+    ).fetchall()
+
+
+def build_action_insights(date_text: str | None = None) -> dict[str, object]:
+    date_value = normalize_date(date_text)
+    weekly_report = build_weekly_report(date_value)
+    quality = build_data_quality_profile(date_value, 30)
+    recommendations = build_adaptive_training_recommendations(date_value, limit=8)
+    balance_warnings = list_balance_warnings("weekly", date_value)
+    volume_warnings = list_volume_warnings(date_value)
+    nutrition_link = build_nutrition_training_link("weekly", date_value)
+    alerts = [*balance_warnings[:3], *volume_warnings[:3]]
+    if quality["score"] < 70:
+        alerts.append("기록 점검에서 누락일을 먼저 채우면 분석 신뢰도가 올라갑니다.")
+    if not alerts:
+        alerts.append("이번 주 기록 흐름은 안정적입니다. PR 후보 운동을 중심으로 진행하면 됩니다.")
+    return {
+        "date": date_value,
+        "weekly_report": weekly_report,
+        "quality": quality,
+        "recommendations": recommendations,
+        "alerts": alerts[:6],
+        "nutrition_link": nutrition_link,
+        "location_insights": list_location_training_insights(limit=4),
+    }
+
+
 def get_body_metric(metric_date: str) -> sqlite3.Row | None:
     return get_db().execute("SELECT * FROM body_metrics WHERE metric_date = ?", (metric_date,)).fetchone()
 

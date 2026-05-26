@@ -1,0 +1,95 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}데이터 센터{% endblock %}
+
+{% block content %}
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">데이터 센터</div>
+        <div class="section-subtitle">백업, 내보내기, 누락 기록, 데이터 상태를 한 화면에서 확인합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
+    </div>
+    <form method="get" action="{{ url_for('data_center_page') }}" class="filter-form more-tool-filter">
+      <input name="date" type="date" value="{{ selected_date }}" aria-label="기준일">
+      <button class="btn-small" type="submit">조회</button>
+      <a class="btn-small" href="{{ url_for('settings_page') }}">설정</a>
+    </form>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">상태 요약</div>
+        <div class="section-subtitle">분석 신뢰도 {{ data_center.quality.score }}% · {{ data_center.quality.period }}</div>
+      </div>
+      <span class="badge">{{ data_center.quality.label }}</span>
+    </div>
+    <div class="data-center-grid">
+      <article class="data-center-card"><span>운동일</span><strong>{{ data_center.counts.workouts }}</strong></article>
+      <article class="data-center-card"><span>세트</span><strong>{{ data_center.counts.sets }}</strong></article>
+      <article class="data-center-card"><span>식단</span><strong>{{ data_center.counts.meals }}</strong></article>
+      <article class="data-center-card"><span>루틴</span><strong>{{ data_center.counts.routines }}</strong></article>
+      <article class="data-center-card"><span>자동 백업</span><strong>{{ data_center.backup_status.count }}</strong></article>
+      <article class="data-center-card"><span>최근 백업</span><strong>{{ data_center.backup_status.last_backup }}</strong></article>
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">점검 항목</div>
+        <div class="section-subtitle">지금 바로 처리하면 좋은 데이터 작업입니다.</div>
+      </div>
+    </div>
+    <div class="data-warning-list">
+      {% for item in data_center.warnings %}
+        <article class="data-warning-card">{{ item }}</article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">내보내기</div>
+        <div class="section-subtitle">필요한 형식으로 로컬 데이터를 내려받습니다.</div>
+      </div>
+    </div>
+    <div class="export-link-grid">
+      {% for item in data_center.exports %}
+        <a class="export-link-card" href="{{ item.href }}">
+          <strong>{{ item.label }}</strong>
+          <span>{{ item.note }}</span>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">최근 누락일</div>
+        <div class="section-subtitle">기록을 채우거나 휴식일로 남길 날짜입니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('record_check_page', date=selected_date, days=30) }}">전체 보기</a>
+    </div>
+    <div class="record-gap-list">
+      {% for item in data_center.gaps %}
+        <article class="record-gap-card">
+          <div>
+            <strong>{{ item.date }}</strong>
+            <span>{{ item.label }}</span>
+          </div>
+          <div class="record-gap-actions">
+            <a class="btn-small" href="{{ url_for('index', date=item.date, mode='workout') }}">운동</a>
+            <a class="btn-small" href="{{ url_for('index', date=item.date, mode='meal') }}">식단</a>
+          </div>
+        </article>
+      {% else %}
+        <div class="empty compact-empty">최근 누락일이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

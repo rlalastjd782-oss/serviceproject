@@ -215,6 +215,24 @@
           <span class="muted">아직 등록된 장비가 없습니다. 운동 저장 시 자동으로 추가됩니다.</span>
         {% endif %}
       </div>
+      {% if location_quick_exercises %}
+        <div class="location-quick-exercise-list">
+          {% for item in location_quick_exercises %}
+            <button
+              type="button"
+              class="exercise-quick-button location-quick-exercise"
+              data-copy-saved-set
+              data-body-part="{{ item.body_part }}"
+              data-exercise-name="{{ item.exercise_name }}"
+              data-weight="{% if item.last_weight is not none %}{{ item.last_weight }}{% endif %}"
+              data-reps="{% if item.last_reps is not none %}{{ item.last_reps }}{% endif %}"
+              data-equipment="{{ item.equipment }}"
+            >
+              {{ item.exercise_name }} · {{ item.set_count }}세트
+            </button>
+          {% endfor %}
+        </div>
+      {% endif %}
     </section>
 
     <section class="section workout-focus-section workout-only">

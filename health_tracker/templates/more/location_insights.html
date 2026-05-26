@@ -1,0 +1,63 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}장소 인사이트{% endblock %}
+
+{% block content %}
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">장소 인사이트</div>
+        <div class="section-subtitle">헬스장별 자주 쓰는 장비, 운동, 최근 기록을 비교합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('locations_page') }}">장소 관리</a>
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="location-insight-list">
+      {% for item in location_insights %}
+        <article class="location-insight-card {% if not item.location.is_active %}is-disabled{% endif %}">
+          <div class="location-insight-head">
+            <div>
+              <strong>{{ item.location.name }}</strong>
+              <span>{{ item.message }}</span>
+            </div>
+            {% if item.location.is_default %}<span class="badge">기본</span>{% endif %}
+          </div>
+          <div class="location-insight-stats">
+            <span>운동 {{ item.location.workout_days or 0 }}일</span>
+            <span>세트 {{ item.location.set_count or 0 }}개</span>
+            <span>볼륨 {{ "%.0f"|format(item.location.volume or 0) }}kg</span>
+            <span>최근 {{ item.location.last_date or "-" }}</span>
+          </div>
+          <div class="location-insight-columns">
+            <div>
+              <b>자주 한 운동</b>
+              {% for exercise in item.top_exercises %}
+                <a href="{{ url_for('index', mode='workout', location_id=item.location.id) }}" class="mini-list-row">
+                  <span>{{ exercise.name }}</span>
+                  <em>{{ exercise.body_part }} · {{ exercise.set_count }}세트</em>
+                </a>
+              {% else %}
+                <span class="muted">아직 운동 기록이 없습니다.</span>
+              {% endfor %}
+            </div>
+            <div>
+              <b>장비 사용</b>
+              {% for equipment in item.top_equipment %}
+                <span class="mini-list-row">
+                  <span>{{ equipment.equipment }}</span>
+                  <em>{{ equipment.use_count }}회</em>
+                </span>
+              {% else %}
+                <span class="muted">장비 기록이 없습니다.</span>
+              {% endfor %}
+            </div>
+          </div>
+        </article>
+      {% else %}
+        <div class="empty compact-empty">등록된 장소가 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

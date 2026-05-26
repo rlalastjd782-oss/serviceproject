@@ -1,0 +1,73 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}실행 인사이트{% endblock %}
+
+{% block content %}
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">실행 인사이트</div>
+        <div class="section-subtitle">운동, 식단, 장소 데이터를 묶어서 다음 행동을 정리합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주간 분석</a>
+    </div>
+    <form method="get" action="{{ url_for('action_insights_page') }}" class="filter-form more-tool-filter">
+      <input name="date" type="date" value="{{ selected_date }}" aria-label="기준일">
+      <button class="btn-small" type="submit">조회</button>
+      <a class="btn-small" href="{{ url_for('index', date=selected_date, mode='workout') }}">오늘 운동</a>
+    </form>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">이번 주 요약</div>
+        <div class="section-subtitle">분석 신뢰도 {{ action_insights.quality.score }}%</div>
+      </div>
+      <span class="badge">{{ action_insights.quality.label }}</span>
+    </div>
+    <div class="data-center-grid">
+      <article class="data-center-card"><span>운동일</span><strong>{{ action_insights.weekly_report.workout_days }}</strong></article>
+      <article class="data-center-card"><span>세트</span><strong>{{ action_insights.weekly_report.set_count }}</strong></article>
+      <article class="data-center-card"><span>식단일</span><strong>{{ action_insights.weekly_report.meal_days }}</strong></article>
+      <article class="data-center-card"><span>운동 kcal</span><strong>{{ action_insights.nutrition_link.workout_calorie_avg }}</strong></article>
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">바로 할 일</div>
+        <div class="section-subtitle">오늘 기록 전에 확인할 우선순위입니다.</div>
+      </div>
+    </div>
+    <div class="data-warning-list">
+      {% for item in action_insights.alerts %}
+        <article class="data-warning-card">{{ item }}</article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">추천 운동</div>
+        <div class="section-subtitle">최근 패턴과 부위 균형 기준으로 정렬했습니다.</div>
+      </div>
+    </div>
+    <div class="focus-suggestion-list">
+      {% for item in action_insights.recommendations %}
+        <article class="focus-suggestion-card">
+          <div>
+            <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+            <strong>{{ item.exercise_name }}</strong>
+            <small>{{ item.action }} · {{ item.target_sets }}세트 · {{ item.reason }}</small>
+          </div>
+          <a class="btn-small" href="{{ url_for('index', date=selected_date, mode='workout') }}">입력</a>
+        </article>
+      {% else %}
+        <div class="empty compact-empty">추천을 만들 운동 기록이 아직 부족합니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

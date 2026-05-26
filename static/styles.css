@@ -492,6 +492,131 @@
   line-height: 1.4;
 }
 
+.more-overview-strip,
+.data-center-grid,
+.location-insight-stats {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.more-overview-strip article,
+.data-center-card,
+.data-warning-card,
+.export-link-card {
+  display: grid;
+  gap: 6px;
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #0d1420;
+  padding: 12px;
+}
+
+.more-overview-strip span,
+.data-center-card span,
+.export-link-card span,
+.location-insight-stats span,
+.mini-list-row em {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+}
+
+.more-overview-strip strong,
+.data-center-card strong,
+.export-link-card strong {
+  color: var(--strong);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.more-group-section,
+.more-tool-section {
+  display: grid;
+  gap: 12px;
+}
+
+.data-warning-list,
+.export-link-grid,
+.location-insight-list,
+.location-quick-exercise-list {
+  display: grid;
+  gap: 8px;
+}
+
+.export-link-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.data-warning-card {
+  color: var(--strong);
+  font-size: 13px;
+}
+
+.location-insight-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #0d1420;
+  padding: 12px;
+}
+
+.location-insight-card.is-disabled {
+  opacity: 0.62;
+}
+
+.location-insight-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.location-insight-head strong {
+  display: block;
+  color: var(--strong);
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.location-insight-head span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.location-insight-columns {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.location-insight-columns > div {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+
+.location-insight-columns b {
+  color: var(--strong);
+  font-size: 13px;
+}
+
+.mini-list-row {
+  display: grid;
+  gap: 2px;
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #111a27;
+  color: var(--text);
+  padding: 8px;
+  text-decoration: none;
+}
+
+.location-quick-exercise-list {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
 .more-tool-filter {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -4543,7 +4668,9 @@ tbody tr:last-child td {
   .more-tool-filter,
   .record-gap-card,
   .meal-template-card,
-  .recent-meal-template-row {
+  .recent-meal-template-row,
+  .location-insight-head,
+  .location-insight-columns {
     grid-template-columns: 1fr;
   }
 
