@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.7 코드 정리
+
+- 2.0 준비 전 코드 정리로 QA 리포트의 오래된 `/sw.js 캐시 v1.4.0 기준` 문구를 현재 `app_version` 표시로 변경했습니다.
+- `static/ui_rebuild.css`의 `v1.25.5` 고정 주석을 최종 UI override 파일 역할에 맞는 일반 주석으로 바꿨습니다.
+- `tests/test_app_flows.py`에 `StaticAssetIntegrityTest`를 추가해 `styles.css`, `rules.css`, `ui_rebuild.css`의 중괄호 균형과 과거 UI 붕괴 원인이었던 `.next-set-advice-row {.next-set-advice-row` 패턴을 검사합니다.
+- service worker precache 테스트에서 `/static/ui_rebuild.css` 포함 여부를 직접 확인하도록 보강했습니다.
+- 이번 정리는 중복 CSS를 무리하게 삭제하지 않았습니다. `ui_rebuild.css`는 현재 후순위 override 역할이라 삭제/병합 전에 브라우저 computed style 검증이 필요합니다.
+
 ## 2026-05-26 UI 회귀 원인과 수정 내역
 
 - 잘못된 점:

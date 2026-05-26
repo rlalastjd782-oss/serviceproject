@@ -62,6 +62,16 @@ class LegacyMigrationTest(unittest.TestCase):
                 app_module.DATABASE = original_database
 
 
+class StaticAssetIntegrityTest(unittest.TestCase):
+    def test_css_files_have_balanced_braces_and_no_known_broken_selectors(self) -> None:
+        for path in [Path("static/styles.css"), Path("static/rules.css"), Path("static/ui_rebuild.css")]:
+            with self.subTest(path=str(path)):
+                source = path.read_text(encoding="utf-8-sig")
+                without_comments = re.sub(r"/\*.*?\*/", "", source, flags=re.S)
+                self.assertEqual(without_comments.count("{"), without_comments.count("}"))
+                self.assertNotIn(".next-set-advice-row {.next-set-advice-row", source)
+
+
 class HealthTrackerFlowTest(unittest.TestCase):
     def setUp(self) -> None:
         TEST_TMP_DIR.mkdir(exist_ok=True)
@@ -509,6 +519,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("/meals/weekly", assets)
         self.assertIn("/summaries/exercises", assets)
         self.assertIn("/summaries/yearly", assets)
+        self.assertIn("/static/ui_rebuild.css", assets)
         self.assertIn("/sw.js", assets)
         self.assertIn("self.skipWaiting()", sw_source)
         self.assertIn("self.clients.claim()", sw_source)

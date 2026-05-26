@@ -1,4 +1,4 @@
-﻿/* v1.25.5: list and workout-entry UI rebuild */
+/* Final UI rebuild overrides: loaded after styles.css and rules.css. */
 .workout-form {
   gap: 14px;
 }
