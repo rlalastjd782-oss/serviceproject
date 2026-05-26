@@ -70,6 +70,9 @@ class StaticAssetIntegrityTest(unittest.TestCase):
                 without_comments = re.sub(r"/\*.*?\*/", "", source, flags=re.S)
                 self.assertEqual(without_comments.count("{"), without_comments.count("}"))
                 self.assertNotIn(".next-set-advice-row {.next-set-advice-row", source)
+                if path.name == "ui_rebuild.css":
+                    self.assertIn(":not(.meal-record-card)", source)
+                    self.assertIn(".record-list > .meal-record-card", source)
 
 
 class HealthTrackerFlowTest(unittest.TestCase):

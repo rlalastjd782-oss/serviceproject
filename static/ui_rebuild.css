@@ -226,7 +226,7 @@
 }
 
 .overview-only .record-card,
-.record-list > .record-card:not(.daily-record-card):not(.workout-summary-card):not(.equipment-summary-card) {
+.record-list > .record-card:not(.daily-record-card):not(.workout-summary-card):not(.equipment-summary-card):not(.meal-record-card) {
   grid-template-columns: minmax(100px, 0.22fr) minmax(0, 1fr);
   align-items: start;
 }
@@ -493,7 +493,7 @@
   .workout-form.is-cardio .compact-field-grid,
   .daily-metric-grid,
   .overview-only .record-card,
-  .record-list > .record-card:not(.daily-record-card):not(.workout-summary-card):not(.equipment-summary-card),
+  .record-list > .record-card:not(.daily-record-card):not(.workout-summary-card):not(.equipment-summary-card):not(.meal-record-card),
   .detail-list-head,
   .detail-row,
   .detail-list > form.detail-row {
@@ -896,5 +896,20 @@
   .library-result-head {
     align-items: stretch;
   }
+}
+
+.record-list > .meal-record-card,
+.today-meal-section .record-list > .meal-record-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.today-meal-section .meal-record-card > .record-date,
+.today-meal-section .meal-record-card > .meal-record-item,
+.today-meal-section .meal-record-card > .inline-add-panel {
+  grid-column: 1 / -1;
+  width: 100%;
 }
 

@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v2.0.3 오늘 식단 공통 selector 덮어쓰기 수정
+
+- `v2.0.2`의 식단 전용 CSS가 기존 `.record-list > .record-card:not(...)` 공통 selector보다 약해서 실제 화면에서 2열 규칙이 계속 적용됐습니다.
+- 공통 selector에서 `meal-record-card`를 제외하고, `ui_rebuild.css` 하단에 `.record-list > .meal-record-card` 1열 고정 override를 추가했습니다.
+- 검증: 식단 회귀 테스트, CSS 무결성 테스트, 식단 화면 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v2.0.2 오늘 식단 리스트 UI 수정
 
 - 오늘 식단 리스트가 공통 `.record-list > .record-card` 2열 규칙의 영향을 받아 식단 그룹/음식 행 배치가 깨지던 문제를 수정했습니다.
