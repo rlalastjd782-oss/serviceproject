@@ -220,3 +220,145 @@ def list_monthly_meal_weeks_from_db(
             }
         )
     return result
+
+
+def list_meal_templates_from_db(db: sqlite3.Connection) -> list[dict[str, object]]:
+    rows = db.execute(
+        """
+        SELECT mt.id, mt.name, COUNT(mti.id) AS item_count
+        FROM meal_templates mt
+        LEFT JOIN meal_template_items mti ON mti.template_id = mt.id
+        GROUP BY mt.id
+        ORDER BY mt.created_at DESC, mt.id DESC
+        """
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def create_meal_template_from_day_in_db(db: sqlite3.Connection, name: str, meal_date: str) -> None:
+    rows = db.execute(
+        """
+        SELECT *
+        FROM meal_entries
+        WHERE meal_date = ?
+        ORDER BY id
+        """,
+        (meal_date,),
+    ).fetchall()
+    if not rows:
+        return
+    cursor = db.execute("INSERT INTO meal_templates (name) VALUES (?)", (name,))
+    template_id = int(cursor.lastrowid)
+    for index, row in enumerate(rows, start=1):
+        db.execute(
+            """
+            INSERT INTO meal_template_items
+                (template_id, meal_type, food_name, quantity, grams, calories, sort_order)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (template_id, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"], index),
+        )
+    db.commit()
+
+
+def apply_meal_template_to_db(db: sqlite3.Connection, template_id: int, meal_date: str) -> None:
+    rows = db.execute(
+        """
+        SELECT *
+        FROM meal_template_items
+        WHERE template_id = ?
+        ORDER BY sort_order, id
+        """,
+        (template_id,),
+    ).fetchall()
+    for row in rows:
+        db.execute(
+            """
+            INSERT INTO meal_entries (meal_date, meal_type, food_name, quantity, grams, calories)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (meal_date, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"]),
+        )
+    db.commit()
+
+
+def delete_meal_template_from_db(db: sqlite3.Connection, template_id: int) -> None:
+    db.execute("DELETE FROM meal_template_items WHERE template_id = ?", (template_id,))
+    db.execute("DELETE FROM meal_templates WHERE id = ?", (template_id,))
+    db.commit()
+
+
+def list_recent_meal_days_from_db(db: sqlite3.Connection, target_date: str, limit: int = 3) -> list[sqlite3.Row]:
+    return db.execute(
+        """
+        SELECT meal_date, COUNT(id) AS meal_count, COALESCE(SUM(calories), 0) AS calories
+        FROM meal_entries
+        WHERE meal_date < ?
+        GROUP BY meal_date
+        ORDER BY meal_date DESC
+        LIMIT ?
+        """,
+        (target_date, limit),
+    ).fetchall()
+
+
+def copy_meals_from_day_in_db(db: sqlite3.Connection, source_date: str, meal_date: str) -> None:
+    rows = db.execute(
+        """
+        SELECT meal_type, food_name, quantity, grams, calories, memo
+        FROM meal_entries
+        WHERE meal_date = ?
+        ORDER BY id
+        """,
+        (source_date,),
+    ).fetchall()
+    for row in rows:
+        db.execute(
+            """
+            INSERT INTO meal_entries (meal_date, meal_type, food_name, quantity, grams, calories, memo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (meal_date, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"], row["memo"]),
+        )
+    db.commit()
+
+
+def copy_meal_type_from_day_in_db(db: sqlite3.Connection, source_date: str, meal_date: str, meal_type: str) -> None:
+    rows = db.execute(
+        """
+        SELECT meal_type, food_name, quantity, grams, calories, memo
+        FROM meal_entries
+        WHERE meal_date = ? AND meal_type = ?
+        ORDER BY id
+        """,
+        (source_date, meal_type),
+    ).fetchall()
+    for row in rows:
+        db.execute(
+            """
+            INSERT INTO meal_entries (meal_date, meal_type, food_name, quantity, grams, calories, memo)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (meal_date, row["meal_type"], row["food_name"], row["quantity"], row["grams"], row["calories"], row["memo"]),
+        )
+    db.commit()
+
+
+def list_frequent_meal_combos_from_db(db: sqlite3.Connection, limit: int = 6) -> list[dict[str, object]]:
+    rows = db.execute(
+        """
+        SELECT
+            meal_date,
+            meal_type,
+            COUNT(id) AS item_count,
+            GROUP_CONCAT(food_name, ', ') AS foods,
+            COALESCE(SUM(calories), 0) AS calories
+        FROM meal_entries
+        GROUP BY meal_date, meal_type
+        HAVING COUNT(id) >= 2
+        ORDER BY meal_date DESC, item_count DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    return [dict(row) for row in rows]
