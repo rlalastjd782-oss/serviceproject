@@ -2071,10 +2071,39 @@ label span {
 }
 
 .location-equipment-strip {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 14px;
+  border: 1px solid rgb(148 163 184 / 16%);
+  border-radius: 10px;
+  background: rgb(15 23 42 / 46%);
+  padding: 10px;
+}
+
+.location-equipment-strip > strong,
+.location-quick-title {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.location-equipment-chip-row {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 10px;
+}
+
+.location-equipment-chip-row .badge {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.location-quick-title {
+  margin: 2px 0 8px;
+  border-top: 1px solid rgb(148 163 184 / 16%);
+  padding-top: 12px;
 }
 
 .workout-action-dock {
