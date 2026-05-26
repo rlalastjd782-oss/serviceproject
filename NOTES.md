@@ -1,5 +1,33 @@
 # Codex Handoff Notes
 
+## 2026-05-26 UI 회귀 원인과 수정 내역
+
+- 잘못된 점:
+  - `static/styles.css` 안에 `.next-set-advice-row {.next-set-advice-row {`처럼 selector와 중괄호가 중복으로 들어간 문법 오류가 있었습니다.
+  - 이 오류 때문에 해당 지점 뒤에 작성된 캘린더, 운동 라이브러리, 설정, 기록 관련 CSS가 브라우저에서 정상 적용되지 않았습니다.
+  - 결과적으로 월간 캘린더가 7열 그리드가 아니라 세로 텍스트 목록처럼 보였고, 운동 라이브러리/기록/분석/데이터 관리 화면의 카드와 버튼 간격도 깨져 보였습니다.
+  - 이전 수정에서 깨진 화면을 CSS로 덮는 데 집중했고, 원본 CSS 문법 오류까지 먼저 검증하지 못한 것이 문제였습니다.
+
+- 수정한 내용:
+  - 깨진 selector를 `.next-set-advice-row {`로 바로잡았습니다.
+  - `static/styles.css`, `static/rules.css`, `static/ui_rebuild.css` 전체의 중괄호 균형을 검사해 CSS 문법 구조가 닫혀 있는지 확인했습니다.
+  - `static/ui_rebuild.css`에 캘린더, 운동 라이브러리, 운동 입력 빠른 선택, 날짜별 기록, 부위별 분석, 데이터 관리/QA 카드의 공통 UI 보정 규칙을 추가했습니다.
+  - `VERSION`, `static/manifest.webmanifest`, `static/sw.js`를 `v1.25.6`으로 올려 PWA와 브라우저 캐시가 이전 깨진 CSS를 계속 사용하지 않도록 했습니다.
+
+- 검증한 내용:
+  - `/calendar`, `/exercises/library`, `/summaries/daily`, `/summaries/weekly`, `/settings`, `/sw.js` HTTP 200 확인.
+  - 브라우저 DOM 기준으로 주요 화면의 `overflowX = 0` 확인.
+  - 캘린더는 `display:grid`와 7열 grid가 적용되는 것을 확인.
+  - 운동 라이브러리와 기록 카드는 카드/그리드 레이아웃이 적용되는 것을 확인.
+  - `.\.venv\Scripts\python.exe -m compileall health_tracker tests` 통과.
+  - `.\.venv\Scripts\python.exe -m unittest discover -v` 19개 테스트 통과.
+
+- 재발 방지 기준:
+  - UI가 광범위하게 무너졌을 때는 먼저 CSS 문법 오류와 로드 순서를 확인합니다.
+  - 새 CSS를 추가하기 전에 `styles.css`, `rules.css`, `ui_rebuild.css`의 중괄호 균형을 검사합니다.
+  - 공통 UI 보정 후에는 실제 브라우저 DOM에서 `display`, `gridTemplateColumns`, `padding`, `overflowX`를 확인합니다.
+  - PWA 앱은 CSS/JS/manifest/service worker 버전을 함께 올려 캐시 문제를 같이 차단합니다.
+
 ## 2026-05-26 v1.25.6 전체 UI 점검
 
 - 업데이트 후 캘린더가 세로 텍스트처럼 무너진 핵심 원인은 `static/styles.css`의 `.next-set-advice-row {.next-set-advice-row {` 중괄호 오류였습니다. 이 줄 때문에 뒤쪽 CSS 블록이 브라우저에서 정상 적용되지 않았습니다.
