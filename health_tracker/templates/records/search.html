@@ -78,18 +78,24 @@
     <div class="record-result-list">
       {% for item in results %}
         <article class="record-card record-result-card">
-          <div>
+          <div class="record-result-main">
             <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
             <strong>{{ item.exercise_name }}</strong>
-            <small>{{ item.workout_date }}{% if item.location_name %} · {{ item.location_name }}{% endif %}{% if item.equipment %} · {{ item.equipment }}{% endif %}</small>
+            <div class="record-result-meta">
+              <span>{{ item.workout_date }}</span>
+              {% if item.location_name %}<span>{{ item.location_name }}</span>{% endif %}
+              {% if item.equipment %}<span>{{ item.equipment }}</span>{% endif %}
+            </div>
           </div>
-          <b>
+          <div class="record-result-value">
             {% if item.body_part == "유산소" %}
-              {{ "%.0f"|format(item.cardio_minutes or 0) }}분
+              <strong>{{ "%.0f"|format(item.cardio_minutes or 0) }}분</strong>
+              <span>유산소</span>
             {% else %}
-              {{ "%.1f"|format(item.weight or 0) }}kg x {{ item.reps or 0 }}회
+              <strong>{{ "%.1f"|format(item.weight or 0) }}kg</strong>
+              <span>{{ item.reps or 0 }}회</span>
             {% endif %}
-          </b>
+          </div>
         </article>
       {% else %}
         <div class="empty-state">
