@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.12 설정 서비스 분리
+
+- `app.py`에 있던 앱 설정 조회/저장과 설정 비밀번호 해시/검증 로직을 `health_tracker/services/settings.py`로 분리했습니다.
+- `app.py` wrapper는 기존 라우트 의존성을 유지하되, 세션 unlock 상태 처리만 담당하도록 줄였습니다.
+- 검증: `python -m compileall health_tracker tests`, 설정 비밀번호 잠금/재설정, 비밀번호 해시, 방문자 read-only 보안 회귀 테스트를 통과했습니다.
+
 ## 2026-05-26 v1.25.11 분석 요약 내비게이션 분리
 
 - `summaries/summary.html` 상단의 기록/분석 내비게이션 조건문을 `summaries/_summary_nav.html`로 분리했습니다.

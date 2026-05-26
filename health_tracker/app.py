@@ -39,9 +39,7 @@ from health_tracker.security import (
     ADMIN_GET_ENDPOINTS,
     PUBLIC_POST_ENDPOINTS,
     ensure_csrf_token,
-    make_password_hash,
     validate_csrf_token,
-    verify_password_hash,
 )
 from health_tracker.services.admin import build_app_health_status
 from health_tracker.services.body_part_analysis import (
@@ -174,6 +172,14 @@ from health_tracker.services.routine import (
     rename_routine_template_in_db,
 )
 from health_tracker.services.sample_data import create_may_sample_data_in_db, delete_sample_data_from_db
+from health_tracker.services.settings import (
+    get_app_setting as get_app_setting_from_db,
+    has_settings_password as has_settings_password_in_db,
+    reset_settings_password as reset_settings_password_in_db,
+    save_app_setting as save_app_setting_to_db,
+    set_settings_password as set_settings_password_in_db,
+    verify_settings_password as verify_settings_password_in_db,
+)
 from health_tracker.services.summary import build_daily_chart_from_rows, build_period_chart_from_rows
 from health_tracker.services.smart_workout import list_exercise_smart_defaults_from_db
 from health_tracker.services.workout import (
@@ -295,20 +301,11 @@ def get_or_create_secret_key() -> str:
 
 
 def get_app_setting(key: str, default: str = "") -> str:
-    row = get_db().execute("SELECT value FROM app_settings WHERE key = ?", (key,)).fetchone()
-    return str(row["value"]) if row else default
+    return get_app_setting_from_db(get_db(), key, default)
 
 
 def save_app_setting(key: str, value: str) -> None:
-    get_db().execute(
-        """
-        INSERT INTO app_settings (key, value, updated_at)
-        VALUES (?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-        """,
-        (key, value),
-    )
-    get_db().commit()
+    save_app_setting_to_db(get_db(), key, value)
 
 
 def get_app_preferences() -> dict[str, object]:
@@ -330,21 +327,18 @@ def save_app_preferences(form) -> None:
 
 
 def has_settings_password() -> bool:
-    return bool(get_app_setting("settings_password_hash"))
+    return has_settings_password_in_db(get_db())
 
 
 def set_settings_password(password: str) -> bool:
-    password = password.strip()
-    if len(password) < 4:
+    if not set_settings_password_in_db(get_db(), password):
         return False
-    save_app_setting("settings_password_hash", make_password_hash(password))
     session["settings_unlocked"] = True
     return True
 
 
 def verify_settings_password(password: str) -> bool:
-    stored_hash = get_app_setting("settings_password_hash")
-    return bool(stored_hash and verify_password_hash(password, stored_hash))
+    return verify_settings_password_in_db(get_db(), password)
 
 
 def settings_unlocked() -> bool:
@@ -352,7 +346,7 @@ def settings_unlocked() -> bool:
 
 
 def reset_settings_password() -> None:
-    save_app_setting("settings_password_hash", "")
+    reset_settings_password_in_db(get_db())
     session.pop("settings_unlocked", None)
 
 
