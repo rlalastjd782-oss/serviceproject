@@ -249,3 +249,49 @@ def export_yearly_meal_rows(db: sqlite3.Connection, year: str) -> list[sqlite3.R
         """,
         (start, end),
     ).fetchall()
+
+
+def build_yearly_export_payload(db: sqlite3.Connection, year: str) -> dict[str, object]:
+    return {
+        "year": year,
+        "report": build_yearly_report(db, year),
+        "months": [dict(row) for row in list_yearly_month_rows(db, year)],
+        "body_parts": [dict(row) for row in list_yearly_body_part_summary(db, year)],
+        "top_exercises": [dict(row) for row in list_yearly_top_exercises(db, year, limit=20)],
+    }
+
+
+def rows_to_csv(rows: list[sqlite3.Row], headers: list[str]) -> str:
+    lines = [",".join(headers)]
+    for row in rows:
+        values = []
+        for header in headers:
+            value = row[header]
+            text = "" if value is None else str(value)
+            values.append('"' + text.replace('"', '""') + '"')
+        lines.append(",".join(values))
+    return "\ufeff" + "\n".join(lines)
+
+
+def export_yearly_workout_csv(db: sqlite3.Connection, year: str) -> str:
+    headers = [
+        "workout_date",
+        "exercise_name",
+        "body_part",
+        "equipment",
+        "set_type",
+        "weight",
+        "reps",
+        "cardio_incline",
+        "cardio_speed",
+        "cardio_minutes",
+        "estimated_calories",
+        "rpe",
+        "memo",
+    ]
+    return rows_to_csv(export_yearly_workout_rows(db, year), headers)
+
+
+def export_yearly_meal_csv(db: sqlite3.Connection, year: str) -> str:
+    headers = ["meal_date", "meal_type", "food_name", "quantity", "grams", "calories", "memo"]
+    return rows_to_csv(export_yearly_meal_rows(db, year), headers)

@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.16 연간 export 서비스 분리
+
+- `app.py`의 연간 JSON payload 조립, CSV 직렬화, 연간 운동/식단 CSV export 본문을 `health_tracker/services/yearly.py`로 이동했습니다.
+- 라우트가 쓰는 기존 함수명은 wrapper로 유지해 호출부 변경 없이 app.py 책임을 줄였습니다.
+- 검증: `python -m compileall health_tracker tests`, 연간 QA/메인 페이지 회귀 테스트, 연간 JSON/운동 CSV/식단 CSV HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.15 요약 조회 서비스 분리
 
 - `app.py`에 있던 `get_day_summary`, `list_daily_summary`, `list_weekly_summary` SQL 본문을 `health_tracker/services/summary.py`로 이동했습니다.

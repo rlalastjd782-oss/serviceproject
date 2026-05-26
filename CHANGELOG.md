@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.25.16 - 2026-05-26
+
+- 연간 JSON/CSV export 조립 로직을 `services/yearly.py`로 이동했습니다.
+- `app.py`의 연간 export 함수는 기존 라우트 호환 wrapper로 줄이고, CSV 직렬화와 payload 조립은 yearly 서비스에서 관리하도록 정리했습니다.
+- 연간 QA/export 회귀 테스트와 연간 JSON/CSV HTTP 검증을 통과했습니다.
+
 ## v1.25.15 - 2026-05-26
 
 - 일별/주별 요약 SQL 조회 로직을 `services/summary.py`로 이동했습니다.
