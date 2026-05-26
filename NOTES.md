@@ -4,6 +4,13 @@
 
 ## 2026-05-26 작업 기록
 
+- `v1.14.0` 기능/분석 UI 고도화:
+  - `services/progressive_overload.py`를 추가해 다음 세트 추천과 운동별 과부하 상태 분석을 구현했습니다.
+  - `services/muscle_balance.py`를 추가해 최근 7일 부위별 세트/볼륨/유산소 분포를 계산합니다.
+  - 오늘 운동 입력에 다음 세트 추천 카드와 추천값 적용 버튼을 연결했습니다.
+  - 분석 > 운동별 화면에 과부하 분석 카드와 부위 밸런스 히트맵을 추가했습니다.
+  - 더보기에 헬스장 도구 섹션과 `/tools/plate-calculator` 독립 페이지를 추가했습니다.
+  - 검증: `python -m compileall health_tracker tests`, `node --check static\app.js`, `python -m unittest discover -v` 19개 테스트 통과.
 - `v1.13.0` DB/운동 설정 분리:
   - DB schema, index, migration성 컬럼 보정, 식단 legacy 보정, 장소 bootstrap 호출을 `health_tracker/database/schema.py`로 분리했습니다.
   - 운동 세트 순서 변경과 운동 생성 helper를 `services/workout.py`로 이동했습니다.
