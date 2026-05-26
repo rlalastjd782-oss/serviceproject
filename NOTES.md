@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v2.0.0 릴리즈 준비 완료
+
+- 앱 버전을 `2.0.0`으로 전환하고 manifest/service worker cache도 같은 기준으로 갱신했습니다.
+- 2.0 전 준비 정리로 `app.py`의 설정, 데이터 정리/복원, 요약 조회, 연간 export, 최근 세션 조회 로직을 서비스 계층으로 분리했습니다.
+- README 기능 목록을 현재 실사용 범위에 맞춰 운동/식단, 위치/장비, 분석, 잠금, 백업/복원 중심으로 업데이트했습니다.
+- 최종 검증은 전체 회귀 테스트, 컴파일, JS 문법 검사, diff 검사, 핵심 HTTP 렌더링 확인으로 진행합니다.
+
 ## 2026-05-26 v1.25.17 최근 세션 조회 서비스 분리
 
 - `app.py`에 있던 최근 운동 세션 SQL을 `health_tracker/services/workout.py`의 `list_recent_sessions_from_db`로 이동했습니다.
