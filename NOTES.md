@@ -4,6 +4,12 @@
 
 ## 2026-05-26 작업 기록
 
+- `v1.19.0`~`v1.25.0` 연속 개발:
+  - 오늘 운동 세트 입력에서 세트 타입/RPE/메모를 `고급` 접힘 영역으로 이동해 기본 입력 흐름을 간소화했습니다.
+  - `services/data_cleanup.py`를 추가해 운동명 중복 후보와 이상 세트 후보를 기록 점검 화면에서 확인하도록 했습니다.
+  - 기록 점검 화면에 정리 후보 UI를 추가해 누락일, 중복명, 과도한 중량/반복/RPE를 같은 흐름에서 점검합니다.
+  - `services/release_readiness.py`를 추가해 QA 리포트에서 2.0 준비 상태를 점수와 체크리스트로 확인하게 했습니다.
+  - 입력 UI/정리 후보/릴리즈 준비도 회귀 테스트 마커를 추가하고 앱 버전, manifest, service worker 캐시를 `v1.25.0`으로 갱신했습니다.
 - `v1.18.0` 소스 정리 및 QA:
   - `services/summary_context.py`, `services/settings_context.py`를 추가해 분석/설정 화면 컨텍스트 생성을 라우트에서 분리했습니다.
   - `today/_rule_cards.html`, `summaries/_rule_report.html` partial을 추가해 룰셋 UI 블록을 템플릿 본문에서 분리했습니다.
