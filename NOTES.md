@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.8 템플릿 구조 정리
+
+- 2.0 준비 전 코드 정리로 긴 템플릿 블록을 partial로 분리했습니다.
+- `summaries/summary.html`의 날짜별 기록 섹션을 `summaries/_daily_records.html`로 이동했습니다.
+- `today/index.html`의 운동 바로 선택 패널을 `today/_workout_quick_panel.html`로 이동했습니다.
+- 렌더링 유지 검증: `/?date=2026-05-26&mode=workout`, `/summaries/daily?days=7`, `/static/ui_rebuild.css` HTTP 200 확인.
+- 회귀 검증: `test_fold_ui_regression_markers_render`, `test_main_pages_render` 통과.
+
 ## 2026-05-26 v1.25.7 코드 정리
 
 - 2.0 준비 전 코드 정리로 QA 리포트의 오래된 `/sw.js 캐시 v1.4.0 기준` 문구를 현재 `app_version` 표시로 변경했습니다.

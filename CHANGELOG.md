@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.25.8 - 2026-05-26
+
+- 날짜별 기록 UI를 `summaries/_daily_records.html` partial로 분리해 `summaries/summary.html` 본문을 줄였습니다.
+- 오늘 운동 입력의 빠른 운동 선택 패널을 `today/_workout_quick_panel.html` partial로 분리해 `today/index.html`의 과밀도를 낮췄습니다.
+- 렌더링 결과를 유지한 상태에서 긴 템플릿 블록을 분리해 2.0 전 구조 정리를 진행했습니다.
+
 ## v1.25.7 - 2026-05-26
 
 - QA 리포트의 오래된 `/sw.js` 캐시 기준 문구를 현재 앱 버전 기준으로 표시하도록 정리했습니다.

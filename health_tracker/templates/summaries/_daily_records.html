@@ -1,0 +1,51 @@
+<section class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">📅 날짜별 기록</div>
+      <div class="section-subtitle">최근 {{ selected_days }}일 안에 기록이 있는 날짜만 표시합니다.</div>
+    </div>
+  </div>
+  <form method="get" action="{{ url_for('daily_summary_page') }}" class="period-filter-form">
+    {% for option in app_preferences.summary_day_options %}
+      <button class="{% if selected_days == option %}btn-primary{% else %}btn-small{% endif %}" type="submit" name="days" value="{{ option }}">{{ option }}일</button>
+    {% endfor %}
+  </form>
+  <form method="get" action="{{ url_for('daily_summary_page') }}" class="record-list-toolbar">
+    <input type="hidden" name="days" value="{{ selected_days }}">
+    {{ result_toolbar(daily_pagination, [("newest", "최신순"), ("oldest", "오래된순")], daily_sort, url_for('daily_summary_page')) }}
+    <button class="btn-small" type="submit">적용</button>
+  </form>
+</section>
+<div class="record-list">
+  {% for item in daily_summary %}
+    <article class="record-card daily-record-card">
+      <div class="daily-record-head">
+        <strong>{{ item.period }}</strong>
+        <a class="btn-small" href="{{ url_for('index', date=item.period, mode='workout') }}">열기</a>
+      </div>
+      <div class="daily-metric-grid">
+        <div class="daily-metric">
+          <strong>웨이트</strong>
+          <span>{{ item.set_count }}세트 · {{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg</span>
+        </div>
+        <div class="daily-metric cardio-metric {% if item.cardio_minutes %}has-value{% endif %}">
+          <strong>유산소</strong>
+          <span>{{ "%.0f"|format(item.cardio_minutes) }}분{% if item.exercise_calories %} · {{ "%.0f"|format(item.exercise_calories) }}kcal{% endif %}</span>
+        </div>
+        <div class="daily-metric">
+          <strong>식단</strong>
+          <span>{{ item.meal_count }}식 · {{ "%.0f"|format(item.calories) }}kcal</span>
+        </div>
+        <div class="daily-metric">
+          <strong>시간</strong>
+          <span>{{ format_duration(item.duration_seconds) }}</span>
+        </div>
+      </div>
+    </article>
+  {% else %}
+    <div class="empty">기록 없음</div>
+  {% endfor %}
+</div>
+<div class="record-pagination-block">
+  {{ pagination_nav(daily_pagination) }}
+</div>
