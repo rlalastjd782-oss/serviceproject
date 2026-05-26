@@ -2258,7 +2258,7 @@ def delete_location_equipment(equipment_id: int) -> None:
 def equipment_options_for_location(location_id: int | None = None) -> list[str]:
     names = location_equipment_names_from_db(get_db(), location_id)
     if names:
-        return list(dict.fromkeys(names))
+        return list(dict.fromkeys([*names, "프리웨이트"]))
     return list(EQUIPMENT_OPTIONS)
 
 
