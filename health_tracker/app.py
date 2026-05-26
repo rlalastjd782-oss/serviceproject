@@ -4,7 +4,7 @@ import argparse
 import json
 import secrets
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from flask import Flask, Response, abort, g, jsonify, redirect, render_template, request, session, url_for
 
@@ -43,11 +43,16 @@ from health_tracker.security import (
     verify_password_hash,
 )
 from health_tracker.services.admin import build_app_health_status
+from health_tracker.services.body_part_analysis import (
+    list_body_part_summary_from_db,
+    list_weekly_body_part_details_from_db,
+)
 from health_tracker.services.data import (
     get_backup_status as build_backup_status,
     get_data_counts as build_data_counts,
     get_sample_data_counts as build_sample_data_counts,
 )
+from health_tracker.services.calendar import list_month_calendar_days_from_db
 from health_tracker.services.data_quality import (
     build_data_quality_profile_from_db,
     list_record_gaps_from_db,
@@ -86,7 +91,26 @@ from health_tracker.services.meal import (
 from health_tracker.services.pagination import build_pagination, page_params, query_url
 from health_tracker.services.preferences import app_preferences as build_app_preferences
 from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
-from health_tracker.services.pr import build_pr_cards_from_rows, build_pr_dashboard_from_rows
+from health_tracker.services.pr import (
+    build_pr_cards_from_rows,
+    build_pr_dashboard_from_rows,
+    list_exercise_pr_history_from_db,
+    list_exercise_pr_summary_from_db,
+    list_pr_events_from_db,
+    list_pr_exercise_choices_from_db,
+    list_recent_pr_events_filtered_from_db,
+    list_recent_pr_events_from_db,
+)
+from health_tracker.services.records import (
+    allowed_sort,
+    list_exercise_summary_by_body_part_from_db,
+    paged_equipment_daily_from_db,
+    paged_equipment_detail_from_db,
+    paged_equipment_summary_from_db,
+    paged_exercise_summary_from_db,
+    paged_rows_from_db,
+    paged_search_workout_records_filtered_from_db,
+)
 from health_tracker.services.sample_data import create_may_sample_data_in_db, delete_sample_data_from_db
 from health_tracker.services.summary import build_daily_chart_from_rows, build_period_chart_from_rows
 from health_tracker.services.workout import grouped_sets_for_session_from_db, list_sets_for_session_from_db
@@ -1925,15 +1949,7 @@ def record_pr_events(
 
 
 def list_pr_events(workout_date: str) -> list[sqlite3.Row]:
-    return get_db().execute(
-        """
-        SELECT *
-        FROM pr_events
-        WHERE workout_date = ?
-        ORDER BY id DESC
-        """,
-        (workout_date,),
-    ).fetchall()
+    return list_pr_events_from_db(get_db(), workout_date)
 
 
 def build_pr_cards(workout_date: str) -> list[dict[str, object]]:
@@ -1941,112 +1957,23 @@ def build_pr_cards(workout_date: str) -> list[dict[str, object]]:
 
 
 def list_recent_pr_events(limit: int = 12) -> list[sqlite3.Row]:
-    return get_db().execute(
-        """
-        SELECT *
-        FROM pr_events
-        ORDER BY workout_date DESC, id DESC
-        LIMIT ?
-        """,
-        (limit,),
-    ).fetchall()
+    return list_recent_pr_events_from_db(get_db(), limit)
 
 
 def list_recent_pr_events_filtered(body_part: str = "", query: str = "", limit: int = 30) -> list[sqlite3.Row]:
-    filters = []
-    params: list[object] = []
-    if body_part:
-        filters.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
-        params.append(body_part)
-    if query:
-        filters.append("pe.exercise_name LIKE ?")
-        params.append(f"%{query}%")
-    where_clause = f"WHERE {' AND '.join(filters)}" if filters else ""
-    params.append(limit)
-    return get_db().execute(
-        f"""
-        SELECT pe.*
-        FROM pr_events pe
-        LEFT JOIN workout_sets ws ON ws.id = pe.set_id
-        {where_clause}
-        ORDER BY pe.workout_date DESC, pe.id DESC
-        LIMIT ?
-        """,
-        params,
-    ).fetchall()
+    return list_recent_pr_events_filtered_from_db(get_db(), body_part, query, limit)
 
 
 def list_exercise_pr_history(exercise_id: int | None, limit: int = 12) -> list[sqlite3.Row]:
-    if not exercise_id:
-        return []
-    return get_db().execute(
-        """
-        SELECT *
-        FROM pr_events
-        WHERE exercise_id = ?
-        ORDER BY workout_date DESC, id DESC
-        LIMIT ?
-        """,
-        (exercise_id, limit),
-    ).fetchall()
+    return list_exercise_pr_history_from_db(get_db(), exercise_id, limit)
 
 
 def list_exercise_pr_summary(body_part: str = "", query: str = "", limit: int = 80) -> list[sqlite3.Row]:
-    filters = ["ws.weight IS NOT NULL", "ws.reps IS NOT NULL"]
-    params: list[object] = []
-    if body_part:
-        filters.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
-        params.append(body_part)
-    if query:
-        filters.append("e.name LIKE ?")
-        params.append(f"%{query}%")
-    where_clause = " AND ".join(filters)
-    params.append(limit)
-    return get_db().execute(
-        f"""
-        SELECT
-            e.id,
-            e.name,
-            COALESCE(NULLIF(MAX(ws.body_part), ''), '기타') AS body_part,
-            COUNT(ws.id) AS set_count,
-            COUNT(DISTINCT s.workout_date) AS workout_days,
-            MAX(s.workout_date) AS last_date,
-            COALESCE(MAX(ws.weight), 0) AS best_weight,
-            COALESCE(MAX(ws.reps), 0) AS best_reps,
-            COALESCE(MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS best_volume,
-            COALESCE(MAX(ws.weight * (1 + ws.reps / 30.0)), 0) AS estimated_1rm
-        FROM workout_sets ws
-        JOIN exercises e ON e.id = ws.exercise_id
-        JOIN workout_sessions s ON s.id = ws.session_id
-        WHERE {where_clause}
-          AND COALESCE(NULLIF(ws.body_part, ''), '기타') != '유산소'
-        GROUP BY e.id, e.name
-        ORDER BY best_weight DESC, best_volume DESC, last_date DESC, e.name
-        LIMIT ?
-        """,
-        params,
-    ).fetchall()
+    return list_exercise_pr_summary_from_db(get_db(), body_part, query, limit)
 
 
 def list_pr_exercise_choices(body_part: str = "", query: str = "") -> list[sqlite3.Row]:
-    filters = ["ws.weight IS NOT NULL", "ws.reps IS NOT NULL", "COALESCE(NULLIF(ws.body_part, ''), '기타') != '유산소'"]
-    params: list[object] = []
-    if body_part:
-        filters.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
-        params.append(body_part)
-    if query:
-        filters.append("e.name LIKE ?")
-        params.append(f"%{query}%")
-    return get_db().execute(
-        f"""
-        SELECT DISTINCT e.id, e.name
-        FROM workout_sets ws
-        JOIN exercises e ON e.id = ws.exercise_id
-        WHERE {' AND '.join(filters)}
-        ORDER BY e.name
-        """,
-        params,
-    ).fetchall()
+    return list_pr_exercise_choices_from_db(get_db(), body_part, query)
 
 
 def build_pr_dashboard(pr_rows: list[sqlite3.Row], recent_events: list[sqlite3.Row]) -> dict[str, object]:
@@ -3836,14 +3763,7 @@ def export_yearly_meal_csv(year: str) -> str:
 
 
 def paged_rows(select_sql: str, count_sql: str, params: list[object], page: int, per_page: int) -> tuple[list[sqlite3.Row], object]:
-    total = int(get_db().execute(count_sql, params).fetchone()[0] or 0)
-    pagination = build_pagination(total, page, per_page)
-    rows = get_db().execute(f"{select_sql} LIMIT ? OFFSET ?", (*params, pagination.per_page, pagination.offset)).fetchall()
-    return rows, pagination
-
-
-def allowed_sort(value: str, options: dict[str, str], default: str) -> str:
-    return value if value in options else default
+    return paged_rows_from_db(get_db(), select_sql, count_sql, params, page, per_page)
 
 
 def paged_search_workout_records_filtered(
@@ -3857,67 +3777,18 @@ def paged_search_workout_records_filtered(
     page: int = 1,
     per_page: int = 20,
 ) -> tuple[list[sqlite3.Row], object, str]:
-    sort_options = {
-        "newest": "s.workout_date DESC, ws.sort_order ASC, ws.id ASC",
-        "oldest": "s.workout_date ASC, ws.sort_order ASC, ws.id ASC",
-        "weight": "COALESCE(ws.weight, 0) DESC, s.workout_date DESC, ws.id DESC",
-        "volume": "(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)) DESC, s.workout_date DESC, ws.id DESC",
-    }
-    selected_sort = allowed_sort(sort, sort_options, "newest")
-    where = []
-    params: list[object] = []
-    if query:
-        where.append("(e.name LIKE ? OR ws.memo LIKE ?)")
-        params.extend([f"%{query}%", f"%{query}%"])
-    if body_part:
-        where.append("COALESCE(NULLIF(ws.body_part, ''), '기타') = ?")
-        params.append(body_part)
-    if equipment:
-        where.append("COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') = ?")
-        params.append(equipment)
-    if location_id:
-        where.append("s.location_id = ?")
-        params.append(location_id)
-    if start_date:
-        where.append("s.workout_date >= ?")
-        params.append(start_date)
-    if end_date:
-        where.append("s.workout_date <= ?")
-        params.append(end_date)
-    where_sql = "WHERE " + " AND ".join(where) if where else ""
-    from_sql = f"""
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        JOIN exercises e ON e.id = ws.exercise_id
-        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
-        LEFT JOIN workout_locations wl ON wl.id = s.location_id
-        {where_sql}
-    """
-    rows, pagination = paged_rows(
-        f"""
-        SELECT
-            s.workout_date,
-            wl.name AS location_name,
-            e.name AS exercise_name,
-            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
-            COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') AS equipment,
-            ws.weight,
-            ws.reps,
-            ws.cardio_incline,
-            ws.cardio_speed,
-            ws.cardio_minutes,
-            ws.estimated_calories,
-            ws.rpe,
-            ws.memo
-        {from_sql}
-        ORDER BY {sort_options[selected_sort]}
-        """,
-        f"SELECT COUNT(*) {from_sql}",
-        params,
+    return paged_search_workout_records_filtered_from_db(
+        get_db(),
+        query,
+        body_part,
+        equipment,
+        location_id,
+        start_date,
+        end_date,
+        sort,
         page,
         per_page,
     )
-    return rows, pagination, selected_sort
 
 
 def paged_search_workout_records(
@@ -3935,40 +3806,7 @@ def paged_search_workout_records(
 
 
 def paged_exercise_summary(sort: str = "sets", page: int = 1, per_page: int = 20) -> tuple[list[sqlite3.Row], object, str]:
-    sort_options = {
-        "sets": "set_count DESC, rep_count DESC, e.name",
-        "volume": "volume DESC, set_count DESC, e.name",
-        "recent": "last_date DESC, set_count DESC, e.name",
-        "name": "e.name ASC",
-    }
-    selected_sort = allowed_sort(sort, sort_options, "sets")
-    grouped_sql = """
-        FROM workout_sets ws
-        JOIN exercises e ON e.id = ws.exercise_id
-        JOIN workout_sessions s ON s.id = ws.session_id
-        GROUP BY e.id, e.name, COALESCE(NULLIF(ws.body_part, ''), '기타')
-    """
-    rows, pagination = paged_rows(
-        f"""
-        SELECT
-            e.id,
-            e.name,
-            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
-            MAX(s.workout_date) AS last_date
-        {grouped_sql}
-        ORDER BY {sort_options[selected_sort]}
-        """,
-        f"SELECT COUNT(*) FROM (SELECT e.id, COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part {grouped_sql})",
-        [],
-        page,
-        per_page,
-    )
-    return rows, pagination, selected_sort
+    return paged_exercise_summary_from_db(get_db(), sort, page, per_page)
 
 
 def paged_exercise_pr_summary(
@@ -4026,38 +3864,13 @@ def paged_exercise_pr_summary(
 
 
 def list_exercise_summary_by_body_part() -> dict[str, list[sqlite3.Row]]:
-    rows = get_db().execute(
-        """
-        SELECT
-            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
-            e.name,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
-            MAX(s.workout_date) AS last_date
-        FROM workout_sets ws
-        JOIN exercises e ON e.id = ws.exercise_id
-        JOIN workout_sessions s ON s.id = ws.session_id
-        GROUP BY body_part, e.name
-        ORDER BY body_part, last_date DESC, set_count DESC, e.name
-        """
-    ).fetchall()
-    grouped = {part: [] for part in body_part_options()}
-    for row in rows:
-        grouped.setdefault(row["body_part"] or "기타", []).append(row)
-    return grouped
+    return list_exercise_summary_by_body_part_from_db(get_db(), body_part_options)
 
 
 def equipment_scope_clause(scope: str) -> tuple[str, tuple[str, ...]]:
-    today = current_local_date()
-    if scope == "week":
-        return "AND s.workout_date >= ? AND s.workout_date <= ?", (week_start_for_date(today), today)
-    if scope == "month":
-        month_start = f"{today[:7]}-01"
-        return "AND s.workout_date >= ? AND s.workout_date < ?", (month_start, shift_month(month_start, 1))
-    return "", ()
+    from health_tracker.services.records import equipment_scope_clause as build_equipment_scope_clause
+
+    return build_equipment_scope_clause(scope, current_local_date(), week_start_for_date, shift_month)
 
 
 def paged_equipment_summary(
@@ -4066,43 +3879,16 @@ def paged_equipment_summary(
     page: int = 1,
     per_page: int = 20,
 ) -> tuple[list[sqlite3.Row], object, str]:
-    sort_options = {
-        "sets": "set_count DESC, volume DESC, last_date DESC, equipment",
-        "recent": "last_date DESC, set_count DESC, equipment",
-        "days": "workout_days DESC, set_count DESC, equipment",
-        "volume": "volume DESC, set_count DESC, equipment",
-    }
-    selected_sort = allowed_sort(sort, sort_options, "sets")
-    where_sql, params_tuple = equipment_scope_clause(scope)
-    params = list(params_tuple)
-    from_sql = f"""
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        JOIN exercises e ON e.id = ws.exercise_id
-        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
-        WHERE 1 = 1 {where_sql}
-        GROUP BY COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정')
-    """
-    rows, pagination = paged_rows(
-        f"""
-        SELECT
-            COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') AS equipment,
-            COUNT(ws.id) AS set_count,
-            COUNT(DISTINCT s.workout_date) AS workout_days,
-            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
-            MAX(s.workout_date) AS last_date
-        {from_sql}
-        ORDER BY {sort_options[selected_sort]}
-        """,
-        f"SELECT COUNT(*) FROM (SELECT COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') AS equipment {from_sql})",
-        params,
+    return paged_equipment_summary_from_db(
+        get_db(),
+        scope,
+        sort,
         page,
         per_page,
+        current_local_date(),
+        week_start_for_date,
+        shift_month,
     )
-    return rows, pagination, selected_sort
 
 
 def paged_equipment_detail(
@@ -4111,36 +3897,15 @@ def paged_equipment_detail(
     page: int = 1,
     per_page: int = 20,
 ) -> tuple[list[sqlite3.Row], object]:
-    where_sql, params_tuple = equipment_scope_clause(scope)
-    params: list[object] = [equipment, *params_tuple]
-    from_sql = f"""
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        JOIN exercises e ON e.id = ws.exercise_id
-        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
-        WHERE COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') = ?
-          {where_sql}
-        GROUP BY COALESCE(NULLIF(ws.body_part, ''), '기타'), e.name
-    """
-    return paged_rows(
-        f"""
-        SELECT
-            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
-            e.name AS exercise_name,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            MAX(ws.weight) AS best_weight,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
-            MAX(s.workout_date) AS last_date
-        {from_sql}
-        ORDER BY set_count DESC, volume DESC, last_date DESC, exercise_name
-        """,
-        f"SELECT COUNT(*) FROM (SELECT e.name {from_sql})",
-        params,
+    return paged_equipment_detail_from_db(
+        get_db(),
+        equipment,
+        scope,
         page,
         per_page,
+        current_local_date(),
+        week_start_for_date,
+        shift_month,
     )
 
 
@@ -4150,32 +3915,15 @@ def paged_equipment_daily(
     page: int = 1,
     per_page: int = 20,
 ) -> tuple[list[sqlite3.Row], object]:
-    where_sql, params_tuple = equipment_scope_clause(scope)
-    params: list[object] = [equipment, *params_tuple]
-    from_sql = f"""
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        JOIN exercises e ON e.id = ws.exercise_id
-        LEFT JOIN exercise_settings es ON es.exercise_name = e.name
-        WHERE COALESCE(NULLIF(ws.equipment, ''), NULLIF(es.equipment, ''), '미지정') = ?
-          {where_sql}
-        GROUP BY s.workout_date
-    """
-    return paged_rows(
-        f"""
-        SELECT
-            s.workout_date,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
-        {from_sql}
-        ORDER BY s.workout_date DESC
-        """,
-        f"SELECT COUNT(*) FROM (SELECT s.workout_date {from_sql})",
-        params,
+    return paged_equipment_daily_from_db(
+        get_db(),
+        equipment,
+        scope,
         page,
         per_page,
+        current_local_date(),
+        week_start_for_date,
+        shift_month,
     )
 
 
@@ -4485,166 +4233,31 @@ def search_workout_records_filtered(
 
 
 def list_month_calendar_days(month_start: str) -> list[dict[str, object]]:
-    next_month = shift_month(month_start, 1)
-    workout_rows = get_db().execute(
-        """
-        SELECT
-            s.workout_date,
-            COALESCE(s.duration_seconds, 0) AS duration_seconds,
-            COALESCE(s.completed, 0) AS completed,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
-        FROM workout_sessions s
-        LEFT JOIN workout_sets ws ON ws.session_id = s.id
-        WHERE s.workout_date >= ? AND s.workout_date < ?
-        GROUP BY s.workout_date, s.duration_seconds, s.completed
-        """,
-        (month_start, next_month),
-    ).fetchall()
-    meal_rows = get_db().execute(
-        """
-        SELECT meal_date, COUNT(id) AS meal_count
-        FROM meal_entries
-        WHERE meal_date >= ? AND meal_date < ?
-        GROUP BY meal_date
-        """,
-        (month_start, next_month),
-    ).fetchall()
-    workouts = {
-        row["workout_date"]: {
-            "set_count": int(row["set_count"]),
-            "duration_seconds": int(row["duration_seconds"] or 0),
-            "completed": bool(row["completed"]),
-            "volume": float(row["volume"] or 0),
-            "cardio_minutes": float(row["cardio_minutes"] or 0),
-        }
-        for row in workout_rows
-    }
-    meals = {row["meal_date"]: int(row["meal_count"]) for row in meal_rows}
-    start = datetime.strptime(month_start, "%Y-%m-%d")
-    next_start = datetime.strptime(next_month, "%Y-%m-%d")
-    days = []
-    current = start
-    while current < next_start:
-        key = current.strftime("%Y-%m-%d")
-        days.append(
-            {
-                "date": key,
-                "day": current.day,
-                "weekday": current.weekday(),
-                "set_count": workouts.get(key, {}).get("set_count", 0),
-                "duration_seconds": workouts.get(key, {}).get("duration_seconds", 0),
-                "completed": workouts.get(key, {}).get("completed", False),
-                "volume": workouts.get(key, {}).get("volume", 0),
-                "cardio_minutes": workouts.get(key, {}).get("cardio_minutes", 0),
-                "meal_count": meals.get(key, 0),
-            }
-        )
-        current += timedelta(days=1)
-    return days
+    return list_month_calendar_days_from_db(get_db(), month_start, shift_month)
 
 
 def list_body_part_summary(scope: str, limit: int = 30, date_text: str | None = None) -> list[sqlite3.Row]:
-    where_clause = ""
-    params: list[object] = []
-    if scope == "daily":
-        period_expr = "s.workout_date"
-        order_clause = "MAX(s.workout_date) DESC, body_part"
-    elif scope == "weekly":
-        period_expr = (
-            "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
-            "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
-        )
-        order_clause = "body_part, MAX(s.workout_date) DESC"
-        if date_text:
-            week_start = week_start_for_date(date_text)
-            period_expr = f"'{meal_week_label(week_start)}'"
-            where_clause = "WHERE s.workout_date BETWEEN ? AND ?"
-            params.extend([week_start, shift_date(week_start, 6)])
-    else:
-        period_expr = "strftime('%Y-%m', s.workout_date)"
-        order_clause = "body_part, MAX(s.workout_date) DESC"
-        if date_text:
-            month_start = normalize_month(date_text)
-            where_clause = "WHERE s.workout_date >= ? AND s.workout_date < ?"
-            params.extend([month_start, shift_month(month_start, 1)])
-    params.append(limit)
-
-    return get_db().execute(
-        f"""
-        SELECT
-            {period_expr} AS period,
-            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
-            COUNT(DISTINCT pe.id) AS pr_count,
-            MAX(CASE WHEN pe.record_type = '최고 중량' THEN pe.record_value END) AS best_pr_weight,
-            MAX(CASE WHEN pe.record_type = '최고 반복' THEN pe.record_value END) AS best_pr_reps,
-            MAX(CASE WHEN pe.record_type = '최고 볼륨' THEN pe.record_value END) AS best_pr_volume
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        LEFT JOIN pr_events pe ON pe.set_id = ws.id
-        {where_clause}
-        GROUP BY period, body_part
-        ORDER BY {order_clause}
-        LIMIT ?
-        """,
-        params,
-    ).fetchall()
+    return list_body_part_summary_from_db(
+        get_db(),
+        scope,
+        limit,
+        date_text,
+        week_start_for_date,
+        meal_week_label,
+        shift_date,
+        normalize_month,
+        shift_month,
+    )
 
 
 def list_weekly_body_part_details(date_text: str | None = None) -> dict[str, list[sqlite3.Row]]:
-    where_clause = ""
-    params: list[object] = []
-    if date_text:
-        week_start = week_start_for_date(date_text)
-        where_clause = "WHERE s.workout_date BETWEEN ? AND ?"
-        params.extend([week_start, shift_date(week_start, 6)])
-        period_expr = f"'{meal_week_label(week_start)}'"
-    else:
-        period_expr = (
-            "CAST(strftime('%m', s.workout_date) AS INTEGER) || '월 ' || "
-            "(((CAST(strftime('%d', s.workout_date) AS INTEGER) - 1) / 7) + 1) || '주차'"
-        )
-    rows = get_db().execute(
-        f"""
-        SELECT
-            {period_expr} AS period,
-            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
-            e.name AS exercise_name,
-            MIN(ws.weight) AS min_weight,
-            MAX(ws.weight) AS max_weight,
-            AVG(ws.cardio_incline) AS avg_cardio_incline,
-            AVG(ws.cardio_speed) AS avg_cardio_speed,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            COALESCE(SUM(COALESCE(ws.estimated_calories, 0)), 0) AS exercise_calories,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COUNT(DISTINCT pe.id) AS pr_count,
-            MAX(CASE WHEN pe.record_type = '최고 중량' THEN pe.record_value END) AS best_pr_weight,
-            MAX(CASE WHEN pe.record_type = '최고 반복' THEN pe.record_value END) AS best_pr_reps,
-            MAX(CASE WHEN pe.record_type = '최고 볼륨' THEN pe.record_value END) AS best_pr_volume,
-            MAX(s.workout_date) AS last_date
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        JOIN exercises e ON e.id = ws.exercise_id
-        LEFT JOIN pr_events pe ON pe.set_id = ws.id
-        {where_clause}
-        GROUP BY period, body_part, e.name
-        ORDER BY MAX(s.workout_date) DESC, body_part, e.name
-        """,
-        params,
-    ).fetchall()
-
-    details: dict[str, list[sqlite3.Row]] = {}
-    for row in rows:
-        details.setdefault(f"{row['period']}::{row['body_part']}", []).append(row)
-    return details
+    return list_weekly_body_part_details_from_db(
+        get_db(),
+        date_text,
+        week_start_for_date,
+        meal_week_label,
+        shift_date,
+    )
 
 
 def list_sets_for_session(session_id: int) -> list[sqlite3.Row]:
