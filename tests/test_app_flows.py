@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -90,6 +91,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/exercises/library",
             "/plans/weekly",
             "/more",
+            "/locations",
             "/sw.js",
         ]
         for path in paths:
@@ -169,6 +171,61 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertNotIn("기록 검색", html)
         self.assertNotIn("장비 분석", html)
         self.assertNotIn(">PR<", html)
+
+    def test_locations_manage_equipment_and_filter_records(self) -> None:
+        response = self.client.post(
+            "/locations",
+            data={
+                "name": "테스트 헬스장",
+                "address": "강남",
+                "memo": "스미스 머신 있음",
+                "is_default": "1",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        db = sqlite3.connect(app_module.DATABASE)
+        try:
+            db.row_factory = sqlite3.Row
+            location = db.execute("SELECT * FROM workout_locations WHERE name = ?", ("테스트 헬스장",)).fetchone()
+        finally:
+            db.close()
+        self.assertIsNotNone(location)
+        location_id = int(location["id"])
+
+        self.client.post(
+            f"/locations/{location_id}/equipment",
+            data={"equipment_name": "스미스 머신", "equipment_type": "머신", "memo": "하체 가능"},
+        )
+        workout_html = self.client.get(f"/?mode=workout&location_id={location_id}").data.decode("utf-8")
+        self.assertIn("운동 장소", workout_html)
+        self.assertIn("스미스 머신", workout_html)
+
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-26",
+                "mode": "workout",
+                "location_id": str(location_id),
+                "body_part": "하체",
+                "exercise_name": "장소 테스트 스쿼트",
+                "equipment": "스미스 머신",
+                "set_weight": ["60"],
+                "set_reps": ["8"],
+                "set_type": ["본세트"],
+            },
+        )
+        search_html = self.client.get(
+            "/records/search",
+            query_string={
+                "q": "장소 테스트",
+                "location_id": str(location_id),
+                "start": "2026-05-26",
+                "end": "2026-05-26",
+            },
+        ).data.decode("utf-8")
+        self.assertIn("테스트 헬스장", search_html)
+        self.assertIn("스미스 머신", search_html)
 
     def test_visitor_is_read_only_and_admin_routes_are_locked(self) -> None:
         visitor = self.app.test_client()
@@ -293,7 +350,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
-        self.assertIn("workout-pwa-v1.6.8", response.data.decode("utf-8"))
+        expected_version = Path("VERSION").read_text(encoding="utf-8").strip()
+        self.assertIn(f"workout-pwa-v{expected_version}", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/?mode=workout").data.decode("utf-8")
