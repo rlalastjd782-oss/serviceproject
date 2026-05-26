@@ -2016,9 +2016,17 @@ label span {
 }
 
 .program-chip-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 7px;
+}
+
+.program-chip-list form {
+  min-width: 0;
+}
+
+.program-chip-list .exercise-quick-button {
+  width: 100%;
 }
 
 .timer-display {
@@ -3250,23 +3258,28 @@ label span {
 .quick-tab-list {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  gap: 7px;
 }
 
 .quick-tab-button {
   min-width: 0;
-  min-height: 34px;
-  border: 1px solid #293854;
-  border-radius: 8px;
-  background: #101827;
+  min-height: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent),
+    #101827;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
+  text-align: center;
 }
 
 .quick-tab-button.is-active {
   border-color: rgb(96 165 250 / 75%);
-  background: rgb(59 130 246 / 20%);
+  background:
+    linear-gradient(180deg, rgb(96 165 250 / 22%), rgb(37 99 235 / 16%)),
+    #101827;
   color: #e5f0ff;
 }
 
@@ -3280,27 +3293,30 @@ label span {
 }
 
 .exercise-quick-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 7px;
 }
 
 .exercise-quick-button {
-  display: inline-flex;
+  display: inline-grid;
   align-items: center;
   justify-content: center;
   max-width: 100%;
-  min-height: 32px;
-  border: 1px solid #293854;
-  border-radius: 8px;
-  background: #121a29;
+  min-height: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent),
+    #121a29;
   color: #d8e7ff;
   font-size: 12px;
   font-weight: 800;
   line-height: 1.25;
-  padding: 5px 9px;
+  padding: 7px 9px;
   overflow-wrap: anywhere;
   text-align: center;
+  width: 100%;
 }
 
 .exercise-quick-more {
@@ -3635,18 +3651,21 @@ label span {
 
 .set-row-actions {
   display: grid;
-  grid-template-columns: minmax(66px, auto) 42px;
+  grid-template-columns: minmax(76px, 1fr) 44px;
   justify-content: end;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   align-self: center;
+  min-width: 132px;
 }
 
 .row-copy-button {
-  min-height: 40px;
+  min-height: 42px;
   border: 1px solid var(--line-strong);
   border-radius: 10px;
-  background: #121a29;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent),
+    #121a29;
   color: var(--blue);
   font-size: 12px;
   font-weight: 800;
@@ -4347,6 +4366,27 @@ label span {
   margin-bottom: 6px;
 }
 
+.daily-record-card {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 0;
+}
+
+.daily-record-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 9px;
+}
+
+.daily-record-head strong {
+  color: var(--strong);
+  font-size: 15px;
+  font-weight: 900;
+}
+
 .workout-record-head {
   display: grid;
   gap: 7px;
@@ -4421,16 +4461,18 @@ label span {
 .daily-metric-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px;
+  gap: 8px;
 }
 
 .daily-metric {
   display: grid;
-  gap: 3px;
+  gap: 5px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: var(--bg);
-  padding: 8px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent),
+    var(--bg);
+  padding: 9px;
 }
 
 .daily-metric strong {
@@ -5187,6 +5229,14 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .daily-record-head {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-record-head .btn-small {
+    width: 100%;
+  }
+
   .record-result-value {
     align-content: start;
     justify-items: start;
@@ -5369,6 +5419,7 @@ tbody tr:last-child td {
     grid-template-columns: minmax(0, 1fr) 44px;
     display: grid;
     width: 100%;
+    min-width: 0;
   }
 
   .set-advanced-grid {
@@ -5700,6 +5751,7 @@ tbody tr:last-child td {
     grid-template-columns: minmax(0, 1fr) 40px;
     display: grid;
     width: 100%;
+    min-width: 0;
   }
 
   .set-advanced-grid {

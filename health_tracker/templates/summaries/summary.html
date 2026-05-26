@@ -33,8 +33,11 @@
     </section>
     <div class="record-list">
       {% for item in daily_summary %}
-        <article class="record-card">
-          <div class="record-date">{{ item.period }}</div>
+        <article class="record-card daily-record-card">
+          <div class="daily-record-head">
+            <strong>{{ item.period }}</strong>
+            <a class="btn-small" href="{{ url_for('index', date=item.period, mode='workout') }}">열기</a>
+          </div>
           <div class="daily-metric-grid">
             <div class="daily-metric">
               <strong>웨이트</strong>
