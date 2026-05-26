@@ -94,6 +94,10 @@ from health_tracker.services.exercise_settings import (
     save_exercise_note_to_db,
     save_exercise_settings_to_db,
 )
+from health_tracker.services.exercise_rules import (
+    today_rule_cards_from_db,
+    weekly_rule_report_from_db,
+)
 from health_tracker.services.location import (
     bootstrap_locations,
     deactivate_location,
@@ -2066,6 +2070,14 @@ def list_daily_coaching(date_text: str) -> list[str]:
 
 def list_today_next_actions(date_text: str) -> list[dict[str, str]]:
     return build_next_actions_from_db(get_db(), date_text, shift_date)
+
+
+def list_today_rule_cards(date_text: str) -> list[dict[str, object]]:
+    return today_rule_cards_from_db(get_db(), date_text, shift_date)
+
+
+def build_weekly_rule_report(week_start: str) -> dict[str, object]:
+    return weekly_rule_report_from_db(get_db(), week_start, shift_date)
 
 
 def build_readiness_profile(date_text: str) -> dict[str, object]:

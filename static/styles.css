@@ -2779,6 +2779,67 @@ label span {
   border-color: rgb(168 85 247 / 32%);
 }
 
+.rule-card-section {
+  border-color: rgb(20 184 166 / 26%);
+}
+
+.rule-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 9px;
+}
+
+.rule-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 11px;
+}
+
+.rule-card div {
+  display: grid;
+  gap: 4px;
+}
+
+.rule-card span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.rule-card strong {
+  color: var(--strong);
+  font-size: 16px;
+}
+
+.rule-card p {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.rule-card small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.rule-card.state-부족 {
+  border-color: rgb(245 158 11 / 38%);
+}
+
+.rule-card.state-과다 {
+  border-color: rgb(239 68 68 / 38%);
+  background: rgb(127 29 29 / 18%);
+}
+
+.rule-card.state-적정 {
+  border-color: rgb(34 197 94 / 32%);
+}
+
 .next-set-advice-row {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) auto;

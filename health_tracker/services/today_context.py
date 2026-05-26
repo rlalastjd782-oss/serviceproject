@@ -44,6 +44,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
         "recommended_sessions": deps["list_recommended_sessions"](today_session["workout_date"]),
         "workout_focus_recommendations": deps["list_workout_focus_recommendations"](today_session["workout_date"]),
         "today_next_actions": deps["list_today_next_actions"](today_session["workout_date"]),
+        "today_rule_cards": deps["list_today_rule_cards"](today_session["workout_date"]),
         "volume_warnings": deps["list_volume_warnings"](today_session["workout_date"]),
         "frequent_meal_combos": deps["list_frequent_meal_combos"](),
         "default_programs": deps["DEFAULT_PROGRAMS"].keys(),

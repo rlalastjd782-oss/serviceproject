@@ -91,6 +91,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             body_part_summary=list_body_part_summary("weekly", date_text=week_start),
             body_part_details=list_weekly_body_part_details(week_start),
             weekly_report=build_weekly_report(week_start),
+            weekly_rule_report=build_weekly_rule_report(week_start),
             weekly_goals=get_goal_progress(week_start),
             weekly_goal_insights=build_goal_insights("weekly", week_start),
             rpe_report=build_rpe_report("weekly", week_start),
