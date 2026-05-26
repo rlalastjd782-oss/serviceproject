@@ -78,6 +78,10 @@ from health_tracker.services.data_quality import (
     build_data_quality_profile_from_db,
     list_record_gaps_from_db,
 )
+from health_tracker.services.data_cleanup import (
+    list_duplicate_exercise_candidates as list_duplicate_exercise_candidates_from_db,
+    list_outlier_set_candidates as list_outlier_set_candidates_from_db,
+)
 from health_tracker.services.dummy_data import generate_year_qa_dummy_data as generate_year_qa_dummy_data_in_db
 from health_tracker.services.dummy_data import get_qa_dummy_status as get_qa_dummy_status_from_db
 from health_tracker.services.export import (
@@ -178,6 +182,7 @@ from health_tracker.services.workout import (
     list_sets_for_session_from_db,
     reorder_set_within_exercise_in_db,
 )
+from health_tracker.services.release_readiness import build_v2_readiness_report
 from health_tracker.services.workout_plan import (
     apply_default_program_to_db,
     build_workout_completion_summary_from_db,
@@ -2173,6 +2178,23 @@ def get_sample_data_counts() -> dict[str, int]:
 
 def get_app_health_status() -> list[dict[str, str]]:
     return build_app_health_status(DATABASE, get_data_counts(), get_sample_data_counts(), get_backup_status())
+
+
+def list_duplicate_exercise_candidates(limit: int = 10) -> list[dict[str, object]]:
+    return list_duplicate_exercise_candidates_from_db(get_db(), limit)
+
+
+def list_outlier_set_candidates(limit: int = 10) -> list[dict[str, object]]:
+    return list_outlier_set_candidates_from_db(get_db(), limit)
+
+
+def build_v2_readiness() -> dict[str, object]:
+    return build_v2_readiness_report(
+        get_data_counts(),
+        get_qa_dummy_status(),
+        get_backup_status(),
+        has_settings_password(),
+    )
 
 
 def delete_sample_data() -> None:

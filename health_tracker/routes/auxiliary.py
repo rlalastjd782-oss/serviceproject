@@ -59,6 +59,8 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             selected_days=days,
             data_quality_profile=build_data_quality_profile(selected_date, days),
             record_gaps=list_record_gaps(selected_date, days),
+            duplicate_exercises=list_duplicate_exercise_candidates(),
+            outlier_sets=list_outlier_set_candidates(),
             data_counts=get_data_counts(),
         )
 
@@ -142,6 +144,7 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             "qa/report.html",
             active_page="settings",
             qa_dummy_status=get_qa_dummy_status(),
+            v2_readiness=build_v2_readiness(),
             qa_links=[
                 {"label": "2025 연간", "href": url_for("yearly_summary_page", year="2025")},
                 {"label": "2026 연간", "href": url_for("yearly_summary_page", year="2026")},

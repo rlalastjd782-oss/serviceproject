@@ -23,6 +23,27 @@
 
   <section class="section">
     <div class="section-header">
+      <div>
+        <div class="section-title">2.0 준비 상태</div>
+        <div class="section-subtitle">실사용 데이터, 연간 QA, 개인 잠금, 백업, 소스 분산 상태를 한 번에 봅니다.</div>
+      </div>
+      <span class="badge">{{ v2_readiness.score }}%</span>
+    </div>
+    <div class="readiness-grid state-{{ v2_readiness.tone }}">
+      {% for item in v2_readiness.checks %}
+        <article class="readiness-card state-{{ item.state }}">
+          <div>
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.value }}</span>
+          </div>
+          <p>{{ item.note }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
       <div class="section-title">주요 점검 링크</div>
     </div>
     <div class="detail-list">

@@ -155,6 +155,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("data-workout-quick-tab=\"recent\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"favorite\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"routine\"", workout_html)
+        self.assertIn("set-advanced-options", workout_html)
         self.assertIn("data-readiness-coach", workout_html)
         self.assertIn("id=\"routine-library\"", workout_html)
         response = self.client.post(
@@ -213,6 +214,12 @@ class HealthTrackerFlowTest(unittest.TestCase):
         record_check_html = self.client.get("/records/check").data.decode("utf-8")
         self.assertIn("기록 점검", record_check_html)
         self.assertIn("record-gap-list", record_check_html)
+        self.assertIn("정리 후보", record_check_html)
+        self.assertIn("data-cleanup-grid", record_check_html)
+
+        qa_html = self.client.get("/qa/report").data.decode("utf-8")
+        self.assertIn("2.0 준비 상태", qa_html)
+        self.assertIn("readiness-grid", qa_html)
 
         meal_templates_html = self.client.get("/meals/templates").data.decode("utf-8")
         self.assertIn("식단 템플릿", meal_templates_html)

@@ -58,3 +58,84 @@
 .rule-card.state-적정 {
   border-color: rgb(34 197 94 / 32%);
 }
+
+.data-cleanup-grid,
+.readiness-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.cleanup-panel,
+.readiness-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 12px;
+}
+
+.cleanup-panel-header,
+.cleanup-row,
+.readiness-card div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cleanup-list {
+  display: grid;
+  gap: 8px;
+}
+
+.cleanup-row {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+.cleanup-row div,
+.readiness-card div {
+  min-width: 0;
+}
+
+.cleanup-row strong,
+.cleanup-row span,
+.readiness-card strong,
+.readiness-card span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cleanup-row span,
+.readiness-card span,
+.readiness-card p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.readiness-card p {
+  margin: 0;
+}
+
+.readiness-card.state-ok {
+  border-color: rgb(34 197 94 / 30%);
+}
+
+.readiness-card.state-todo {
+  border-color: rgb(245 158 11 / 34%);
+}
+
+@media (max-width: 540px) {
+  .cleanup-panel-header,
+  .cleanup-row,
+  .readiness-card div {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

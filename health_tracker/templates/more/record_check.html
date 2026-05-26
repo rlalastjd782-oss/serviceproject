@@ -51,6 +51,55 @@
   <section class="section more-tool-section">
     <div class="section-header">
       <div>
+        <div class="section-title">정리 후보</div>
+        <div class="section-subtitle">운동명 중복과 비정상 세트를 먼저 찾아 실제 분석 품질을 올립니다.</div>
+      </div>
+    </div>
+    <div class="data-cleanup-grid">
+      <article class="cleanup-panel">
+        <div class="cleanup-panel-header">
+          <strong>운동명 중복 후보</strong>
+          <span class="badge">{{ duplicate_exercises|length }}건</span>
+        </div>
+        <div class="cleanup-list">
+          {% for item in duplicate_exercises %}
+            <div class="cleanup-row">
+              <div>
+                <strong>{{ item.variants|join(" / ") }}</strong>
+                <span>{{ item.set_count }}세트 · 최근 {{ item.last_date }}</span>
+              </div>
+              <a class="btn-small" href="{{ url_for('exercise_library_page', q=item.variants[0]) }}">확인</a>
+            </div>
+          {% else %}
+            <div class="empty compact-empty">중복으로 보이는 운동명이 없습니다.</div>
+          {% endfor %}
+        </div>
+      </article>
+      <article class="cleanup-panel">
+        <div class="cleanup-panel-header">
+          <strong>이상 입력 후보</strong>
+          <span class="badge">{{ outlier_sets|length }}건</span>
+        </div>
+        <div class="cleanup-list">
+          {% for item in outlier_sets %}
+            <div class="cleanup-row">
+              <div>
+                <strong>{{ item.exercise_name }}</strong>
+                <span>{{ item.date }} · {% if item.weight %}{{ "%.1f"|format(item.weight) }}kg{% endif %}{% if item.reps %} × {{ item.reps }}회{% endif %}{% if item.cardio_minutes %} · {{ item.cardio_minutes }}분{% endif %}{% if item.rpe %} · RPE {{ "%.1f"|format(item.rpe) }}{% endif %}</span>
+              </div>
+              <a class="btn-small" href="{{ url_for('index', date=item.date, mode='workout') }}">수정</a>
+            </div>
+          {% else %}
+            <div class="empty compact-empty">확인할 이상 입력 후보가 없습니다.</div>
+          {% endfor %}
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
         <div class="section-title">누락일</div>
         <div class="section-subtitle">필요한 날짜로 바로 이동해서 운동이나 식단을 입력합니다.</div>
       </div>
