@@ -157,7 +157,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("data-workout-quick-tab=\"routine\"", workout_html)
         self.assertIn("data-readiness-coach", workout_html)
         self.assertIn("id=\"routine-library\"", workout_html)
-        self.client.post(
+        response = self.client.post(
             "/sets",
             data={
                 "workout_date": "2026-05-26",
@@ -169,10 +169,16 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 "set_type": ["본세트"],
             },
         )
+        self.assertNotIn("rest=", response.headers.get("Location", ""))
         workout_html = self.client.get("/?date=2026-05-26&mode=workout").data.decode("utf-8")
+        self.assertLess(workout_html.index("workout-clock-section"), workout_html.index('id="rest-timer"'))
+        self.assertLess(workout_html.index('id="rest-timer"'), workout_html.index("workout-action-dock"))
         self.assertIn("rest-start-button", workout_html)
         self.assertIn(">타이머 시작</button>", workout_html)
         self.assertNotIn("초 휴식</button>", workout_html)
+        styles = Path("static/styles.css").read_text(encoding="utf-8")
+        self.assertIn(".workout-mode #rest-timer {\n  order: 11;", styles)
+        self.assertIn(".workout-mode .workout-action-dock {\n  order: 12;", styles)
 
         search_html = self.client.get("/records/search").data.decode("utf-8")
         self.assertIn("record-filter-details", search_html)

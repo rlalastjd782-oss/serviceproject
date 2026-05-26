@@ -62,7 +62,6 @@ scrollActiveTabIntoView();
 initWorkoutTools();
 initSetBuilder();
 renderReadinessCoach();
-startRestTimerFromUrl();
 processOfflineQueue();
 initNotificationTools();
 
@@ -995,17 +994,6 @@ function updateRestTimerDisplay() {
   const seconds = restRemaining % 60;
   display.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   display.classList.toggle("is-running", restRemaining > 0);
-}
-
-function startRestTimerFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const restSeconds = Number(params.get("rest") || 0);
-  if (restSeconds > 0) {
-    startRestTimer(restSeconds);
-    params.delete("rest");
-    const nextUrl = `${window.location.pathname}?${params.toString()}`.replace(/\?$/, "");
-    window.history.replaceState({}, "", nextUrl);
-  }
 }
 
 function workoutClockKey() {

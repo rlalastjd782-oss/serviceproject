@@ -965,6 +965,10 @@ input[type="month"] {
   order: 10;
 }
 
+.workout-mode #rest-timer {
+  order: 11;
+}
+
 .workout-mode .workout-action-dock {
   order: 12;
 }
@@ -975,10 +979,6 @@ input[type="month"] {
 
 .workout-mode #today-workout {
   order: 30;
-}
-
-.workout-mode #rest-timer {
-  order: 40;
 }
 
 .workout-mode .session-flow-section {

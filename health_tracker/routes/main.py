@@ -609,14 +609,12 @@ def register_routes(app, ctx: dict[str, object]) -> None:
                 record_pr_events(cursor.lastrowid, session["workout_date"], exercise_id, exercise_name, weight, reps, previous_records)
                 previous_records = update_record_values(previous_records, weight, reps)
         db.commit()
-        rest_seconds = get_exercise_rest_seconds(exercise_name)
         return redirect(
             url_for(
                 "index",
                 date=session["workout_date"],
                 mode=mode or None,
                 location_id=session["location_id"],
-                rest=rest_seconds if mode == "workout" else None,
             )
         )
 
