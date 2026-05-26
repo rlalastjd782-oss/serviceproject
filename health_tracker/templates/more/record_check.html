@@ -1,0 +1,100 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}기록 점검{% endblock %}
+
+{% block content %}
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">기록 점검</div>
+        <div class="section-subtitle">{{ selected_date }} 기준 최근 {{ selected_days }}일</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
+    </div>
+
+    <form method="get" action="{{ url_for('record_check_page') }}" class="filter-form more-tool-filter">
+      <input name="date" type="date" value="{{ selected_date }}" aria-label="기준일">
+      <select name="days" aria-label="점검 기간">
+        {% for option in [7, 14, 30, 60, 90] %}
+          <option value="{{ option }}" {% if selected_days == option %}selected{% endif %}>{{ option }}일</option>
+        {% endfor %}
+      </select>
+      <button class="btn-small" type="submit">조회</button>
+    </form>
+
+    <div class="data-quality-card state-{{ data_quality_profile.tone }}" data-quality-card>
+      <div class="data-quality-ring" style="--score: {{ data_quality_profile.score }}%;">
+        <strong>{{ data_quality_profile.score }}</strong>
+        <span>%</span>
+      </div>
+      <div class="data-quality-copy">
+        <strong>{{ data_quality_profile.message }}</strong>
+        <span>{{ data_quality_profile.criteria }}</span>
+      </div>
+    </div>
+
+    <div class="quality-metric-list">
+      {% for item in data_quality_profile.components %}
+        <article class="quality-metric">
+          <div>
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.count }} / {{ item.target }}{{ item.unit }}</span>
+          </div>
+          <div class="quality-bar">
+            <span style="width: {{ item.percent }}%"></span>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">누락일</div>
+        <div class="section-subtitle">필요한 날짜로 바로 이동해서 운동이나 식단을 입력합니다.</div>
+      </div>
+      <span class="badge">{{ record_gaps|length }}일</span>
+    </div>
+
+    <div class="record-gap-list">
+      {% for item in record_gaps %}
+        <article class="record-gap-card">
+          <div>
+            <strong>{{ item.date }}</strong>
+            <span>{{ item.label }}</span>
+          </div>
+          <div class="record-gap-actions">
+            <a class="btn-small" href="{{ url_for('index', date=item.date, mode='workout') }}">운동</a>
+            <a class="btn-small" href="{{ url_for('index', date=item.date, mode='meal') }}">식단</a>
+          </div>
+        </article>
+      {% else %}
+        <div class="empty compact-empty">점검 기간에 주요 누락 기록이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">데이터 수</div>
+        <div class="section-subtitle">현재 로컬 DB에 저장된 주요 데이터입니다.</div>
+      </div>
+    </div>
+    <div class="location-overview-grid">
+      <article class="location-overview-card">
+        <span>운동일</span>
+        <strong>{{ data_counts.workouts }}</strong>
+      </article>
+      <article class="location-overview-card">
+        <span>세트</span>
+        <strong>{{ data_counts.sets }}</strong>
+      </article>
+      <article class="location-overview-card">
+        <span>식단</span>
+        <strong>{{ data_counts.meals }}</strong>
+      </article>
+    </div>
+  </section>
+{% endblock %}

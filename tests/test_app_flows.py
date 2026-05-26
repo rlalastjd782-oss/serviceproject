@@ -127,7 +127,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/qa/report",
             "/api/sessions",
             "/records/search",
+            "/records/check",
             "/exercises/library",
+            "/meals/templates",
             "/plans/weekly",
             "/more",
             "/locations",
@@ -195,6 +197,14 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("location-manage-details", locations_html)
         self.assertIn("location-equipment-chip-list", locations_html)
         self.assertIn("location-equipment-panel", locations_html)
+
+        record_check_html = self.client.get("/records/check").data.decode("utf-8")
+        self.assertIn("기록 점검", record_check_html)
+        self.assertIn("record-gap-list", record_check_html)
+
+        meal_templates_html = self.client.get("/meals/templates").data.decode("utf-8")
+        self.assertIn("식단 템플릿", meal_templates_html)
+        self.assertIn("meal-template-grid", meal_templates_html)
 
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")

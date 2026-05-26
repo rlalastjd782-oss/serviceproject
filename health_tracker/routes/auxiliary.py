@@ -8,6 +8,37 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
     def more_page():
         return render_template("more/index.html", active_page="more")
 
+    @app.get("/records/check")
+    def record_check_page():
+        selected_date = normalize_date(request.args.get("date"))
+        days = parse_int(request.args.get("days")) or 14
+        days = min(max(days, 7), 90)
+        return render_template(
+            "more/record_check.html",
+            active_page="record_check",
+            selected_date=selected_date,
+            selected_days=days,
+            data_quality_profile=build_data_quality_profile(selected_date, days),
+            record_gaps=list_record_gaps(selected_date, days),
+            data_counts=get_data_counts(),
+        )
+
+    @app.get("/meals/templates")
+    def meal_templates_page():
+        selected_date = normalize_date(request.args.get("date"))
+        return render_template(
+            "more/meal_templates.html",
+            active_page="meal_templates",
+            selected_date=selected_date,
+            meal_templates=list_meal_templates(),
+            recent_meal_days=list_recent_meal_days(selected_date, limit=10),
+        )
+
+    @app.post("/meals/templates/<int:template_id>/delete")
+    def delete_meal_template_route(template_id: int):
+        delete_meal_template(template_id)
+        return redirect(url_for("meal_templates_page", date=normalize_date(request.form.get("meal_date"))))
+
     @app.get("/locations")
     def locations_page():
         return render_template(

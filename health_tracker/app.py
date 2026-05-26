@@ -2425,6 +2425,13 @@ def apply_meal_template(template_id: int, meal_date: str) -> None:
     get_db().commit()
 
 
+def delete_meal_template(template_id: int) -> None:
+    db = get_db()
+    db.execute("DELETE FROM meal_template_items WHERE template_id = ?", (template_id,))
+    db.execute("DELETE FROM meal_templates WHERE id = ?", (template_id,))
+    db.commit()
+
+
 def list_recent_meal_days(target_date: str, limit: int = 3) -> list[sqlite3.Row]:
     return get_db().execute(
         """

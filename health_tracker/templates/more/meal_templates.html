@@ -1,0 +1,76 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}식단 템플릿{% endblock %}
+
+{% block content %}
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">식단 템플릿</div>
+        <div class="section-subtitle">저장한 식단 묶음을 원하는 날짜에 적용합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
+    </div>
+
+    <form method="get" action="{{ url_for('meal_templates_page') }}" class="filter-form more-tool-filter">
+      <input name="date" type="date" value="{{ selected_date }}" aria-label="적용 날짜">
+      <button class="btn-small" type="submit">날짜 변경</button>
+      <a class="btn-small" href="{{ url_for('index', date=selected_date, mode='meal') }}">식단 입력</a>
+    </form>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">저장된 템플릿</div>
+        <div class="section-subtitle">적용하면 선택한 날짜에 식단 항목을 복사합니다.</div>
+      </div>
+      <span class="badge">{{ meal_templates|length }}개</span>
+    </div>
+
+    <div class="meal-template-grid">
+      {% for template in meal_templates %}
+        <article class="meal-template-card">
+          <div>
+            <strong>{{ template.name }}</strong>
+            <span>{{ template.item_count }}개 항목</span>
+          </div>
+          <div class="meal-template-actions">
+            <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}">
+              <input type="hidden" name="meal_date" value="{{ selected_date }}">
+              <button class="btn-primary" type="submit">적용</button>
+            </form>
+            <form method="post" action="{{ url_for('delete_meal_template_route', template_id=template.id) }}">
+              <input type="hidden" name="meal_date" value="{{ selected_date }}">
+              <button class="btn-danger" type="submit">삭제</button>
+            </form>
+          </div>
+        </article>
+      {% else %}
+        <div class="empty compact-empty">저장된 식단 템플릿이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">최근 식단으로 만들기</div>
+        <div class="section-subtitle">최근 날짜의 식단을 템플릿으로 저장합니다.</div>
+      </div>
+    </div>
+
+    <div class="recent-meal-template-list">
+      {% for day in recent_meal_days %}
+        <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="recent-meal-template-row">
+          <input type="hidden" name="meal_date" value="{{ day.meal_date }}">
+          <input name="template_name" value="{{ day.meal_date }} 식단" aria-label="템플릿 이름">
+          <span>{{ day.meal_count }}개 · {{ "%.0f"|format(day.calories or 0) }}kcal</span>
+          <button class="btn-small" type="submit">저장</button>
+        </form>
+      {% else %}
+        <div class="empty compact-empty">템플릿으로 만들 최근 식단 기록이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

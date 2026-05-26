@@ -32,6 +32,16 @@
         <strong>운동 장소</strong>
         <span>헬스장별 장비 목록과 기본 장소를 관리합니다.</span>
       </a>
+      <a class="more-link-card" href="{{ url_for('record_check_page') }}">
+        <b>Check</b>
+        <strong>기록 점검</strong>
+        <span>최근 운동, 식단, 회복, 체성분 누락일을 빠르게 확인합니다.</span>
+      </a>
+      <a class="more-link-card" href="{{ url_for('meal_templates_page') }}">
+        <b>Meals</b>
+        <strong>식단 템플릿</strong>
+        <span>저장한 식단 묶음을 확인하고 원하는 날짜에 적용합니다.</span>
+      </a>
     </div>
   </section>
 {% endblock %}

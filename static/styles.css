@@ -492,6 +492,74 @@
   line-height: 1.4;
 }
 
+.more-tool-filter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.more-tool-filter input,
+.more-tool-filter select {
+  width: 100%;
+  min-width: 0;
+}
+
+.record-gap-list,
+.meal-template-grid,
+.recent-meal-template-list {
+  display: grid;
+  gap: 8px;
+}
+
+.record-gap-card,
+.meal-template-card,
+.recent-meal-template-row {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #0d1420;
+  padding: 10px;
+}
+
+.record-gap-card,
+.meal-template-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.recent-meal-template-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+}
+
+.record-gap-card strong,
+.meal-template-card strong {
+  display: block;
+  color: var(--strong);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.record-gap-card span,
+.meal-template-card span,
+.recent-meal-template-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.record-gap-actions,
+.meal-template-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.meal-template-actions form {
+  min-width: 66px;
+}
+
 .settings-password-form {
   display: grid;
   gap: 10px;
@@ -4470,6 +4538,18 @@ tbody tr:last-child td {
   .inline-add-form,
   .meal-add-form {
     grid-template-columns: 1fr;
+  }
+
+  .more-tool-filter,
+  .record-gap-card,
+  .meal-template-card,
+  .recent-meal-template-row {
+    grid-template-columns: 1fr;
+  }
+
+  .record-gap-actions,
+  .meal-template-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .location-select-form,
