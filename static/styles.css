@@ -1634,9 +1634,10 @@ label span {
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(116px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 128px), 1fr));
   gap: 8px;
   margin-bottom: 12px;
+  min-width: 0;
 }
 
 .exercise-profile-grid {
@@ -1648,6 +1649,7 @@ label span {
   flex-direction: column;
   align-items: center;
   gap: 3px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background:
@@ -4892,16 +4894,20 @@ label span {
 
 .table-wrap {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--bg);
+  -webkit-overflow-scrolling: touch;
 }
 
 table {
   width: 100%;
-  min-width: 620px;
+  min-width: 680px;
   border-collapse: collapse;
+  table-layout: auto;
 }
 
 th,
@@ -4910,6 +4916,7 @@ td {
   padding: 9px 8px;
   font-size: 12px;
   text-align: right;
+  vertical-align: middle;
   white-space: nowrap;
 }
 
@@ -4936,6 +4943,7 @@ tbody tr:last-child td {
 .detail-list {
   display: grid;
   gap: 6px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: rgb(15 15 20 / 52%);
@@ -4952,10 +4960,11 @@ tbody tr:last-child td {
 
 .detail-list-head,
 .detail-row {
-  display: flex;
+  display: grid;
   align-items: flex-start;
-  justify-content: space-between;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
+  min-width: 0;
 }
 
 .detail-list-head strong,
@@ -4996,6 +5005,20 @@ tbody tr:last-child td {
 
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summary-card {
+    min-height: 68px;
+    padding-inline: 6px;
+  }
+
+  .table-wrap {
+    margin-inline: -2px;
+    border-radius: 8px;
+  }
+
+  table {
+    min-width: 620px;
   }
 
   .yearly-dashboard-head h1 {

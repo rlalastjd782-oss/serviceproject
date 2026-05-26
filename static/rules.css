@@ -62,27 +62,31 @@
 .data-cleanup-grid,
 .readiness-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 12px;
+  min-width: 0;
 }
 
 .cleanup-panel,
 .readiness-card {
   display: grid;
-  gap: 10px;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
   border: 1px solid var(--line);
   border-radius: 10px;
   background: var(--panel-2);
-  padding: 12px;
+  padding: 14px;
 }
 
-.cleanup-panel-header,
+.cleanup-panel-head,
 .cleanup-row,
-.readiness-card div {
-  display: flex;
+.readiness-card-head {
+  display: grid;
   align-items: center;
-  justify-content: space-between;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
+  min-width: 0;
 }
 
 .cleanup-list {
@@ -96,8 +100,8 @@
   padding-top: 8px;
 }
 
-.cleanup-row div,
-.readiness-card div {
+.cleanup-row-main,
+.readiness-card-head {
   min-width: 0;
 }
 
@@ -108,7 +112,8 @@
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .cleanup-row span,
@@ -132,10 +137,14 @@
 }
 
 @media (max-width: 540px) {
-  .cleanup-panel-header,
+  .cleanup-panel-head,
   .cleanup-row,
-  .readiness-card div {
+  .readiness-card-head {
     align-items: stretch;
-    flex-direction: column;
+    grid-template-columns: 1fr;
+  }
+
+  .cleanup-row .btn-small {
+    width: 100%;
   }
 }

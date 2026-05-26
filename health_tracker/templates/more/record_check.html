@@ -57,14 +57,14 @@
     </div>
     <div class="data-cleanup-grid">
       <article class="cleanup-panel">
-        <div class="cleanup-panel-header">
+        <div class="cleanup-panel-head">
           <strong>운동명 중복 후보</strong>
           <span class="badge">{{ duplicate_exercises|length }}건</span>
         </div>
         <div class="cleanup-list">
           {% for item in duplicate_exercises %}
             <div class="cleanup-row">
-              <div>
+              <div class="cleanup-row-main">
                 <strong>{{ item.variants|join(" / ") }}</strong>
                 <span>{{ item.set_count }}세트 · 최근 {{ item.last_date }}</span>
               </div>
@@ -83,7 +83,7 @@
         <div class="cleanup-list">
           {% for item in outlier_sets %}
             <div class="cleanup-row">
-              <div>
+              <div class="cleanup-row-main">
                 <strong>{{ item.exercise_name }}</strong>
                 <span>{{ item.date }} · {% if item.weight %}{{ "%.1f"|format(item.weight) }}kg{% endif %}{% if item.reps %} × {{ item.reps }}회{% endif %}{% if item.cardio_minutes %} · {{ item.cardio_minutes }}분{% endif %}{% if item.rpe %} · RPE {{ "%.1f"|format(item.rpe) }}{% endif %}</span>
               </div>

@@ -32,7 +32,7 @@
     <div class="readiness-grid state-{{ v2_readiness.tone }}">
       {% for item in v2_readiness.checks %}
         <article class="readiness-card state-{{ item.state }}">
-          <div>
+          <div class="readiness-card-head">
             <strong>{{ item.label }}</strong>
             <span>{{ item.value }}</span>
           </div>
