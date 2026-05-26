@@ -6,27 +6,11 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-const bodyPartClassMap = {
-  "하체": "body-part-legs",
-  "가슴": "body-part-chest",
-  "팔": "body-part-arms",
-  "등": "body-part-back",
-  "어깨": "body-part-shoulders",
-  "유산소": "body-part-cardio",
-  "기타": "body-part-other",
-};
-
-const mealTypeClassMap = {
-  "아침": "meal-type-breakfast",
-  "점심": "meal-type-lunch",
-  "저녁": "meal-type-dinner",
-  "간식": "meal-type-snack",
-  "기타": "meal-type-other",
-};
-
 const exerciseQuickPanel = document.querySelector("[data-exercise-quick-panel]");
 const appPreferenceElement = document.querySelector("[data-app-preferences]");
 const appPreferences = parseJsonData(appPreferenceElement, "appPreferences");
+const bodyPartClassMap = parseJsonData(appPreferenceElement, "bodyPartClasses");
+const mealTypeClassMap = parseJsonData(appPreferenceElement, "mealTypeClasses");
 const setTypeOptions = Array.isArray(appPreferences.set_type_options) && appPreferences.set_type_options.length
   ? appPreferences.set_type_options
   : ["본세트"];
@@ -412,7 +396,10 @@ document.addEventListener("click", (event) => {
 });
 
 function applyBodyPartSelectColor(select) {
-  select.classList.remove(...Object.values(bodyPartClassMap));
+  const classNames = Object.values(bodyPartClassMap);
+  if (classNames.length) {
+    select.classList.remove(...classNames);
+  }
   select.classList.add(bodyPartClassMap[select.value] || "body-part-other");
 }
 
@@ -425,7 +412,10 @@ function openInlineEdit(item) {
 }
 
 function applyMealTypeSelectColor(select) {
-  select.classList.remove(...Object.values(mealTypeClassMap));
+  const classNames = Object.values(mealTypeClassMap);
+  if (classNames.length) {
+    select.classList.remove(...classNames);
+  }
   select.classList.add(mealTypeClassMap[select.value] || "meal-type-other");
 }
 

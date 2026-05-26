@@ -139,6 +139,8 @@ def create_app() -> Flask:
             "csrf_token": ensure_csrf_token,
             "per_page_options": preferences["per_page_options"],
             "app_preferences": preferences,
+            "body_part_class_map": BODY_PART_CLASSES,
+            "meal_type_class_map": MEAL_TYPE_CLASSES,
             "query_url": lambda **updates: query_url(request.path, request.args, **updates),
         }
 

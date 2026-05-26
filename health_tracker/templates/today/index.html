@@ -4,7 +4,12 @@
 {% block title %}오늘 기록{% endblock %}
 
 {% block content %}
-  <div class="today-shell {% if workout_mode %}workout-mode{% elif meal_mode %}meal-mode{% endif %}" data-app-preferences='{{ app_preferences|tojson }}'>
+  <div
+    class="today-shell {% if workout_mode %}workout-mode{% elif meal_mode %}meal-mode{% endif %}"
+    data-app-preferences='{{ app_preferences|tojson }}'
+    data-body-part-classes='{{ body_part_class_map|tojson }}'
+    data-meal-type-classes='{{ meal_type_class_map|tojson }}'
+  >
   <div class="date-row">
     <a class="arrow-btn" href="{{ url_for('index', date=prev_date) }}" aria-label="이전 날짜">‹</a>
     <form method="get" action="{{ url_for('index') }}" class="date-picker-form">
