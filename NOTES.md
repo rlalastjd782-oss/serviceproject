@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.13 데이터 정리 서비스 분리
+
+- `app.py`에 있던 전체 데이터 삭제 백업, 빈 운동 세션 삭제, 내부 점검 데이터 삭제 로직을 `health_tracker/services/data_maintenance.py`로 이동했습니다.
+- 설정 화면/DB 초기화/라우트가 쓰는 기존 함수명은 wrapper로 유지해 호출부 변경 범위를 줄였습니다.
+- 검증: `python -m compileall health_tracker tests`, 샘플 데이터/위험 삭제 확인/설정 잠금 회귀 테스트, 설정/데이터센터 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.12 설정 서비스 분리
 
 - `app.py`에 있던 앱 설정 조회/저장과 설정 비밀번호 해시/검증 로직을 `health_tracker/services/settings.py`로 분리했습니다.

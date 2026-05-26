@@ -60,6 +60,11 @@ from health_tracker.services.data import (
     get_data_counts as build_data_counts,
     get_sample_data_counts as build_sample_data_counts,
 )
+from health_tracker.services.data_maintenance import (
+    delete_all_data as delete_all_data_from_db,
+    delete_empty_workout_sessions as delete_empty_workout_sessions_from_db,
+    delete_internal_test_data as delete_internal_test_data_from_db,
+)
 from health_tracker.services.calendar import list_month_calendar_days_from_db
 from health_tracker.services.coaching import (
     build_adaptive_training_recommendations_from_db,
@@ -2207,49 +2212,15 @@ def create_may_sample_data() -> None:
 
 
 def delete_empty_workout_sessions() -> None:
-    get_db().execute(
-        """
-        DELETE FROM workout_sessions
-        WHERE COALESCE(completed, 0) = 0
-          AND id NOT IN (SELECT DISTINCT session_id FROM workout_sets)
-          AND workout_date NOT IN (SELECT DISTINCT meal_date FROM meal_entries)
-        """
-    )
+    delete_empty_workout_sessions_from_db(get_db())
 
 
 def delete_all_data() -> None:
-    db = get_db()
-    backup_dir = BASE_DIR / "instance" / "delete_backups"
-    backup_dir.mkdir(parents=True, exist_ok=True)
-    backup_path = backup_dir / f"before-delete-all-{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
-    backup_path.write_text(json.dumps(export_all_data(), ensure_ascii=False, indent=2), encoding="utf-8")
-    for table in [
-        "meal_template_items",
-        "meal_templates",
-        "routine_items",
-        "routine_templates",
-        "workout_plan_items",
-        "pr_events",
-        "workout_sets",
-        "workout_sessions",
-        "meal_entries",
-        "body_photos",
-        "body_metrics",
-        "recovery_checkins",
-        "exercise_notes",
-        "exercise_settings",
-        "food_favorites",
-        "user_goals",
-        "exercises",
-    ]:
-        db.execute(f"DELETE FROM {table}")
-    db.commit()
+    delete_all_data_from_db(get_db(), BASE_DIR, export_all_data)
 
 
 def delete_internal_test_data() -> None:
-    db = get_db()
-    db.execute("DELETE FROM exercise_settings WHERE exercise_name LIKE '__%점검__'")
-    db.execute("DELETE FROM workout_plan_items WHERE exercise_name LIKE '__%점검%'")
+    delete_internal_test_data_from_db(get_db())
 
 
 def export_all_data() -> dict[str, object]:
