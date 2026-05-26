@@ -295,9 +295,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
         workout_html = self.client.get(f"/?mode=workout&location_id={location_id}").data.decode("utf-8")
         self.assertIn("운동 장소", workout_html)
         self.assertIn('<option value="머신">머신</option>', workout_html)
-        self.assertIn("자동 수집된 장비만 표시", workout_html)
         self.assertIn('<option value="프리웨이트">프리웨이트</option>', workout_html)
-        self.assertNotIn('<option value="덤벨">덤벨</option>', workout_html)
+        self.assertIn('<option value="덤벨">덤벨</option>', workout_html)
+        self.assertIn('<option value="케이블">케이블</option>', workout_html)
         self.assertNotIn('<option value="스미스 머신">스미스 머신</option>', workout_html)
 
         self.client.post(

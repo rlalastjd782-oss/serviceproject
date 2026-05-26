@@ -173,6 +173,19 @@
     </details>
   </section>
 
+  <section class="section workout-only" id="rest-timer">
+    <div class="section-header">
+      <div class="section-title">휴식 타이머</div>
+      <div class="timer-display" data-rest-timer-display>00:00</div>
+    </div>
+    <div class="timer-actions">
+      <button class="btn-small" type="button" data-rest-seconds="60">60초</button>
+      <button class="btn-small" type="button" data-rest-seconds="90">90초</button>
+      <button class="btn-small" type="button" data-rest-seconds="120">120초</button>
+      <button class="btn-danger" type="button" data-rest-stop>정지</button>
+    </div>
+  </section>
+
   {% if workout_mode %}
     <nav class="workout-action-dock" aria-label="운동 중 빠른 이동">
       <a href="#workout-input">입력</a>
@@ -360,19 +373,6 @@
       </div>
     </section>
   {% endif %}
-
-  <section class="section workout-only" id="rest-timer">
-    <div class="section-header">
-      <div class="section-title">휴식 타이머</div>
-      <div class="timer-display" data-rest-timer-display>00:00</div>
-    </div>
-    <div class="timer-actions">
-      <button class="btn-small" type="button" data-rest-seconds="60">60초</button>
-      <button class="btn-small" type="button" data-rest-seconds="90">90초</button>
-      <button class="btn-small" type="button" data-rest-seconds="120">120초</button>
-      <button class="btn-danger" type="button" data-rest-stop>정지</button>
-    </div>
-  </section>
 
   {% if workout_mode and recovery_statuses %}
     <section class="section workout-only workout-secondary-section">
@@ -831,18 +831,14 @@
         </select>
         <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="운동 이름" data-workout-exercise-input required>
         <select name="equipment" class="equipment-select" aria-label="운동 장비">
-          <option value="">{% if has_location_equipment %}{{ current_location.name }} 장비{% else %}장비{% endif %}</option>
+          <option value="">장비 카테고리</option>
           {% for option in equipment_options %}
             <option value="{{ option }}">{{ option }}</option>
           {% endfor %}
         </select>
       </div>
       <div class="field-help equipment-scope-help">
-        {% if has_location_equipment %}
-          {{ current_location.name }}에 자동 수집된 장비만 표시합니다. 새 장비는 운동 저장 후 이 장소에 추가됩니다.
-        {% else %}
-          아직 이 장소에 수집된 장비가 없어 기본 장비 목록을 표시합니다.
-        {% endif %}
+        장비는 바벨, 덤벨, 머신, 케이블, 프리웨이트 같은 카테고리로 저장합니다. 운동명 후보만 현재 장소 기준으로 제한됩니다.
       </div>
       <div
         class="exercise-quick-panel"
