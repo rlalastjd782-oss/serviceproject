@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v2.0.1 부위별 분석 카드 겹침 수정
+
+- 기록 탭의 부위별 분석 카드에서 날짜(`cat-stat-unit`)와 운동시간/칼로리 줄이 같은 `meta` grid area에 배치되어 겹치던 문제를 수정했습니다.
+- `summary.html`에 `cat-stat-period`, `cat-stat-detail` 클래스를 추가하고, `ui_rebuild.css`에서 `period/detail/pr` 영역을 분리했습니다.
+- 검증: 컴파일, 기록/분석 렌더링 테스트, CSS 중괄호/깨진 selector 테스트, 일별/주간 분석 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v2.0.0 릴리즈 준비 완료
 
 - 앱 버전을 `2.0.0`으로 전환하고 manifest/service worker cache도 같은 기준으로 갱신했습니다.

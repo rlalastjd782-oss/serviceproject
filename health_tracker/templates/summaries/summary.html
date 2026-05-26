@@ -839,8 +839,8 @@
             <div class="cat-stat-name">{{ item.body_part }}</div>
             <div class="cat-stat-count">{{ item.set_count }}</div>
             <div class="heat-track"><span style="width: {{ [100, item.set_count * 12]|min }}%"></span></div>
-            <div class="cat-stat-unit">{{ item.period }}</div>
-            <div class="cat-stat-unit">
+            <div class="cat-stat-unit cat-stat-period">{{ item.period }}</div>
+            <div class="cat-stat-unit cat-stat-detail">
               {% if item.body_part == "유산소" %}
                 {{ "%.0f"|format(item.cardio_minutes) }}분{% if item.exercise_calories %} · {{ "%.0f"|format(item.exercise_calories) }}kcal{% endif %}
               {% else %}

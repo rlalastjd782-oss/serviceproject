@@ -804,6 +804,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
         html = self.client.get("/summaries/daily", query_string={"days": "90", "part": target_part}).data.decode("utf-8")
         self.assertIn("body-part-filter-list", html)
+        self.assertIn("cat-stat-period", html)
+        self.assertIn("cat-stat-detail", html)
         self.assertIn(f'data-body-part-summary="{target_part}"', html)
         for other_part in app_module.body_part_options()[1:]:
             self.assertNotIn(f'data-body-part-summary="{other_part}"', html)

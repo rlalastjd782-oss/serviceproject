@@ -716,12 +716,19 @@
   grid-template-areas:
     "name action"
     "count action"
-    "meta meta";
+    "heat heat"
+    "period period"
+    "detail detail"
+    "pr pr";
+  align-items: start;
+  min-width: 0;
   min-height: 116px;
 }
 
 .cat-stat-name {
   grid-area: name;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .cat-stat-count {
@@ -729,9 +736,28 @@
   line-height: 1;
 }
 
-.cat-stat-unit,
-.cat-stat-pr {
-  grid-area: meta;
+.record-body-part-section .heat-track {
+  grid-area: heat;
+  width: 100%;
+}
+
+.record-body-part-section .cat-stat-period {
+  grid-area: period;
+}
+
+.record-body-part-section .cat-stat-detail {
+  grid-area: detail;
+}
+
+.record-body-part-section .cat-stat-pr {
+  grid-area: pr;
+}
+
+.record-body-part-section .cat-stat-unit,
+.record-body-part-section .cat-stat-pr {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
 }
 
 .cat-stat-card .detail-inline-btn {
