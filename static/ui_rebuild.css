@@ -260,6 +260,62 @@
   text-align: left;
 }
 
+.today-meal-section .meal-record-card {
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+.today-meal-section .record-date {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.today-meal-section .meal-record-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  border: 1px solid rgb(71 85 105 / 62%);
+  border-radius: 8px;
+  background: #0b1220;
+  padding: 10px;
+}
+
+.today-meal-section .meal-record-item .ex-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+
+.today-meal-section .meal-record-item .muted-text {
+  display: inline-block;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.today-meal-section .meal-record-item .item-actions {
+  justify-content: end;
+}
+
+.today-meal-section .meal-record-item .item-actions form {
+  margin: 0;
+}
+
+.today-meal-section .meal-edit-form,
+.today-meal-section .meal-add-form {
+  grid-template-columns: minmax(180px, 1.5fr) minmax(76px, 0.65fr) minmax(88px, 0.75fr) minmax(96px, 0.8fr) auto auto;
+  align-items: center;
+  width: 100%;
+}
+
+.today-meal-section .meal-edit-form {
+  grid-template-columns: minmax(180px, 1.5fr) minmax(76px, 0.65fr) minmax(88px, 0.75fr) minmax(96px, 0.8fr) auto;
+}
+
+.today-meal-section .inline-add-panel {
+  margin-top: 2px;
+}
+
 .daily-record-card {
   grid-template-columns: 1fr;
 }
@@ -417,6 +473,17 @@
 
   .daily-metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .today-meal-section .meal-record-item,
+  .today-meal-section .meal-edit-form,
+  .today-meal-section .meal-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .today-meal-section .meal-record-item .item-actions {
+    grid-auto-flow: column;
+    justify-content: start;
   }
 }
 

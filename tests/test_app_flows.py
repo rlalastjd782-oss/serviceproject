@@ -695,6 +695,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(len(meals), 2)
             self.assertEqual(meals[0]["calories"], 180)
 
+        response = self.client.get(f"/?date={workout_date}&mode=meal")
+        meal_html = response.data.decode("utf-8")
+        self.assertIn("meal-record-card", meal_html)
+        self.assertIn("meal-record-item", meal_html)
+
         response = self.client.get(f"/?date={workout_date}&mode=workout")
         html = response.data.decode("utf-8")
         self.assertIn('list="exercise-list"', html)

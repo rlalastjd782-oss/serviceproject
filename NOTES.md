@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v2.0.2 오늘 식단 리스트 UI 수정
+
+- 오늘 식단 리스트가 공통 `.record-list > .record-card` 2열 규칙의 영향을 받아 식단 그룹/음식 행 배치가 깨지던 문제를 수정했습니다.
+- 식단 그룹 카드에 `meal-record-card`, 음식 행에 `meal-record-item` 클래스를 추가하고 `today-meal-section` 전용 grid/버튼/입력폼 규칙을 `ui_rebuild.css`에 추가했습니다.
+- 검증: 컴파일, JS 문법 검사, 전체 회귀 테스트, 식단/운동 HTTP 200 확인, CSS 무결성 검증을 통과했습니다.
+
 ## 2026-05-26 v2.0.1 부위별 분석 카드 겹침 수정
 
 - 기록 탭의 부위별 분석 카드에서 날짜(`cat-stat-unit`)와 운동시간/칼로리 줄이 같은 `meta` grid area에 배치되어 겹치던 문제를 수정했습니다.
