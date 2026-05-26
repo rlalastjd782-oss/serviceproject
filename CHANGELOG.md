@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.25.10 - 2026-05-26
+
+- 오늘 식단 기록의 음식 행 읽기/수정/삭제 블록을 `today/_meal_record_item.html` partial로 분리했습니다.
+- `today/index.html`의 식단 반복 행 본문을 include로 줄여 운동/식단 기록 행 구조를 같은 방식으로 관리하도록 정리했습니다.
+- 식단 모드 렌더링과 운동/식단 회귀 테스트를 통과했습니다.
+
 ## v1.25.9 - 2026-05-26
 
 - 오늘 운동 기록의 세트 행 읽기/수정/복사/삭제 블록을 `today/_workout_set_item.html` partial로 분리했습니다.

@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.10 오늘 식단 행 분리
+
+- `today/index.html`의 식단 음식별 읽기/수정/삭제 행을 `today/_meal_record_item.html`로 분리했습니다.
+- 운동 세트 행 분리와 같은 패턴으로 식단 반복 구조를 partial화해 `today/index.html`의 길이를 추가로 줄였습니다.
+- 검증: `python -m compileall health_tracker tests`, 식단/메인 렌더링 회귀 테스트, 식단 모드 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.9 오늘 운동 세트 행 분리
 
 - `today/index.html`의 세트별 읽기/수정/복사/삭제 행을 `today/_workout_set_item.html`로 분리했습니다.
