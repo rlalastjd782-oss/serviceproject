@@ -177,19 +177,72 @@
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
-.location-create-form,
-.location-edit-form,
-.location-equipment-form {
+.location-overview-grid {
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+  margin: 14px 0 12px;
+}
+
+.location-overview-card {
+  display: grid;
+  gap: 3px;
+  min-height: 70px;
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #0d1420;
+  padding: 12px;
+}
+
+.location-overview-card span,
+.location-form-head span,
+.location-title-block > span,
+.location-edit-form span,
+.location-equipment-item span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.location-overview-card strong {
+  color: var(--strong);
+  font-size: 24px;
+  font-weight: 900;
 }
 
 .location-create-form {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 8px;
+  align-items: end;
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #0c111a;
+  padding: 12px;
 }
 
+.location-form-head,
 .location-create-form .wide-field {
   grid-column: 1 / -1;
+}
+
+.location-form-head {
+  display: grid;
+  gap: 3px;
+}
+
+.location-form-head strong,
+.location-panel-title {
+  color: var(--strong);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.location-create-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .location-card-list {
@@ -212,6 +265,7 @@
 }
 
 .location-card-head,
+.location-title-row,
 .location-card-actions,
 .location-equipment-item {
   display: flex;
@@ -220,26 +274,62 @@
   justify-content: space-between;
 }
 
-.location-card-head strong {
-  display: block;
-  color: var(--strong);
-  font-size: 16px;
+.location-title-block {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
 }
 
-.location-card-head span,
-.location-equipment-item span {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
+.location-title-row {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.location-title-row strong {
+  color: var(--strong);
+  font-size: 17px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
 }
 
 .location-card-actions {
+  flex: 0 0 auto;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
 
+.location-memo {
+  margin: 0;
+  border-left: 3px solid #3b82f6;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  padding-left: 9px;
+}
+
+.location-card-body {
+  display: grid;
+  gap: 12px;
+}
+
+.location-edit-form,
+.location-equipment-form {
+  display: grid;
+  gap: 8px;
+}
+
 .location-edit-form {
-  grid-template-columns: 1fr 1fr 1.4fr auto;
+  grid-template-columns: 1fr 1fr 1.3fr auto;
+  align-items: end;
+}
+
+.location-equipment-panel {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #263144;
+  border-radius: 8px;
+  background: #0c111a;
+  padding: 10px;
 }
 
 .location-equipment-form {
@@ -254,8 +344,19 @@
 .location-equipment-item {
   border: 1px solid #263144;
   border-radius: 8px;
-  background: #0c111a;
+  background: #101827;
   padding: 9px;
+}
+
+.location-equipment-item > div {
+  min-width: 0;
+}
+
+.location-equipment-item strong {
+  display: block;
+  color: var(--strong);
+  font-size: 13px;
+  overflow-wrap: anywhere;
 }
 
 .more-link-card {
@@ -4246,10 +4347,40 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .location-overview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .location-overview-card {
+    min-height: 62px;
+    padding: 9px;
+  }
+
+  .location-overview-card strong {
+    font-size: 20px;
+  }
+
   .location-card-head,
   .location-equipment-item {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .location-card-actions,
+  .location-create-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+  }
+
+  .location-card-actions form,
+  .location-card-actions button,
+  .location-create-actions button {
+    width: 100%;
+  }
+
+  .location-create-actions .checkbox-row {
+    justify-content: flex-start;
   }
 
   .set-edit-form {
