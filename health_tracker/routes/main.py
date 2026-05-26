@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from health_tracker.services.today_context import build_today_context
+
 
 def register_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
@@ -23,83 +25,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/")
     def index():
-        selected_date = normalize_date(request.args.get("date"))
-        today_mode = request.args.get("mode", "overview")
-        if today_mode not in {"overview", "workout", "meal"}:
-            today_mode = "overview"
-        workout_mode = today_mode == "workout"
-        meal_mode = today_mode == "meal"
-        selected_location_id = parse_int(request.args.get("location_id"))
-        today_session = get_or_create_session(selected_date, selected_location_id)
-        current_location = get_workout_location(today_session["location_id"])
-        preferences = get_app_preferences()
-        sessions = list_recent_sessions()
-        exercises = list_exercises(current_location["id"])
-        quick_names = [row["name"] for row in exercises[:12]]
-        meals = list_meals_for_date(today_session["workout_date"])
-        return render_template(
-            "today/index.html",
-            session=today_session,
-            sessions=sessions,
-            exercises=exercises,
-            exercises_by_body_part=list_exercises_by_body_part(current_location["id"]),
-            recent_sets_by_exercise=list_recent_sets_by_exercise(location_id=current_location["id"]),
-            exercise_stats_by_name=list_exercise_stats_by_name(current_location["id"]),
-            overload_suggestions=list_overload_suggestions(),
-            next_set_suggestions=build_next_set_suggestions(quick_names, today_session["workout_date"]),
-            exercise_notes=list_exercise_notes(),
-            exercise_settings=list_exercise_settings(),
-            pr_events=list_pr_events(today_session["workout_date"]),
-            recent_pr_events=list_recent_pr_events(limit=8),
-            foods_by_meal_type=list_foods_by_meal_type(),
-            favorite_foods=list_favorite_foods(),
-            favorite_exercises=list_favorite_exercises(current_location["id"]),
-            routines=list_routines(current_location["id"]),
-            workout_plan=list_workout_plan(today_session["workout_date"]),
-            workout_completion_summary=build_workout_completion_summary(today_session["workout_date"]),
-            pr_cards=build_pr_cards(today_session["workout_date"]),
-            weekly_routine_recommendations=list_weekly_routine_recommendations(today_session["workout_date"]),
-            recommended_sessions=list_recommended_sessions(today_session["workout_date"]),
-            workout_focus_recommendations=list_workout_focus_recommendations(today_session["workout_date"]),
-            volume_warnings=list_volume_warnings(today_session["workout_date"]),
-            frequent_meal_combos=list_frequent_meal_combos(),
-            default_programs=DEFAULT_PROGRAMS.keys(),
-            meal_templates=list_meal_templates(),
-            body_metric=get_body_metric(today_session["workout_date"]),
-            body_photos=list_body_photos(today_session["workout_date"]),
-            goals=get_goal_progress(today_session["workout_date"]),
-            meals=meals,
-            meal_groups=grouped_meals_for_date(today_session["workout_date"]),
-            today_summary=get_day_summary(today_session["workout_date"]),
-            daily_calorie_goal=get_goal_value("daily_calories", int(preferences["default_daily_calories"])),
-            data_quality_profile=build_data_quality_profile(today_session["workout_date"]),
-            balance_score=get_balance_score("weekly", today_session["workout_date"]),
-            recovery_statuses=list_recovery_statuses(today_session["workout_date"]),
-            recovery_checkin=get_recovery_checkin(today_session["workout_date"]),
-            readiness_profile=build_readiness_profile(today_session["workout_date"]),
-            recovery_recommendations=list_recovery_recommendations(today_session["workout_date"]),
-            adaptive_training_recommendations=build_adaptive_training_recommendations(today_session["workout_date"]),
-            nutrition_training_link=build_nutrition_training_link("weekly", today_session["workout_date"]),
-            body_progress_insights=build_body_progress_insights(today_session["workout_date"]),
-            daily_coaching=list_daily_coaching(today_session["workout_date"]),
-            workout_session_flow=build_workout_session_flow(today_session["workout_date"]),
-            record_gaps=list_record_gaps(today_session["workout_date"]),
-            meal_copy_sources=list_recent_meal_days(today_session["workout_date"]),
-            locations=list_workout_locations(),
-            current_location=current_location,
-            location_equipment=list_location_equipment(current_location["id"]),
-            location_quick_exercises=list_location_quick_exercises(current_location["id"]),
-            equipment_options=equipment_options_for_location(current_location["id"]),
-            set_type_options=preferences["set_type_options"],
-            has_location_equipment=bool(list_location_equipment(current_location["id"])),
-            today_mode=today_mode,
-            workout_mode=workout_mode,
-            meal_mode=meal_mode,
-            body_parts=body_part_options(),
-            prev_date=shift_date(today_session["workout_date"], -1),
-            next_date=shift_date(today_session["workout_date"], 1),
-            active_page="today",
-        )
+        return render_template("today/index.html", **build_today_context(request.args, globals()))
 
     @app.get("/summaries")
     def summaries():
@@ -429,6 +355,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             sample_counts=get_sample_data_counts(),
             data_counts=get_data_counts(),
             backup_status=get_backup_status(),
+            data_safety_status=get_data_safety_status(),
             health_status=get_app_health_status(),
             reminder_settings=list_reminder_settings(),
             has_settings_password=has_settings_password(),

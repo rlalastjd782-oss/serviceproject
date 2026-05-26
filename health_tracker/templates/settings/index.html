@@ -31,6 +31,24 @@
     {% endif %}
   </section>
 
+  <section class="section settings-panel data-safety-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">개인 사용 안전 상태</div>
+        <div class="section-subtitle">나만 입력하고 다른 사람은 보기만 하는 사용 방식에 필요한 상태입니다.</div>
+      </div>
+    </div>
+    <div class="health-grid">
+      {% for item in data_safety_status %}
+        <article class="health-card health-{{ item.state }}">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <small>{{ item.note }}</small>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+
   <section class="section settings-panel">
     <div class="section-header">
       <div>

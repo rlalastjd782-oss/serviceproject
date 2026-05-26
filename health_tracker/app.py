@@ -126,6 +126,10 @@ from health_tracker.services.meal import (
     list_weekly_meal_days_from_db,
 )
 from health_tracker.services.muscle_balance import build_muscle_balance as build_muscle_balance_from_db
+from health_tracker.services.personal_coach import (
+    build_data_safety_status,
+    build_next_actions_from_db,
+)
 from health_tracker.services.pagination import build_pagination, page_params, query_url
 from health_tracker.services.preferences import app_preferences as build_app_preferences
 from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
@@ -163,6 +167,7 @@ from health_tracker.services.routine import (
 )
 from health_tracker.services.sample_data import create_may_sample_data_in_db, delete_sample_data_from_db
 from health_tracker.services.summary import build_daily_chart_from_rows, build_period_chart_from_rows
+from health_tracker.services.smart_workout import list_exercise_smart_defaults_from_db
 from health_tracker.services.workout import (
     get_or_create_exercise_in_db,
     grouped_sets_for_session_from_db,
@@ -1266,6 +1271,10 @@ def list_exercise_settings() -> dict[str, dict[str, int | float | bool | str | N
     return list_exercise_settings_from_db(get_db(), int(get_app_preferences()["default_rest_seconds"]))
 
 
+def list_exercise_smart_defaults(location_id: int | None = None) -> dict[str, dict[str, object]]:
+    return list_exercise_smart_defaults_from_db(get_db(), location_id)
+
+
 def save_exercise_settings(
     exercise_name: str,
     rest_seconds: int,
@@ -2055,6 +2064,10 @@ def list_daily_coaching(date_text: str) -> list[str]:
     return list_daily_coaching_from_db(get_db(), date_text, shift_date)
 
 
+def list_today_next_actions(date_text: str) -> list[dict[str, str]]:
+    return build_next_actions_from_db(get_db(), date_text, shift_date)
+
+
 def build_readiness_profile(date_text: str) -> dict[str, object]:
     return build_readiness_profile_from_db(get_db(), date_text)
 
@@ -2136,6 +2149,10 @@ def get_data_counts() -> dict[str, int]:
 
 def get_backup_status() -> dict[str, str]:
     return build_backup_status(BASE_DIR)
+
+
+def get_data_safety_status() -> list[dict[str, str]]:
+    return build_data_safety_status(get_backup_status(), has_settings_password(), settings_unlocked())
 
 
 def get_sample_data_counts() -> dict[str, int]:

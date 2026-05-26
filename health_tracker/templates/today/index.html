@@ -288,6 +288,25 @@
     </section>
   {% endif %}
 
+  {% if workout_mode and today_next_actions %}
+    <section class="section workout-only next-action-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">다음 액션</div>
+          <div class="section-subtitle">기록 상태와 최근 운동 패턴 기준으로 지금 할 일을 정리합니다.</div>
+        </div>
+      </div>
+      <div class="next-action-grid">
+        {% for item in today_next_actions %}
+          <a class="next-action-card action-{{ item.kind }}" href="{{ item.href }}">
+            <span>{{ item.title }}</span>
+            <strong>{{ item.detail }}</strong>
+          </a>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
   {% if workout_mode and recovery_statuses %}
     <section class="section workout-only workout-secondary-section">
       <div class="section-header">
@@ -760,6 +779,7 @@
         data-exercises-by-body-part='{{ exercises_by_body_part|tojson }}'
         data-recent-sets-by-exercise='{{ recent_sets_by_exercise|tojson }}'
         data-exercise-stats-by-name='{{ exercise_stats_by_name|tojson }}'
+        data-exercise-smart-defaults='{{ exercise_smart_defaults|tojson }}'
         data-overload-suggestions='{{ overload_suggestions|tojson }}'
         data-next-set-suggestions='{{ next_set_suggestions|tojson }}'
         data-exercise-notes='{{ exercise_notes|tojson }}'
@@ -814,6 +834,7 @@
         <div class="quick-panel-title" data-recent-set-title hidden>지난 세트</div>
         <div class="exercise-quick-list" data-recent-set-list></div>
         <div class="quick-note" data-exercise-stat-view hidden></div>
+        <div class="quick-note smart-default-note" data-smart-default-status hidden></div>
         <div class="quick-note next-set-advice" data-next-set-advice hidden></div>
         <div class="quick-note" data-overload-suggestion hidden></div>
         <div class="quick-note" data-exercise-note-view hidden></div>
