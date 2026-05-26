@@ -221,6 +221,29 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertNotIn(">PR<", html)
 
     def test_locations_manage_equipment_and_filter_records(self) -> None:
+        self.client.post(
+            "/locations",
+            data={"name": "DELETE-LOCATION", "address": "", "memo": ""},
+        )
+        db = sqlite3.connect(app_module.DATABASE)
+        try:
+            delete_location_id = db.execute(
+                "SELECT id FROM workout_locations WHERE name = ?",
+                ("DELETE-LOCATION",),
+            ).fetchone()[0]
+        finally:
+            db.close()
+        self.client.post(f"/locations/{delete_location_id}/remove")
+        db = sqlite3.connect(app_module.DATABASE)
+        try:
+            deleted_location = db.execute(
+                "SELECT id FROM workout_locations WHERE id = ?",
+                (delete_location_id,),
+            ).fetchone()
+        finally:
+            db.close()
+        self.assertIsNone(deleted_location)
+
         response = self.client.post(
             "/locations",
             data={

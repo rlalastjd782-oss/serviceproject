@@ -49,6 +49,7 @@ from health_tracker.services.location import (
     bootstrap_locations,
     deactivate_location,
     deactivate_location_equipment,
+    delete_location_if_unused,
     get_location as get_location_from_db,
     get_recent_or_default_location as get_recent_or_default_location_from_db,
     list_location_equipment as list_location_equipment_from_db,
@@ -2221,6 +2222,12 @@ def set_default_workout_location(location_id: int) -> None:
 def deactivate_workout_location(location_id: int) -> None:
     deactivate_location(get_db(), location_id)
     get_db().commit()
+
+
+def delete_unused_workout_location(location_id: int) -> bool:
+    deleted = delete_location_if_unused(get_db(), location_id)
+    get_db().commit()
+    return deleted
 
 
 def set_workout_session_location(session_id: int, location_id: int | None) -> sqlite3.Row:

@@ -44,6 +44,11 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
         deactivate_workout_location(location_id)
         return redirect(url_for("locations_page"))
 
+    @app.post("/locations/<int:location_id>/remove")
+    def remove_location_route(location_id: int):
+        delete_unused_workout_location(location_id)
+        return redirect(url_for("locations_page"))
+
     @app.post("/locations/<int:location_id>/equipment")
     def save_location_equipment_route(location_id: int):
         save_location_equipment(

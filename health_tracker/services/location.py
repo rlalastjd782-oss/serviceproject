@@ -157,6 +157,21 @@ def deactivate_location(db: sqlite3.Connection, location_id: int) -> None:
     )
 
 
+def delete_location_if_unused(db: sqlite3.Connection, location_id: int) -> bool:
+    default_id = int(ensure_default_location(db)["id"])
+    if location_id == default_id:
+        return False
+    session_count = db.execute(
+        "SELECT COUNT(*) FROM workout_sessions WHERE location_id = ?",
+        (location_id,),
+    ).fetchone()[0]
+    if int(session_count or 0) > 0:
+        return False
+    db.execute("DELETE FROM location_equipment WHERE location_id = ?", (location_id,))
+    db.execute("DELETE FROM workout_locations WHERE id = ?", (location_id,))
+    return True
+
+
 def set_session_location(db: sqlite3.Connection, session_id: int, location_id: int | None) -> sqlite3.Row:
     location = get_location(db, location_id)
     db.execute("UPDATE workout_sessions SET location_id = ? WHERE id = ?", (location["id"], session_id))

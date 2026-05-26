@@ -97,6 +97,11 @@
                   <button class="btn-danger" type="submit">비활성</button>
                 </form>
               {% endif %}
+              {% if not location.is_default and location.session_count == 0 %}
+                <form method="post" action="{{ url_for('remove_location_route', location_id=location.id) }}">
+                  <button class="btn-danger" type="submit">삭제</button>
+                </form>
+              {% endif %}
             </div>
           </div>
 
