@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.25.11 - 2026-05-26
+
+- 분석/기록 요약 화면의 상단 내비게이션 조건문을 `summaries/_summary_nav.html` partial로 분리했습니다.
+- `summaries/summary.html`의 공통 진입부를 줄여 일별 기록과 분석 탭 내비게이션을 한 곳에서 관리하도록 정리했습니다.
+- 일별/주간 분석 렌더링과 메뉴 분리 회귀 테스트를 통과했습니다.
+
 ## v1.25.10 - 2026-05-26
 
 - 오늘 식단 기록의 음식 행 읽기/수정/삭제 블록을 `today/_meal_record_item.html` partial로 분리했습니다.

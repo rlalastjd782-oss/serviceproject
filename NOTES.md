@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-26 v1.25.11 분석 요약 내비게이션 분리
+
+- `summaries/summary.html` 상단의 기록/분석 내비게이션 조건문을 `summaries/_summary_nav.html`로 분리했습니다.
+- 일별 기록과 분석 화면의 공통 진입부를 partial화해 긴 요약 템플릿의 책임을 조금 더 줄였습니다.
+- 검증: `python -m compileall health_tracker tests`, 메인 페이지/메뉴 분리 회귀 테스트, 일별/주간 분석 HTTP 200 확인을 통과했습니다.
+
 ## 2026-05-26 v1.25.10 오늘 식단 행 분리
 
 - `today/index.html`의 식단 음식별 읽기/수정/삭제 행을 `today/_meal_record_item.html`로 분리했습니다.

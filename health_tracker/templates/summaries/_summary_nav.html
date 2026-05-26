@@ -1,0 +1,8 @@
+{% if table_kind == "daily" %}
+  <nav class="subnav record-subnav" aria-label="기록 메뉴">
+    <a class="active" href="{{ url_for('daily_summary_page') }}">일별</a>
+    <a href="{{ url_for('record_search_page') }}">검색</a>
+  </nav>
+{% else %}
+  {{ analysis_subnav(active_page) }}
+{% endif %}
