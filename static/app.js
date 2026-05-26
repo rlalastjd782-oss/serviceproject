@@ -1015,9 +1015,6 @@ function setRowHtml(index) {
         <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="${escapeHtml(repsPlaceholder)}">
       </label>
     </div>
-    <select name="set_type" aria-label="세트 타입" data-strength-fields>
-      ${setTypeOptionHtml}
-    </select>
     <div class="compact-field-grid cardio-field-grid" data-cardio-fields hidden>
       <label>
         <span>인클라인</span>
@@ -1032,8 +1029,16 @@ function setRowHtml(index) {
         <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30">
       </label>
     </div>
-    <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
-    <input name="set_memo" autocomplete="off" placeholder="메모">
+    <details class="set-advanced-options">
+      <summary>고급</summary>
+      <div class="set-advanced-grid">
+        <select name="set_type" aria-label="세트 타입" data-strength-fields>
+          ${setTypeOptionHtml}
+        </select>
+        <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
+        <input name="set_memo" autocomplete="off" placeholder="메모">
+      </div>
+    </details>
     <div class="set-row-actions">
       <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
       <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">X</button>

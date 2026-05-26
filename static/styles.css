@@ -3443,9 +3443,7 @@ label span {
   grid-template-areas:
     "number actions"
     "fields fields"
-    "type type"
-    "rpe rpe"
-    "memo memo";
+    "advanced advanced";
   align-items: stretch;
   gap: 8px;
   border-radius: 12px;
@@ -3565,7 +3563,8 @@ label span {
   align-items: start;
 }
 
-.set-entry-row > .compact-field-grid {
+.set-entry-row > .compact-field-grid,
+.set-entry-row > .cardio-field-grid {
   grid-area: fields;
 }
 
@@ -3589,21 +3588,36 @@ label span {
 
 .set-entry-row > input,
 .meal-entry-row > input,
-.set-entry-row > select {
+.set-entry-row > select,
+.set-advanced-grid > input,
+.set-advanced-grid > select {
   width: 100%;
   min-width: 0;
 }
 
-.set-entry-row > select[name="set_type"] {
-  grid-area: type;
+.set-advanced-options {
+  grid-area: advanced;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 0 8px;
 }
 
-.set-entry-row > input[name="set_rpe"] {
-  grid-area: rpe;
+.set-advanced-options summary {
+  min-height: 34px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 34px;
 }
 
-.set-entry-row > input[name="set_memo"] {
-  grid-area: memo;
+.set-advanced-grid {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.8fr) minmax(90px, 0.5fr) minmax(160px, 1fr);
+  gap: 6px;
+  padding: 0 0 8px;
 }
 
 .set-entry-row .set-row-actions,
@@ -5181,9 +5195,7 @@ tbody tr:last-child td {
     grid-template-areas:
       "number actions"
       "fields fields"
-      "type type"
-      "rpe rpe"
-      "memo memo";
+      "advanced advanced";
     align-items: stretch;
     gap: 8px;
     padding: 10px;
@@ -5209,6 +5221,10 @@ tbody tr:last-child td {
   .set-row-actions {
     grid-template-columns: minmax(0, 1fr) 44px;
     display: grid;
+  }
+
+  .set-advanced-grid {
+    grid-template-columns: 1fr;
   }
 
   .set-builder-toolbar {
@@ -5512,9 +5528,7 @@ tbody tr:last-child td {
     grid-template-areas:
       "number actions"
       "fields fields"
-      "type type"
-      "rpe rpe"
-      "memo memo";
+      "advanced advanced";
     gap: 5px;
     padding: 7px;
   }
@@ -5537,6 +5551,10 @@ tbody tr:last-child td {
     grid-template-columns: minmax(0, 1fr) 40px;
     display: grid;
     width: auto;
+  }
+
+  .set-advanced-grid {
+    grid-template-columns: 1fr;
   }
 
   .set-entry-row input,
