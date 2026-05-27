@@ -22,6 +22,41 @@
 
   <section class="section admin-detail-grid">
     <article class="settings-action-card">
+      <strong>관리자 메모</strong>
+      {% if error == "password" %}
+        <div class="empty compact-empty">비밀번호는 4자 이상이어야 합니다.</div>
+      {% elif error == "primary" %}
+        <div class="empty compact-empty">기본 관리자 계정은 비활성화할 수 없습니다.</div>
+      {% endif %}
+      <form method="post" action="{{ url_for('admin_update_user_memo_route', account_id=account.id) }}" class="settings-password-form">
+        <input name="display_name" value="{{ account.display_name or '' }}" placeholder="표시 이름">
+        <input name="memo" value="{{ account.memo or '' }}" placeholder="관리자 메모">
+        <button class="btn-small" type="submit">저장</button>
+      </form>
+    </article>
+    <article class="settings-action-card">
+      <strong>계정 운영</strong>
+      <form method="post" action="{{ url_for('admin_reset_user_password_route', account_id=account.id) }}" class="settings-password-form">
+        <input name="password" type="password" autocomplete="new-password" placeholder="새 비밀번호">
+        <button class="btn-small" type="submit">비밀번호 초기화</button>
+      </form>
+      {% if account.is_active %}
+        <form method="post" action="{{ url_for('admin_update_user_status_route', account_id=account.id) }}" class="settings-password-form">
+          <input type="hidden" name="action" value="disable">
+          <input name="confirm_status" placeholder="비활성화 입력">
+          <button class="btn-danger" type="submit">비활성화</button>
+        </form>
+      {% else %}
+        <form method="post" action="{{ url_for('admin_update_user_status_route', account_id=account.id) }}" class="settings-password-form">
+          <input type="hidden" name="action" value="enable">
+          <button class="btn-primary" type="submit">활성화</button>
+        </form>
+      {% endif %}
+    </article>
+  </section>
+
+  <section class="section admin-detail-grid">
+    <article class="settings-action-card">
       <strong>자주 쓰는 부위</strong>
       <div class="detail-list compact-detail-list">
         {% for item in usage.top_body_parts %}

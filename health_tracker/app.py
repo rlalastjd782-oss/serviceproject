@@ -48,11 +48,15 @@ from health_tracker.services.accounts import (
     account_db_path,
     create_account as create_account_in_auth_db,
     ensure_primary_account,
+    get_account_any_status,
     get_account as get_account_from_auth_db,
     init_accounts_db,
     list_accounts as list_accounts_from_auth_db,
+    reset_account_password,
     touch_account_seen,
+    update_account_memo,
     update_account_login,
+    update_account_status,
     verify_account as verify_account_from_auth_db,
 )
 from health_tracker.services.body_part_analysis import (
@@ -377,7 +381,7 @@ def account_options() -> list[sqlite3.Row]:
 
 def account_by_id(account_id: int) -> sqlite3.Row | None:
     ensure_default_account()
-    return get_account_from_auth_db(DATABASE, account_id)
+    return get_account_any_status(DATABASE, account_id)
 
 
 def ensure_default_account() -> None:
@@ -409,6 +413,18 @@ def build_admin_dashboard(accounts: list[sqlite3.Row]) -> dict[str, object]:
 
 def build_account_usage(account: sqlite3.Row) -> dict[str, object]:
     return account_usage_summary(DATABASE, account)
+
+
+def reset_user_password(account_id: int, password: str) -> bool:
+    return reset_account_password(DATABASE, account_id, password)
+
+
+def set_user_active(account_id: int, is_active: bool) -> None:
+    update_account_status(DATABASE, account_id, is_active)
+
+
+def save_user_admin_note(account_id: int, memo: str, display_name: str = "") -> None:
+    update_account_memo(DATABASE, account_id, memo, display_name)
 
 
 def has_settings_password() -> bool:

@@ -633,6 +633,61 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("__TEST__ USER REPORT", detail_html)
         self.assertIn("케이블", detail_html)
 
+    def test_admin_can_manage_user_account_status_password_and_memo(self) -> None:
+        self.client.post(
+            "/settings/accounts",
+            data={"username": "managed", "display_name": "관리대상", "password": "1111", "role": "user"},
+        )
+        detail_html = self.client.get("/admin/users/2").data.decode("utf-8")
+        self.assertIn("계정 운영", detail_html)
+
+        response = self.client.post(
+            "/admin/users/2/memo",
+            data={"display_name": "관리대상수정", "memo": "테스트 메모"},
+        )
+        self.assertEqual(response.status_code, 302)
+        detail_html = self.client.get("/admin/users/2").data.decode("utf-8")
+        self.assertIn("관리대상수정", detail_html)
+        self.assertIn("테스트 메모", detail_html)
+
+        response = self.client.post("/admin/users/2/password", data={"password": "2222"})
+        self.assertEqual(response.status_code, 302)
+        self.client.post("/logout")
+        self.client.get("/login")
+        response = self.client.post(
+            "/login",
+            data={"login_mode": "user", "username": "managed", "password": "2222"},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        self.client.post("/logout")
+        self.client.get("/login")
+        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        response = self.client.post(
+            "/admin/users/2/status",
+            data={"action": "disable", "confirm_status": "비활성화"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.client.post("/logout")
+        self.client.get("/login")
+        response = self.client.post(
+            "/login",
+            data={"login_mode": "user", "username": "managed", "password": "2222"},
+        )
+        self.assertIn("invalid", response.headers.get("Location", ""))
+
+        self.client.get("/login")
+        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        response = self.client.post("/admin/users/2/status", data={"action": "enable"})
+        self.assertEqual(response.status_code, 302)
+        self.client.post("/logout")
+        self.client.get("/login")
+        response = self.client.post(
+            "/login",
+            data={"login_mode": "user", "username": "managed", "password": "2222"},
+        )
+        self.assertEqual(response.status_code, 302)
+
     def test_yearly_qa_dummy_data_crosses_year_boundary(self) -> None:
         response = self.client.post("/qa-dummy/year")
         self.assertEqual(response.status_code, 302)

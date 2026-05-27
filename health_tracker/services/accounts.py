@@ -84,6 +84,21 @@ def get_account(main_database: Path, account_id: int | None) -> sqlite3.Row | No
         ).fetchone()
 
 
+def get_account_any_status(main_database: Path, account_id: int | None) -> sqlite3.Row | None:
+    if not account_id:
+        return None
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        return db.execute(
+            """
+            SELECT id, username, display_name, role, is_active, last_login_at, last_seen_at, memo
+            FROM users
+            WHERE id = ?
+            """,
+            (account_id,),
+        ).fetchone()
+
+
 def create_account(
     main_database: Path,
     username: str,
@@ -183,4 +198,50 @@ def touch_account_seen(main_database: Path, account_id: int) -> None:
             db.execute(
                 "UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = ?",
                 (account_id,),
+            )
+
+
+def reset_account_password(main_database: Path, account_id: int, password: str) -> bool:
+    password = password.strip()
+    if len(password) < 4:
+        return False
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        with db:
+            db.execute(
+                """
+                UPDATE users
+                SET password_hash = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (make_password_hash(password), account_id),
+            )
+    return True
+
+
+def update_account_status(main_database: Path, account_id: int, is_active: bool) -> None:
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        with db:
+            db.execute(
+                """
+                UPDATE users
+                SET is_active = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (1 if is_active else 0, account_id),
+            )
+
+
+def update_account_memo(main_database: Path, account_id: int, memo: str, display_name: str = "") -> None:
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        with db:
+            db.execute(
+                """
+                UPDATE users
+                SET memo = ?, display_name = COALESCE(NULLIF(?, ''), display_name), updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (memo.strip()[:240], display_name.strip()[:80], account_id),
             )
