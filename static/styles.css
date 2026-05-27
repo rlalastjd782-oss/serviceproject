@@ -1061,6 +1061,18 @@ input[type="month"] {
   padding: 14px 14px 100px;
 }
 
+.auth-content {
+  min-height: 100vh;
+  display: grid;
+  align-items: center;
+  padding-top: 28px;
+}
+
+.auth-login-shell {
+  width: min(720px, 100%);
+  margin: 0 auto;
+}
+
 .workout-mode .optional-section {
   display: none;
 }

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='rules.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ui_rebuild.css') }}?v={{ app_version }}">
+    <title>{% block title %}관리자{% endblock %}</title>
+  </head>
+  <body class="admin-mode account-admin">
+    <div id="app">
+      <header class="header">
+        <div class="header-title">관리자 콘솔</div>
+        <div class="app-version" title="업데이트 {{ app_updated_at }}">
+          {{ app_version }} · {{ current_account.display_name or current_account.username if current_account else "관리자" }}
+        </div>
+      </header>
+      <nav class="tabs" aria-label="관리자 메뉴">
+        <a class="tab-btn {% if active_page == 'admin' %}active{% endif %}" href="{{ url_for('admin_dashboard_page') }}">사용자 현황</a>
+        <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="tab-btn" type="submit">로그아웃</button>
+        </form>
+      </nav>
+      <main class="content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

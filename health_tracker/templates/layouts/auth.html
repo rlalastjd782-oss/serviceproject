@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f14">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='ui_rebuild.css') }}?v={{ app_version }}">
+    <title>{% block title %}로그인{% endblock %}</title>
+  </head>
+  <body class="auth-mode">
+    <main class="content auth-content">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>
