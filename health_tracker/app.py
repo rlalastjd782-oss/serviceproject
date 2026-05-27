@@ -4,7 +4,7 @@ import argparse
 import secrets
 import sqlite3
 
-from flask import Flask, Response, abort, g, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, Response, abort, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
 
 from health_tracker.config import BASE_DIR, DATABASE, PHOTO_DIR
 from health_tracker.constants import (
@@ -40,6 +40,15 @@ from health_tracker.security import (
     validate_csrf_token,
 )
 from health_tracker.services.admin import build_app_health_status
+from health_tracker.services.accounts import (
+    account_db_path,
+    create_account as create_account_in_auth_db,
+    ensure_primary_account,
+    get_account as get_account_from_auth_db,
+    init_accounts_db,
+    list_accounts as list_accounts_from_auth_db,
+    verify_account as verify_account_from_auth_db,
+)
 from health_tracker.services.body_part_analysis import (
     list_body_part_summary_from_db,
     list_weekly_body_part_details_from_db,
@@ -242,6 +251,7 @@ def create_app() -> Flask:
 
     @app.before_request
     def before_request() -> None:
+        init_accounts_db(DATABASE)
         init_db()
         ensure_csrf_token()
         if request.method == "POST":
@@ -263,10 +273,12 @@ def create_app() -> Flask:
     @app.context_processor
     def inject_app_meta() -> dict[str, object]:
         preferences = get_app_preferences()
+        account = current_account()
         return {
             "app_version": get_app_version(),
             "app_updated_at": get_app_updated_at(),
             "is_admin": settings_unlocked(),
+            "current_account": account,
             "csrf_token": ensure_csrf_token,
             "per_page_options": preferences["per_page_options"],
             "app_preferences": preferences,
@@ -284,8 +296,10 @@ def create_app() -> Flask:
 
 def get_db() -> sqlite3.Connection:
     if "db" not in g:
-        DATABASE.parent.mkdir(exist_ok=True)
-        g.db = sqlite3.connect(DATABASE)
+        account_id = parse_int(str(session.get("account_id") or "")) if has_request_context() else None
+        database_path = account_db_path(DATABASE, account_id or 1)
+        database_path.parent.mkdir(exist_ok=True)
+        g.db = sqlite3.connect(database_path)
         g.db.row_factory = sqlite3.Row
     return g.db
 
@@ -338,6 +352,32 @@ def save_app_preferences(form) -> None:
     save_app_preferences_to_db(get_db(), form)
 
 
+def current_account() -> sqlite3.Row | None:
+    if not has_request_context():
+        return None
+    account_id = parse_int(str(session.get("account_id") or ""))
+    return get_account_from_auth_db(DATABASE, account_id)
+
+
+def account_options() -> list[sqlite3.Row]:
+    ensure_default_account()
+    return list_accounts_from_auth_db(DATABASE)
+
+
+def ensure_default_account() -> None:
+    stored_hash = get_app_setting_from_db(get_db(), "settings_password_hash", "")
+    ensure_primary_account(DATABASE, stored_hash or None)
+
+
+def create_account(username: str, password: str, display_name: str = "", role: str = "user") -> tuple[bool, str]:
+    return create_account_in_auth_db(DATABASE, username, password, display_name, role)
+
+
+def verify_account(username: str, password: str) -> sqlite3.Row | None:
+    ensure_default_account()
+    return verify_account_from_auth_db(DATABASE, username, password)
+
+
 def has_settings_password() -> bool:
     return has_settings_password_in_db(get_db())
 
@@ -345,6 +385,9 @@ def has_settings_password() -> bool:
 def set_settings_password(password: str) -> bool:
     if not set_settings_password_in_db(get_db(), password):
         return False
+    stored_hash = get_app_setting_from_db(get_db(), "settings_password_hash", "")
+    ensure_primary_account(DATABASE, stored_hash or None)
+    session.setdefault("account_id", 1)
     session["settings_unlocked"] = True
     return True
 
@@ -354,6 +397,8 @@ def verify_settings_password(password: str) -> bool:
 
 
 def settings_unlocked() -> bool:
+    if session.get("account_id") and session.get("settings_unlocked"):
+        return True
     return has_settings_password() and bool(session.get("settings_unlocked"))
 
 

@@ -484,6 +484,73 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("설정 잠금", html)
         self.assertIn("settings-lock-section", html)
 
+    def test_two_accounts_use_separate_data_stores(self) -> None:
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-26",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ ADMIN ONLY",
+                "equipment": "덤벨",
+                "set_weight": ["30"],
+                "set_reps": ["10"],
+                "set_type": ["본세트"],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        response = self.client.post(
+            "/settings/accounts",
+            data={
+                "username": "partner",
+                "display_name": "파트너",
+                "password": "5678",
+                "role": "user",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        settings_html = self.client.get("/settings").data.decode("utf-8")
+        self.assertIn("partner", settings_html)
+
+        response = self.client.post("/logout")
+        self.assertEqual(response.status_code, 302)
+        self.client.get("/login")
+        response = self.client.post("/login", data={"username": "partner", "password": "5678"})
+        self.assertEqual(response.status_code, 302)
+
+        partner_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn("파트너", partner_html)
+        self.assertNotIn("__TEST__ ADMIN ONLY", partner_html)
+
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-26",
+                "mode": "workout",
+                "body_part": "등",
+                "exercise_name": "__TEST__ PARTNER ONLY",
+                "equipment": "케이블",
+                "set_weight": ["25"],
+                "set_reps": ["12"],
+                "set_type": ["본세트"],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        partner_html = self.client.get("/?date=2026-05-26&mode=workout").data.decode("utf-8")
+        self.assertIn("__TEST__ PARTNER ONLY", partner_html)
+        self.assertNotIn("__TEST__ ADMIN ONLY", partner_html)
+
+        self.client.post("/logout")
+        self.client.get("/login")
+        response = self.client.post("/login", data={"username": "admin", "password": "1234"})
+        self.assertEqual(response.status_code, 302)
+        admin_html = self.client.get("/?date=2026-05-26&mode=workout").data.decode("utf-8")
+        self.assertIn("__TEST__ ADMIN ONLY", admin_html)
+        self.assertNotIn("__TEST__ PARTNER ONLY", admin_html)
+        self.assertTrue((Path(self.tmpdir.name) / "accounts.db").exists())
+        self.assertTrue((Path(self.tmpdir.name) / "accounts" / "user_2.db").exists())
+
     def test_yearly_qa_dummy_data_crosses_year_boundary(self) -> None:
         response = self.client.post("/qa-dummy/year")
         self.assertEqual(response.status_code, 302)

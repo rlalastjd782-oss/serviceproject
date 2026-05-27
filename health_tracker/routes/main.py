@@ -26,6 +26,25 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     def index():
         return render_template("today/index.html", **build_today_context(request.args, globals()))
 
+    @app.get("/login")
+    def login_page():
+        return render_template("settings/login.html", active_page="settings", error=request.args.get("error", ""))
+
+    @app.post("/login")
+    def login_route():
+        account = verify_account(request.form.get("username", ""), request.form.get("password", ""))
+        if not account:
+            return redirect(url_for("login_page", error="invalid"))
+        session["account_id"] = int(account["id"])
+        session["settings_unlocked"] = True
+        return redirect(url_for("index"))
+
+    @app.post("/logout")
+    def logout_route():
+        session.pop("account_id", None)
+        session.pop("settings_unlocked", None)
+        return redirect(url_for("login_page"))
+
     @app.get("/summaries")
     def summaries():
         return redirect(url_for("weekly_summary_page"))
@@ -274,6 +293,20 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     def save_app_preferences_route():
         if settings_unlocked():
             save_app_preferences(request.form)
+        return redirect(url_for("settings_page"))
+
+    @app.post("/settings/accounts")
+    def create_account_route():
+        if not settings_unlocked():
+            return redirect(url_for("settings_page"))
+        ok, error = create_account(
+            request.form.get("username", ""),
+            request.form.get("password", ""),
+            request.form.get("display_name", ""),
+            request.form.get("role", "user"),
+        )
+        if not ok:
+            return redirect(url_for("settings_page", error=f"account_{error}"))
         return redirect(url_for("settings_page"))
 
     @app.post("/settings/lock")

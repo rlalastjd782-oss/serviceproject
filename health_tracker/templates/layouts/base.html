@@ -18,7 +18,9 @@
     <div id="app">
       <header class="header">
         <div class="header-title">피트니스 트래커</div>
-        <div class="app-version" title="업데이트 {{ app_updated_at }}">{{ app_version }} · {% if is_admin %}관리자{% else %}보기{% endif %}</div>
+        <div class="app-version" title="업데이트 {{ app_updated_at }}">
+          {{ app_version }} · {% if current_account %}{{ current_account.display_name or current_account.username }}{% elif is_admin %}관리자{% else %}보기{% endif %}
+        </div>
       </header>
       <nav class="tabs" aria-label="주요 메뉴">
         <a class="tab-btn {% if active_page == 'today' %}active{% endif %}" href="{{ url_for('index') }}">오늘</a>

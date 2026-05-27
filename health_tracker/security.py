@@ -7,7 +7,7 @@ import secrets
 from flask import session
 
 
-PUBLIC_POST_ENDPOINTS = {"unlock_settings_route", "save_settings_password_route"}
+PUBLIC_POST_ENDPOINTS = {"unlock_settings_route", "save_settings_password_route", "login_route"}
 
 ADMIN_GET_ENDPOINTS = {
     "export_json",

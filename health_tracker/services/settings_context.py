@@ -14,4 +14,6 @@ def build_settings_context(args, deps: dict[str, object]) -> dict[str, object]:
         "has_settings_password": deps["has_settings_password"](),
         "qa_dummy_status": deps["get_qa_dummy_status"](),
         "app_preferences": deps["get_app_preferences"](),
+        "accounts": deps["account_options"](),
+        "current_account": deps["current_account"](),
     }

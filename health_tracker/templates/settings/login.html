@@ -1,0 +1,28 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}계정 로그인{% endblock %}
+
+{% block content %}
+  <section class="section settings-lock-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">계정 로그인</div>
+        <div class="section-subtitle">각 계정은 별도 데이터 공간을 사용합니다.</div>
+      </div>
+    </div>
+    {% if error == "invalid" %}
+      <div class="empty compact-empty">아이디 또는 비밀번호가 맞지 않습니다.</div>
+    {% endif %}
+    <form method="post" action="{{ url_for('login_route') }}" class="settings-password-form">
+      <input name="username" autocomplete="username" placeholder="아이디" required autofocus>
+      <input name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required>
+      <button class="btn-primary" type="submit">로그인</button>
+    </form>
+    <div class="detail-list compact-detail-list">
+      <div class="detail-row">
+        <strong>기존 사용자</strong>
+        <span>기본 계정은 admin이며, 설정 비밀번호와 같은 비밀번호를 사용합니다.</span>
+      </div>
+    </div>
+  </section>
+{% endblock %}

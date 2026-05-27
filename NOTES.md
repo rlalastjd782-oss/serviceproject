@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-27 v2.1.0 2인 계정 분리
+
+- 계정별 데이터 분리를 위해 `health_tracker/services/accounts.py`를 추가했습니다.
+- 기본 `admin` 계정은 기존 DB를 계속 사용하고, 추가 계정은 `instance/accounts/user_<id>.db` 형태의 별도 DB를 사용합니다.
+- 설정 화면에서 계정을 생성하고 `/login`, `/logout`으로 계정을 전환할 수 있습니다.
+- 기존 설정 비밀번호를 저장하면 기본 `admin` 계정의 비밀번호도 함께 동기화됩니다.
+- 검증: 계정별 데이터 분리 테스트, 전체 회귀 테스트, 로그인/서비스워커 로컬 HTTP 확인을 통과했습니다.
+
 ## 2026-05-27 v2.0.7 PWA 메타 태그 경고 수정
 
 - `health_tracker/templates/layouts/base.html`에 `<meta name="mobile-web-app-capable" content="yes">`를 추가했습니다.
