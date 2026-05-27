@@ -510,8 +510,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        settings_html = self.client.get("/settings").data.decode("utf-8")
-        self.assertIn("partner", settings_html)
+        admin_html = self.client.get("/admin").data.decode("utf-8")
+        self.assertIn("partner", admin_html)
 
         response = self.client.post("/logout")
         self.assertEqual(response.status_code, 302)
@@ -588,7 +588,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 302)
         html = self.client.get("/settings").data.decode("utf-8")
-        self.assertIn("계정 관리", html)
+        self.assertIn("관리자 대시보드", html)
 
         response = self.client.post("/signup", data={"username": "member_1", "password": "abcd"})
         self.assertEqual(response.status_code, 302)

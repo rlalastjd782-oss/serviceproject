@@ -34,8 +34,8 @@
   <section class="section settings-panel account-management-section">
     <div class="section-header">
       <div>
-        <div class="section-title">계정 관리</div>
-        <div class="section-subtitle">두 사람이 각자 로그인해 별도 기록 공간을 사용합니다.</div>
+        <div class="section-title">관리자 운영</div>
+        <div class="section-subtitle">사용자 계정과 사용 현황은 관리자 대시보드에서 관리합니다.</div>
       </div>
       {% if current_account %}
         <form method="post" action="{{ url_for('logout_route') }}">
@@ -45,33 +45,13 @@
         <a class="btn-small" href="{{ url_for('login_page') }}">로그인</a>
       {% endif %}
     </div>
-    {% if error == "account_invalid" %}
-      <div class="empty compact-empty">아이디는 2자 이상, 비밀번호는 4자 이상이어야 합니다.</div>
-    {% elif error == "account_duplicate" %}
-      <div class="empty compact-empty">이미 사용 중인 아이디입니다.</div>
-    {% endif %}
-    <div class="detail-list compact-detail-list">
-      {% for account in accounts %}
-        <div class="detail-row">
-          <strong>{{ account.display_name or account.username }}</strong>
-          <span>{{ account.username }} · {{ account.role }} · {% if account.id == 1 %}기존 데이터{% else %}별도 데이터{% endif %}</span>
-        </div>
-      {% endfor %}
-    </div>
-    <form method="post" action="{{ url_for('create_account_route') }}" class="settings-action-grid">
+    <div class="settings-action-grid">
       <div class="settings-action-card">
-        <strong>계정 추가</strong>
-        <span>새 계정은 별도 DB 파일을 사용하므로 운동/식단/분석 데이터가 섞이지 않습니다.</span>
-        <input name="username" autocomplete="off" placeholder="아이디" required>
-        <input name="display_name" autocomplete="off" placeholder="표시 이름">
-        <input name="password" type="password" autocomplete="new-password" placeholder="비밀번호" required>
-        <select name="role" aria-label="권한">
-          <option value="user">일반 사용자</option>
-          <option value="admin">관리자</option>
-        </select>
-        <button class="btn-primary" type="submit">계정 생성</button>
+        <strong>관리자 대시보드</strong>
+        <span>사용자 가입 현황, 기록 사용량, 계정 운영 기능을 확인합니다.</span>
+        <a class="btn-primary" href="{{ url_for('admin_dashboard_page') }}">관리자 대시보드</a>
       </div>
-    </form>
+    </div>
   </section>
 
   <section class="section settings-panel data-safety-section">
