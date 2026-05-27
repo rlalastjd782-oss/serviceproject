@@ -1,5 +1,14 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.1 인증/앱/관리자 화면 분리
+- `/`는 더 이상 오늘 운동 화면을 렌더링하지 않고, 세션 상태에 따라 `/auth/login`, `/app`, `/admin`으로 이동하는 라우터가 되었습니다.
+- 오늘 운동 화면은 `/app`으로 이동했습니다. 기존 `url_for("index")` 내부 링크는 `/app`을 가리킵니다.
+- 로그인 화면은 `templates/auth/login.html`과 `layouts/auth.html`로 분리해 앱 헤더/메뉴가 나오지 않게 했습니다.
+- 관리자 화면은 `layouts/admin.html`을 사용하도록 분리해 사용자 앱 메뉴와 섞이지 않게 했습니다.
+- 기존 `/login`은 `/auth/login`으로 보내는 호환 라우트로만 남겼고, `/auth/logout`과 `/logout` 모두 세션을 완전히 비웁니다.
+- PWA `start_url`은 `/`로 변경했습니다. 서비스워커 캐시는 `workout-pwa-v2.3.1`입니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js` 통과.
+
 ## 2026-05-28 v2.3.0 로그인 게이트 및 관리자 전용 화면 분리
 - `/login`을 앱 첫 진입점으로 고정하고, 로그인 전 일반 페이지 접근은 로그인 화면으로 보내도록 변경했습니다.
 - 관리자 계정은 `/admin` 및 관리자 세부 화면만 볼 수 있게 라우트 단계에서 차단했습니다. 관리자가 일반 앱 주소를 직접 열면 `/admin`으로 이동합니다.
