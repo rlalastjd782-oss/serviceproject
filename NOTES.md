@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.4 가입 전 미리보기 페이지
+- `/auth/preview` 공개 페이지를 추가해 가입 전에도 오늘 운동, 기록, 분석, 장소/장비 흐름을 샘플로 확인할 수 있게 했습니다.
+- 로그인/회원가입 화면에 미리보기 이동 버튼을 추가했습니다.
+- 미리보기는 샘플 전용 화면이며 `<form>` 입력과 실제 DB 데이터, 관리자 화면 정보가 노출되지 않도록 테스트로 고정했습니다.
+- 공개 접근은 `preview_page` GET 엔드포인트만 허용했고, 기존 앱/관리자 데이터 접근은 로그인 보호를 유지합니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` 통과.
+
 ## 2026-05-28 v2.3.3 인증 UX 및 관리자 비밀번호 변경
 - 사용자/관리자 레이아웃 헤더에서 `계정명님 환영합니다`와 `v2.3.3` 버전을 별도 영역으로 분리했습니다.
 - 로그인 탭 선택 상태를 더 진한 배경/흰색 글자로 바꿔 사용자/관리자 선택이 명확해졌습니다.
