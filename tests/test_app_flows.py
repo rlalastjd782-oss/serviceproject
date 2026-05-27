@@ -558,10 +558,12 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("회원가입", html)
         self.assertIn("관리자에게 초기화", html)
         self.assertNotIn("사용자 회원가입</strong>", html)
+        self.assertIn("미리보기", html)
 
         signup_html = self.client.get("/auth/signup").data.decode("utf-8")
         self.assertIn("사용자 회원가입", signup_html)
         self.assertIn("로그인으로 돌아가기", signup_html)
+        self.assertIn("미리보기 보기", signup_html)
 
         response = self.client.post("/auth/signup", data={"username": "member_1", "password": "abcd", "password_confirm": "abcd"})
         self.assertEqual(response.status_code, 302)
@@ -591,6 +593,17 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("/admin", response.headers.get("Location", ""))
         response = self.client.get("/app")
         self.assertIn("/admin", response.headers.get("Location", ""))
+
+    def test_auth_preview_is_public_sample_only(self) -> None:
+        self.client.post("/logout")
+        html = self.client.get("/auth/preview").data.decode("utf-8")
+        self.assertIn("피트니스 트래커 미리보기", html)
+        self.assertIn("/auth/login", html)
+        self.assertIn("/auth/signup", html)
+        self.assertIn("랫풀다운", html)
+        self.assertNotIn("<form", html)
+        self.assertNotIn("__TEST__", html)
+        self.assertNotIn("사용자 현황", html)
 
     def test_admin_can_change_own_password_and_settings_password_hash(self) -> None:
         self.client.post("/logout")

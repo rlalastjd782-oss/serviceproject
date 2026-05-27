@@ -791,6 +791,98 @@
   line-height: 1.5;
 }
 
+.preview-shell {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.auth-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.preview-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.preview-card h2 {
+  margin: 0;
+  color: var(--strong);
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.preview-card p {
+  margin: 0;
+  color: var(--dim);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.preview-mini-list,
+.preview-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.preview-mini-list span,
+.preview-chip-row span {
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.preview-table {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.preview-table strong,
+.preview-table em {
+  font-style: normal;
+  color: var(--strong);
+}
+
+.preview-bars {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  height: 92px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.preview-bars i {
+  flex: 1;
+  min-width: 18px;
+  border-radius: 999px 999px 4px 4px;
+  background: linear-gradient(180deg, var(--blue), var(--green));
+}
+
 .admin-user-grid,
 .admin-detail-grid {
   display: grid;
@@ -5337,6 +5429,16 @@ tbody tr:last-child td {
 
   .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-preview-actions,
+  .auth-secondary-action {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .summary-card {

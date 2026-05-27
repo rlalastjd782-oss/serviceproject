@@ -1,0 +1,67 @@
+{% extends "layouts/auth.html" %}
+
+{% block title %}미리보기{% endblock %}
+
+{% block content %}
+  <section class="section preview-shell auth-login-shell">
+    <div class="section-header">
+      <div>
+        <div class="section-title">피트니스 트래커 미리보기</div>
+        <div class="section-subtitle">가입 전에 주요 화면 흐름을 샘플로 확인할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="auth-preview-actions">
+      <a class="btn-small" href="{{ url_for('login_page', mode='user') }}">로그인</a>
+      <a class="btn-primary" href="{{ url_for('signup_page') }}">회원가입</a>
+    </div>
+
+    <div class="preview-grid">
+      <article class="preview-card">
+        <span class="badge">오늘 운동</span>
+        <h2>운동과 식단을 하루 단위로 기록</h2>
+        <p>운동 부위, 장비, 세트, 무게, 횟수, 식단을 한 화면에서 빠르게 입력하는 흐름입니다.</p>
+        <div class="preview-mini-list">
+          <span>랫풀다운 · 케이블 · 3세트</span>
+          <span>덤벨 숄더프레스 · 덤벨 · 4세트</span>
+          <span>닭가슴살 샐러드 · 420 kcal</span>
+        </div>
+      </article>
+
+      <article class="preview-card">
+        <span class="badge">기록</span>
+        <h2>날짜와 조건으로 운동 기록 확인</h2>
+        <p>운동명, 부위, 장소, 장비 기준으로 이전 기록을 찾고 같은 실수를 줄일 수 있습니다.</p>
+        <div class="preview-table" aria-label="샘플 기록">
+          <span>2026-05-28</span><strong>등</strong><em>총 18세트</em>
+          <span>2026-05-27</span><strong>하체</strong><em>총 22세트</em>
+        </div>
+      </article>
+
+      <article class="preview-card">
+        <span class="badge">분석</span>
+        <h2>부위, PR, 장비별 흐름 분석</h2>
+        <p>주간/월간/연간 변화, PR, 장비 사용량을 보고 다음 운동 방향을 잡습니다.</p>
+        <div class="preview-bars">
+          <i style="height: 78%"></i>
+          <i style="height: 52%"></i>
+          <i style="height: 64%"></i>
+          <i style="height: 88%"></i>
+          <i style="height: 45%"></i>
+        </div>
+      </article>
+
+      <article class="preview-card">
+        <span class="badge">장소/장비</span>
+        <h2>헬스장별 장비와 운동명 관리</h2>
+        <p>장소마다 다른 장비 구성을 기록하고, 운동 입력 시 해당 장소의 장비 흐름을 반영합니다.</p>
+        <div class="preview-chip-row">
+          <span>핀머신</span>
+          <span>케이블</span>
+          <span>덤벨</span>
+          <span>프리웨이트</span>
+        </div>
+      </article>
+    </div>
+  </section>
+{% endblock %}

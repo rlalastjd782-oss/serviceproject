@@ -52,6 +52,10 @@
         <span>아직 계정이 없으신가요?</span>
         <a class="btn-small" href="{{ url_for('signup_page', next=next_url) }}">회원가입</a>
       </div>
+      <div class="auth-secondary-action">
+        <span>가입 전에 먼저 둘러보고 싶으신가요?</span>
+        <a class="btn-small" href="{{ url_for('preview_page') }}">미리보기</a>
+      </div>
       <p class="auth-help-text">비밀번호를 잊으셨나요? 관리자에게 초기화를 요청하세요.</p>
     {% endif %}
   </section>

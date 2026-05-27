@@ -67,6 +67,10 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             next_url=safe_next_url(request.args.get("next")),
         )
 
+    @app.get("/auth/preview")
+    def preview_page():
+        return render_template("auth/preview.html")
+
     @app.post("/auth/login")
     @app.post("/login")
     def login_route():
