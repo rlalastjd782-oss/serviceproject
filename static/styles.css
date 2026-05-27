@@ -6329,6 +6329,22 @@ tbody tr:last-child td {
 
   .today-mode-actions {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 12px;
+  }
+
+  .workout-action-dock,
+  .mobile-action-dock {
+    top: 122px;
+    z-index: 7;
+    margin: 8px 0 12px;
+  }
+
+  #workout-input,
+  #today-workout,
+  #rest-timer,
+  .today-task-section,
+  .workout-clock-section {
+    scroll-margin-top: 174px;
   }
 
   .today-focus-panel {

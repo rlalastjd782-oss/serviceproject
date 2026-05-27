@@ -199,6 +199,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
         styles = Path("static/styles.css").read_text(encoding="utf-8")
         self.assertIn(".workout-mode #rest-timer {\n  order: 11;", styles)
         self.assertIn(".workout-mode .workout-action-dock {\n  order: 12;", styles)
+        self.assertIn(".workout-action-dock,\n  .mobile-action-dock {\n    top: 122px;", styles)
+        self.assertIn("scroll-margin-top: 174px;", styles)
 
         search_html = self.client.get("/records/search").data.decode("utf-8")
         self.assertIn("record-filter-details", search_html)

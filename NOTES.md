@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.9 모바일 운동 빠른 메뉴 겹침 수정
+- 430px 이하 모바일 화면에서 `.workout-action-dock`, `.mobile-action-dock` sticky 위치를 `122px`로 조정해 상단 앱 메뉴와 겹치지 않게 했습니다.
+- `#workout-input`, `#today-workout`, `#rest-timer`, 오늘 할 일, 운동 타이머 섹션에 `scroll-margin-top: 174px`를 적용해 빠른 메뉴 이동 시 큰 섹션 제목이 가려지지 않도록 했습니다.
+- 모바일 운동 메뉴 겹침 방지 CSS 회귀 테스트를 추가했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js` 통과.
+
 ## 2026-05-28 v2.3.8 모바일 헤더 겹침 수정
 - 430px 이하 모바일 화면에서 `.header`를 1열 2줄 구조로 바꿔 `피트니스 트래커`, 환영 문구, 버전 배지가 겹치지 않도록 수정했습니다.
 - 모바일에서 `.tabs` sticky top 값을 새 헤더 높이에 맞춰 조정했습니다.
