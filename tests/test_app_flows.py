@@ -549,6 +549,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.client.post("/logout")
         html = self.client.get("/auth/login?mode=admin").data.decode("utf-8")
         self.assertIn("관리자 로그인", html)
+        self.assertIn('name="csrf_token"', html)
         self.assertNotIn("<strong>회원가입</strong>", html)
         html = self.client.get("/auth/login?mode=user").data.decode("utf-8")
         self.assertIn("사용자 로그인", html)

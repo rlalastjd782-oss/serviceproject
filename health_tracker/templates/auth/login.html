@@ -34,6 +34,7 @@
       <form method="post" action="{{ url_for('login_route') }}" class="settings-password-form login-panel">
         <input type="hidden" name="login_mode" value="admin">
         <input type="hidden" name="next" value="{{ next_url }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input name="username" autocomplete="username" placeholder="관리자 아이디" required autofocus>
         <input name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required>
         <button class="btn-primary" type="submit">관리자 로그인</button>
@@ -49,6 +50,7 @@
         <form method="post" action="{{ url_for('login_route') }}" class="settings-password-form login-panel">
           <input type="hidden" name="login_mode" value="user">
           <input type="hidden" name="next" value="{{ next_url }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <strong>사용자 로그인</strong>
           <input name="username" autocomplete="username" placeholder="아이디" required autofocus>
           <input name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required>
@@ -56,6 +58,7 @@
         </form>
         <form method="post" action="{{ url_for('signup_route') }}" class="settings-password-form login-panel">
           <input type="hidden" name="next" value="{{ next_url }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <strong>회원가입</strong>
           <input name="username" autocomplete="username" placeholder="아이디" required>
           <input name="password" type="password" autocomplete="new-password" placeholder="비밀번호" required>
