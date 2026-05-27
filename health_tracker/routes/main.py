@@ -28,15 +28,43 @@ def register_routes(app, ctx: dict[str, object]) -> None:
 
     @app.get("/login")
     def login_page():
-        return render_template("settings/login.html", active_page="settings", error=request.args.get("error", ""))
+        return render_template(
+            "settings/login.html",
+            active_page="settings",
+            error=request.args.get("error", ""),
+            mode=request.args.get("mode", "user"),
+        )
 
     @app.post("/login")
     def login_route():
+        login_mode = request.form.get("login_mode", "user")
         account = verify_account(request.form.get("username", ""), request.form.get("password", ""))
         if not account:
-            return redirect(url_for("login_page", error="invalid"))
+            return redirect(url_for("login_page", mode=login_mode, error="invalid"))
+        if login_mode == "admin" and account["role"] != "admin":
+            return redirect(url_for("login_page", mode="admin", error="not_admin"))
+        if login_mode == "user" and account["role"] != "user":
+            return redirect(url_for("login_page", mode="user", error="not_user"))
         session["account_id"] = int(account["id"])
         session["settings_unlocked"] = True
+        mark_account_login(int(account["id"]))
+        return redirect(url_for("index"))
+
+    @app.post("/signup")
+    def signup_route():
+        ok, error = create_account(
+            request.form.get("username", ""),
+            request.form.get("password", ""),
+            request.form.get("username", ""),
+            "user",
+        )
+        if not ok:
+            return redirect(url_for("login_page", mode="user", error=f"signup_{error}"))
+        account = verify_account(request.form.get("username", ""), request.form.get("password", ""))
+        if account:
+            session["account_id"] = int(account["id"])
+            session["settings_unlocked"] = True
+            mark_account_login(int(account["id"]))
         return redirect(url_for("index"))
 
     @app.post("/logout")

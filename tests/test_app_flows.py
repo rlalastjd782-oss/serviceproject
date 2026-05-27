@@ -551,6 +551,49 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertTrue((Path(self.tmpdir.name) / "accounts.db").exists())
         self.assertTrue((Path(self.tmpdir.name) / "accounts" / "user_2.db").exists())
 
+    def test_login_tabs_signup_and_role_boundaries(self) -> None:
+        html = self.client.get("/login?mode=admin").data.decode("utf-8")
+        self.assertIn("관리자 로그인", html)
+        self.assertNotIn("<strong>회원가입</strong>", html)
+        html = self.client.get("/login?mode=user").data.decode("utf-8")
+        self.assertIn("사용자 로그인", html)
+        self.assertIn("회원가입", html)
+
+        response = self.client.post("/signup", data={"username": "member_1", "password": "abcd"})
+        self.assertEqual(response.status_code, 302)
+        html = self.client.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn("member_1", html)
+
+        self.client.post("/logout")
+        self.client.get("/login")
+        response = self.client.post(
+            "/login",
+            data={"login_mode": "admin", "username": "member_1", "password": "abcd"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("not_admin", response.headers.get("Location", ""))
+
+        self.client.get("/login")
+        response = self.client.post(
+            "/login",
+            data={"login_mode": "user", "username": "admin", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("not_user", response.headers.get("Location", ""))
+
+        self.client.get("/login")
+        response = self.client.post(
+            "/login",
+            data={"login_mode": "admin", "username": "admin", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
+        html = self.client.get("/settings").data.decode("utf-8")
+        self.assertIn("계정 관리", html)
+
+        response = self.client.post("/signup", data={"username": "member_1", "password": "abcd"})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("signup_duplicate", response.headers.get("Location", ""))
+
     def test_yearly_qa_dummy_data_crosses_year_boundary(self) -> None:
         response = self.client.post("/qa-dummy/year")
         self.assertEqual(response.status_code, 302)

@@ -3,8 +3,11 @@ from __future__ import annotations
 import sqlite3
 from contextlib import closing
 from pathlib import Path
+import re
 
 from health_tracker.security import make_password_hash, verify_password_hash
+
+USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{2,32}$")
 
 
 def account_db_path(main_database: Path, account_id: int) -> Path:
@@ -42,6 +45,15 @@ def init_accounts_db(main_database: Path) -> None:
                 );
                 """
             )
+            columns = [row["name"] for row in db.execute("PRAGMA table_info(users)").fetchall()]
+            for column, column_type in [
+                ("last_login_at", "TEXT"),
+                ("last_seen_at", "TEXT"),
+                ("signup_status", "TEXT NOT NULL DEFAULT 'active'"),
+                ("memo", "TEXT NOT NULL DEFAULT ''"),
+            ]:
+                if column not in columns:
+                    db.execute(f"ALTER TABLE users ADD COLUMN {column} {column_type}")
 
 
 def list_accounts(main_database: Path) -> list[sqlite3.Row]:
@@ -49,7 +61,8 @@ def list_accounts(main_database: Path) -> list[sqlite3.Row]:
     with closing(connect_auth_db(main_database)) as db:
         return db.execute(
             """
-            SELECT id, username, display_name, role, is_active, created_at, updated_at
+            SELECT id, username, display_name, role, is_active, created_at, updated_at,
+                   last_login_at, last_seen_at, signup_status, memo
             FROM users
             ORDER BY id
             """
@@ -62,7 +75,11 @@ def get_account(main_database: Path, account_id: int | None) -> sqlite3.Row | No
     init_accounts_db(main_database)
     with closing(connect_auth_db(main_database)) as db:
         return db.execute(
-            "SELECT id, username, display_name, role, is_active FROM users WHERE id = ? AND is_active = 1",
+            """
+            SELECT id, username, display_name, role, is_active, last_login_at, last_seen_at, memo
+            FROM users
+            WHERE id = ? AND is_active = 1
+            """,
             (account_id,),
         ).fetchone()
 
@@ -78,7 +95,7 @@ def create_account(
     display_name = display_name.strip() or username
     password = password.strip()
     role = role if role in {"admin", "user"} else "user"
-    if len(username) < 2 or len(password) < 4:
+    if not USERNAME_PATTERN.match(username) or len(password) < 4:
         return False, "invalid"
     init_accounts_db(main_database)
     try:
@@ -86,8 +103,11 @@ def create_account(
             with db:
                 db.execute(
                     """
-                    INSERT INTO users (username, display_name, password_hash, role, is_active, updated_at)
-                    VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+                    INSERT INTO users (
+                        username, display_name, password_hash, role, is_active,
+                        signup_status, memo, updated_at
+                    )
+                    VALUES (?, ?, ?, ?, 1, 'active', '', CURRENT_TIMESTAMP)
                     """,
                     (username, display_name, make_password_hash(password), role),
                 )
@@ -112,6 +132,7 @@ def ensure_primary_account(main_database: Path, password_hash: str | None = None
                             password_hash = ?,
                             role = 'admin',
                             is_active = 1,
+                            signup_status = 'active',
                             updated_at = CURRENT_TIMESTAMP
                         WHERE id = 1
                         """,
@@ -137,3 +158,29 @@ def verify_account(main_database: Path, username: str, password: str) -> sqlite3
     if not row or not verify_password_hash(password, row["password_hash"]):
         return None
     return row
+
+
+def update_account_login(main_database: Path, account_id: int) -> None:
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        with db:
+            db.execute(
+                """
+                UPDATE users
+                SET last_login_at = CURRENT_TIMESTAMP,
+                    last_seen_at = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (account_id,),
+            )
+
+
+def touch_account_seen(main_database: Path, account_id: int) -> None:
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        with db:
+            db.execute(
+                "UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (account_id,),
+            )

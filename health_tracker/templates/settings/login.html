@@ -1,28 +1,62 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}계정 로그인{% endblock %}
+{% block title %}로그인{% endblock %}
 
 {% block content %}
-  <section class="section settings-lock-section">
+  <section class="section login-shell">
     <div class="section-header">
       <div>
-        <div class="section-title">계정 로그인</div>
-        <div class="section-subtitle">각 계정은 별도 데이터 공간을 사용합니다.</div>
+        <div class="section-title">로그인</div>
+        <div class="section-subtitle">관리자와 사용자는 별도 탭에서 로그인합니다.</div>
       </div>
     </div>
-    {% if error == "invalid" %}
-      <div class="empty compact-empty">아이디 또는 비밀번호가 맞지 않습니다.</div>
+
+    <div class="login-tab-row" role="tablist" aria-label="로그인 구분">
+      <a class="{% if mode == 'admin' %}is-active{% endif %}" href="{{ url_for('login_page', mode='admin') }}">관리자</a>
+      <a class="{% if mode != 'admin' %}is-active{% endif %}" href="{{ url_for('login_page', mode='user') }}">사용자</a>
+    </div>
+
+    {% if error %}
+      <div class="empty compact-empty">
+        {% if error == "invalid" %}아이디 또는 비밀번호가 맞지 않습니다.
+        {% elif error == "not_admin" %}관리자 계정만 관리자 탭에서 로그인할 수 있습니다.
+        {% elif error == "not_user" %}사용자 계정은 사용자 탭에서 로그인하세요.
+        {% elif error == "signup_duplicate" %}이미 사용 중인 아이디입니다.
+        {% elif error == "signup_invalid" %}아이디는 영문/숫자/언더바 2~32자, 비밀번호는 4자 이상이어야 합니다.
+        {% else %}요청을 처리하지 못했습니다.
+        {% endif %}
+      </div>
     {% endif %}
-    <form method="post" action="{{ url_for('login_route') }}" class="settings-password-form">
-      <input name="username" autocomplete="username" placeholder="아이디" required autofocus>
-      <input name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required>
-      <button class="btn-primary" type="submit">로그인</button>
-    </form>
-    <div class="detail-list compact-detail-list">
-      <div class="detail-row">
-        <strong>기존 사용자</strong>
-        <span>기본 계정은 admin이며, 설정 비밀번호와 같은 비밀번호를 사용합니다.</span>
+
+    {% if mode == "admin" %}
+      <form method="post" action="{{ url_for('login_route') }}" class="settings-password-form login-panel">
+        <input type="hidden" name="login_mode" value="admin">
+        <input name="username" autocomplete="username" placeholder="관리자 아이디" required autofocus>
+        <input name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required>
+        <button class="btn-primary" type="submit">관리자 로그인</button>
+      </form>
+      <div class="detail-list compact-detail-list">
+        <div class="detail-row">
+          <strong>관리자 전용</strong>
+          <span>관리자 계정은 회원가입으로 만들 수 없습니다.</span>
+        </div>
       </div>
-    </div>
+    {% else %}
+      <div class="login-grid">
+        <form method="post" action="{{ url_for('login_route') }}" class="settings-password-form login-panel">
+          <input type="hidden" name="login_mode" value="user">
+          <strong>사용자 로그인</strong>
+          <input name="username" autocomplete="username" placeholder="아이디" required autofocus>
+          <input name="password" type="password" autocomplete="current-password" placeholder="비밀번호" required>
+          <button class="btn-primary" type="submit">로그인</button>
+        </form>
+        <form method="post" action="{{ url_for('signup_route') }}" class="settings-password-form login-panel">
+          <strong>회원가입</strong>
+          <input name="username" autocomplete="username" placeholder="아이디" required>
+          <input name="password" type="password" autocomplete="new-password" placeholder="비밀번호" required>
+          <button class="btn-small" type="submit">가입하고 시작</button>
+        </form>
+      </div>
+    {% endif %}
   </section>
 {% endblock %}

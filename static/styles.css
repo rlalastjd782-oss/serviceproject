@@ -710,6 +710,59 @@
   min-height: 42px;
 }
 
+.login-shell {
+  display: grid;
+  gap: 12px;
+}
+
+.login-tab-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-2);
+}
+
+.login-tab-row a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.login-tab-row a.is-active {
+  background: var(--panel);
+  color: var(--strong);
+  box-shadow: 0 8px 20px rgb(15 23 42 / 8%);
+}
+
+.login-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.login-panel {
+  align-items: stretch;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.login-panel > strong {
+  color: var(--strong);
+  font-size: 14px;
+}
+
 .visitor-mode form[method="post"]:not(.settings-password-form),
 .visitor-mode button[data-copy-saved-set],
 .visitor-mode button[data-toggle-edit],
@@ -735,7 +788,9 @@
 }
 
 .visitor-mode .settings-lock-section,
-.visitor-mode .settings-lock-section form {
+.visitor-mode .settings-lock-section form,
+.visitor-mode .login-shell,
+.visitor-mode .login-shell form {
   display: grid !important;
 }
 
@@ -5785,6 +5840,10 @@ tbody tr:last-child td {
   }
 
   .set-builder-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .login-grid {
     grid-template-columns: 1fr;
   }
 

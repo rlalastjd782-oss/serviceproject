@@ -47,6 +47,8 @@ from health_tracker.services.accounts import (
     get_account as get_account_from_auth_db,
     init_accounts_db,
     list_accounts as list_accounts_from_auth_db,
+    touch_account_seen,
+    update_account_login,
     verify_account as verify_account_from_auth_db,
 )
 from health_tracker.services.body_part_analysis import (
@@ -253,6 +255,10 @@ def create_app() -> Flask:
     def before_request() -> None:
         init_accounts_db(DATABASE)
         init_db()
+        if request.endpoint != "static":
+            account_id = parse_int(str(session.get("account_id") or ""))
+            if account_id:
+                touch_account_seen(DATABASE, account_id)
         ensure_csrf_token()
         if request.method == "POST":
             json_payload = request.get_json(silent=True) if request.is_json else None
@@ -277,7 +283,7 @@ def create_app() -> Flask:
         return {
             "app_version": get_app_version(),
             "app_updated_at": get_app_updated_at(),
-            "is_admin": settings_unlocked(),
+            "is_admin": is_admin_account(),
             "current_account": account,
             "csrf_token": ensure_csrf_token,
             "per_page_options": preferences["per_page_options"],
@@ -376,6 +382,15 @@ def create_account(username: str, password: str, display_name: str = "", role: s
 def verify_account(username: str, password: str) -> sqlite3.Row | None:
     ensure_default_account()
     return verify_account_from_auth_db(DATABASE, username, password)
+
+
+def mark_account_login(account_id: int) -> None:
+    update_account_login(DATABASE, account_id)
+
+
+def is_admin_account() -> bool:
+    account = current_account()
+    return bool(account and account["role"] == "admin" and session.get("settings_unlocked"))
 
 
 def has_settings_password() -> bool:
