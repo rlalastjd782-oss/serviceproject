@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.8 모바일 헤더 겹침 수정
+- 430px 이하 모바일 화면에서 `.header`를 1열 2줄 구조로 바꿔 `피트니스 트래커`, 환영 문구, 버전 배지가 겹치지 않도록 수정했습니다.
+- 모바일에서 `.tabs` sticky top 값을 새 헤더 높이에 맞춰 조정했습니다.
+- 사용자 앱 헤더에 `header-meta`, `account-greeting`, `app-version`이 렌더링되는 회귀 테스트를 추가했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js` 통과.
+
 ## 2026-05-28 v2.3.7 관리자 운영 기능 확장
 - `/admin`에 사용자 검색, 상태 필터, 정렬 폼을 추가했습니다. 필터는 전체/활성/비활성/조치 필요/미사용/기록 부족, 정렬은 가입순/최근 로그인순/최근 기록순/세트 많은순/이름순입니다.
 - 조치 필요 사용자 섹션을 추가해 미사용, 기록 부족, DB 확인 필요, 비활성 계정을 대시보드 상단에서 바로 볼 수 있게 했습니다.

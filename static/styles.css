@@ -6208,6 +6208,44 @@ tbody tr:last-child td {
     max-width: none;
   }
 
+  .header {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    align-items: start;
+    padding: 10px 12px 9px;
+  }
+
+  .header-title {
+    grid-column: 1;
+    justify-self: start;
+    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .header-meta {
+    grid-column: 1;
+    justify-self: stretch;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 100%;
+    gap: 6px;
+  }
+
+  .account-greeting {
+    flex: 1 1 auto;
+    font-size: 10px;
+  }
+
+  .app-version {
+    flex: 0 0 auto;
+    font-size: 10px;
+  }
+
+  .tabs {
+    top: 73px;
+  }
+
   .content {
     padding-inline: 10px;
   }
