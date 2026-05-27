@@ -8,9 +8,12 @@
     <div class="section-header">
       <div>
         <div class="section-title">{{ account.display_name or account.username }}</div>
-        <div class="section-subtitle">{{ account.username }} · {{ account.role }} · {{ usage.status_label }}</div>
+        <div class="section-subtitle">{{ account.username }} · {{ usage.status_label }}</div>
       </div>
-      <a class="btn-small" href="{{ url_for('admin_dashboard_page') }}">목록</a>
+      <div class="settings-action-row">
+        <a class="btn-small" href="{{ url_for('admin_dashboard_page') }}">목록</a>
+        <a class="btn-primary" href="{{ url_for('admin_export_user_data_route', account_id=account.id) }}">데이터 내보내기</a>
+      </div>
     </div>
     <div class="summary-grid settings-summary-grid">
       <article class="summary-card"><div class="summary-value">{{ usage.workout_days }}</div><div class="summary-label">운동일</div></article>
@@ -25,10 +28,9 @@
       <strong>관리자 메모</strong>
       {% if error == "password" %}
         <div class="empty compact-empty">비밀번호는 4자 이상이어야 합니다.</div>
-      {% elif error == "primary" %}
-        <div class="empty compact-empty">기본 관리자 계정은 비활성화할 수 없습니다.</div>
       {% endif %}
       <form method="post" action="{{ url_for('admin_update_user_memo_route', account_id=account.id) }}" class="settings-password-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input name="display_name" value="{{ account.display_name or '' }}" placeholder="표시 이름">
         <input name="memo" value="{{ account.memo or '' }}" placeholder="관리자 메모">
         <button class="btn-small" type="submit">저장</button>
@@ -37,17 +39,20 @@
     <article class="settings-action-card">
       <strong>계정 운영</strong>
       <form method="post" action="{{ url_for('admin_reset_user_password_route', account_id=account.id) }}" class="settings-password-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input name="password" type="password" autocomplete="new-password" placeholder="새 비밀번호">
         <button class="btn-small" type="submit">비밀번호 초기화</button>
       </form>
       {% if account.is_active %}
         <form method="post" action="{{ url_for('admin_update_user_status_route', account_id=account.id) }}" class="settings-password-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="action" value="disable">
           <input name="confirm_status" placeholder="비활성화 입력">
           <button class="btn-danger" type="submit">비활성화</button>
         </form>
       {% else %}
         <form method="post" action="{{ url_for('admin_update_user_status_route', account_id=account.id) }}" class="settings-password-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <input type="hidden" name="action" value="enable">
           <button class="btn-primary" type="submit">활성화</button>
         </form>
@@ -99,5 +104,24 @@
         {% endfor %}
       </div>
     </article>
+  </section>
+
+  <section class="section admin-user-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">이 사용자 관리 로그</div>
+        <div class="section-subtitle">최근 관리자 조치 내역입니다.</div>
+      </div>
+    </div>
+    <div class="detail-list compact-detail-list admin-audit-list">
+      {% for log in audit_logs if log.target_account_id == account.id %}
+        <div class="detail-row">
+          <span>{{ log.created_at }} · {{ log.action }}</span>
+          <strong>{{ log.detail }}</strong>
+        </div>
+      {% else %}
+        <div class="empty compact-empty">이 사용자에 대한 관리자 활동 로그가 없습니다.</div>
+      {% endfor %}
+    </div>
   </section>
 {% endblock %}

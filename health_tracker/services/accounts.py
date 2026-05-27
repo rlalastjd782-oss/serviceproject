@@ -43,6 +43,15 @@ def init_accounts_db(main_database: Path) -> None:
                     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
                 );
+
+                CREATE TABLE IF NOT EXISTS admin_audit_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    admin_id INTEGER NOT NULL,
+                    target_account_id INTEGER,
+                    action TEXT NOT NULL,
+                    detail TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
                 """
             )
             columns = [row["name"] for row in db.execute("PRAGMA table_info(users)").fetchall()]
@@ -245,3 +254,47 @@ def update_account_memo(main_database: Path, account_id: int, memo: str, display
                 """,
                 (memo.strip()[:240], display_name.strip()[:80], account_id),
             )
+
+
+def log_admin_action(
+    main_database: Path,
+    admin_id: int,
+    action: str,
+    target_account_id: int | None = None,
+    detail: str = "",
+) -> None:
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        with db:
+            db.execute(
+                """
+                INSERT INTO admin_audit_logs (admin_id, target_account_id, action, detail)
+                VALUES (?, ?, ?, ?)
+                """,
+                (admin_id, target_account_id, action.strip()[:80], detail.strip()[:240]),
+            )
+
+
+def list_admin_audit_logs(main_database: Path, limit: int = 20) -> list[sqlite3.Row]:
+    init_accounts_db(main_database)
+    with closing(connect_auth_db(main_database)) as db:
+        return db.execute(
+            """
+            SELECT
+                l.id,
+                l.admin_id,
+                l.target_account_id,
+                l.action,
+                l.detail,
+                l.created_at,
+                admin.username AS admin_username,
+                target.username AS target_username,
+                target.display_name AS target_display_name
+            FROM admin_audit_logs l
+            LEFT JOIN users admin ON admin.id = l.admin_id
+            LEFT JOIN users target ON target.id = l.target_account_id
+            ORDER BY l.created_at DESC, l.id DESC
+            LIMIT ?
+            """,
+            (max(1, min(int(limit or 20), 100)),),
+        ).fetchall()

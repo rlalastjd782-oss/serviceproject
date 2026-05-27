@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.7 관리자 운영 기능 확장
+- `/admin`에 사용자 검색, 상태 필터, 정렬 폼을 추가했습니다. 필터는 전체/활성/비활성/조치 필요/미사용/기록 부족, 정렬은 가입순/최근 로그인순/최근 기록순/세트 많은순/이름순입니다.
+- 조치 필요 사용자 섹션을 추가해 미사용, 기록 부족, DB 확인 필요, 비활성 계정을 대시보드 상단에서 바로 볼 수 있게 했습니다.
+- `admin_audit_logs` 테이블을 추가하고 관리자 비밀번호 변경, 사용자 비밀번호 초기화, 활성/비활성, 메모 수정, 사용자 데이터 내보내기를 기록합니다.
+- `/admin/users/<id>/export`를 추가해 사용자별 JSON 내보내기를 지원합니다. 원본 테이블과 관리자 상세에서 보는 사용 요약을 함께 포함합니다.
+- 관리자 대시보드와 사용자 상세 템플릿을 정상 한글 문구로 다시 정리했고, 필터/액션 버튼 모바일 정렬 CSS를 추가했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` 통과.
+
 ## 2026-05-28 v2.3.6 관리자 현황 집계 수정
 - 관리자 계정은 운동/식단 사용자 현황 대상이 아니므로 `build_admin_dashboard`에서 `role == "user"` 계정만 집계하도록 수정했습니다.
 - `/admin/users/<id>` 상세도 사용자 계정만 허용하고 관리자 계정 접근은 `/admin?error=user_only`로 되돌립니다.

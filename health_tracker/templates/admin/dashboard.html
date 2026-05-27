@@ -7,11 +7,15 @@
     <div class="section-header">
       <div>
         <div class="section-title">관리자 대시보드</div>
-        <div class="section-subtitle">관리자 계정은 운동 기록 집계에서 제외하고, 사용자 계정만 운영 현황으로 확인합니다.</div>
+        <div class="section-subtitle">관리자 계정은 집계에서 제외하고 사용자 계정만 운영 현황으로 확인합니다.</div>
       </div>
       <a class="btn-small" href="{{ url_for('settings_page') }}">설정</a>
     </div>
-    {% if request.args.get("error") == "user_only" %}
+    {% if request.args.get("updated") == "password" %}
+      <div class="empty compact-empty">관리자 비밀번호가 변경되었습니다.</div>
+    {% elif request.args.get("error") == "password" %}
+      <div class="empty compact-empty">현재 비밀번호 또는 새 비밀번호 입력값을 확인해 주세요.</div>
+    {% elif request.args.get("error") == "user_only" %}
       <div class="empty compact-empty">관리자 계정은 운동 기록 상세 대상이 아닙니다.</div>
     {% endif %}
     <div class="summary-grid settings-summary-grid">
@@ -28,7 +32,7 @@
     <div class="section-header">
       <div>
         <div class="section-title">운영 체크포인트</div>
-        <div class="section-subtitle">관리자가 확인해야 할 계정, 기록 상태, 데이터 규모입니다.</div>
+        <div class="section-subtitle">계정, 기록 상태, 데이터 규모를 빠르게 확인합니다.</div>
       </div>
     </div>
     <div class="admin-contact-grid">
@@ -45,21 +49,60 @@
   <section class="section admin-user-section">
     <div class="section-header">
       <div>
-        <div class="section-title">관리자 비밀번호 변경</div>
-        <div class="section-subtitle">관리자 본인 계정의 비밀번호를 변경합니다.</div>
+        <div class="section-title">조치 필요 사용자</div>
+        <div class="section-subtitle">미사용, 기록 부족, 비활성, DB 확인 필요 계정입니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('admin_dashboard_page', status='needs_action') }}">전체 보기</a>
+    </div>
+    <div class="admin-user-grid admin-user-grid-compact">
+      {% for item in dashboard.needs_action_users %}
+        {% set account = item.account %}
+        <article class="admin-user-card status-{{ item.status }}">
+          <div class="admin-user-head">
+            <div>
+              <strong>{{ account.display_name or account.username }}</strong>
+              <span>{{ account.username }}</span>
+            </div>
+            <span class="badge">{{ item.status_label }}</span>
+          </div>
+          <div class="admin-metric-row">
+            <span>최근 기록 {{ item.last_record_date or "-" }}</span>
+            <span>최근 로그인 {{ account.last_login_at or "-" }}</span>
+          </div>
+          <a class="btn-small" href="{{ url_for('admin_user_detail_page', account_id=account.id) }}">상세</a>
+        </article>
+      {% else %}
+        <div class="empty compact-empty">조치가 필요한 사용자가 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section admin-user-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">사용자 검색</div>
+        <div class="section-subtitle">이름, 아이디, 메모, 상태 기준으로 검색하고 정렬합니다.</div>
       </div>
     </div>
-    {% if request.args.get("updated") == "password" %}
-      <div class="empty compact-empty">관리자 비밀번호가 변경되었습니다.</div>
-    {% elif request.args.get("error") == "password" %}
-      <div class="empty compact-empty">현재 비밀번호 또는 새 비밀번호 입력값을 확인해 주세요.</div>
-    {% endif %}
-    <form method="post" action="{{ url_for('admin_update_own_password_route') }}" class="settings-password-form admin-password-form">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <input name="current_password" type="password" autocomplete="current-password" placeholder="현재 비밀번호" required>
-      <input name="new_password" type="password" autocomplete="new-password" placeholder="새 비밀번호" required>
-      <input name="new_password_confirm" type="password" autocomplete="new-password" placeholder="새 비밀번호 확인" required>
-      <button class="btn-primary" type="submit">비밀번호 변경</button>
+    <form method="get" action="{{ url_for('admin_dashboard_page') }}" class="admin-filter-form">
+      <input name="q" value="{{ dashboard.filters.q }}" placeholder="사용자 검색">
+      <select name="status">
+        <option value="all" {% if dashboard.filters.status == "all" %}selected{% endif %}>전체 상태</option>
+        <option value="active" {% if dashboard.filters.status == "active" %}selected{% endif %}>활성</option>
+        <option value="disabled" {% if dashboard.filters.status == "disabled" %}selected{% endif %}>비활성</option>
+        <option value="needs_action" {% if dashboard.filters.status == "needs_action" %}selected{% endif %}>조치 필요</option>
+        <option value="empty" {% if dashboard.filters.status == "empty" %}selected{% endif %}>미사용</option>
+        <option value="low" {% if dashboard.filters.status == "low" %}selected{% endif %}>기록 부족</option>
+      </select>
+      <select name="sort">
+        <option value="id" {% if dashboard.filters.sort == "id" %}selected{% endif %}>가입순</option>
+        <option value="last_login" {% if dashboard.filters.sort == "last_login" %}selected{% endif %}>최근 로그인순</option>
+        <option value="last_record" {% if dashboard.filters.sort == "last_record" %}selected{% endif %}>최근 기록순</option>
+        <option value="sets" {% if dashboard.filters.sort == "sets" %}selected{% endif %}>세트 많은순</option>
+        <option value="name" {% if dashboard.filters.sort == "name" %}selected{% endif %}>이름순</option>
+      </select>
+      <button class="btn-primary" type="submit">적용</button>
+      <a class="btn-small" href="{{ url_for('admin_dashboard_page') }}">초기화</a>
     </form>
   </section>
 
@@ -67,7 +110,7 @@
     <div class="section-header">
       <div>
         <div class="section-title">사용자 현황</div>
-        <div class="section-subtitle">최근 로그인, 최근 기록, 운동/식단 사용량 기준입니다.</div>
+        <div class="section-subtitle">총 {{ dashboard.total_users }}명 중 {{ dashboard.filtered_users }}명을 표시합니다.</div>
       </div>
     </div>
     <div class="admin-user-grid">
@@ -77,7 +120,7 @@
           <div class="admin-user-head">
             <div>
               <strong>{{ account.display_name or account.username }}</strong>
-              <span>{{ account.username }} · {{ account.role }}</span>
+              <span>{{ account.username }} · 사용자</span>
             </div>
             <span class="badge">{{ item.status_label }}</span>
           </div>
@@ -90,10 +133,48 @@
             <div class="detail-row"><strong>최근 기록</strong><span>{{ item.last_record_date or "-" }}</span></div>
             <div class="detail-row"><strong>최근 로그인</strong><span>{{ account.last_login_at or "-" }}</span></div>
           </div>
-          <a class="btn-small" href="{{ url_for('admin_user_detail_page', account_id=account.id) }}">상세</a>
+          <div class="admin-card-actions">
+            <a class="btn-small" href="{{ url_for('admin_user_detail_page', account_id=account.id) }}">상세</a>
+            <a class="btn-small" href="{{ url_for('admin_export_user_data_route', account_id=account.id) }}">내보내기</a>
+          </div>
         </article>
       {% else %}
-        <div class="empty compact-empty">등록된 사용자 계정이 없습니다.</div>
+        <div class="empty compact-empty">조건에 맞는 사용자 계정이 없습니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section admin-user-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">관리자 비밀번호 변경</div>
+        <div class="section-subtitle">관리자 본인 계정의 비밀번호를 변경합니다.</div>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('admin_update_own_password_route') }}" class="settings-password-form admin-password-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input name="current_password" type="password" autocomplete="current-password" placeholder="현재 비밀번호" required>
+      <input name="new_password" type="password" autocomplete="new-password" placeholder="새 비밀번호" required>
+      <input name="new_password_confirm" type="password" autocomplete="new-password" placeholder="새 비밀번호 확인" required>
+      <button class="btn-primary" type="submit">비밀번호 변경</button>
+    </form>
+  </section>
+
+  <section class="section admin-user-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">관리자 활동 로그</div>
+        <div class="section-subtitle">비밀번호 초기화, 상태 변경, 메모 수정, 데이터 내보내기 기록입니다.</div>
+      </div>
+    </div>
+    <div class="detail-list compact-detail-list admin-audit-list">
+      {% for log in audit_logs %}
+        <div class="detail-row">
+          <span>{{ log.created_at }} · {{ log.action }}</span>
+          <strong>{{ log.target_display_name or log.target_username or log.detail }}</strong>
+        </div>
+      {% else %}
+        <div class="empty compact-empty">관리자 활동 로그가 없습니다.</div>
       {% endfor %}
     </div>
   </section>

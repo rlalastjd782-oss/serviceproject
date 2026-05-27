@@ -7,6 +7,9 @@ from pathlib import Path
 from health_tracker.services.accounts import account_db_path
 
 
+NEEDS_ACTION_STATUSES = {"empty", "low", "db_missing", "disabled"}
+
+
 def _connect(path: Path) -> sqlite3.Connection | None:
     if not path.exists():
         return None
@@ -36,6 +39,52 @@ def _rows(db: sqlite3.Connection, sql: str, params: tuple[object, ...] = ()) -> 
         return db.execute(sql, params).fetchall()
     except sqlite3.Error:
         return []
+
+
+def _sort_user_summaries(users: list[dict[str, object]], sort_key: str) -> list[dict[str, object]]:
+    if sort_key == "last_record":
+        return sorted(users, key=lambda item: str(item["last_record_date"] or ""), reverse=True)
+    if sort_key == "last_login":
+        return sorted(users, key=lambda item: str(item["account"]["last_login_at"] or ""), reverse=True)
+    if sort_key == "sets":
+        return sorted(users, key=lambda item: int(item["set_count"] or 0), reverse=True)
+    if sort_key == "name":
+        return sorted(
+            users,
+            key=lambda item: str(item["account"]["display_name"] or item["account"]["username"]).casefold(),
+        )
+    return sorted(users, key=lambda item: int(item["account"]["id"]))
+
+
+def _filter_user_summaries(
+    users: list[dict[str, object]],
+    query: str = "",
+    status: str = "all",
+) -> list[dict[str, object]]:
+    query = query.strip().casefold()
+    filtered = []
+    for item in users:
+        account = item["account"]
+        haystack = " ".join(
+            [
+                str(account["username"] or ""),
+                str(account["display_name"] or ""),
+                str(account["memo"] or ""),
+                str(item["status_label"] or ""),
+            ]
+        ).casefold()
+        if query and query not in haystack:
+            continue
+        if status == "active" and not int(account["is_active"] or 0):
+            continue
+        if status == "disabled" and int(account["is_active"] or 0):
+            continue
+        if status == "needs_action" and item["status"] not in NEEDS_ACTION_STATUSES:
+            continue
+        if status not in {"all", "active", "disabled", "needs_action"} and item["status"] != status:
+            continue
+        filtered.append(item)
+    return filtered
 
 
 def account_usage_summary(main_database: Path, account: sqlite3.Row) -> dict[str, object]:
@@ -73,14 +122,13 @@ def account_usage_summary(main_database: Path, account: sqlite3.Row) -> dict[str
         meal_days = _scalar(db, "SELECT COUNT(DISTINCT meal_date) FROM meal_entries")
         last_workout = _text(db, "SELECT MAX(workout_date) FROM workout_sessions")
         last_meal = _text(db, "SELECT MAX(meal_date) FROM meal_entries")
-        last_record_date = max(last_workout, last_meal)
         base.update(
             {
                 "workout_days": workout_days,
                 "set_count": set_count,
                 "meal_count": meal_count,
                 "meal_days": meal_days,
-                "last_record_date": last_record_date,
+                "last_record_date": max(last_workout, last_meal),
                 "top_body_parts": _rows(
                     db,
                     """
@@ -137,22 +185,39 @@ def account_usage_summary(main_database: Path, account: sqlite3.Row) -> dict[str
     return base
 
 
-def build_admin_dashboard(main_database: Path, accounts: list[sqlite3.Row]) -> dict[str, object]:
+def build_admin_dashboard(
+    main_database: Path,
+    accounts: list[sqlite3.Row],
+    query: str = "",
+    status: str = "all",
+    sort_key: str = "id",
+) -> dict[str, object]:
     user_accounts = [account for account in accounts if account["role"] == "user"]
     admin_accounts = [account for account in accounts if account["role"] == "admin"]
-    users = [account_usage_summary(main_database, account) for account in user_accounts]
-    low_activity_users = sum(1 for item in users if item["status"] in {"empty", "low", "db_missing"})
+    all_users = [account_usage_summary(main_database, account) for account in user_accounts]
+    users = _sort_user_summaries(_filter_user_summaries(all_users, query, status), sort_key)
+    needs_action_users = _sort_user_summaries(
+        [item for item in all_users if item["status"] in NEEDS_ACTION_STATUSES],
+        "last_login",
+    )[:6]
     disabled_users = sum(1 for account in user_accounts if int(account["is_active"] or 0) == 0)
+    low_activity_users = sum(1 for item in all_users if item["status"] in {"empty", "low", "db_missing"})
+    total_sets = sum(int(item["set_count"]) for item in all_users)
+    total_meals = sum(int(item["meal_count"]) for item in all_users)
     return {
         "users": users,
+        "all_users": all_users,
+        "needs_action_users": needs_action_users,
+        "filters": {"q": query, "status": status, "sort": sort_key},
+        "filtered_users": len(users),
         "admin_count": len(admin_accounts),
         "total_users": len(user_accounts),
         "active_users": sum(1 for account in user_accounts if int(account["is_active"] or 0) == 1),
         "disabled_users": disabled_users,
-        "total_workout_days": sum(int(item["workout_days"]) for item in users),
-        "total_sets": sum(int(item["set_count"]) for item in users),
-        "total_meals": sum(int(item["meal_count"]) for item in users),
-        "recording_users": sum(1 for item in users if int(item["workout_days"]) or int(item["meal_count"])),
+        "total_workout_days": sum(int(item["workout_days"]) for item in all_users),
+        "total_sets": total_sets,
+        "total_meals": total_meals,
+        "recording_users": sum(1 for item in all_users if int(item["workout_days"]) or int(item["meal_count"])),
         "low_activity_users": low_activity_users,
         "contact_points": [
             {
@@ -167,8 +232,8 @@ def build_admin_dashboard(main_database: Path, accounts: list[sqlite3.Row]) -> d
             },
             {
                 "label": "데이터 규모",
-                "value": f"{sum(int(item['set_count']) for item in users)}세트",
-                "detail": f"식단 {sum(int(item['meal_count']) for item in users)}개",
+                "value": f"{total_sets}세트",
+                "detail": f"식단 {total_meals}개",
             },
         ],
     }

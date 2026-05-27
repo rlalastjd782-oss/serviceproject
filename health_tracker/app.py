@@ -54,7 +54,9 @@ from health_tracker.services.accounts import (
     get_account_any_status,
     get_account as get_account_from_auth_db,
     init_accounts_db,
+    list_admin_audit_logs as list_admin_audit_logs_from_auth_db,
     list_accounts as list_accounts_from_auth_db,
+    log_admin_action as log_admin_action_to_auth_db,
     reset_account_password,
     touch_account_seen,
     update_account_memo,
@@ -434,8 +436,13 @@ def is_admin_account() -> bool:
     return bool(account and account["role"] == "admin" and session.get("settings_unlocked"))
 
 
-def build_admin_dashboard(accounts: list[sqlite3.Row]) -> dict[str, object]:
-    return build_admin_dashboard_from_accounts(DATABASE, accounts)
+def build_admin_dashboard(
+    accounts: list[sqlite3.Row],
+    query: str = "",
+    status: str = "all",
+    sort_key: str = "id",
+) -> dict[str, object]:
+    return build_admin_dashboard_from_accounts(DATABASE, accounts, query, status, sort_key)
 
 
 def build_account_usage(account: sqlite3.Row) -> dict[str, object]:
@@ -452,6 +459,17 @@ def set_user_active(account_id: int, is_active: bool) -> None:
 
 def save_user_admin_note(account_id: int, memo: str, display_name: str = "") -> None:
     update_account_memo(DATABASE, account_id, memo, display_name)
+
+
+def log_admin_action(action: str, target_account_id: int | None = None, detail: str = "") -> None:
+    account = current_account()
+    if not account:
+        return
+    log_admin_action_to_auth_db(DATABASE, int(account["id"]), action, target_account_id, detail)
+
+
+def admin_audit_logs(limit: int = 20) -> list[sqlite3.Row]:
+    return list_admin_audit_logs_from_auth_db(DATABASE, limit)
 
 
 def has_settings_password() -> bool:

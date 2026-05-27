@@ -1155,6 +1155,28 @@
   overflow-wrap: anywhere;
 }
 
+.admin-filter-form {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(128px, 0.45fr) minmax(128px, 0.45fr) auto auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.admin-card-actions .btn-small {
+  flex: 1 1 110px;
+  text-align: center;
+}
+
+.admin-audit-list .detail-row {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+}
+
 .admin-user-card {
   display: grid;
   gap: 10px;
@@ -5912,6 +5934,7 @@ tbody tr:last-child td {
   .import-form,
   .settings-action-card .import-form,
   .settings-action-grid,
+  .admin-filter-form,
   .health-grid {
     grid-template-columns: 1fr;
   }
