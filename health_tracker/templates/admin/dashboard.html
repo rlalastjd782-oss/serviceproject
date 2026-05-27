@@ -1,0 +1,56 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}관리자 대시보드{% endblock %}
+
+{% block content %}
+  <section class="section admin-hero-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">관리자 대시보드</div>
+        <div class="section-subtitle">사용자별 앱 사용 현황을 조회 전용으로 확인합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('settings_page') }}">설정</a>
+    </div>
+    <div class="summary-grid settings-summary-grid">
+      <article class="summary-card"><div class="summary-value">{{ dashboard.total_users }}</div><div class="summary-label">전체 계정</div></article>
+      <article class="summary-card"><div class="summary-value">{{ dashboard.active_users }}</div><div class="summary-label">활성</div></article>
+      <article class="summary-card"><div class="summary-value">{{ dashboard.recording_users }}</div><div class="summary-label">기록 사용자</div></article>
+      <article class="summary-card"><div class="summary-value">{{ dashboard.total_workout_days }}</div><div class="summary-label">운동일</div></article>
+      <article class="summary-card"><div class="summary-value">{{ dashboard.total_sets }}</div><div class="summary-label">세트</div></article>
+      <article class="summary-card"><div class="summary-value">{{ dashboard.total_meals }}</div><div class="summary-label">식단</div></article>
+    </div>
+  </section>
+
+  <section class="section admin-user-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">사용자 현황</div>
+        <div class="section-subtitle">최근 로그인, 최근 기록, 운동/식단 사용량 기준입니다.</div>
+      </div>
+    </div>
+    <div class="admin-user-grid">
+      {% for item in dashboard.users %}
+        {% set account = item.account %}
+        <article class="admin-user-card status-{{ item.status }}">
+          <div class="admin-user-head">
+            <div>
+              <strong>{{ account.display_name or account.username }}</strong>
+              <span>{{ account.username }} · {{ account.role }}</span>
+            </div>
+            <span class="badge">{{ item.status_label }}</span>
+          </div>
+          <div class="admin-metric-row">
+            <span>운동 {{ item.workout_days }}일</span>
+            <span>세트 {{ item.set_count }}개</span>
+            <span>식단 {{ item.meal_count }}개</span>
+          </div>
+          <div class="detail-list compact-detail-list">
+            <div class="detail-row"><strong>최근 기록</strong><span>{{ item.last_record_date or "-" }}</span></div>
+            <div class="detail-row"><strong>최근 로그인</strong><span>{{ account.last_login_at or "-" }}</span></div>
+          </div>
+          <a class="btn-small" href="{{ url_for('admin_user_detail_page', account_id=account.id) }}">상세</a>
+        </article>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

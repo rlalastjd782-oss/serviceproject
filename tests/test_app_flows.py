@@ -594,6 +594,45 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("signup_duplicate", response.headers.get("Location", ""))
 
+    def test_admin_dashboard_reports_user_usage_and_blocks_users(self) -> None:
+        self.client.post(
+            "/settings/accounts",
+            data={"username": "reportuser", "display_name": "리포트사용자", "password": "5678", "role": "user"},
+        )
+        self.client.post("/logout")
+        self.client.get("/login")
+        self.client.post("/login", data={"login_mode": "user", "username": "reportuser", "password": "5678"})
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-26",
+                "mode": "workout",
+                "body_part": "등",
+                "exercise_name": "__TEST__ USER REPORT",
+                "equipment": "케이블",
+                "set_weight": ["25"],
+                "set_reps": ["12"],
+                "set_type": ["본세트"],
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        user_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        self.assertIn("admin-mode", user_html)
+        response = self.client.get("/admin")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("mode=admin", response.headers.get("Location", ""))
+
+        self.client.post("/logout")
+        self.client.get("/login")
+        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        admin_html = self.client.get("/admin").data.decode("utf-8")
+        self.assertIn("관리자 대시보드", admin_html)
+        self.assertIn("리포트사용자", admin_html)
+        self.assertIn("세트 1개", admin_html)
+        detail_html = self.client.get("/admin/users/2").data.decode("utf-8")
+        self.assertIn("__TEST__ USER REPORT", detail_html)
+        self.assertIn("케이블", detail_html)
+
     def test_yearly_qa_dummy_data_crosses_year_boundary(self) -> None:
         response = self.client.post("/qa-dummy/year")
         self.assertEqual(response.status_code, 302)

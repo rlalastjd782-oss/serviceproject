@@ -40,6 +40,10 @@ from health_tracker.security import (
     validate_csrf_token,
 )
 from health_tracker.services.admin import build_app_health_status
+from health_tracker.services.admin_dashboard import (
+    account_usage_summary,
+    build_admin_dashboard as build_admin_dashboard_from_accounts,
+)
 from health_tracker.services.accounts import (
     account_db_path,
     create_account as create_account_in_auth_db,
@@ -284,6 +288,7 @@ def create_app() -> Flask:
             "app_version": get_app_version(),
             "app_updated_at": get_app_updated_at(),
             "is_admin": is_admin_account(),
+            "can_write": settings_unlocked(),
             "current_account": account,
             "csrf_token": ensure_csrf_token,
             "per_page_options": preferences["per_page_options"],
@@ -370,6 +375,11 @@ def account_options() -> list[sqlite3.Row]:
     return list_accounts_from_auth_db(DATABASE)
 
 
+def account_by_id(account_id: int) -> sqlite3.Row | None:
+    ensure_default_account()
+    return get_account_from_auth_db(DATABASE, account_id)
+
+
 def ensure_default_account() -> None:
     stored_hash = get_app_setting_from_db(get_db(), "settings_password_hash", "")
     ensure_primary_account(DATABASE, stored_hash or None)
@@ -391,6 +401,14 @@ def mark_account_login(account_id: int) -> None:
 def is_admin_account() -> bool:
     account = current_account()
     return bool(account and account["role"] == "admin" and session.get("settings_unlocked"))
+
+
+def build_admin_dashboard(accounts: list[sqlite3.Row]) -> dict[str, object]:
+    return build_admin_dashboard_from_accounts(DATABASE, accounts)
+
+
+def build_account_usage(account: sqlite3.Row) -> dict[str, object]:
+    return account_usage_summary(DATABASE, account)
 
 
 def has_settings_password() -> bool:

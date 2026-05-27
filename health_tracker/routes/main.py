@@ -349,8 +349,10 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         return redirect(url_for("settings_page"))
 
     from health_tracker.routes.auxiliary import register_aux_routes
+    from health_tracker.routes.admin import register_admin_routes
 
     register_aux_routes(app, globals())
+    register_admin_routes(app, globals())
 
     @app.post("/recovery-checkins")
     def save_recovery_checkin_route():

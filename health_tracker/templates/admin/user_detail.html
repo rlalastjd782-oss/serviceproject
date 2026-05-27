@@ -1,0 +1,68 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}사용자 상세{% endblock %}
+
+{% block content %}
+  {% set account = usage.account %}
+  <section class="section admin-hero-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">{{ account.display_name or account.username }}</div>
+        <div class="section-subtitle">{{ account.username }} · {{ account.role }} · {{ usage.status_label }}</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('admin_dashboard_page') }}">목록</a>
+    </div>
+    <div class="summary-grid settings-summary-grid">
+      <article class="summary-card"><div class="summary-value">{{ usage.workout_days }}</div><div class="summary-label">운동일</div></article>
+      <article class="summary-card"><div class="summary-value">{{ usage.set_count }}</div><div class="summary-label">세트</div></article>
+      <article class="summary-card"><div class="summary-value">{{ usage.meal_days }}</div><div class="summary-label">식단일</div></article>
+      <article class="summary-card"><div class="summary-value">{{ usage.meal_count }}</div><div class="summary-label">식단</div></article>
+    </div>
+  </section>
+
+  <section class="section admin-detail-grid">
+    <article class="settings-action-card">
+      <strong>자주 쓰는 부위</strong>
+      <div class="detail-list compact-detail-list">
+        {% for item in usage.top_body_parts %}
+          <div class="detail-row"><span>{{ item.label }}</span><strong>{{ item.count }}세트</strong></div>
+        {% else %}
+          <div class="empty compact-empty">기록 없음</div>
+        {% endfor %}
+      </div>
+    </article>
+    <article class="settings-action-card">
+      <strong>자주 쓰는 장비</strong>
+      <div class="detail-list compact-detail-list">
+        {% for item in usage.top_equipment %}
+          <div class="detail-row"><span>{{ item.label }}</span><strong>{{ item.count }}세트</strong></div>
+        {% else %}
+          <div class="empty compact-empty">기록 없음</div>
+        {% endfor %}
+      </div>
+    </article>
+  </section>
+
+  <section class="section admin-detail-grid">
+    <article class="settings-action-card">
+      <strong>최근 운동</strong>
+      <div class="detail-list compact-detail-list">
+        {% for item in usage.recent_workouts %}
+          <div class="detail-row"><span>{{ item.workout_date }} · {{ item.exercises or "-" }}</span><strong>{{ item.set_count }}세트</strong></div>
+        {% else %}
+          <div class="empty compact-empty">운동 기록 없음</div>
+        {% endfor %}
+      </div>
+    </article>
+    <article class="settings-action-card">
+      <strong>최근 식단</strong>
+      <div class="detail-list compact-detail-list">
+        {% for item in usage.recent_meals %}
+          <div class="detail-row"><span>{{ item.meal_date }}</span><strong>{{ item.meal_count }}개 · {{ "%.0f"|format(item.calories) }}kcal</strong></div>
+        {% else %}
+          <div class="empty compact-empty">식단 기록 없음</div>
+        {% endfor %}
+      </div>
+    </article>
+  </section>
+{% endblock %}

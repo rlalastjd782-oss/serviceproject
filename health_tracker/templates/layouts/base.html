@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='ui_rebuild.css') }}?v={{ app_version }}">
     <title>{% block title %}피트니스 트래커{% endblock %}</title>
   </head>
-  <body class="{% if is_admin %}admin-mode{% else %}visitor-mode{% endif %}">
+  <body class="{% if can_write %}admin-mode{% else %}visitor-mode{% endif %}">
     <div id="app">
       <header class="header">
         <div class="header-title">피트니스 트래커</div>
@@ -28,6 +28,9 @@
         <a class="tab-btn {% if active_page in ['weekly', 'monthly', 'yearly', 'exercises', 'pr', 'equipment'] %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">분석</a>
         <a class="tab-btn {% if active_page == 'meals' %}active{% endif %}" href="{{ url_for('meal_weekly_page') }}">식단</a>
         <a class="tab-btn {% if active_page in ['more', 'library', 'plans', 'calendar'] %}active{% endif %}" href="{{ url_for('more_page') }}">더보기</a>
+        {% if is_admin %}
+          <a class="tab-btn {% if active_page == 'admin' %}active{% endif %}" href="{{ url_for('admin_dashboard_page') }}">관리</a>
+        {% endif %}
         <a class="tab-btn {% if active_page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}">{% if is_admin %}설정{% else %}관리자{% endif %}</a>
       </nav>
       <main class="content">

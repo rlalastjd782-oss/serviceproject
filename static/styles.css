@@ -763,6 +763,61 @@
   font-size: 14px;
 }
 
+.admin-user-grid,
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-user-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.admin-user-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.admin-user-head > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-user-head strong,
+.admin-user-head span {
+  overflow-wrap: anywhere;
+}
+
+.admin-user-head > div > span,
+.admin-metric-row {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.admin-metric-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-metric-row span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-weight: 800;
+}
+
 .visitor-mode form[method="post"]:not(.settings-password-form),
 .visitor-mode button[data-copy-saved-set],
 .visitor-mode button[data-toggle-edit],
@@ -5844,6 +5899,11 @@ tbody tr:last-child td {
   }
 
   .login-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-user-grid,
+  .admin-detail-grid {
     grid-template-columns: 1fr;
   }
 
