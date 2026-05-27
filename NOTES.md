@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.2 인증 화면 CSRF 수정
+- `layouts/auth.html`은 앱 공통 JS를 로드하지 않으므로, 로그인/회원가입 폼의 CSRF hidden input을 `templates/auth/login.html`에서 직접 렌더링하도록 수정했습니다.
+- 실제 로컬 HTTP에서 `/auth/login?mode=admin` 페이지의 CSRF 토큰 존재와 `admin / 1234` 로그인 후 `/admin` 진입을 확인했습니다.
+- 로컬 `instance/workout.db`, `instance/accounts.db`의 관리자 비밀번호는 테스트 편의를 위해 `1234`로 맞췄습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `git diff --check` 통과.
+
 ## 2026-05-28 v2.3.1 인증/앱/관리자 화면 분리
 - `/`는 더 이상 오늘 운동 화면을 렌더링하지 않고, 세션 상태에 따라 `/auth/login`, `/app`, `/admin`으로 이동하는 라우터가 되었습니다.
 - 오늘 운동 화면은 `/app`으로 이동했습니다. 기존 `url_for("index")` 내부 링크는 `/app`을 가리킵니다.
