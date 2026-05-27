@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.6 관리자 현황 집계 수정
+- 관리자 계정은 운동/식단 사용자 현황 대상이 아니므로 `build_admin_dashboard`에서 `role == "user"` 계정만 집계하도록 수정했습니다.
+- `/admin/users/<id>` 상세도 사용자 계정만 허용하고 관리자 계정 접근은 `/admin?error=user_only`로 되돌립니다.
+- 관리자 대시보드에 운영 체크포인트를 추가했습니다: 가입/활성, 기록 상태, 데이터 규모.
+- 확인된 추가 관리 컨택포인트: 계정 가입/활성 관리, 비밀번호 초기화, 관리자 메모, 사용자별 최근 기록, 부위/장비 사용량, 저활동/미사용 사용자 확인.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `git diff --check` 통과.
+
 ## 2026-05-28 v2.3.5 미리보기 UI 개선
 - `/auth/preview` 화면을 단순 카드 나열에서 히어로, 모바일형 오늘 운동 샘플, 핵심 기능 요약, 기록/분석/장소/식단 카드 구조로 재구성했습니다.
 - 미리보기 템플릿의 깨진 한글을 정상 문구로 교체했습니다.

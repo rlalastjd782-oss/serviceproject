@@ -7,17 +7,38 @@
     <div class="section-header">
       <div>
         <div class="section-title">관리자 대시보드</div>
-        <div class="section-subtitle">사용자별 앱 사용 현황을 조회 전용으로 확인합니다.</div>
+        <div class="section-subtitle">관리자 계정은 운동 기록 집계에서 제외하고, 사용자 계정만 운영 현황으로 확인합니다.</div>
       </div>
       <a class="btn-small" href="{{ url_for('settings_page') }}">설정</a>
     </div>
+    {% if request.args.get("error") == "user_only" %}
+      <div class="empty compact-empty">관리자 계정은 운동 기록 상세 대상이 아닙니다.</div>
+    {% endif %}
     <div class="summary-grid settings-summary-grid">
-      <article class="summary-card"><div class="summary-value">{{ dashboard.total_users }}</div><div class="summary-label">전체 계정</div></article>
+      <article class="summary-card"><div class="summary-value">{{ dashboard.total_users }}</div><div class="summary-label">사용자 계정</div></article>
       <article class="summary-card"><div class="summary-value">{{ dashboard.active_users }}</div><div class="summary-label">활성</div></article>
       <article class="summary-card"><div class="summary-value">{{ dashboard.recording_users }}</div><div class="summary-label">기록 사용자</div></article>
       <article class="summary-card"><div class="summary-value">{{ dashboard.total_workout_days }}</div><div class="summary-label">운동일</div></article>
       <article class="summary-card"><div class="summary-value">{{ dashboard.total_sets }}</div><div class="summary-label">세트</div></article>
       <article class="summary-card"><div class="summary-value">{{ dashboard.total_meals }}</div><div class="summary-label">식단</div></article>
+    </div>
+  </section>
+
+  <section class="section admin-user-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">운영 체크포인트</div>
+        <div class="section-subtitle">관리자가 확인해야 할 계정, 기록 상태, 데이터 규모입니다.</div>
+      </div>
+    </div>
+    <div class="admin-contact-grid">
+      {% for item in dashboard.contact_points %}
+        <article class="admin-contact-card">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <em>{{ item.detail }}</em>
+        </article>
+      {% endfor %}
     </div>
   </section>
 
@@ -71,6 +92,8 @@
           </div>
           <a class="btn-small" href="{{ url_for('admin_user_detail_page', account_id=account.id) }}">상세</a>
         </article>
+      {% else %}
+        <div class="empty compact-empty">등록된 사용자 계정이 없습니다.</div>
       {% endfor %}
     </div>
   </section>

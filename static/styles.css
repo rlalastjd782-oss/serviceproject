@@ -1121,6 +1121,40 @@
   gap: 10px;
 }
 
+.admin-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.admin-contact-card {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid rgb(148 163 184 / 22%);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.admin-contact-card span,
+.admin-contact-card em {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.admin-contact-card strong {
+  min-width: 0;
+  color: var(--strong);
+  font-size: 20px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
 .admin-user-card {
   display: grid;
   gap: 10px;
@@ -6329,6 +6363,7 @@ tbody tr:last-child td {
     grid-template-columns: 1fr;
   }
 
+  .admin-contact-grid,
   .admin-user-grid,
   .admin-detail-grid {
     grid-template-columns: 1fr;

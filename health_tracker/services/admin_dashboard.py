@@ -138,14 +138,37 @@ def account_usage_summary(main_database: Path, account: sqlite3.Row) -> dict[str
 
 
 def build_admin_dashboard(main_database: Path, accounts: list[sqlite3.Row]) -> dict[str, object]:
-    users = [account_usage_summary(main_database, account) for account in accounts]
+    user_accounts = [account for account in accounts if account["role"] == "user"]
+    admin_accounts = [account for account in accounts if account["role"] == "admin"]
+    users = [account_usage_summary(main_database, account) for account in user_accounts]
+    low_activity_users = sum(1 for item in users if item["status"] in {"empty", "low", "db_missing"})
+    disabled_users = sum(1 for account in user_accounts if int(account["is_active"] or 0) == 0)
     return {
         "users": users,
-        "total_users": len(accounts),
-        "active_users": sum(1 for account in accounts if int(account["is_active"] or 0) == 1),
-        "disabled_users": sum(1 for account in accounts if int(account["is_active"] or 0) == 0),
+        "admin_count": len(admin_accounts),
+        "total_users": len(user_accounts),
+        "active_users": sum(1 for account in user_accounts if int(account["is_active"] or 0) == 1),
+        "disabled_users": disabled_users,
         "total_workout_days": sum(int(item["workout_days"]) for item in users),
         "total_sets": sum(int(item["set_count"]) for item in users),
         "total_meals": sum(int(item["meal_count"]) for item in users),
         "recording_users": sum(1 for item in users if int(item["workout_days"]) or int(item["meal_count"])),
+        "low_activity_users": low_activity_users,
+        "contact_points": [
+            {
+                "label": "가입/활성",
+                "value": f"{len(user_accounts)}명",
+                "detail": f"비활성 {disabled_users}명",
+            },
+            {
+                "label": "기록 상태",
+                "value": f"{low_activity_users}명",
+                "detail": "초기/저활동/DB 확인 필요",
+            },
+            {
+                "label": "데이터 규모",
+                "value": f"{sum(int(item['set_count']) for item in users)}세트",
+                "detail": f"식단 {sum(int(item['meal_count']) for item in users)}개",
+            },
+        ],
     }

@@ -29,6 +29,8 @@ def register_admin_routes(app, ctx: dict[str, object]) -> None:
         account = account_by_id(account_id)
         if not account:
             abort(404)
+        if account["role"] != "user":
+            return redirect(url_for("admin_dashboard_page", error="user_only"))
         usage = build_account_usage(account)
         return render_template(
             "admin/user_detail.html",
