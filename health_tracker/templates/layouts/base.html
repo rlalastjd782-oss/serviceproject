@@ -18,8 +18,9 @@
     <div id="app">
       <header class="header">
         <div class="header-title">피트니스 트래커</div>
-        <div class="app-version" title="업데이트 {{ app_updated_at }}">
-          {{ app_version }} · {{ current_account.display_name or current_account.username if current_account else "사용자" }}
+        <div class="header-meta" title="업데이트 {{ app_updated_at }}">
+          <span class="account-greeting">{{ current_account.display_name or current_account.username if current_account else "사용자" }}님 환영합니다</span>
+          <span class="app-version">{{ app_version }}</span>
         </div>
       </header>
       <nav class="tabs" aria-label="사용자 메뉴">
