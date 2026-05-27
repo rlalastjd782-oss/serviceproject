@@ -20,7 +20,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         parsed = urlparse(value)
         if not value or parsed.scheme or parsed.netloc or not value.startswith("/"):
             return ""
-        if value.startswith("/login"):
+        if value.startswith("/login") or value.startswith("/auth/login"):
             return ""
         return value
 
@@ -33,19 +33,33 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         return parsed
 
     @app.get("/")
+    def root_route():
+        account = current_account()
+        if not account:
+            return redirect(url_for("login_page"))
+        if account["role"] == "admin":
+            return redirect(url_for("admin_dashboard_page"))
+        return redirect(url_for("index"))
+
+    @app.get("/app")
     def index():
         return render_template("today/index.html", **build_today_context(request.args, globals()))
 
-    @app.get("/login")
+    @app.get("/auth/login")
     def login_page():
         return render_template(
-            "settings/login.html",
+            "auth/login.html",
             active_page="settings",
             error=request.args.get("error", ""),
             mode=request.args.get("mode", "user"),
             next_url=safe_next_url(request.args.get("next")),
         )
 
+    @app.get("/login")
+    def legacy_login_page():
+        return redirect(url_for("login_page", mode=request.args.get("mode", "user"), error=request.args.get("error", ""), next=safe_next_url(request.args.get("next"))))
+
+    @app.post("/auth/login")
     @app.post("/login")
     def login_route():
         login_mode = request.form.get("login_mode", "user")
@@ -65,6 +79,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         return redirect(next_url or url_for("index"))
 
     @app.post("/signup")
+    @app.post("/auth/signup")
     def signup_route():
         password = request.form.get("password", "")
         password_confirm = request.form.get("password_confirm", "")
@@ -86,10 +101,10 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             mark_account_login(int(account["id"]))
         return redirect(next_url or url_for("index"))
 
+    @app.post("/auth/logout")
     @app.post("/logout")
     def logout_route():
-        session.pop("account_id", None)
-        session.pop("settings_unlocked", None)
+        session.clear()
         return redirect(url_for("login_page"))
 
     @app.get("/summaries")

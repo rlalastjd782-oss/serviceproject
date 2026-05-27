@@ -289,7 +289,7 @@ def create_app() -> Flask:
             if request.method == "POST" and endpoint not in PUBLIC_POST_ENDPOINTS:
                 abort(403)
             return None
-        if request.method == "GET" and endpoint == "login_page":
+        if request.method == "GET" and endpoint in {"login_page", "legacy_login_page"}:
             return redirect(url_for("admin_dashboard_page" if account["role"] == "admin" else "index"))
         admin_endpoint = endpoint.startswith("admin_") or endpoint in ADMIN_ONLY_ENDPOINTS
         if account["role"] == "admin":
