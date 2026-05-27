@@ -85,7 +85,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.client = self.app.test_client()
         self.raw_post = self.client.post
         self.client.post = self._post_with_csrf
-        self.client.get("/login?mode=user")
+        self.client.get("/auth/login?mode=user")
         response = self.client.post(
             "/signup",
             data={"username": "tester", "password": "1234", "password_confirm": "1234"},
@@ -124,7 +124,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
     def test_main_pages_render(self) -> None:
         paths = [
-            "/",
+            "/app",
             "/summaries/daily",
             "/summaries/weekly",
             "/summaries/monthly",
@@ -157,14 +157,14 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
 
     def test_fold_ui_regression_markers_render(self) -> None:
-        overview_html = self.client.get("/").data.decode("utf-8")
+        overview_html = self.client.get("/app").data.decode("utf-8")
         self.assertIn("data-quality-card", overview_html)
         self.assertIn("분석 신뢰도", overview_html)
         self.assertIn("quality-metric-list", overview_html)
         self.assertIn("today-hero-section", overview_html)
         self.assertIn("today-mode-actions", overview_html)
 
-        workout_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        workout_html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn("data-workout-quick-tab=\"recent\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"favorite\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"routine\"", workout_html)
@@ -184,7 +184,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             },
         )
         self.assertNotIn("rest=", response.headers.get("Location", ""))
-        workout_html = self.client.get("/?date=2026-05-26&mode=workout").data.decode("utf-8")
+        workout_html = self.client.get("/app?date=2026-05-26&mode=workout").data.decode("utf-8")
         self.assertLess(workout_html.index("workout-clock-section"), workout_html.index('id="rest-timer"'))
         self.assertLess(workout_html.index('id="rest-timer"'), workout_html.index("workout-action-dock"))
         self.assertIn("data-workout-complete-form", workout_html)
@@ -269,7 +269,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        html = self.client.get("/?mode=workout").data.decode("utf-8")
+        html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn('data-rest-seconds="45"', html)
         self.assertIn('data-rest-seconds="75"', html)
         self.assertIn('value="4" inputmode="numeric" data-set-count-input', html)
@@ -355,7 +355,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             f"/locations/{location_id}/equipment",
             data={"equipment_name": "스미스 머신", "equipment_type": "플레이트로디드머신", "memo": "하체 가능"},
         )
-        workout_html = self.client.get(f"/?mode=workout&location_id={location_id}").data.decode("utf-8")
+        workout_html = self.client.get(f"/app?mode=workout&location_id={location_id}").data.decode("utf-8")
         self.assertIn("운동 장소", workout_html)
         self.assertIn('<option value="핀머신">핀머신</option>', workout_html)
         self.assertIn('<option value="플레이트로디드머신">플레이트로디드머신</option>', workout_html)
@@ -403,7 +403,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 "set_type": ["본세트"],
             },
         )
-        scoped_workout_html = self.client.get(f"/?date=2026-05-26&mode=workout&location_id={location_id}").data.decode("utf-8")
+        scoped_workout_html = self.client.get(f"/app?date=2026-05-26&mode=workout&location_id={location_id}").data.decode("utf-8")
         self.assertIn("장소 테스트 스쿼트", scoped_workout_html)
         self.assertNotIn('<option value="다른장소 전용운동">', scoped_workout_html)
         self.assertNotIn('data-exercise-name="다른장소 전용운동"', scoped_workout_html)
@@ -422,12 +422,16 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
     def test_visitor_is_read_only_and_admin_routes_are_locked(self) -> None:
         visitor = self.app.test_client()
-        response = visitor.get("/?mode=workout")
+        response = visitor.get("/")
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/login", response.headers.get("Location", ""))
+        self.assertIn("/auth/login", response.headers.get("Location", ""))
+
+        response = visitor.get("/app?mode=workout")
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/auth/login", response.headers.get("Location", ""))
         self.assertIn("next=", response.headers.get("Location", ""))
 
-        visitor.get("/")
+        visitor.get("/app")
         response = self._visitor_post(
             visitor,
             "/sets",
@@ -443,7 +447,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
         response = visitor.get("/export.json")
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/login", response.headers.get("Location", ""))
+        self.assertIn("/auth/login", response.headers.get("Location", ""))
 
         response = self.raw_post(
             "/sets",
@@ -464,9 +468,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.client.post("/logout")
         response = self.client.get("/settings")
         self.assertEqual(response.status_code, 302)
-        self.assertIn("/login", response.headers.get("Location", ""))
-        self.client.get("/login?mode=admin")
-        response = self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.assertIn("/auth/login", response.headers.get("Location", ""))
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         self.assertIn("/admin", response.headers.get("Location", ""))
         response = self.client.get("/settings")
         self.assertIn("/admin", response.headers.get("Location", ""))
@@ -488,8 +492,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
 
         self.client.post("/logout")
-        self.client.get("/login?mode=admin")
-        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.client.get("/auth/login?mode=admin")
+        self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         response = self.client.post(
             "/settings/accounts",
             data={
@@ -505,11 +509,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
         response = self.client.post("/logout")
         self.assertEqual(response.status_code, 302)
-        self.client.get("/login")
-        response = self.client.post("/login", data={"username": "partner", "password": "5678"})
+        self.client.get("/auth/login")
+        response = self.client.post("/auth/login", data={"username": "partner", "password": "5678"})
         self.assertEqual(response.status_code, 302)
 
-        partner_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        partner_html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn("파트너", partner_html)
         self.assertNotIn("__TEST__ ADMIN ONLY", partner_html)
 
@@ -527,15 +531,15 @@ class HealthTrackerFlowTest(unittest.TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        partner_html = self.client.get("/?date=2026-05-26&mode=workout").data.decode("utf-8")
+        partner_html = self.client.get("/app?date=2026-05-26&mode=workout").data.decode("utf-8")
         self.assertIn("__TEST__ PARTNER ONLY", partner_html)
         self.assertNotIn("__TEST__ ADMIN ONLY", partner_html)
 
         self.client.post("/logout")
-        self.client.get("/login")
-        response = self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.client.get("/auth/login")
+        response = self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         self.assertEqual(response.status_code, 302)
-        response = self.client.get("/?date=2026-05-26&mode=workout")
+        response = self.client.get("/app?date=2026-05-26&mode=workout")
         self.assertEqual(response.status_code, 302)
         self.assertIn("/admin", response.headers.get("Location", ""))
         self.assertTrue((Path(self.tmpdir.name) / "accounts.db").exists())
@@ -543,50 +547,53 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
     def test_login_tabs_signup_and_role_boundaries(self) -> None:
         self.client.post("/logout")
-        html = self.client.get("/login?mode=admin").data.decode("utf-8")
+        html = self.client.get("/auth/login?mode=admin").data.decode("utf-8")
         self.assertIn("관리자 로그인", html)
         self.assertNotIn("<strong>회원가입</strong>", html)
-        html = self.client.get("/login?mode=user").data.decode("utf-8")
+        html = self.client.get("/auth/login?mode=user").data.decode("utf-8")
         self.assertIn("사용자 로그인", html)
         self.assertIn("회원가입", html)
 
         response = self.client.post("/signup", data={"username": "member_1", "password": "abcd", "password_confirm": "abcd"})
         self.assertEqual(response.status_code, 302)
-        html = self.client.get("/?mode=workout").data.decode("utf-8")
+        html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn("member_1", html)
 
         self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
         response = self.client.post(
-            "/login",
+            "/auth/login",
             data={"login_mode": "admin", "username": "member_1", "password": "abcd"},
         )
         self.assertIn("not_admin", response.headers.get("Location", ""))
 
+        self.client.get("/auth/login?mode=user")
         response = self.client.post(
-            "/login",
+            "/auth/login",
             data={"login_mode": "user", "username": "admin", "password": "1234"},
         )
         self.assertIn("not_user", response.headers.get("Location", ""))
 
+        self.client.get("/auth/login?mode=admin")
         response = self.client.post(
-            "/login",
+            "/auth/login",
             data={"login_mode": "admin", "username": "admin", "password": "1234"},
         )
         self.assertIn("/admin", response.headers.get("Location", ""))
-        response = self.client.get("/")
+        response = self.client.get("/app")
         self.assertIn("/admin", response.headers.get("Location", ""))
 
     def test_admin_dashboard_reports_user_usage_and_blocks_users(self) -> None:
         self.client.post("/logout")
-        self.client.get("/login?mode=admin")
-        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.client.get("/auth/login?mode=admin")
+        self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         self.client.post(
             "/settings/accounts",
             data={"username": "reportuser", "display_name": "리포트사용자", "password": "5678", "role": "user"},
         )
         self.client.post("/logout")
-        self.client.get("/login")
-        self.client.post("/login", data={"login_mode": "user", "username": "reportuser", "password": "5678"})
+        self.client.get("/auth/login")
+        self.client.post("/auth/login", data={"login_mode": "user", "username": "reportuser", "password": "5678"})
         response = self.client.post(
             "/sets",
             data={
@@ -601,15 +608,15 @@ class HealthTrackerFlowTest(unittest.TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        user_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        user_html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn("admin-mode", user_html)
         response = self.client.get("/admin")
         self.assertEqual(response.status_code, 302)
         self.assertIn("mode=admin", response.headers.get("Location", ""))
 
         self.client.post("/logout")
-        self.client.get("/login")
-        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.client.get("/auth/login")
+        self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         admin_html = self.client.get("/admin").data.decode("utf-8")
         self.assertIn("관리자 대시보드", admin_html)
         self.assertIn("리포트사용자", admin_html)
@@ -620,8 +627,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
     def test_admin_can_manage_user_account_status_password_and_memo(self) -> None:
         self.client.post("/logout")
-        self.client.get("/login?mode=admin")
-        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.client.get("/auth/login?mode=admin")
+        self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         self.client.post(
             "/settings/accounts",
             data={"username": "managed", "display_name": "관리대상", "password": "1111", "role": "user"},
@@ -641,37 +648,37 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.post("/admin/users/3/password", data={"password": "2222"})
         self.assertEqual(response.status_code, 302)
         self.client.post("/logout")
-        self.client.get("/login")
+        self.client.get("/auth/login")
         response = self.client.post(
-            "/login",
+            "/auth/login",
             data={"login_mode": "user", "username": "managed", "password": "2222"},
         )
         self.assertEqual(response.status_code, 302)
 
         self.client.post("/logout")
-        self.client.get("/login")
-        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.client.get("/auth/login")
+        self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         response = self.client.post(
             "/admin/users/3/status",
             data={"action": "disable", "confirm_status": "비활성화"},
         )
         self.assertEqual(response.status_code, 302)
         self.client.post("/logout")
-        self.client.get("/login")
+        self.client.get("/auth/login")
         response = self.client.post(
-            "/login",
+            "/auth/login",
             data={"login_mode": "user", "username": "managed", "password": "2222"},
         )
         self.assertIn("invalid", response.headers.get("Location", ""))
 
-        self.client.get("/login")
-        self.client.post("/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.client.get("/auth/login")
+        self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
         response = self.client.post("/admin/users/3/status", data={"action": "enable"})
         self.assertEqual(response.status_code, 302)
         self.client.post("/logout")
-        self.client.get("/login")
+        self.client.get("/auth/login")
         response = self.client.post(
-            "/login",
+            "/auth/login",
             data={"login_mode": "user", "username": "managed", "password": "2222"},
         )
         self.assertEqual(response.status_code, 302)
@@ -714,9 +721,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
         assets_match = re.search(r"const ASSETS = \[(.*?)\];", sw_source, re.S)
         self.assertIsNotNone(assets_match)
         assets = re.findall(r'"([^"]+)"', assets_match.group(1))
-        self.assertNotIn("/", assets)
-        self.assertNotIn("/?mode=workout", assets)
-        self.assertNotIn("/?mode=meal", assets)
+        self.assertNotIn("/app", assets)
+        self.assertNotIn("/app?mode=workout", assets)
+        self.assertNotIn("/app?mode=meal", assets)
         self.assertIn("/calendar", assets)
         self.assertIn("/meals/weekly", assets)
         self.assertIn("/summaries/exercises", assets)
@@ -740,7 +747,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn(f"workout-pwa-v{expected_version}", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
-        html = self.client.get("/?mode=workout").data.decode("utf-8")
+        html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn("data-set-count-input", html)
         self.assertIn("data-set-count-preset=\"5\"", html)
         self.assertIn("name=\"set_weight_unit\"", html)
@@ -779,7 +786,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(rows[2]["reps"], 8)
 
     def test_workout_cardio_meal_flow(self) -> None:
-        default_workout_html = self.client.get("/?mode=workout").data.decode("utf-8")
+        default_workout_html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn('<option value="프리웨이트">프리웨이트</option>', default_workout_html)
 
         workout_date = "2026-05-26"
@@ -897,12 +904,12 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(len(meals), 2)
             self.assertEqual(meals[0]["calories"], 180)
 
-        response = self.client.get(f"/?date={workout_date}&mode=meal")
+        response = self.client.get(f"/app?date={workout_date}&mode=meal")
         meal_html = response.data.decode("utf-8")
         self.assertIn("meal-record-card", meal_html)
         self.assertIn("meal-record-item", meal_html)
 
-        response = self.client.get(f"/?date={workout_date}&mode=workout")
+        response = self.client.get(f"/app?date={workout_date}&mode=workout")
         html = response.data.decode("utf-8")
         self.assertIn('list="exercise-list"', html)
         self.assertIn(f'value="{strength_name}"', html)
@@ -1099,7 +1106,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 (workout_date,),
             ).fetchone()["id"]
 
-        html = self.client.get("/", query_string={"date": workout_date, "mode": "workout"}).data.decode("utf-8")
+        html = self.client.get("/app", query_string={"date": workout_date, "mode": "workout"}).data.decode("utf-8")
         self.assertIn("운동명 일괄 수정", html)
         self.assertIn("__TEST__ 암풀다온", html)
         self.assertIn("케이블", html)
