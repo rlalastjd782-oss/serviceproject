@@ -1040,6 +1040,18 @@ input[type="month"] {
   transition: all 0.2s;
 }
 
+.tab-logout-form {
+  display: flex;
+  flex: 1;
+  min-width: 68px;
+  margin: 0;
+}
+
+.tab-logout-form .tab-btn {
+  width: 100%;
+  cursor: pointer;
+}
+
 .tab-btn.active {
   border-bottom-color: var(--blue);
   color: var(--blue);
