@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.5 미리보기 UI 개선
+- `/auth/preview` 화면을 단순 카드 나열에서 히어로, 모바일형 오늘 운동 샘플, 핵심 기능 요약, 기록/분석/장소/식단 카드 구조로 재구성했습니다.
+- 미리보기 템플릿의 깨진 한글을 정상 문구로 교체했습니다.
+- 모바일에서 히어로, 지표 카드, 기록 행이 한 줄에 눌리지 않도록 반응형 CSS를 추가했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `git diff --check` 통과.
+
 ## 2026-05-28 v2.3.4 가입 전 미리보기 페이지
 - `/auth/preview` 공개 페이지를 추가해 가입 전에도 오늘 운동, 기록, 분석, 장소/장비 흐름을 샘플로 확인할 수 있게 했습니다.
 - 로그인/회원가입 화면에 미리보기 이동 버튼을 추가했습니다.

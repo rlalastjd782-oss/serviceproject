@@ -597,10 +597,12 @@ class HealthTrackerFlowTest(unittest.TestCase):
     def test_auth_preview_is_public_sample_only(self) -> None:
         self.client.post("/logout")
         html = self.client.get("/auth/preview").data.decode("utf-8")
-        self.assertIn("피트니스 트래커 미리보기", html)
+        self.assertIn("가입 전 미리보기", html)
+        self.assertIn("운동 기록, 분석, 장소 관리를", html)
         self.assertIn("/auth/login", html)
         self.assertIn("/auth/signup", html)
         self.assertIn("랫풀다운", html)
+        self.assertIn("아파트 헬스장", html)
         self.assertNotIn("<form", html)
         self.assertNotIn("__TEST__", html)
         self.assertNotIn("사용자 현황", html)
