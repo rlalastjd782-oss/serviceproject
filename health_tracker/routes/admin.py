@@ -46,6 +46,25 @@ def register_admin_routes(app, ctx: dict[str, object]) -> None:
             return redirect(url_for("admin_user_detail_page", account_id=account_id, error="password"))
         return redirect(url_for("admin_user_detail_page", account_id=account_id))
 
+    @app.post("/admin/password")
+    def admin_update_own_password_route():
+        blocked = require_admin()
+        if blocked:
+            return blocked
+        account = current_account()
+        current_password = request.form.get("current_password", "")
+        new_password = request.form.get("new_password", "")
+        new_password_confirm = request.form.get("new_password_confirm", "")
+        if (
+            not account
+            or not verify_account(account["username"], current_password)
+            or new_password != new_password_confirm
+            or not reset_user_password(int(account["id"]), new_password)
+            or not set_settings_password(new_password)
+        ):
+            return redirect(url_for("admin_dashboard_page", error="password"))
+        return redirect(url_for("admin_dashboard_page", updated="password"))
+
     @app.post("/admin/users/<int:account_id>/status")
     def admin_update_user_status_route(account_id: int):
         blocked = require_admin()
