@@ -35,6 +35,9 @@ from health_tracker.database.schema import init_database
 from health_tracker.meta import get_app_updated_at, get_app_version
 from health_tracker.security import (
     ADMIN_GET_ENDPOINTS,
+    ADMIN_ONLY_ENDPOINTS,
+    AUTHENTICATED_SHARED_ENDPOINTS,
+    PUBLIC_GET_ENDPOINTS,
     PUBLIC_POST_ENDPOINTS,
     ensure_csrf_token,
     validate_csrf_token,
@@ -263,6 +266,7 @@ def create_app() -> Flask:
     def before_request() -> None:
         init_accounts_db(DATABASE)
         init_db()
+        endpoint = request.endpoint or ""
         if request.endpoint != "static":
             account_id = parse_int(str(session.get("account_id") or ""))
             if account_id:
@@ -273,8 +277,30 @@ def create_app() -> Flask:
             json_token = json_payload.get("csrf_token") if isinstance(json_payload, dict) else None
             if not validate_csrf_token(request.form.get("csrf_token") or request.headers.get("X-CSRF-Token") or json_token):
                 abort(400)
-            if request.endpoint not in PUBLIC_POST_ENDPOINTS and not settings_unlocked():
+        account = current_account()
+        if session.get("account_id") and not account:
+            session.pop("account_id", None)
+            session.pop("settings_unlocked", None)
+        logged_in = bool(account and session.get("settings_unlocked"))
+        if not logged_in:
+            if request.method == "GET" and endpoint not in PUBLIC_GET_ENDPOINTS:
+                next_url = request.full_path.rstrip("?")
+                return redirect(url_for("login_page", mode="user", next=next_url))
+            if request.method == "POST" and endpoint not in PUBLIC_POST_ENDPOINTS:
                 abort(403)
+            return None
+        if request.method == "GET" and endpoint == "login_page":
+            return redirect(url_for("admin_dashboard_page" if account["role"] == "admin" else "index"))
+        admin_endpoint = endpoint.startswith("admin_") or endpoint in ADMIN_ONLY_ENDPOINTS
+        if account["role"] == "admin":
+            if endpoint not in AUTHENTICATED_SHARED_ENDPOINTS and not admin_endpoint:
+                if request.method == "GET":
+                    return redirect(url_for("admin_dashboard_page"))
+                abort(403)
+        elif admin_endpoint:
+            if request.method == "GET":
+                return redirect(url_for("login_page", mode="admin", error="admin_required"))
+            abort(403)
         if request.method == "GET" and request.endpoint in ADMIN_GET_ENDPOINTS and not settings_unlocked():
             return redirect(url_for("settings_page"))
 
@@ -390,6 +416,7 @@ def ensure_default_account() -> None:
 
 
 def create_account(username: str, password: str, display_name: str = "", role: str = "user") -> tuple[bool, str]:
+    ensure_default_account()
     return create_account_in_auth_db(DATABASE, username, password, display_name, role)
 
 

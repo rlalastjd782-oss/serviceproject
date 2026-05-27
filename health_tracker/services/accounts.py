@@ -11,7 +11,7 @@ USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{2,32}$")
 
 
 def account_db_path(main_database: Path, account_id: int) -> Path:
-    if account_id <= 1:
+    if account_id <= 2:
         return main_database
     return main_database.parent / "accounts" / f"user_{account_id}.db"
 

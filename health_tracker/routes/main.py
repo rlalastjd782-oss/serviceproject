@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from urllib.parse import urlparse
 
 from health_tracker.services.settings_context import build_settings_context
 from health_tracker.services.summary_context import (
@@ -13,6 +14,15 @@ from health_tracker.services.today_context import build_today_context
 
 def register_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
+
+    def safe_next_url(value: str | None) -> str:
+        value = (value or "").strip()
+        parsed = urlparse(value)
+        if not value or parsed.scheme or parsed.netloc or not value.startswith("/"):
+            return ""
+        if value.startswith("/login"):
+            return ""
+        return value
 
     def parse_weight_kg(value: str, unit: str) -> float | None:
         parsed = parse_float(value)
@@ -33,39 +43,48 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             active_page="settings",
             error=request.args.get("error", ""),
             mode=request.args.get("mode", "user"),
+            next_url=safe_next_url(request.args.get("next")),
         )
 
     @app.post("/login")
     def login_route():
         login_mode = request.form.get("login_mode", "user")
+        next_url = safe_next_url(request.form.get("next"))
         account = verify_account(request.form.get("username", ""), request.form.get("password", ""))
         if not account:
-            return redirect(url_for("login_page", mode=login_mode, error="invalid"))
+            return redirect(url_for("login_page", mode=login_mode, error="invalid", next=next_url))
         if login_mode == "admin" and account["role"] != "admin":
-            return redirect(url_for("login_page", mode="admin", error="not_admin"))
+            return redirect(url_for("login_page", mode="admin", error="not_admin", next=next_url))
         if login_mode == "user" and account["role"] != "user":
-            return redirect(url_for("login_page", mode="user", error="not_user"))
+            return redirect(url_for("login_page", mode="user", error="not_user", next=next_url))
         session["account_id"] = int(account["id"])
         session["settings_unlocked"] = True
         mark_account_login(int(account["id"]))
-        return redirect(url_for("index"))
+        if account["role"] == "admin":
+            return redirect(url_for("admin_dashboard_page"))
+        return redirect(next_url or url_for("index"))
 
     @app.post("/signup")
     def signup_route():
+        password = request.form.get("password", "")
+        password_confirm = request.form.get("password_confirm", "")
+        next_url = safe_next_url(request.form.get("next"))
+        if password != password_confirm:
+            return redirect(url_for("login_page", mode="user", error="signup_password", next=next_url))
         ok, error = create_account(
             request.form.get("username", ""),
-            request.form.get("password", ""),
+            password,
             request.form.get("username", ""),
             "user",
         )
         if not ok:
-            return redirect(url_for("login_page", mode="user", error=f"signup_{error}"))
-        account = verify_account(request.form.get("username", ""), request.form.get("password", ""))
+            return redirect(url_for("login_page", mode="user", error=f"signup_{error}", next=next_url))
+        account = verify_account(request.form.get("username", ""), password)
         if account:
             session["account_id"] = int(account["id"])
             session["settings_unlocked"] = True
             mark_account_login(int(account["id"]))
-        return redirect(url_for("index"))
+        return redirect(next_url or url_for("index"))
 
     @app.post("/logout")
     def logout_route():
