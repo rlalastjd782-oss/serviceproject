@@ -551,11 +551,19 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("관리자 로그인", html)
         self.assertIn('name="csrf_token"', html)
         self.assertNotIn("<strong>회원가입</strong>", html)
+        self.assertNotIn("href=\"/auth/signup", html)
+        self.assertIn("서버 관리자에게 문의", html)
         html = self.client.get("/auth/login?mode=user").data.decode("utf-8")
         self.assertIn("사용자 로그인", html)
         self.assertIn("회원가입", html)
+        self.assertIn("관리자에게 초기화", html)
+        self.assertNotIn("사용자 회원가입</strong>", html)
 
-        response = self.client.post("/signup", data={"username": "member_1", "password": "abcd", "password_confirm": "abcd"})
+        signup_html = self.client.get("/auth/signup").data.decode("utf-8")
+        self.assertIn("사용자 회원가입", signup_html)
+        self.assertIn("로그인으로 돌아가기", signup_html)
+
+        response = self.client.post("/auth/signup", data={"username": "member_1", "password": "abcd", "password_confirm": "abcd"})
         self.assertEqual(response.status_code, 302)
         html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn("member_1", html)
@@ -583,6 +591,45 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("/admin", response.headers.get("Location", ""))
         response = self.client.get("/app")
         self.assertIn("/admin", response.headers.get("Location", ""))
+
+    def test_admin_can_change_own_password_and_settings_password_hash(self) -> None:
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
+        self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+
+        dashboard_html = self.client.get("/admin").data.decode("utf-8")
+        self.assertIn("관리자 비밀번호 변경", dashboard_html)
+
+        response = self.client.post(
+            "/admin/password",
+            data={
+                "current_password": "wrong",
+                "new_password": "9999",
+                "new_password_confirm": "9999",
+            },
+        )
+        self.assertIn("error=password", response.headers.get("Location", ""))
+
+        response = self.client.post(
+            "/admin/password",
+            data={
+                "current_password": "1234",
+                "new_password": "9999",
+                "new_password_confirm": "9999",
+            },
+        )
+        self.assertIn("updated=password", response.headers.get("Location", ""))
+
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "1234"})
+        self.assertIn("invalid", response.headers.get("Location", ""))
+
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post("/auth/login", data={"login_mode": "admin", "username": "admin", "password": "9999"})
+        self.assertIn("/admin", response.headers.get("Location", ""))
+        with self.app.app_context():
+            self.assertTrue(app_module.verify_settings_password("9999"))
 
     def test_admin_dashboard_reports_user_usage_and_blocks_users(self) -> None:
         self.client.post("/logout")
