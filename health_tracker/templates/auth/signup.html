@@ -1,0 +1,39 @@
+{% extends "layouts/auth.html" %}
+
+{% block title %}회원가입{% endblock %}
+
+{% block content %}
+  <section class="section login-shell auth-login-shell">
+    <div class="section-header">
+      <div>
+        <div class="section-title">회원가입</div>
+        <div class="section-subtitle">사용자 계정만 직접 가입할 수 있습니다.</div>
+      </div>
+    </div>
+
+    {% if error %}
+      <div class="empty compact-empty">
+        {% if error == "signup_duplicate" %}이미 사용 중인 아이디입니다.
+        {% elif error == "signup_invalid" %}아이디는 영문/숫자/언더바 2~32자, 비밀번호는 4자 이상이어야 합니다.
+        {% elif error == "signup_password" %}비밀번호 확인이 일치하지 않습니다.
+        {% else %}요청을 처리하지 못했습니다.
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <form method="post" action="{{ url_for('signup_route') }}" class="settings-password-form login-panel auth-primary-panel">
+      <input type="hidden" name="next" value="{{ next_url }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <strong>사용자 회원가입</strong>
+      <input name="username" autocomplete="username" placeholder="아이디" required autofocus>
+      <input name="password" type="password" autocomplete="new-password" placeholder="비밀번호" required>
+      <input name="password_confirm" type="password" autocomplete="new-password" placeholder="비밀번호 확인" required>
+      <button class="btn-primary" type="submit">가입하고 시작</button>
+    </form>
+
+    <div class="auth-secondary-action">
+      <span>이미 계정이 있으신가요?</span>
+      <a class="btn-small" href="{{ url_for('login_page', mode='user', next=next_url) }}">로그인으로 돌아가기</a>
+    </div>
+  </section>
+{% endblock %}

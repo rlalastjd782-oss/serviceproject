@@ -59,6 +59,14 @@ def register_routes(app, ctx: dict[str, object]) -> None:
     def legacy_login_page():
         return redirect(url_for("login_page", mode=request.args.get("mode", "user"), error=request.args.get("error", ""), next=safe_next_url(request.args.get("next"))))
 
+    @app.get("/auth/signup")
+    def signup_page():
+        return render_template(
+            "auth/signup.html",
+            error=request.args.get("error", ""),
+            next_url=safe_next_url(request.args.get("next")),
+        )
+
     @app.post("/auth/login")
     @app.post("/login")
     def login_route():
@@ -85,7 +93,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         password_confirm = request.form.get("password_confirm", "")
         next_url = safe_next_url(request.form.get("next"))
         if password != password_confirm:
-            return redirect(url_for("login_page", mode="user", error="signup_password", next=next_url))
+            return redirect(url_for("signup_page", error="signup_password", next=next_url))
         ok, error = create_account(
             request.form.get("username", ""),
             password,
@@ -93,7 +101,7 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             "user",
         )
         if not ok:
-            return redirect(url_for("login_page", mode="user", error=f"signup_{error}", next=next_url))
+            return redirect(url_for("signup_page", error=f"signup_{error}", next=next_url))
         account = verify_account(request.form.get("username", ""), password)
         if account:
             session["account_id"] = int(account["id"])
