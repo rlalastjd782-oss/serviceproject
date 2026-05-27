@@ -1,5 +1,14 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.3 인증 UX 및 관리자 비밀번호 변경
+- 사용자/관리자 레이아웃 헤더에서 `계정명님 환영합니다`와 `v2.3.3` 버전을 별도 영역으로 분리했습니다.
+- 로그인 탭 선택 상태를 더 진한 배경/흰색 글자로 바꿔 사용자/관리자 선택이 명확해졌습니다.
+- 로그인 화면에는 로그인 폼만 남기고, 사용자 회원가입은 `/auth/signup` 전용 화면으로 분리했습니다.
+- 사용자 로그인에는 “비밀번호를 잊으셨나요? 관리자에게 초기화를 요청하세요.” 문구를, 관리자 로그인에는 서버 관리자 문의 문구를 추가했습니다.
+- `/admin/password`를 추가해 관리자 본인 비밀번호를 현재 비밀번호 확인 후 변경할 수 있게 했습니다.
+- 관리자 비밀번호 변경 시 `accounts.db`의 관리자 계정 해시와 `workout.db`의 `settings_password_hash`를 함께 갱신합니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` 통과.
+
 ## 2026-05-28 v2.3.2 인증 화면 CSRF 수정
 - `layouts/auth.html`은 앱 공통 JS를 로드하지 않으므로, 로그인/회원가입 폼의 CSRF hidden input을 `templates/auth/login.html`에서 직접 렌더링하도록 수정했습니다.
 - 실제 로컬 HTTP에서 `/auth/login?mode=admin` 페이지의 CSRF 토큰 존재와 `admin / 1234` 로그인 후 `/admin` 진입을 확인했습니다.
