@@ -1,16 +1,6 @@
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => {
-      navigator.serviceWorker.register("/static/sw.js").catch(() => {});
-    });
-  });
-}
-
-const exerciseQuickPanel = document.querySelector("[data-exercise-quick-panel]");
+﻿const exerciseQuickPanel = document.querySelector("[data-exercise-quick-panel]");
 const appPreferenceElement = document.querySelector("[data-app-preferences]");
 const appPreferences = parseJsonData(appPreferenceElement, "appPreferences");
-const bodyPartClassMap = parseJsonData(appPreferenceElement, "bodyPartClasses");
-const mealTypeClassMap = parseJsonData(appPreferenceElement, "mealTypeClasses");
 const setTypeOptions = Array.isArray(appPreferences.set_type_options) && appPreferences.set_type_options.length
   ? appPreferences.set_type_options
   : ["본세트"];
@@ -35,8 +25,6 @@ const nextSetAdviceView = document.querySelector("[data-next-set-advice]");
 const exerciseStatView = document.querySelector("[data-exercise-stat-view]");
 const exerciseNoteView = document.querySelector("[data-exercise-note-view]");
 const exerciseTargetView = document.querySelector("[data-exercise-target-view]");
-const readinessForm = document.querySelector("[data-readiness-form]");
-const readinessCoach = document.querySelector("[data-readiness-coach]");
 initWorkoutClock();
 restoreSavedScrollPosition();
 scrollActiveTabIntoView();
@@ -120,7 +108,7 @@ document.addEventListener("submit", (event) => {
   if (form?.matches("[data-workout-complete-form]") || /\/sessions\/\d+\/complete$/.test(form?.getAttribute("action") || "")) {
     const completedValue = form.querySelector('input[name="completed"]')?.value;
     if (completedValue === "1" && typeof resetWorkoutClockDisplayOnly === "function") {
-      resetWorkoutClockDisplayOnly("운동 완료");
+      resetWorkoutClockDisplayOnly("?대룞 ?꾨즺");
     }
   }
 
@@ -218,7 +206,7 @@ document.addEventListener("click", (event) => {
 
   if (mealFormToggleButton && mealForm) {
     const isCollapsed = mealForm.classList.toggle("is-collapsed");
-    mealFormToggleButton.textContent = isCollapsed ? "입력 열기" : "입력 닫기";
+    mealFormToggleButton.textContent = isCollapsed ? "?낅젰 ?닿린" : "?낅젰 ?リ린";
     if (!isCollapsed) {
       mealForm.querySelector("input:not([type='hidden']), select")?.focus();
     }
@@ -229,7 +217,7 @@ document.addEventListener("click", (event) => {
     resetMealForm(mealForm, mealList);
     const toggleButton = document.querySelector("[data-toggle-meal-form]");
     if (toggleButton) {
-      toggleButton.textContent = "입력 열기";
+      toggleButton.textContent = "?낅젰 ?닿린";
     }
     return;
   }
@@ -255,7 +243,7 @@ document.addEventListener("click", (event) => {
   }
 
   if (workoutClockSaveButton) {
-    persistWorkoutClock("저장됨");
+    persistWorkoutClock("??λ맖");
     return;
   }
 
@@ -316,7 +304,7 @@ document.addEventListener("click", (event) => {
       mealForm.classList.remove("is-collapsed");
       const toggleButton = document.querySelector("[data-toggle-meal-form]");
       if (toggleButton) {
-        toggleButton.textContent = "입력 닫기";
+        toggleButton.textContent = "?낅젰 ?リ린";
       }
     }
     loadFoodEntry(foodQuickButton, mealList);
@@ -415,14 +403,6 @@ document.addEventListener("click", (event) => {
   }
 });
 
-function applyBodyPartSelectColor(select) {
-  const classNames = Object.values(bodyPartClassMap);
-  if (classNames.length) {
-    select.classList.remove(...classNames);
-  }
-  select.classList.add(bodyPartClassMap[select.value] || "body-part-other");
-}
-
 function openInlineEdit(item) {
   if (!item) {
     return;
@@ -431,65 +411,8 @@ function openInlineEdit(item) {
   item.querySelector("input, select")?.focus();
 }
 
-function applyMealTypeSelectColor(select) {
-  const classNames = Object.values(mealTypeClassMap);
-  if (classNames.length) {
-    select.classList.remove(...classNames);
-  }
-  select.classList.add(mealTypeClassMap[select.value] || "meal-type-other");
-}
-
-function parseJsonData(element, key) {
-  if (!element) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(element.dataset[key] || "{}");
-  } catch {
-    return {};
-  }
-}
-
 function parseExerciseQuickData() {
   return parseJsonData(exerciseQuickPanel, "exercisesByBodyPart");
-}
-
-function renderReadinessCoach() {
-  if (!readinessForm || !readinessCoach) {
-    return;
-  }
-  const condition = Number(readinessForm.querySelector('[name="condition_score"]')?.value || 3);
-  const sleep = Number(readinessForm.querySelector('[name="sleep_score"]')?.value || 3);
-  const soreness = Number(readinessForm.querySelector('[name="soreness_score"]')?.value || 3);
-  const fatigue = Number(readinessForm.querySelector('[name="fatigue_score"]')?.value || 3);
-  const score = condition + sleep + (6 - soreness) + (6 - fatigue);
-  const percent = Math.round((score / 20) * 100);
-  let label = "회복 우선";
-  let guide = "고중량보다 낮은 강도, 보조 운동, 유산소 위주로 조정하세요.";
-  let state = "low";
-  if (percent >= 75) {
-    label = "공격 가능";
-    guide = "메인 운동은 지난 기록보다 1회 또는 2.5kg 상향을 시도하세요.";
-    state = "high";
-  } else if (percent >= 55) {
-    label = "표준 진행";
-    guide = "지난 기록과 같은 중량에서 세트 완성도를 우선하세요.";
-    state = "normal";
-  }
-  readinessCoach.classList.remove("state-high", "state-normal", "state-low");
-  readinessCoach.classList.add(`state-${state}`);
-  setReadinessText("[data-readiness-label]", label);
-  setReadinessText("[data-readiness-guide]", guide);
-  setReadinessText("[data-readiness-percent]", percent);
-  setReadinessText("[data-readiness-score]", score);
-}
-
-function setReadinessText(selector, value) {
-  const element = readinessCoach?.querySelector(selector);
-  if (element) {
-    element.textContent = String(value);
-  }
 }
 
 function setWorkoutQuickTab(tabName) {
@@ -516,7 +439,7 @@ function renderExerciseQuickList(bodyPart) {
       const safeName = escapeHtml(name);
       const setting = exerciseSettings[name] || {};
       const equipment = setting.equipment ? escapeHtml(setting.equipment) : "";
-      const label = equipment ? `${safeName} · ${equipment}` : safeName;
+      const label = equipment ? `${safeName} 쨌 ${equipment}` : safeName;
       return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}" data-equipment="${equipment}">${label}</button>`;
     })
     .join("");
@@ -524,7 +447,7 @@ function renderExerciseQuickList(bodyPart) {
     const libraryUrl = exerciseQuickPanel.dataset.libraryUrl || "/exercises/library";
     exerciseQuickList.insertAdjacentHTML(
       "beforeend",
-      `<a class="exercise-quick-button exercise-quick-more" href="${libraryUrl}?part=${encodeURIComponent(bodyPart)}">+${hiddenCount}개</a>`,
+      `<a class="exercise-quick-button exercise-quick-more" href="${libraryUrl}?part=${encodeURIComponent(bodyPart)}">+${hiddenCount}媛?/a>`,
     );
   }
   if (exerciseDatalist) {
@@ -569,7 +492,7 @@ function renderRecentSetList(exerciseName) {
   const sets = recentSetsByExercise[exerciseName] || [];
   recentSetTitle.hidden = sets.length === 0;
   recentSetList.innerHTML = sets.length
-    ? `<button class="exercise-quick-button" type="button" data-load-recent-sets data-exercise-name="${escapeHtml(exerciseName)}">지난 세트 불러오기</button>`
+    ? `<button class="exercise-quick-button" type="button" data-load-recent-sets data-exercise-name="${escapeHtml(exerciseName)}">吏???명듃 遺덈윭?ㅺ린</button>`
     : "";
 }
 
@@ -580,7 +503,7 @@ function renderExerciseGuidance(exerciseName) {
       const bestWeight = stats.best_weight ? `${Number(stats.best_weight).toFixed(1)}kg` : "-kg";
       const bestReps = stats.best_reps ? `${Number(stats.best_reps)}회` : "-회";
       const bestVolume = stats.best_volume ? `${Number(stats.best_volume).toFixed(0)}kg` : "-kg";
-      exerciseStatView.textContent = `최근: ${stats.recent || "-"} · 최고: ${bestWeight} / ${bestReps} / 볼륨 ${bestVolume}`;
+      exerciseStatView.textContent = `理쒓렐: ${stats.recent || "-"} 쨌 理쒓퀬: ${bestWeight} / ${bestReps} / 蹂쇰ⅷ ${bestVolume}`;
       exerciseStatView.hidden = false;
     } else {
       exerciseStatView.textContent = "";
@@ -601,9 +524,9 @@ function renderExerciseGuidance(exerciseName) {
       const target = [weight, reps, minutes, advice.sets ? `${advice.sets}세트` : ""].filter(Boolean).join(" · ");
       nextSetAdviceView.innerHTML = `
         <div class="next-set-advice-row">
-          <span>다음 세트 · ${escapeHtml(advice.type || "추천")}</span>
-          <strong>${escapeHtml(target || "기준 기록")}</strong>
-          <button type="button" class="btn-small" data-apply-next-set="${escapeHtml(exerciseName)}">적용</button>
+          <span>?ㅼ쓬 ?명듃 쨌 ${escapeHtml(advice.type || "異붿쿇")}</span>
+          <strong>${escapeHtml(target || "湲곗? 湲곕줉")}</strong>
+          <button type="button" class="btn-small" data-apply-next-set="${escapeHtml(exerciseName)}">?곸슜</button>
         </div>
         <small>${escapeHtml(advice.reason || "")}</small>
       `;
@@ -615,14 +538,14 @@ function renderExerciseGuidance(exerciseName) {
   }
   if (exerciseNoteView) {
     const note = exerciseNotes[exerciseName] || "";
-    exerciseNoteView.textContent = note ? `메모: ${note}` : "";
+    exerciseNoteView.textContent = note ? `硫붾え: ${note}` : "";
     exerciseNoteView.hidden = !note;
   }
   if (exerciseTargetView) {
     const setting = exerciseSettings[exerciseName] || {};
     const parts = [];
     if (setting.equipment) {
-      parts.push(`장비 ${setting.equipment}`);
+      parts.push(`?λ퉬 ${setting.equipment}`);
     }
     if (setting.target_weight) {
       parts.push(`${Number(setting.target_weight).toFixed(1)}kg`);
@@ -633,7 +556,7 @@ function renderExerciseGuidance(exerciseName) {
     if (setting.target_sets) {
       parts.push(`${Number(setting.target_sets)}세트`);
     }
-    exerciseTargetView.textContent = parts.length ? `목표: ${parts.join(" · ")}` : "";
+    exerciseTargetView.textContent = parts.length ? `紐⑺몴: ${parts.join(" 쨌 ")}` : "";
     exerciseTargetView.hidden = parts.length === 0;
   }
 }
@@ -654,7 +577,7 @@ function getWorkoutFormToggleButtons() {
 
 function setWorkoutFormToggleText(isCollapsed) {
   getWorkoutFormToggleButtons().forEach((button) => {
-    button.textContent = isCollapsed ? "운동 추가" : "입력 닫기";
+    button.textContent = isCollapsed ? "?대룞 異붽?" : "?낅젰 ?リ린";
     button.setAttribute("aria-expanded", String(!isCollapsed));
   });
 }
@@ -769,7 +692,7 @@ function updateSetWeightPreviews() {
     }
     const value = Number(input.value || 0);
     if (!input.value || Number.isNaN(value)) {
-      preview.textContent = unit === "lb" ? "lb 입력 시 kg로 저장" : "kg 기준 저장";
+      preview.textContent = unit === "lb" ? "lb 입력 후 kg로 저장" : "kg 기준 저장";
       return;
     }
     const kgValue = unit === "lb" ? value * 0.45359237 : value;
@@ -842,7 +765,7 @@ function copySetRow(sourceRow, setList) {
 
 function copySavedSet(button, setList) {
   const bodyPartSelect = workoutForm?.querySelector("[data-body-part-select]");
-  const bodyPart = button.dataset.bodyPart || "기타";
+  const bodyPart = button.dataset.bodyPart || "湲고?";
   if (bodyPartSelect) {
     bodyPartSelect.value = bodyPart;
     applyBodyPartSelectColor(bodyPartSelect);
@@ -916,51 +839,51 @@ function setRowHtml(index) {
   const weightPlaceholder = appPreferences.default_weight_placeholder ?? 60;
   const repsPlaceholder = appPreferences.default_reps_placeholder ?? 10;
   return `
-    <strong class="set-row-number">${index}세트</strong>
+    <strong class="set-row-number">${index}?명듃</strong>
     <div class="compact-field-grid" data-strength-fields>
       <label class="weight-unit-field">
-        <span>무게</span>
+        <span>臾닿쾶</span>
         <div class="weight-unit-control">
           <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="${escapeHtml(weightPlaceholder)}">
-          <select name="set_weight_unit" aria-label="무게 단위">
+          <select name="set_weight_unit" aria-label="臾닿쾶 ?⑥쐞">
             <option value="kg">kg</option>
             <option value="lb">lb</option>
           </select>
         </div>
-        <small class="weight-preview" data-weight-preview>kg 기준 저장</small>
+        <small class="weight-preview" data-weight-preview>kg 湲곗? ???/small>
       </label>
       <label>
-        <span>횟수</span>
+        <span>?잛닔</span>
         <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="${escapeHtml(repsPlaceholder)}">
       </label>
     </div>
     <div class="compact-field-grid cardio-field-grid" data-cardio-fields hidden>
       <label>
-        <span>인클라인</span>
+        <span>?명겢?쇱씤</span>
         <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" placeholder="8">
       </label>
       <label>
-        <span>속도</span>
+        <span>?띾룄</span>
         <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" placeholder="5.5">
       </label>
       <label>
-        <span>시간 분</span>
+        <span>?쒓컙 遺?/span>
         <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30">
       </label>
     </div>
     <details class="set-advanced-options">
-      <summary>고급</summary>
+      <summary>怨좉툒</summary>
       <div class="set-advanced-grid">
-        <select name="set_type" aria-label="세트 타입" data-strength-fields>
+        <select name="set_type" aria-label="?명듃 ??? data-strength-fields>
           ${setTypeOptionHtml}
         </select>
-        <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
-        <input name="set_memo" autocomplete="off" placeholder="메모">
+        <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="泥닿컧媛뺣룄">
+        <input name="set_memo" autocomplete="off" placeholder="硫붾え">
       </div>
     </details>
     <div class="set-row-actions">
-      <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
-      <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">X</button>
+      <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="?명듃 蹂듭궗">蹂듭궗</button>
+      <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="?명듃 ??젣">X</button>
     </div>
   `;
 }
@@ -988,3 +911,4 @@ window.addEventListener("visibilitychange", () => {
     updateWorkoutClockStatus("측정 중");
   }
 });
+

@@ -46,6 +46,10 @@
         {% block content %}{% endblock %}
       </main>
     </div>
+    <script src="{{ url_for('static', filename='js/dom_data.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', filename='js/pwa.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', filename='js/select_theme.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', filename='js/readiness.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/timers.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/offline_queue.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/workout_tools.js') }}?v={{ app_version }}"></script>
