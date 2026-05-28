@@ -64,7 +64,13 @@ class LegacyMigrationTest(unittest.TestCase):
 
 class StaticAssetIntegrityTest(unittest.TestCase):
     def test_css_files_have_balanced_braces_and_no_known_broken_selectors(self) -> None:
-        for path in [Path("static/styles.css"), Path("static/rules.css"), Path("static/ui_rebuild.css")]:
+        for path in [
+            Path("static/styles.css"),
+            Path("static/feature_pages.css"),
+            Path("static/responsive.css"),
+            Path("static/rules.css"),
+            Path("static/ui_rebuild.css"),
+        ]:
             with self.subTest(path=str(path)):
                 source = path.read_text(encoding="utf-8-sig")
                 without_comments = re.sub(r"/\*.*?\*/", "", source, flags=re.S)
@@ -196,7 +202,13 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("rest-start-button", workout_html)
         self.assertIn(">타이머 시작</button>", workout_html)
         self.assertNotIn("초 휴식</button>", workout_html)
-        styles = Path("static/styles.css").read_text(encoding="utf-8")
+        styles = (
+            Path("static/styles.css").read_text(encoding="utf-8")
+            + "\n"
+            + Path("static/feature_pages.css").read_text(encoding="utf-8")
+            + "\n"
+            + Path("static/responsive.css").read_text(encoding="utf-8")
+        )
         self.assertIn(".workout-mode #rest-timer {\n  order: 11;", styles)
         self.assertIn(".workout-mode .workout-action-dock {\n  order: 12;", styles)
         self.assertIn(".workout-action-dock,\n  .mobile-action-dock {\n    top: 122px;", styles)

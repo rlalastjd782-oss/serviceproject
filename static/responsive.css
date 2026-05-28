@@ -1,0 +1,829 @@
+@media (max-width: 560px) {
+  .section-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .section-header > .settings-action-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .section-header > .settings-action-row .btn-small {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-hero {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .preview-hero h1 {
+    font-size: 22px;
+  }
+
+  .preview-record-list div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .auth-preview-actions,
+  .auth-secondary-action {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .summary-card {
+    min-height: 68px;
+    padding-inline: 6px;
+  }
+
+  .table-wrap {
+    margin-inline: -2px;
+    border-radius: 8px;
+  }
+
+  table {
+    min-width: 620px;
+  }
+
+  .yearly-dashboard-head h1 {
+    font-size: 20px;
+  }
+
+  .yearly-action-grid,
+  .yearly-metric-grid,
+  .yearly-month-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .yearly-rank-row {
+    grid-template-columns: 30px minmax(0, 1fr);
+  }
+
+  .yearly-rank-row em {
+    grid-column: 2;
+  }
+
+  .record-summary .badge {
+    flex: 1 1 calc(50% - 6px);
+    text-align: center;
+  }
+
+  .detail-list-head,
+  .detail-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .detail-list > .detail-row,
+  .detail-list > form.detail-row {
+    gap: 5px;
+  }
+
+  .detail-list-head span,
+  .detail-row span {
+    text-align: left;
+  }
+
+  .ex-input-row {
+    grid-template-columns: minmax(86px, 0.42fr) minmax(0, 1fr);
+  }
+
+  .ex-input-row .equipment-select {
+    grid-column: 1 / -1;
+  }
+
+  .meal-edit-form,
+  .inline-add-form,
+  .meal-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .more-tool-filter,
+  .record-gap-card,
+  .meal-template-card,
+  .recent-meal-template-row,
+  .record-result-card,
+  .weekly-meal-day-head,
+  .weekly-meal-item,
+  .ex-rank-item,
+  .location-insight-head,
+  .location-insight-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-record-head {
+    grid-template-columns: 1fr;
+  }
+
+  .daily-record-head .btn-small {
+    width: 100%;
+  }
+
+  .record-result-value {
+    align-content: start;
+    justify-items: start;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 8px 0 0;
+    text-align: left;
+  }
+
+  .weekly-meal-day-head {
+    display: grid;
+  }
+
+
+  .record-gap-actions,
+  .meal-template-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .location-select-form,
+  .location-create-form,
+  .location-edit-form,
+  .location-equipment-form {
+    grid-template-columns: 1fr;
+  }
+
+  .location-page-head,
+  .location-card-main {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .location-page-head h1 {
+    font-size: 20px;
+  }
+
+  .location-overview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .location-overview-card {
+    min-height: 62px;
+    padding: 9px;
+  }
+
+  .location-overview-card strong {
+    font-size: 20px;
+  }
+
+  .location-equipment-item {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .location-card-actions,
+  .location-form-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+  }
+
+  .location-card-actions form,
+  .location-card-actions button,
+  .location-form-actions button {
+    width: 100%;
+  }
+
+  .location-form-actions .checkbox-row {
+    justify-content: flex-start;
+  }
+
+  .set-edit-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px;
+  }
+
+  .set-edit-form .edit-field-small,
+  .set-edit-form .edit-field-type {
+    max-width: none;
+    min-width: 0;
+  }
+
+  .edit-actions {
+    grid-column: 1 / -1;
+  }
+
+  .exercise-rename-form {
+    grid-template-columns: 1fr;
+  }
+
+  .goal-form,
+  .routine-form,
+  .routine-manage-form,
+  .tool-form,
+  .record-list-toolbar,
+  .body-metric-form,
+  .body-photo-form,
+  .note-form,
+  .import-form,
+  .settings-action-card .import-form,
+  .settings-action-grid,
+  .admin-filter-form,
+  .health-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .record-search-form,
+  .record-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .record-search-query,
+  .record-filter-details {
+    grid-column: 1 / -1;
+  }
+
+  .record-filter-details .list-toolbar {
+    margin-top: 8px;
+  }
+
+  .list-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .list-tools,
+  .compact-select,
+  .compact-select select {
+    width: 100%;
+  }
+
+  .timer-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .duration-edit-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .duration-edit-form button {
+    min-height: 38px;
+  }
+
+  .meal-entry-row {
+    grid-template-columns: minmax(0, 1fr) 34px;
+  }
+
+  .set-entry-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "number"
+      "fields"
+      "advanced"
+      "actions";
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .set-row-number {
+    grid-area: number;
+    justify-content: flex-start;
+    min-height: 34px;
+    padding-inline: 10px;
+  }
+
+  .set-entry-row .compact-field-grid,
+  .set-entry-row .cardio-field-grid {
+    grid-area: fields;
+  }
+
+  .set-entry-row .set-row-actions {
+    grid-area: actions;
+    justify-content: stretch;
+  }
+
+  .set-row-actions {
+    grid-template-columns: minmax(0, 1fr) 44px;
+    display: grid;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .set-advanced-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .set-builder-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .set-preset-list,
+  .set-builder-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .set-builder-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .weight-unit-control {
+    grid-template-columns: minmax(0, 1fr) 76px;
+  }
+
+  .weight-unit-control input,
+  .weight-unit-control select,
+  .set-count-control input {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .meal-compact-grid {
+    grid-column: 1 / -1;
+  }
+
+  .meal-entry-row .row-remove-button {
+    grid-column: 2;
+  }
+
+  .focus-grid,
+  .focus-shortcuts,
+  .data-quality-card,
+  .quality-metric-list,
+  .readiness-coach-card,
+  .readiness-form,
+  .period-filter-form {
+    grid-template-columns: 1fr;
+  }
+
+  .readiness-score {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .readiness-form > input[name="memo"] {
+    grid-column: 1;
+  }
+
+  .tool-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .focus-suggestion-card {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-workout-grid,
+  .recovery-grid,
+  .routine-recommend-grid,
+  .session-flow-grid,
+  .routine-step-card,
+  .pr-card-grid,
+  .pr-dashboard-grid,
+  .trend-card-grid,
+  .pr-rank-metrics,
+  .pr-best-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .routine-step-card > .btn-small {
+    width: 100%;
+  }
+
+  .workout-action-dock {
+    top: 92px;
+  }
+
+  .trend-snapshot-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trend-snapshot-row strong {
+    grid-column: 1 / -1;
+  }
+
+  .editable-list-item {
+    grid-template-columns: 1fr;
+  }
+
+  .ex-item {
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .ex-name {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .exercise-hero-head {
+    display: grid;
+  }
+
+  .exercise-hero-head b {
+    white-space: normal;
+  }
+
+  .item-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 900px) {
+  body {
+    max-width: 100%;
+  }
+
+  .content {
+    padding-inline: 12px;
+  }
+
+  .section {
+    padding: 12px;
+  }
+
+  .mode-actions,
+  .today-mode-actions,
+  .summary-grid,
+  .focus-grid,
+  .health-grid,
+  .settings-action-grid {
+    gap: 7px;
+  }
+
+  .preview-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-hero h1 {
+    font-size: 26px;
+  }
+
+  .preview-metric-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .month-picker-form-wide {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-columns: 32px minmax(0, 1fr) 32px;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .month-picker-form-wide > * {
+    min-width: 0;
+  }
+
+  .month-picker-form-wide .btn-primary {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-height: 38px;
+  }
+
+  .month-picker-form-wide .arrow-btn:last-child {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 32px;
+    height: 44px;
+    grid-column: 3 / 4;
+    grid-row: 1;
+    justify-self: center;
+  }
+}
+
+@media (max-width: 430px) {
+  body {
+    max-width: none;
+  }
+
+  .header {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    align-items: start;
+    padding: 10px 12px 9px;
+  }
+
+  .header-title {
+    grid-column: 1;
+    justify-self: start;
+    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.2;
+  }
+
+  .header-meta {
+    grid-column: 1;
+    justify-self: stretch;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 100%;
+    gap: 6px;
+  }
+
+  .account-greeting {
+    flex: 1 1 auto;
+    font-size: 10px;
+  }
+
+  .app-version {
+    flex: 0 0 auto;
+    font-size: 10px;
+  }
+
+  .tabs {
+    top: 73px;
+  }
+
+  .content {
+    padding-inline: 10px;
+  }
+
+  button,
+  .btn-primary,
+  .btn-small,
+  .secondary-button,
+  .detail-button,
+  input,
+  select {
+    min-height: 40px;
+  }
+
+  .tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tab-btn {
+    flex: 0 0 auto;
+    min-width: 58px;
+    padding-inline: 8px;
+  }
+
+  .date-row {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    display: grid;
+    padding-inline: 8px;
+  }
+
+  .date-picker-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+    display: grid;
+  }
+
+  .date-picker-form input {
+    width: 100%;
+  }
+
+  .month-picker-form-wide {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-template-columns: 28px minmax(0, 1fr) 28px;
+    gap: 5px;
+    overflow: hidden;
+  }
+
+  .month-picker-form-wide > * {
+    min-width: 0;
+  }
+
+  .month-picker-form-wide .arrow-btn {
+    padding-inline: 4px;
+  }
+
+  .month-picker-form-wide .month-picker input {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .month-picker-form-wide .btn-primary {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    min-width: 0;
+    min-height: 38px;
+    padding-inline: 8px;
+  }
+
+  .month-picker-form-wide .arrow-btn:last-child {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 44px;
+    grid-column: 3 / 4;
+    grid-row: 1;
+    justify-self: center;
+  }
+
+  .today-mode-actions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 12px;
+  }
+
+  .workout-action-dock,
+  .mobile-action-dock {
+    top: 122px;
+    z-index: 7;
+    margin: 8px 0 12px;
+  }
+
+  #workout-input,
+  #today-workout,
+  #rest-timer,
+  .today-task-section,
+  .workout-clock-section {
+    scroll-margin-top: 174px;
+  }
+
+  .today-focus-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .today-hero-head {
+    grid-template-columns: 1fr;
+  }
+
+  .today-hero-head .btn-primary {
+    width: 100%;
+  }
+
+  .yearly-action-grid,
+  .yearly-metric-grid,
+  .yearly-month-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    border-radius: var(--radius);
+    padding: 10px;
+  }
+
+  .workout-clock-display {
+    font-size: 22px;
+  }
+
+  .compact-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workout-form.is-cardio .compact-field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .set-entry-row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "number"
+      "fields"
+      "advanced"
+      "actions";
+    gap: 5px;
+    padding: 7px;
+  }
+
+  .set-row-number {
+    grid-area: number;
+  }
+
+  .set-entry-row .compact-field-grid,
+  .set-entry-row .cardio-field-grid {
+    grid-area: fields;
+  }
+
+  .set-entry-row .set-row-actions {
+    grid-area: actions;
+    justify-content: stretch;
+  }
+
+  .set-row-actions {
+    grid-template-columns: minmax(0, 1fr) 40px;
+    display: grid;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .set-advanced-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .set-entry-row input,
+  .set-entry-row select,
+  .meal-entry-row input {
+    min-height: 36px;
+    font-size: 13px;
+  }
+
+  .weight-unit-control input,
+  .weight-unit-control select,
+  .set-count-control input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .set-builder-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .login-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-contact-grid,
+  .admin-user-grid,
+  .admin-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .row-copy-button,
+  .row-remove-button {
+    min-height: 36px;
+  }
+
+  .meal-entry-row {
+    grid-template-columns: minmax(0, 1fr) 32px;
+  }
+
+  .meal-compact-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .meal-add-form,
+  .meal-edit-form,
+  .inline-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .set-edit-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 8px;
+  }
+
+  .edit-field-type {
+    grid-column: 1 / -1;
+  }
+
+  .edit-field-name {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .edit-field input,
+  .edit-field select {
+    min-height: 38px;
+  }
+
+  .edit-actions {
+    grid-template-columns: 1fr 0.8fr;
+  }
+
+  .record-toggle {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .record-toggle > span:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .record-search-form,
+  .record-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .progress-metrics,
+  .record-summary {
+    gap: 5px;
+  }
+}
+
+@media (min-width: 700px) {
+  .summary-grid,
+  .goal-grid,
+  .cat-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .body-part-toggle-list {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 561px) and (max-width: 1100px) {
+  .workout-record-head strong,
+  .set-result {
+    overflow-wrap: anywhere;
+  }
+}

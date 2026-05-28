@@ -10,6 +10,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}?v={{ app_version }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='feature_pages.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='responsive.css') }}?v={{ app_version }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='rules.css') }}?v={{ app_version }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='ui_rebuild.css') }}?v={{ app_version }}">
     <title>{% block title %}피트니스 트래커{% endblock %}</title>
@@ -40,6 +42,7 @@
       </main>
     </div>
     <script src="{{ url_for('static', filename='timers.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', filename='offline_queue.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='app.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='workout_entry.js') }}?v={{ app_version }}"></script>
   </body>
