@@ -27,6 +27,8 @@ const ASSETS = [
   "/static/ui_rebuild.css",
   "/static/timers.js",
   "/static/offline_queue.js",
+  "/static/workout_tools.js",
+  "/static/ui_interactions.js",
   "/static/app.js",
   "/static/workout_entry.js",
   "/sw.js",
