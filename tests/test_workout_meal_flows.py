@@ -477,9 +477,17 @@ class WorkoutMealFlowTest(FlowTestBase):
         response = self.client.get("/plans/weekly", query_string={"week": workout_date})
         self.assertEqual(response.status_code, 200)
 
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post(
+            "/auth/login",
+            data={"login_mode": "admin", "username": "admin", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
         response = self.client.post(
             "/reminders",
             data={
+                "next": "admin",
                 "workout_enabled": "1",
                 "workout_time": "18:30",
                 "workout_message": "test workout reminder",
@@ -500,7 +508,14 @@ class WorkoutMealFlowTest(FlowTestBase):
             app_module.init_db()
             app_module.create_may_sample_data()
             before = app_module.get_data_counts()
-        response = self.client.post("/data/delete-all", data={"confirm_delete_all": "wrong"})
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post(
+            "/auth/login",
+            data={"login_mode": "admin", "username": "admin", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
+        response = self.client.post("/data/delete-all", data={"confirm_delete_all": "wrong", "next": "admin"})
         self.assertEqual(response.status_code, 302)
         with self.app.app_context():
             after = app_module.get_data_counts()

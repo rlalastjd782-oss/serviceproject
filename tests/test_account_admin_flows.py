@@ -167,7 +167,10 @@ class AccountAdminFlowTest(FlowTestBase):
     def test_settings_password_lock_unlock_and_reset(self) -> None:
         response = self.client.get("/settings")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("settings-overview-section", response.data.decode("utf-8"))
+        settings_html = response.data.decode("utf-8")
+        self.assertIn("비밀번호 변경", settings_html)
+        self.assertNotIn("settings-overview-section", settings_html)
+        self.assertNotIn("데이터 관리", settings_html)
         self.client.post("/logout")
         response = self.client.get("/settings")
         self.assertEqual(response.status_code, 302)

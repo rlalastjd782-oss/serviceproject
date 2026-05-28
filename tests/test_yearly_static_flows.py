@@ -10,7 +10,14 @@ from tests.flow_base import FlowTestBase
 
 class YearlyStaticFlowTest(FlowTestBase):
     def test_yearly_qa_dummy_data_crosses_year_boundary(self) -> None:
-        response = self.client.post("/qa-dummy/year")
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post(
+            "/auth/login",
+            data={"login_mode": "admin", "username": "admin", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
+        response = self.client.post("/qa-dummy/year", data={"next": "admin"})
         self.assertEqual(response.status_code, 302)
         with self.app.app_context():
             status = app_module.get_qa_dummy_status()
@@ -21,6 +28,13 @@ class YearlyStaticFlowTest(FlowTestBase):
             self.assertGreaterEqual(status["body_metrics"], 50)
             self.assertGreaterEqual(status["recovery"], 360)
 
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=user")
+        response = self.client.post(
+            "/auth/login",
+            data={"login_mode": "user", "username": "tester", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
         for path in [
             "/summaries/yearly?year=2025",
             "/summaries/yearly?year=2026",

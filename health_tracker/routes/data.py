@@ -8,6 +8,11 @@ from flask import Response, redirect, request, url_for
 def register_data_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
 
+    def operation_redirect():
+        if request.form.get("next") == "admin":
+            return redirect(url_for("admin_dashboard_page"))
+        return redirect(url_for("settings_page"))
+
     @app.get("/export.json")
     def export_json():
         payload = export_all_data()
@@ -65,22 +70,22 @@ def register_data_routes(app, ctx: dict[str, object]) -> None:
         file = request.files.get("backup_file")
         if file and request.form.get("confirm_restore", "").strip() == "복원":
             import_all_data(json.loads(file.read().decode("utf-8")))
-        return redirect(url_for("settings_page"))
+        return operation_redirect()
 
     @app.post("/samples/delete")
     def delete_sample_data_route():
         if request.form.get("confirm_sample_delete", "").strip() == "샘플삭제":
             delete_sample_data()
-        return redirect(url_for("settings_page"))
+        return operation_redirect()
 
     @app.post("/samples/may")
     def create_may_sample_data_route():
         create_may_sample_data()
-        return redirect(url_for("settings_page"))
+        return operation_redirect()
 
     @app.post("/data/delete-all")
     def delete_all_data_route():
         if request.form.get("confirm_delete_all", "").strip() == "전체삭제":
             delete_all_data()
-        return redirect(url_for("settings_page"))
+        return operation_redirect()
 

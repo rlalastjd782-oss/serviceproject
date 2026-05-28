@@ -196,9 +196,17 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn("data-warning-list", action_insights_html)
 
     def test_app_preferences_drive_workout_defaults(self) -> None:
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post(
+            "/auth/login",
+            data={"login_mode": "admin", "username": "admin", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
         response = self.client.post(
             "/settings/app-preferences",
             data={
+                "next": "admin",
                 "default_rest_seconds": "150",
                 "rest_timer_presets": "45, 75, 105",
                 "default_set_count": "4",
@@ -210,6 +218,14 @@ class UiNavigationFlowTest(FlowTestBase):
                 "summary_day_options": "14, 28, 56",
                 "set_type_options": "본세트\n탑세트\n백오프",
             },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/admin", response.headers.get("Location", ""))
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=user")
+        response = self.client.post(
+            "/auth/login",
+            data={"login_mode": "user", "username": "tester", "password": "1234"},
         )
         self.assertEqual(response.status_code, 302)
         html = self.client.get("/app?mode=workout").data.decode("utf-8")
@@ -225,6 +241,29 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn('<option value="20" selected>', daily_html)
         check_html = self.client.get("/records/check").data.decode("utf-8")
         self.assertIn('<option value="28"', check_html)
+
+    def test_user_settings_only_keeps_password_and_admin_holds_operations(self) -> None:
+        settings_html = self.client.get("/settings").data.decode("utf-8")
+        self.assertIn("비밀번호 변경", settings_html)
+        self.assertNotIn("앱 기본값", settings_html)
+        self.assertNotIn("데이터 관리", settings_html)
+        self.assertNotIn("QA 더미데이터", settings_html)
+        self.assertNotIn("리마인더", settings_html)
+        self.assertNotIn("전체 데이터 삭제", settings_html)
+
+        self.client.post("/logout")
+        self.client.get("/auth/login?mode=admin")
+        response = self.client.post(
+            "/auth/login",
+            data={"login_mode": "admin", "username": "admin", "password": "1234"},
+        )
+        self.assertEqual(response.status_code, 302)
+        admin_html = self.client.get("/admin").data.decode("utf-8")
+        self.assertIn("앱 기본값", admin_html)
+        self.assertIn("데이터 관리", admin_html)
+        self.assertIn("QA 더미데이터", admin_html)
+        self.assertIn("리마인더", admin_html)
+        self.assertIn("전체 데이터 삭제", admin_html)
 
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")

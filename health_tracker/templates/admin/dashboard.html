@@ -9,7 +9,7 @@
         <div class="section-title">관리자 대시보드</div>
         <div class="section-subtitle">관리자 계정은 집계에서 제외하고 사용자 계정만 운영 현황으로 확인합니다.</div>
       </div>
-      <a class="btn-small" href="{{ url_for('settings_page') }}">설정</a>
+      <a class="btn-small" href="#admin-operations">운영 관리</a>
     </div>
     {% if request.args.get("updated") == "password" %}
       <div class="empty compact-empty">관리자 비밀번호가 변경되었습니다.</div>
@@ -47,6 +47,10 @@
       {% endfor %}
     </div>
   </section>
+
+  <div id="admin-operations">
+    {% include "admin/_operations.html" %}
+  </div>
 
   <section class="section admin-user-section">
     <div class="section-header">

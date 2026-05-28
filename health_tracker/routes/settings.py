@@ -8,6 +8,11 @@ from health_tracker.services.settings_context import build_settings_context
 def register_settings_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
 
+    def operation_redirect():
+        if request.form.get("next") == "admin":
+            return redirect(url_for("admin_dashboard_page"))
+        return redirect(url_for("settings_page"))
+
     @app.get("/settings")
     def settings_page():
         if not settings_unlocked():
@@ -41,13 +46,13 @@ def register_settings_routes(app, ctx: dict[str, object]) -> None:
     def reset_settings_password_route():
         if settings_unlocked() and request.form.get("confirm_reset", "").strip() == "RESET":
             reset_settings_password()
-        return redirect(url_for("settings_page"))
+        return operation_redirect()
 
     @app.post("/settings/app-preferences")
     def save_app_preferences_route():
         if settings_unlocked():
             save_app_preferences(request.form)
-        return redirect(url_for("settings_page"))
+        return operation_redirect()
 
     @app.post("/settings/accounts")
     def create_account_route():
@@ -72,10 +77,10 @@ def register_settings_routes(app, ctx: dict[str, object]) -> None:
     def generate_year_qa_dummy_route():
         if settings_unlocked():
             generate_year_qa_dummy_data()
-        return redirect(url_for("settings_page"))
+        return operation_redirect()
 
     @app.post("/data/cleanup-empty")
     def cleanup_empty_data_route():
         delete_empty_workout_sessions()
         get_db().commit()
-        return redirect(url_for("settings_page"))
+        return operation_redirect()

@@ -256,4 +256,6 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
                 request.form.get(f"{key}_time", ""),
                 request.form.get(f"{key}_message", ""),
             )
+        if request.form.get("next") == "admin":
+            return redirect(url_for("admin_dashboard_page"))
         return redirect(url_for("settings_page"))

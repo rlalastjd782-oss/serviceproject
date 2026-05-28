@@ -6,6 +6,7 @@ from contextlib import closing
 
 from flask import Response
 
+from health_tracker.services.settings_context import build_settings_context
 from health_tracker.services.accounts import account_db_path
 from health_tracker.services.export import export_all_data_from_db
 
@@ -49,6 +50,7 @@ def register_admin_routes(app, ctx: dict[str, object]) -> None:
             active_page="admin",
             dashboard=dashboard,
             audit_logs=admin_audit_logs(12),
+            admin_tools=build_settings_context(request.args, globals()),
         )
 
     @app.get("/admin/users/<int:account_id>")

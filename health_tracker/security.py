@@ -20,9 +20,29 @@ PUBLIC_GET_ENDPOINTS = {
 
 PUBLIC_POST_ENDPOINTS = {"login_route", "signup_route"}
 
-AUTHENTICATED_SHARED_ENDPOINTS = {"logout_route", "root_service_worker", "root_favicon", "static"}
+AUTHENTICATED_SHARED_ENDPOINTS = {
+    "export_csv",
+    "export_json",
+    "export_meal_csv_route",
+    "logout_route",
+    "qa_report_page",
+    "root_favicon",
+    "root_service_worker",
+    "static",
+}
 
-ADMIN_ONLY_ENDPOINTS = {"create_account_route"}
+ADMIN_ONLY_ENDPOINTS = {
+    "cleanup_empty_data_route",
+    "create_account_route",
+    "create_may_sample_data_route",
+    "delete_all_data_route",
+    "delete_sample_data_route",
+    "generate_year_qa_dummy_route",
+    "import_json",
+    "reset_settings_password_route",
+    "save_app_preferences_route",
+    "save_reminders_route",
+}
 
 ADMIN_GET_ENDPOINTS = {
     "export_json",
