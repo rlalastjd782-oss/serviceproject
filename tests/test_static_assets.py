@@ -8,13 +8,13 @@ from pathlib import Path
 class StaticAssetIntegrityTest(unittest.TestCase):
     def test_css_files_have_balanced_braces_and_no_known_broken_selectors(self) -> None:
         for path in [
-            Path("static/styles.css"),
-            Path("static/today.css"),
-            Path("static/feature_pages.css"),
-            Path("static/analysis.css"),
-            Path("static/responsive.css"),
-            Path("static/rules.css"),
-            Path("static/ui_rebuild.css"),
+            Path("static/css/styles.css"),
+            Path("static/css/today.css"),
+            Path("static/css/feature_pages.css"),
+            Path("static/css/analysis.css"),
+            Path("static/css/responsive.css"),
+            Path("static/css/rules.css"),
+            Path("static/css/ui_rebuild.css"),
         ]:
             with self.subTest(path=str(path)):
                 source = path.read_text(encoding="utf-8-sig")

@@ -129,8 +129,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("focus-mode", focus_html)
         self.assertIn("focus-mode-button", focus_html)
         self.assertIn('href="#workout-finish"', focus_html)
-        timer_source = Path("static/timers.js").read_text(encoding="utf-8")
-        app_source = Path("static/app.js").read_text(encoding="utf-8")
+        timer_source = Path("static/js/timers.js").read_text(encoding="utf-8")
+        app_source = Path("static/js/app.js").read_text(encoding="utf-8")
         self.assertIn("resetWorkoutClockDisplayOnly", timer_source)
         self.assertIn("completedReset", timer_source)
         self.assertIn(r"/\/sessions\/\d+\/complete$/.test", app_source)
@@ -138,15 +138,15 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn(">타이머 시작</button>", workout_html)
         self.assertNotIn("초 휴식</button>", workout_html)
         styles = (
-            Path("static/styles.css").read_text(encoding="utf-8")
+            Path("static/css/styles.css").read_text(encoding="utf-8")
             + "\n"
-            + Path("static/today.css").read_text(encoding="utf-8")
+            + Path("static/css/today.css").read_text(encoding="utf-8")
             + "\n"
-            + Path("static/feature_pages.css").read_text(encoding="utf-8")
+            + Path("static/css/feature_pages.css").read_text(encoding="utf-8")
             + "\n"
-            + Path("static/analysis.css").read_text(encoding="utf-8")
+            + Path("static/css/analysis.css").read_text(encoding="utf-8")
             + "\n"
-            + Path("static/responsive.css").read_text(encoding="utf-8")
+            + Path("static/css/responsive.css").read_text(encoding="utf-8")
         )
         self.assertIn(".workout-mode #rest-timer {\n  order: 11;", styles)
         self.assertIn(".workout-mode .workout-action-dock {\n  order: 12;", styles)
@@ -770,7 +770,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("/meals/weekly", assets)
         self.assertIn("/summaries/exercises", assets)
         self.assertIn("/summaries/yearly", assets)
-        self.assertIn("/static/ui_rebuild.css", assets)
+        self.assertIn("/static/css/ui_rebuild.css", assets)
         self.assertIn("/sw.js", assets)
         self.assertIn("self.skipWaiting()", sw_source)
         self.assertIn("self.clients.claim()", sw_source)

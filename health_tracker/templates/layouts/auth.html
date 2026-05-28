@@ -9,13 +9,13 @@
     <meta name="theme-color" content="#0f0f14">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}?v={{ app_version }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}?v={{ app_version }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='today.css') }}?v={{ app_version }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='feature_pages.css') }}?v={{ app_version }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='meal.css') }}?v={{ app_version }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='analysis.css') }}?v={{ app_version }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='responsive.css') }}?v={{ app_version }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='ui_rebuild.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/today.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/feature_pages.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/meal.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/analysis.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}?v={{ app_version }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ui_rebuild.css') }}?v={{ app_version }}">
     <title>{% block title %}로그인{% endblock %}</title>
   </head>
   <body class="auth-mode">
