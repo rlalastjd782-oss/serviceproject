@@ -6,6 +6,36 @@ from pathlib import Path
 
 
 class StaticAssetIntegrityTest(unittest.TestCase):
+    def test_user_facing_text_has_no_broken_encoding_markers(self) -> None:
+        broken_tokens = [
+            chr(0xFFFD),
+            chr(0x00C3),
+            chr(0x00C2),
+            chr(0x00EC),
+            chr(0x00EB),
+            chr(0x00ED),
+            chr(0x00EA),
+            chr(0xF9E4),
+            chr(0x7B4C),
+            chr(0x6E72),
+            chr(0xAC2E),
+            chr(0xB2EF),
+            chr(0xBB3E),
+        ]
+        paths = [
+            *Path("health_tracker/templates").rglob("*.html"),
+            *Path("health_tracker/services").rglob("*.py"),
+            *Path("static/js").rglob("*.js"),
+        ]
+        repeated_question_mark = re.compile(r"\?{3,}")
+
+        for path in sorted(paths):
+            with self.subTest(path=str(path)):
+                source = path.read_text(encoding="utf-8-sig")
+                self.assertIsNone(repeated_question_mark.search(source))
+                for token in broken_tokens:
+                    self.assertNotIn(token, source)
+
     def test_css_files_have_balanced_braces_and_no_known_broken_selectors(self) -> None:
         for path in sorted(Path("static/css").rglob("*.css")):
             with self.subTest(path=str(path)):

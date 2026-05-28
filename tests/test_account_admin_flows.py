@@ -423,7 +423,7 @@ class AccountAdminFlowTest(FlowTestBase):
         self.assertIn("사용자 활성", admin_html)
         self.assertIn("조치 필요", admin_html)
         self.assertIn("데이터 규모", admin_html)
-        self.assertNotIn("???", admin_html)
+        self.assertNotRegex(admin_html, r"\?{3,}")
         self.assertIn("사용자 검색", admin_html)
         self.assertIn("조치 필요 사용자", admin_html)
         self.assertIn("관리자 활동 로그", admin_html)

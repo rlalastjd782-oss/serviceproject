@@ -70,22 +70,22 @@
             <small>기록된 식단일</small>
           </article>
         </div>
-        <div class="analysis-action-plan" aria-label="?? ?? ??">
+        <div class="analysis-action-plan" aria-label="주간 다음 행동">
           {% for insight in report_insights[:2] %}
             <article class="analysis-action-card">
-              <span>???</span>
+              <span>인사이트</span>
               <strong>{{ insight }}</strong>
             </article>
           {% endfor %}
           {% for warning in balance_warnings[:2] %}
             <article class="analysis-action-card is-warning">
-              <span>?? ??</span>
+              <span>균형 경고</span>
               <strong>{{ warning }}</strong>
             </article>
           {% endfor %}
           {% for insight in weekly_goal_insights[:1] %}
             <article class="analysis-action-card is-goal">
-              <span>??</span>
+              <span>목표</span>
               <strong>{{ insight }}</strong>
             </article>
           {% endfor %}
@@ -245,22 +245,22 @@
             </div>
           {% endif %}
         {% endif %}
-        <div class="analysis-action-plan" aria-label="?? ?? ?? ??">
+        <div class="analysis-action-plan" aria-label="월간 다음 행동">
           {% for insight in report_insights[:2] %}
             <article class="analysis-action-card">
-              <span>???</span>
+              <span>인사이트</span>
               <strong>{{ insight }}</strong>
             </article>
           {% endfor %}
           {% if monthly_report.missing %}
             <article class="analysis-action-card is-warning">
-              <span>?? ??</span>
+              <span>누락 기록</span>
               <strong>{{ monthly_report.missing[:3]|join(', ') }}</strong>
             </article>
           {% endif %}
           {% for insight in monthly_goal_insights[:1] %}
             <article class="analysis-action-card is-goal">
-              <span>??</span>
+              <span>목표</span>
               <strong>{{ insight }}</strong>
             </article>
           {% endfor %}

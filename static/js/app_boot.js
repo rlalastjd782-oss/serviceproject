@@ -156,7 +156,7 @@ document.addEventListener("click", (event) => {
 
   if (mealFormToggleButton && mealForm) {
     const isCollapsed = mealForm.classList.toggle("is-collapsed");
-    mealFormToggleButton.textContent = isCollapsed ? "?낅젰 ?닿린" : "?낅젰 ?リ린";
+    mealFormToggleButton.textContent = isCollapsed ? "입력 열기" : "입력 닫기";
     if (!isCollapsed) {
       mealForm.querySelector("input:not([type='hidden']), select")?.focus();
     }
@@ -167,7 +167,7 @@ document.addEventListener("click", (event) => {
     resetMealForm(mealForm, mealList);
     const toggleButton = document.querySelector("[data-toggle-meal-form]");
     if (toggleButton) {
-      toggleButton.textContent = "?낅젰 ?닿린";
+      toggleButton.textContent = "입력 열기";
     }
     return;
   }

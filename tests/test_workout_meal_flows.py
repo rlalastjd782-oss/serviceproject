@@ -238,7 +238,7 @@ class WorkoutMealFlowTest(FlowTestBase):
                 "exercise_name": strength_name,
                 "rest_seconds": "120",
                 "is_favorite": "1",
-                "equipment": "諛붾꺼",
+                "equipment": "바벨",
                 "target_weight": "90",
                 "target_reps": "8",
                 "target_sets": "4",

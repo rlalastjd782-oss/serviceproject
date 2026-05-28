@@ -25,7 +25,7 @@ def ensure_default_location(db: sqlite3.Connection) -> sqlite3.Row:
             INSERT INTO workout_locations (name, memo, is_default, is_active)
             VALUES (?, ?, 1, 1)
             """,
-            (DEFAULT_LOCATION_NAME, "湲곗〈 湲곕줉??蹂댁〈?섍린 ?꾪븳 湲곕낯 ?μ냼"),
+            (DEFAULT_LOCATION_NAME, "기존 기록을 보존하기 위한 기본 장소"),
         )
         location_id = cursor.lastrowid
     else:
@@ -211,7 +211,7 @@ def location_equipment_names(db: sqlite3.Connection, location_id: int | None) ->
         return list(dict.fromkeys(names))
     rows = db.execute(
         """
-        SELECT DISTINCT COALESCE(NULLIF(equipment, ''), '誘몄???) AS equipment
+        SELECT DISTINCT COALESCE(NULLIF(equipment, ''), '미지정') AS equipment
         FROM workout_sets
         WHERE COALESCE(NULLIF(equipment, ''), '') != ''
         ORDER BY equipment

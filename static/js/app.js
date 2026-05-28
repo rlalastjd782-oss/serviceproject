@@ -34,7 +34,7 @@ function renderExerciseQuickList(bodyPart) {
       const safeName = escapeHtml(name);
       const setting = exerciseSettings[name] || {};
       const equipment = setting.equipment ? escapeHtml(setting.equipment) : "";
-      const label = equipment ? `${safeName} 쨌 ${equipment}` : safeName;
+      const label = equipment ? `${safeName} · ${equipment}` : safeName;
       return `<button class="exercise-quick-button" type="button" data-exercise-name="${safeName}" data-equipment="${equipment}">${label}</button>`;
     })
     .join("");
@@ -42,7 +42,7 @@ function renderExerciseQuickList(bodyPart) {
     const libraryUrl = exerciseQuickPanel.dataset.libraryUrl || "/exercises/library";
     exerciseQuickList.insertAdjacentHTML(
       "beforeend",
-      `<a class="exercise-quick-button exercise-quick-more" href="${libraryUrl}?part=${encodeURIComponent(bodyPart)}">+${hiddenCount}媛?/a>`,
+      `<a class="exercise-quick-button exercise-quick-more" href="${libraryUrl}?part=${encodeURIComponent(bodyPart)}">+${hiddenCount}개 더보기</a>`,
     );
   }
   if (exerciseDatalist) {
@@ -87,7 +87,7 @@ function renderRecentSetList(exerciseName) {
   const sets = recentSetsByExercise[exerciseName] || [];
   recentSetTitle.hidden = sets.length === 0;
   recentSetList.innerHTML = sets.length
-    ? `<button class="exercise-quick-button" type="button" data-load-recent-sets data-exercise-name="${escapeHtml(exerciseName)}">吏???명듃 遺덈윭?ㅺ린</button>`
+    ? `<button class="exercise-quick-button" type="button" data-load-recent-sets data-exercise-name="${escapeHtml(exerciseName)}">지난 세트 불러오기</button>`
     : "";
 }
 
@@ -98,7 +98,7 @@ function renderExerciseGuidance(exerciseName) {
       const bestWeight = stats.best_weight ? `${Number(stats.best_weight).toFixed(1)}kg` : "-kg";
       const bestReps = stats.best_reps ? `${Number(stats.best_reps)}회` : "-회";
       const bestVolume = stats.best_volume ? `${Number(stats.best_volume).toFixed(0)}kg` : "-kg";
-      exerciseStatView.textContent = `理쒓렐: ${stats.recent || "-"} 쨌 理쒓퀬: ${bestWeight} / ${bestReps} / 蹂쇰ⅷ ${bestVolume}`;
+      exerciseStatView.textContent = `최근: ${stats.recent || "-"} · 최고: ${bestWeight} / ${bestReps} / 볼륨 ${bestVolume}`;
       exerciseStatView.hidden = false;
     } else {
       exerciseStatView.textContent = "";
@@ -119,9 +119,9 @@ function renderExerciseGuidance(exerciseName) {
       const target = [weight, reps, minutes, advice.sets ? `${advice.sets}세트` : ""].filter(Boolean).join(" · ");
       nextSetAdviceView.innerHTML = `
         <div class="next-set-advice-row">
-          <span>?ㅼ쓬 ?명듃 쨌 ${escapeHtml(advice.type || "異붿쿇")}</span>
-          <strong>${escapeHtml(target || "湲곗? 湲곕줉")}</strong>
-          <button type="button" class="btn-small" data-apply-next-set="${escapeHtml(exerciseName)}">?곸슜</button>
+          <span>다음 세트 · ${escapeHtml(advice.type || "추천")}</span>
+          <strong>${escapeHtml(target || "기존 기록")}</strong>
+          <button type="button" class="btn-small" data-apply-next-set="${escapeHtml(exerciseName)}">적용</button>
         </div>
         <small>${escapeHtml(advice.reason || "")}</small>
       `;
@@ -133,14 +133,14 @@ function renderExerciseGuidance(exerciseName) {
   }
   if (exerciseNoteView) {
     const note = exerciseNotes[exerciseName] || "";
-    exerciseNoteView.textContent = note ? `硫붾え: ${note}` : "";
+    exerciseNoteView.textContent = note ? `메모: ${note}` : "";
     exerciseNoteView.hidden = !note;
   }
   if (exerciseTargetView) {
     const setting = exerciseSettings[exerciseName] || {};
     const parts = [];
     if (setting.equipment) {
-      parts.push(`?λ퉬 ${setting.equipment}`);
+      parts.push(`장비 ${setting.equipment}`);
     }
     if (setting.target_weight) {
       parts.push(`${Number(setting.target_weight).toFixed(1)}kg`);
@@ -151,7 +151,7 @@ function renderExerciseGuidance(exerciseName) {
     if (setting.target_sets) {
       parts.push(`${Number(setting.target_sets)}세트`);
     }
-    exerciseTargetView.textContent = parts.length ? `紐⑺몴: ${parts.join(" 쨌 ")}` : "";
+    exerciseTargetView.textContent = parts.length ? `목표: ${parts.join(" · ")}` : "";
     exerciseTargetView.hidden = parts.length === 0;
   }
 }
@@ -172,7 +172,7 @@ function getWorkoutFormToggleButtons() {
 
 function setWorkoutFormToggleText(isCollapsed) {
   getWorkoutFormToggleButtons().forEach((button) => {
-    button.textContent = isCollapsed ? "?대룞 異붽?" : "?낅젰 ?リ린";
+    button.textContent = isCollapsed ? "운동 추가" : "입력 닫기";
     button.setAttribute("aria-expanded", String(!isCollapsed));
   });
 }
@@ -360,7 +360,7 @@ function copySetRow(sourceRow, setList) {
 
 function copySavedSet(button, setList) {
   const bodyPartSelect = workoutForm?.querySelector("[data-body-part-select]");
-  const bodyPart = button.dataset.bodyPart || "湲고?";
+  const bodyPart = button.dataset.bodyPart || "기타";
   if (bodyPartSelect) {
     bodyPartSelect.value = bodyPart;
     applyBodyPartSelectColor(bodyPartSelect);
@@ -434,51 +434,51 @@ function setRowHtml(index) {
   const weightPlaceholder = appPreferences.default_weight_placeholder ?? 60;
   const repsPlaceholder = appPreferences.default_reps_placeholder ?? 10;
   return `
-    <strong class="set-row-number">${index}?명듃</strong>
+    <strong class="set-row-number">${index}세트</strong>
     <div class="compact-field-grid" data-strength-fields>
       <label class="weight-unit-field">
-        <span>臾닿쾶</span>
+        <span>무게</span>
         <div class="weight-unit-control">
           <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="${escapeHtml(weightPlaceholder)}">
-          <select name="set_weight_unit" aria-label="臾닿쾶 ?⑥쐞">
+          <select name="set_weight_unit" aria-label="무게 단위">
             <option value="kg">kg</option>
             <option value="lb">lb</option>
           </select>
         </div>
-        <small class="weight-preview" data-weight-preview>kg 湲곗? ???/small>
+        <small class="weight-preview" data-weight-preview>kg 기준 저장</small>
       </label>
       <label>
-        <span>?잛닔</span>
+        <span>횟수</span>
         <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="${escapeHtml(repsPlaceholder)}">
       </label>
     </div>
     <div class="compact-field-grid cardio-field-grid" data-cardio-fields hidden>
       <label>
-        <span>?명겢?쇱씤</span>
+        <span>인클라인</span>
         <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" placeholder="8">
       </label>
       <label>
-        <span>?띾룄</span>
+        <span>속도</span>
         <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" placeholder="5.5">
       </label>
       <label>
-        <span>?쒓컙 遺?/span>
+        <span>시간 분</span>
         <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30">
       </label>
     </div>
     <details class="set-advanced-options">
-      <summary>怨좉툒</summary>
+      <summary>고급</summary>
       <div class="set-advanced-grid">
-        <select name="set_type" aria-label="?명듃 ??? data-strength-fields>
+        <select name="set_type" aria-label="세트 타입" data-strength-fields>
           ${setTypeOptionHtml}
         </select>
-        <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="泥닿컧媛뺣룄">
-        <input name="set_memo" autocomplete="off" placeholder="硫붾え">
+        <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
+        <input name="set_memo" autocomplete="off" placeholder="메모">
       </div>
     </details>
     <div class="set-row-actions">
-      <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="?명듃 蹂듭궗">蹂듭궗</button>
-      <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="?명듃 ??젣">X</button>
+      <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
+      <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">X</button>
     </div>
   `;
 }
