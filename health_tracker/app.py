@@ -8,6 +8,20 @@ from pathlib import Path
 from flask import Flask, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
 
 from health_tracker.app_lifecycle import configure_lifecycle_hooks
+from health_tracker.app_settings import (
+    configure_settings_helpers,
+    configured_page_params,
+    get_app_preferences,
+    get_app_setting,
+    has_settings_password,
+    normalize_summary_days,
+    reset_settings_password,
+    save_app_preferences,
+    save_app_setting,
+    set_settings_password,
+    settings_unlocked,
+    verify_settings_password,
+)
 from health_tracker.config import BASE_DIR, DATABASE, PHOTO_DIR
 from health_tracker.constants import (
     BODY_PART_CLASSES,
@@ -76,13 +90,8 @@ from health_tracker.app_data import (
     list_duplicate_exercise_candidates,
     list_outlier_set_candidates,
 )
-from health_tracker.meta import get_app_updated_at, get_app_version
-from health_tracker.security import (
-    ensure_csrf_token,
-)
 from health_tracker.services.accounts import (
     account_db_path,
-    ensure_primary_account,
     init_accounts_db,
 )
 from health_tracker.services.body_part_analysis import (
@@ -182,10 +191,8 @@ from health_tracker.services.muscle_balance import build_muscle_balance as build
 from health_tracker.services.personal_coach import (
     build_next_actions_from_db,
 )
-from health_tracker.services.pagination import build_pagination, page_params, query_url
+from health_tracker.services.pagination import build_pagination
 from health_tracker.services.performance import build_performance_snapshot, run_database_analyze
-from health_tracker.services.preferences import app_preferences as build_app_preferences
-from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
 from health_tracker.services.progressive_overload import (
     build_next_set_suggestions as build_next_set_suggestions_from_db,
     list_overload_suggestions_from_db,
@@ -218,14 +225,6 @@ from health_tracker.services.routine import (
     delete_routine_template_from_db,
     list_routines_from_db,
     rename_routine_template_in_db,
-)
-from health_tracker.services.settings import (
-    get_app_setting as get_app_setting_from_db,
-    has_settings_password as has_settings_password_in_db,
-    reset_settings_password as reset_settings_password_in_db,
-    save_app_setting as save_app_setting_to_db,
-    set_settings_password as set_settings_password_in_db,
-    verify_settings_password as verify_settings_password_in_db,
 )
 from health_tracker.services.source_audit import list_long_source_files
 from health_tracker.services.reminders import (
@@ -292,6 +291,7 @@ def create_app() -> Flask:
     app.config["DATABASE"] = DATABASE
     app.secret_key = get_or_create_secret_key()
     configure_account_helpers(get_db, lambda: DATABASE)
+    configure_settings_helpers(get_db, DATABASE)
     configure_data_helpers(
         get_db_func=get_db,
         get_database_func=lambda: DATABASE,
@@ -381,81 +381,6 @@ def get_or_create_secret_key() -> str:
     secret_path.write_text(secret, encoding="utf-8")
     return secret
 
-
-def get_app_setting(key: str, default: str = "") -> str:
-    if has_request_context():
-        cache = getattr(g, "app_setting_cache", None)
-        if cache is None:
-            cache = {}
-            g.app_setting_cache = cache
-        cache_key = (key, default)
-        if cache_key in cache:
-            return cache[cache_key]
-        value = get_app_setting_from_db(get_db(), key, default)
-        cache[cache_key] = value
-        return value
-    return get_app_setting_from_db(get_db(), key, default)
-
-
-def save_app_setting(key: str, value: str) -> None:
-    save_app_setting_to_db(get_db(), key, value)
-    if has_request_context():
-        g.pop("app_setting_cache", None)
-        g.pop("app_preferences_cache", None)
-
-
-def get_app_preferences() -> dict[str, object]:
-    if has_request_context() and hasattr(g, "app_preferences_cache"):
-        return g.app_preferences_cache
-    preferences = build_app_preferences(get_db())
-    if has_request_context():
-        g.app_preferences_cache = preferences
-    return preferences
-
-
-def configured_page_params(args) -> tuple[int, int]:
-    return page_params(args, int(get_app_preferences()["default_per_page"]))
-
-
-def normalize_summary_days(value: str | None) -> int:
-    options = [int(item) for item in get_app_preferences()["summary_day_options"]]
-    parsed = parse_int(value) or options[0]
-    return min(max(parsed, min(options)), max(options))
-
-
-def save_app_preferences(form) -> None:
-    save_app_preferences_to_db(get_db(), form)
-    if has_request_context():
-        g.pop("app_setting_cache", None)
-        g.pop("app_preferences_cache", None)
-
-def has_settings_password() -> bool:
-    return has_settings_password_in_db(get_db())
-
-
-def set_settings_password(password: str) -> bool:
-    if not set_settings_password_in_db(get_db(), password):
-        return False
-    stored_hash = get_app_setting_from_db(get_db(), "settings_password_hash", "")
-    ensure_primary_account(DATABASE, stored_hash or None)
-    session.setdefault("account_id", 1)
-    session["settings_unlocked"] = True
-    return True
-
-
-def verify_settings_password(password: str) -> bool:
-    return verify_settings_password_in_db(get_db(), password)
-
-
-def settings_unlocked() -> bool:
-    if session.get("account_id") and session.get("settings_unlocked"):
-        return True
-    return has_settings_password() and bool(session.get("settings_unlocked"))
-
-
-def reset_settings_password() -> None:
-    reset_settings_password_in_db(get_db())
-    session.pop("settings_unlocked", None)
 
 def get_or_create_session(workout_date: str | None = None, location_id: int | None = None) -> sqlite3.Row:
     return get_or_create_session_from_db(
