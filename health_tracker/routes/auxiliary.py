@@ -176,7 +176,7 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             (BASE_DIR / "static" / "icon.svg").read_text(encoding="utf-8"),
             content_type="image/svg+xml; charset=utf-8",
         )
-        response.headers["Cache-Control"] = "public, max-age=86400"
+        response.headers["Cache-Control"] = f"public, max-age={FAVICON_CACHE_SECONDS}"
         return response
 
     @app.get("/exercises/library")

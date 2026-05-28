@@ -3,7 +3,7 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Callable
 
-from flask import has_request_context, session
+from flask import g, has_request_context, session
 
 from health_tracker.services.accounts import (
     create_account as create_account_in_auth_db,
@@ -51,8 +51,12 @@ def _database():
 def current_account() -> sqlite3.Row | None:
     if not has_request_context():
         return None
+    if hasattr(g, "current_account_cache"):
+        return g.current_account_cache
     account_id = parse_int(str(session.get("account_id") or ""))
-    return get_account_from_auth_db(_database(), account_id)
+    account = get_account_from_auth_db(_database(), account_id)
+    g.current_account_cache = account
+    return account
 
 
 def account_options() -> list[sqlite3.Row]:
@@ -82,6 +86,8 @@ def verify_account(username: str, password: str) -> sqlite3.Row | None:
 
 def mark_account_login(account_id: int) -> None:
     update_account_login(_database(), account_id)
+    if has_request_context():
+        g.pop("current_account_cache", None)
 
 
 def is_admin_account() -> bool:

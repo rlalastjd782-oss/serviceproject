@@ -4,7 +4,7 @@ import argparse
 import secrets
 import sqlite3
 from pathlib import Path
-from time import perf_counter
+from time import perf_counter, time
 
 from flask import Flask, Response, abort, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
 
@@ -12,14 +12,17 @@ from health_tracker.config import BASE_DIR, DATABASE, PHOTO_DIR
 from health_tracker.constants import (
     BODY_PART_CLASSES,
     BODY_PARTS,
+    ACCOUNT_SEEN_TOUCH_INTERVAL_SECONDS,
     DEFAULT_BODY_WEIGHT_KG,
     DEFAULT_DAILY_CALORIES,
     DEFAULT_REST_SECONDS,
     DEFAULT_PROGRAMS,
     EQUIPMENT_OPTIONS,
+    FAVICON_CACHE_SECONDS,
     MEAL_TYPE_CLASSES,
     RECOMMENDED_EXERCISE_MAP,
     SET_TYPE_OPTIONS,
+    SQLITE_BUSY_TIMEOUT_MS,
     normalize_equipment_category,
 )
 from health_tracker.date_utils import (
@@ -320,8 +323,11 @@ def create_app() -> Flask:
             return None
         if request.endpoint != "static":
             account_id = parse_int(str(session.get("account_id") or ""))
-            if account_id:
+            last_seen_touch = parse_int(str(session.get("last_seen_touch_at") or "")) or 0
+            now_seconds = int(time())
+            if account_id and now_seconds - last_seen_touch >= ACCOUNT_SEEN_TOUCH_INTERVAL_SECONDS:
                 touch_account_seen(DATABASE, account_id)
+                session["last_seen_touch_at"] = now_seconds
         ensure_csrf_token()
         if request.method == "POST":
             json_payload = request.get_json(silent=True) if request.is_json else None
@@ -406,7 +412,7 @@ def get_db() -> sqlite3.Connection:
         g.db = sqlite3.connect(database_path)
         g.db.row_factory = sqlite3.Row
         g.db.execute("PRAGMA foreign_keys = ON")
-        g.db.execute("PRAGMA busy_timeout = 5000")
+        g.db.execute(f"PRAGMA busy_timeout = {SQLITE_BUSY_TIMEOUT_MS}")
         g.db.execute("PRAGMA journal_mode = WAL")
         g.db.execute("PRAGMA synchronous = NORMAL")
         g.db.set_trace_callback(lambda _sql: setattr(g, "db_query_count", int(getattr(g, "db_query_count", 0)) + 1))
@@ -453,15 +459,34 @@ def get_or_create_secret_key() -> str:
 
 
 def get_app_setting(key: str, default: str = "") -> str:
+    if has_request_context():
+        cache = getattr(g, "app_setting_cache", None)
+        if cache is None:
+            cache = {}
+            g.app_setting_cache = cache
+        cache_key = (key, default)
+        if cache_key in cache:
+            return cache[cache_key]
+        value = get_app_setting_from_db(get_db(), key, default)
+        cache[cache_key] = value
+        return value
     return get_app_setting_from_db(get_db(), key, default)
 
 
 def save_app_setting(key: str, value: str) -> None:
     save_app_setting_to_db(get_db(), key, value)
+    if has_request_context():
+        g.pop("app_setting_cache", None)
+        g.pop("app_preferences_cache", None)
 
 
 def get_app_preferences() -> dict[str, object]:
-    return build_app_preferences(get_db())
+    if has_request_context() and hasattr(g, "app_preferences_cache"):
+        return g.app_preferences_cache
+    preferences = build_app_preferences(get_db())
+    if has_request_context():
+        g.app_preferences_cache = preferences
+    return preferences
 
 
 def configured_page_params(args) -> tuple[int, int]:
@@ -476,6 +501,9 @@ def normalize_summary_days(value: str | None) -> int:
 
 def save_app_preferences(form) -> None:
     save_app_preferences_to_db(get_db(), form)
+    if has_request_context():
+        g.pop("app_setting_cache", None)
+        g.pop("app_preferences_cache", None)
 
 def has_settings_password() -> bool:
     return has_settings_password_in_db(get_db())

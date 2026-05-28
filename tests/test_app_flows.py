@@ -597,6 +597,17 @@ class HealthTrackerFlowTest(unittest.TestCase):
         response = self.client.get("/app")
         self.assertIn("/admin", response.headers.get("Location", ""))
 
+    def test_account_seen_touch_is_throttled(self) -> None:
+        self.client.get("/app")
+        with self.client.session_transaction() as sess:
+            first_touch = sess.get("last_seen_touch_at")
+        self.assertIsNotNone(first_touch)
+
+        self.client.get("/summaries/daily")
+        with self.client.session_transaction() as sess:
+            second_touch = sess.get("last_seen_touch_at")
+        self.assertEqual(first_touch, second_touch)
+
     def test_auth_preview_is_public_sample_only(self) -> None:
         self.client.post("/logout")
         response = self.client.get("/auth/preview")
