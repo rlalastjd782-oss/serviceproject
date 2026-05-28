@@ -979,16 +979,35 @@ class HealthTrackerFlowTest(unittest.TestCase):
             changed = db.execute("SELECT * FROM workout_sets WHERE id = ?", (set_id,)).fetchone()
             changed_cardio = db.execute("SELECT * FROM workout_sets WHERE id = ?", (cardio_id,)).fetchone()
             meals = db.execute("SELECT * FROM meal_entries ORDER BY id").fetchall()
+            favorite_count = db.execute("SELECT COUNT(*) FROM food_favorites").fetchone()[0]
             self.assertEqual(changed["weight"], 82.5)
             self.assertEqual(changed["reps"], 11)
             self.assertEqual(changed_cardio["cardio_minutes"], 31)
             self.assertEqual(len(meals), 2)
             self.assertEqual(meals[0]["calories"], 180)
+            self.assertEqual(favorite_count, 0)
 
         response = self.client.get(f"/app?date={workout_date}&mode=meal")
         meal_html = response.data.decode("utf-8")
         self.assertIn("meal-record-card", meal_html)
         self.assertIn("meal-record-item", meal_html)
+        self.assertIn("최근 입력 음식", meal_html)
+
+        response = self.client.post(
+            "/food-favorites",
+            data={
+                "meal_date": workout_date,
+                "food_name": "__TEST__ 고정음식",
+                "quantity": "1",
+                "grams": "120",
+                "calories": "220",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        meal_html = self.client.get(f"/app?date={workout_date}&mode=meal").data.decode("utf-8")
+        self.assertIn("고정 음식", meal_html)
+        self.assertIn("meal-favorite-row", meal_html)
+        self.assertIn("__TEST__ 고정음식", meal_html)
 
         response = self.client.get(f"/app?date={workout_date}&mode=workout")
         html = response.data.decode("utf-8")

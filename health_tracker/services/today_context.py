@@ -17,6 +17,7 @@ def _empty_today_context() -> dict[str, object]:
         "recent_pr_events": [],
         "foods_by_meal_type": {},
         "favorite_foods": [],
+        "frequent_foods": [],
         "favorite_exercises": [],
         "routines": [],
         "workout_plan": [],
@@ -170,6 +171,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
             {
                 "foods_by_meal_type": deps["list_foods_by_meal_type"](),
                 "favorite_foods": deps["list_favorite_foods"](),
+                "frequent_foods": deps["list_frequent_foods"](),
                 "frequent_meal_combos": deps["list_frequent_meal_combos"](),
                 "meal_templates": deps["list_meal_templates"](),
                 "meals": deps["list_meals_for_date"](today_session["workout_date"]),

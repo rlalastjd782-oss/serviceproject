@@ -218,15 +218,32 @@
         data-food-quick-panel
         data-foods-by-meal-type='{{ foods_by_meal_type|tojson }}'
       >
+        {% set favorite_food_names = favorite_foods|map(attribute='food_name')|list %}
         {% if favorite_foods %}
-          <div class="quick-panel-title">즐겨찾기 음식</div>
-          <div class="exercise-quick-list">
+          <div class="quick-panel-title">고정 음식</div>
+          <div class="exercise-quick-list meal-favorite-list">
             {% for food in favorite_foods %}
-              <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name }}</button>
+              <span class="meal-favorite-row">
+                <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name }}</button>
+                <form method="post" action="{{ url_for('delete_food_favorite_route', food_name=food.food_name) }}">
+                  <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+                  <button class="btn-danger row-remove-button" type="submit" aria-label="고정 음식 해제">×</button>
+                </form>
+              </span>
             {% endfor %}
           </div>
         {% endif %}
-        <div class="quick-panel-title">자주 먹은 음식</div>
+        {% if frequent_foods %}
+          <div class="quick-panel-title">자주 먹는 음식</div>
+          <div class="exercise-quick-list">
+            {% for food in frequent_foods %}
+              {% if food.food_name not in favorite_food_names %}
+                <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name }} · {{ food.use_count }}회</button>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+        <div class="quick-panel-title">최근 입력 음식</div>
         <div class="exercise-quick-list" data-food-quick-list></div>
         <div class="quick-empty" data-food-quick-empty>선택한 식사의 음식 기록이 없습니다.</div>
       </div>

@@ -610,7 +610,7 @@ def list_exercise_stats_by_name(location_id: int | None = None) -> dict[str, dic
     }
 
 
-def list_foods_by_meal_type(limit: int = 12) -> dict[str, list[dict[str, float | str | None]]]:
+def list_foods_by_meal_type(limit: int = 6) -> dict[str, list[dict[str, float | str | None]]]:
     rows = get_db().execute(
         """
         SELECT
@@ -642,14 +642,37 @@ def list_foods_by_meal_type(limit: int = 12) -> dict[str, list[dict[str, float |
     return grouped
 
 
-def list_favorite_foods() -> list[sqlite3.Row]:
+def list_favorite_foods(limit: int = 6) -> list[sqlite3.Row]:
     return get_db().execute(
         """
         SELECT food_name, quantity, grams, calories
         FROM food_favorites
         WHERE is_favorite = 1
         ORDER BY updated_at DESC, food_name
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+
+
+def list_frequent_foods(limit: int = 6) -> list[sqlite3.Row]:
+    return get_db().execute(
         """
+        SELECT
+            food_name,
+            quantity,
+            grams,
+            calories,
+            COUNT(id) AS use_count,
+            MAX(meal_date) AS last_date
+        FROM meal_entries
+        WHERE meal_date >= date('now', 'localtime', '-30 day')
+        GROUP BY food_name
+        HAVING COUNT(id) >= 3
+        ORDER BY use_count DESC, last_date DESC, food_name
+        LIMIT ?
+        """,
+        (limit,),
     ).fetchall()
 
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.4.3 - 2026-05-28
+
+- 식단 저장 시 입력한 모든 음식이 자동으로 즐겨찾기에 등록되던 흐름을 제거했습니다.
+- 식단 입력 빠른 선택을 `고정 음식`, `자주 먹는 음식`, `최근 입력 음식`으로 분리했습니다.
+- 고정 음식은 수동 등록한 항목만 최대 6개 노출하고, 화면에서 바로 고정 해제할 수 있게 했습니다.
+- 최근 입력 음식은 식사 구분별 최근 6개만 표시해 모바일 식단 입력 화면이 길어지지 않도록 정리했습니다.
+- PWA manifest와 service worker 캐시 버전을 `2.4.3`으로 갱신했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/ui_interactions.js`, `node --check static/workout_tools.js`, `node --check static/offline_queue.js`, `node --check static/workout_entry.js`, `git diff --check`.
+
 ## v2.4.2 - 2026-05-28
 
 - 장소 인사이트에서 등록 장비와 실제 사용 장비를 비교해 장비활용률과 미사용 장비를 표시하도록 확장했습니다.

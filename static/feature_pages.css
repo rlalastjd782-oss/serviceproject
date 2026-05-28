@@ -1586,6 +1586,21 @@ label span {
   margin-top: 12px;
 }
 
+.meal-favorite-list {
+  align-items: stretch;
+}
+
+.meal-favorite-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 34px;
+  gap: 6px;
+  align-items: stretch;
+}
+
+.meal-favorite-row form {
+  display: contents;
+}
+
 .meal-form.is-collapsed {
   display: none;
 }
