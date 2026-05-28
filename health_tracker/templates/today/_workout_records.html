@@ -8,6 +8,7 @@
         {% for group in workout_groups %}
           {% set group_pr_events = pr_events | selectattr("exercise_name", "equalto", group.exercise_name) | list %}
           {% set setting = exercise_settings.get(group.exercise_name, {}) %}
+          {% set goal_progress = exercise_goal_progress.get(group.exercise_name) %}
           <article class="record-card workout-summary-card is-collapsed" data-collapsible-card>
             <div class="record-date workout-record-head">
               <button class="record-toggle" type="button" data-toggle-card aria-expanded="false">
@@ -33,6 +34,22 @@
                 {% for event in group_pr_events %}
                   <span class="badge pr-badge">PR {{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
                 {% endfor %}
+              </div>
+            {% endif %}
+            {% if goal_progress %}
+              <div class="exercise-goal-card {% if goal_progress.is_done %}is-done{% endif %}">
+                <div class="exercise-goal-head">
+                  <strong>목표 진행률</strong>
+                  <span>{{ goal_progress.percent }}%</span>
+                </div>
+                <div class="exercise-goal-bar" aria-label="목표 진행률 {{ goal_progress.percent }}%">
+                  <span style="width: {{ goal_progress.percent }}%"></span>
+                </div>
+                <div class="exercise-goal-items">
+                  {% for item in goal_progress["items"] %}
+                    <span>{{ item.label }} {{ item.current|round(1) }} / {{ item.target|round(1) }}{{ item.unit }}</span>
+                  {% endfor %}
+                </div>
               </div>
             {% endif %}
             <form method="post" action="{{ url_for('update_session_exercise_name', session_id=session.id) }}" class="exercise-rename-form">

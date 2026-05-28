@@ -1026,6 +1026,12 @@ class HealthTrackerFlowTest(unittest.TestCase):
             self.assertEqual(setting["target_weight"], 90)
             self.assertEqual(setting["target_reps"], 8)
             self.assertEqual(setting["target_sets"], 4)
+            goal_progress = app_module.list_exercise_goal_progress()[strength_name]
+            self.assertGreater(goal_progress["percent"], 0)
+
+        goal_html = self.client.get(f"/app?date={workout_date}&mode=workout").data.decode("utf-8")
+        self.assertIn("exercise-goal-card", goal_html)
+        self.assertIn("목표 진행률", goal_html)
 
         response = self.client.get("/export-meals.csv")
         self.assertEqual(response.status_code, 200)

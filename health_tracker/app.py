@@ -121,6 +121,7 @@ from health_tracker.services.data_quality import (
 from health_tracker.services.exercise_calorie import estimate_exercise_calories_from_weight
 from health_tracker.services.exercise_settings import (
     get_exercise_rest_seconds_from_db,
+    list_exercise_goal_progress_from_db,
     list_favorite_exercises_from_db,
     list_exercise_notes_from_db,
     list_exercise_settings_from_db,
@@ -1114,6 +1115,10 @@ def save_exercise_note(exercise_name: str, note: str) -> None:
 
 def list_exercise_settings() -> dict[str, dict[str, int | float | bool | str | None]]:
     return list_exercise_settings_from_db(get_db(), int(get_app_preferences()["default_rest_seconds"]))
+
+
+def list_exercise_goal_progress() -> dict[str, dict[str, object]]:
+    return list_exercise_goal_progress_from_db(get_db())
 
 
 def list_exercise_smart_defaults(location_id: int | None = None) -> dict[str, dict[str, object]]:

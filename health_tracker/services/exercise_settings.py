@@ -38,6 +38,71 @@ def list_exercise_settings_from_db(
     }
 
 
+def list_exercise_goal_progress_from_db(db: sqlite3.Connection) -> dict[str, dict[str, object]]:
+    rows = db.execute(
+        """
+        WITH exercise_daily_sets AS (
+            SELECT e.name AS exercise_name, s.workout_date, COUNT(ws.id) AS set_count
+            FROM workout_sets ws
+            JOIN workout_sessions s ON s.id = ws.session_id
+            JOIN exercises e ON e.id = ws.exercise_id
+            GROUP BY e.name, s.workout_date
+        )
+        SELECT
+            es.exercise_name,
+            es.target_weight,
+            es.target_reps,
+            es.target_sets,
+            COALESCE(MAX(ws.weight), 0) AS best_weight,
+            COALESCE(MAX(ws.reps), 0) AS best_reps,
+            COALESCE((
+                SELECT MAX(eds.set_count)
+                FROM exercise_daily_sets eds
+                WHERE eds.exercise_name = es.exercise_name
+            ), 0) AS best_sets,
+            MAX(s.workout_date) AS last_date
+        FROM exercise_settings es
+        LEFT JOIN exercises e ON e.name = es.exercise_name
+        LEFT JOIN workout_sets ws ON ws.exercise_id = e.id
+        LEFT JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE es.target_weight IS NOT NULL
+           OR es.target_reps IS NOT NULL
+           OR es.target_sets IS NOT NULL
+        GROUP BY es.exercise_name, es.target_weight, es.target_reps, es.target_sets
+        ORDER BY es.exercise_name
+        """
+    ).fetchall()
+    progress: dict[str, dict[str, object]] = {}
+    for row in rows:
+        items: list[dict[str, object]] = []
+        if row["target_weight"]:
+            current = float(row["best_weight"] or 0)
+            target = float(row["target_weight"] or 0)
+            items.append({"label": "중량", "current": current, "target": target, "unit": "kg"})
+        if row["target_reps"]:
+            current = int(row["best_reps"] or 0)
+            target = int(row["target_reps"] or 0)
+            items.append({"label": "반복", "current": current, "target": target, "unit": "회"})
+        if row["target_sets"]:
+            current = int(row["best_sets"] or 0)
+            target = int(row["target_sets"] or 0)
+            items.append({"label": "세트", "current": current, "target": target, "unit": "세트"})
+
+        scored = [
+            min(100, round(float(item["current"] or 0) / float(item["target"] or 1) * 100))
+            for item in items
+            if float(item["target"] or 0) > 0
+        ]
+        percent = round(sum(scored) / len(scored)) if scored else 0
+        progress[row["exercise_name"]] = {
+            "percent": percent,
+            "items": items,
+            "last_date": row["last_date"],
+            "is_done": percent >= 100,
+        }
+    return progress
+
+
 def save_exercise_settings_to_db(
     db: sqlite3.Connection,
     exercise_name: str,
