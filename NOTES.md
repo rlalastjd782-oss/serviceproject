@@ -1,5 +1,14 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.4.0 반응형 UI 및 소스 분리 정리
+- 인증 라우트는 `health_tracker/routes/auth.py`, 설정 라우트는 `health_tracker/routes/settings.py`로 분리했습니다. 기존 흐름은 테스트로 유지 확인했습니다.
+- 공통 반응형 보강은 `static/ui_rebuild.css` 하단에 추가했습니다. 모바일/폴드 폭에서 카드, 버튼, 필터, 폼, 테이블이 한 줄로 눌리거나 겹치는 경우를 줄이는 방어 규칙입니다.
+- `today/index.html`에서 루틴/운동 입력, 운동 기록, 식단 기록을 각각 `today/_workout_library_input.html`, `today/_workout_records.html`, `today/_meal_records.html`로 분리했습니다.
+- `summaries/summary.html`에서 운동별 분석과 장비별 분석을 각각 `summaries/_exercise_summary.html`, `summaries/_equipment_summary.html`로 분리했습니다.
+- 버전은 `VERSION`, `static/manifest.webmanifest`, `static/sw.js` 모두 `2.4.0`으로 맞췄습니다.
+- 이번 작업 중 확인한 다음 정리 대상은 `health_tracker/app.py`, `static/styles.css`, `health_tracker/routes/main.py`, `static/app.js`입니다. 기능 분리 범위가 커서 별도 회귀 테스트 단위로 나누는 것이 맞습니다.
+- 검증 완료: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`.
+
 ## 2026-05-28 v2.3.11 렌더링 병목 추가 점검
 - 속도 병목 후보를 다시 점검했고, `today/index.html`이 템플릿 안에서 `grouped_sets_for_session(session.id)`를 직접 호출하던 부분을 제거했습니다.
 - `today_context.py`에서 운동 모드일 때 `workout_groups`를 미리 구성해 템플릿에는 렌더링 데이터만 전달하도록 정리했습니다.

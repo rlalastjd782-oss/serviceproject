@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.4.0 - 2026-05-28
+
+- 인증 라우트를 `health_tracker/routes/auth.py`로 분리해 로그인, 회원가입, 로그아웃 흐름을 메인 라우트에서 분리했습니다.
+- 설정 라우트를 `health_tracker/routes/settings.py`로 분리해 설정 잠금, 계정 관리, 앱 기본값, QA 더미 데이터, 빈 세션 정리 기능을 독립 관리하도록 정리했습니다.
+- 공통 반응형 CSS를 보강해 카드, 리스트, 필터, 버튼, 테이블, 폼이 모바일/폴드 폭에서 겹치거나 밀리지 않도록 안전 규칙을 추가했습니다.
+- 오늘 화면의 루틴/운동 입력, 운동 기록, 식단 기록 영역을 partial 템플릿으로 분리했습니다.
+- 분석 화면의 운동별 분석과 장비별 분석 영역을 partial 템플릿으로 분리해 `summary.html` 크기를 줄였습니다.
+- PWA manifest와 service worker 캐시 버전을 `2.4.0`으로 올려 배포 후 정적 파일 갱신이 더 명확하게 반영되도록 했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`.
+
 ## v2.3.11 - 2026-05-28
 
 - 오늘 운동 리스트를 템플릿 내부 DB 호출 대신 `today_context`에서 미리 만든 `workout_groups`로 렌더링하도록 바꿨습니다.
