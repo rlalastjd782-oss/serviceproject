@@ -1,0 +1,335 @@
+    <section class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">운동 상세</div>
+          <div class="section-subtitle">운동을 선택하면 최근 기록, 목표, 그래프를 한 번에 봅니다.</div>
+        </div>
+      </div>
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="tool-form">
+        <select name="exercise_id" aria-label="운동 선택">
+          {% for exercise in exercise_choices %}
+            <option value="{{ exercise.id }}" {% if exercise.id == selected_exercise_id %}selected{% endif %}>{{ exercise.name }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn-small" type="submit">보기</button>
+      </form>
+      {% if selected_exercise_profile %}
+        <div class="exercise-hero-card">
+          <div class="exercise-hero-head">
+            <div>
+              <span class="cat-badge {{ body_part_class(selected_exercise_profile.body_part) }}">{{ selected_exercise_profile.body_part }}</span>
+              <strong>{{ selected_exercise_profile.name }}</strong>
+              <small>최근 {{ selected_exercise_profile.last_date or "-" }}</small>
+            </div>
+            {% if selected_exercise_profile.body_part == "유산소" %}
+              <b>{{ "%.0f"|format(selected_exercise_profile.cardio_minutes) }}분</b>
+            {% else %}
+              <b>{{ "%.0f"|format(selected_exercise_profile.best_weight) }}kg</b>
+            {% endif %}
+          </div>
+          <div class="exercise-hero-stats">
+            <span>{{ selected_exercise_profile.set_count }}세트</span>
+            <span>{{ selected_exercise_profile.workout_days }}일</span>
+            {% if selected_exercise_profile.body_part == "유산소" %}
+              <span>{{ "%.0f"|format(selected_exercise_profile.exercise_calories) }}kcal</span>
+            {% else %}
+              <span>{{ selected_exercise_profile.best_reps }}회 PR</span>
+              <span>{{ "%.0f"|format(selected_exercise_profile.best_volume) }}kg 볼륨 PR</span>
+            {% endif %}
+          </div>
+          {% if selected_exercise_next_plan %}
+            <div class="next-plan-list">
+              {% for plan in selected_exercise_next_plan %}
+                <div>{{ plan }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+        {% if selected_exercise_trend %}
+          <div class="trend-card-grid">
+            {% for item in selected_exercise_trend %}
+              {% if item.current %}
+                <article class="trend-card {% if item.value > 0 %}is-up{% elif item.value < 0 %}is-down{% endif %}">
+                  <span>{{ item.label }}</span>
+                  <strong>{{ "%+.1f"|format(item.value) }}{{ item.unit }}</strong>
+                  <small>현재 {{ "%.1f"|format(item.current) }}{{ item.unit }}</small>
+                </article>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if exercise_pr_history %}
+          <div class="detail-list compact-detail-list exercise-pr-list">
+            {% for event in exercise_pr_history %}
+              <div class="detail-row">
+                <strong>{{ event.workout_date }} · {{ event.record_type }}</strong>
+                <span>{{ "%.0f"|format(event.record_value) }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
+      {% if exercise_growth %}
+        <div class="progress-chart exercise-progress-chart" role="img" aria-label="운동 성장 그래프">
+          {% for item in exercise_growth %}
+            <article class="progress-card">
+              <div class="progress-head">
+                <strong>{{ item.period }}</strong>
+                <span>{% if item.is_cardio %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}{{ item.rep_count }}회{% endif %}</span>
+              </div>
+              <div class="progress-metrics">
+                {% if item.is_cardio %}
+                  <span>시간 {{ "%.0f"|format(item.cardio_minutes) }}분</span>
+                  <span>속도 {{ "%.1f"|format(item.cardio_speed) }}</span>
+                  <span>인클라인 {{ "%.1f"|format(item.cardio_incline) }}</span>
+                {% else %}
+                  <span>최고 {{ "%.1f"|format(item.max_weight) }}kg</span>
+                  <span>1RM {{ "%.1f"|format(item.estimated_1rm) }}kg</span>
+                {% endif %}
+              </div>
+              <div class="progress-bars">
+                {% if item.is_cardio %}
+                  <div class="progress-line">
+                    <span class="line-label">시간</span>
+                    <span class="line-track"><i class="duration-bar" style="width: {{ item.cardio_minutes_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">속도</span>
+                    <span class="line-track"><i class="set-bar" style="width: {{ item.cardio_speed_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">인클라인</span>
+                    <span class="line-track"><i class="burn-bar" style="width: {{ item.cardio_incline_width }}%"></i></span>
+                  </div>
+                {% else %}
+                  <div class="progress-line">
+                    <span class="line-label">볼륨</span>
+                    <span class="line-track"><i class="volume-bar" style="width: {{ item.volume_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">중량</span>
+                    <span class="line-track"><i class="set-bar" style="width: {{ item.weight_width }}%"></i></span>
+                  </div>
+                  <div class="progress-line">
+                    <span class="line-label">예상 1RM</span>
+                    <span class="line-track"><i class="burn-bar" style="width: {{ item.estimated_1rm_width }}%"></i></span>
+                  </div>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">그래프로 볼 운동 기록이 없습니다.</div>
+      {% endif %}
+      {% if exercise_recent_sets %}
+        <div class="detail-list exercise-recent-set-list">
+          <div class="detail-list-head">
+            <strong>최근 세트 기록</strong>
+            <span>{{ exercise_recent_sets|length }}개</span>
+          </div>
+          {% for item in exercise_recent_sets %}
+            <div class="detail-row">
+              <strong>{{ item.workout_date }}</strong>
+              <span>
+                {% if item.body_part == "유산소" %}
+                  {% if item.equipment %}{{ item.equipment }} · {% endif %}
+                  인클라인 {% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% else %}-{% endif %}
+                  · 속도 {% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% else %}-{% endif %}
+                  · {% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}-분{% endif %}
+                {% else %}
+                  {% if item.equipment %}{{ item.equipment }} · {% endif %}
+                  {{ item.set_type or "본세트" }} ·
+                  {% if item.weight is not none %}{{ "%.1f"|format(item.weight) }}kg{% else %}-kg{% endif %}
+                  x {% if item.reps is not none %}{{ item.reps }}회{% else %}-회{% endif %}
+                  {% if item.rpe %} · RPE {{ "%.1f"|format(item.rpe) }}{% endif %}
+                {% endif %}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="section overload-dashboard-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">과부하 분석</div>
+          <div class="section-subtitle">최근 기록 기준으로 상승, 정체, 회복 필요 상태를 분류합니다.</div>
+        </div>
+      </div>
+      <div class="overload-card-grid">
+        {% for item in progressive_overload_rows[:10] %}
+          <article class="overload-card state-{{ item.state|replace(' ', '-') }}">
+            <div class="overload-card-head">
+              <div>
+                <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+                <strong>{{ item.exercise_name }}</strong>
+              </div>
+              <b>{{ item.state }}</b>
+            </div>
+            <div class="overload-metrics">
+              <span>{{ "%.1f"|format(item.max_weight) }}kg</span>
+              <span>1RM {{ "%.1f"|format(item.estimated_1rm) }}</span>
+              <span>{{ "%+.0f"|format(item.volume_delta) }}kg</span>
+            </div>
+            <p>{{ item.reason }}</p>
+          </article>
+        {% else %}
+          <div class="empty">과부하 분석에 사용할 기록이 없습니다.</div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section muscle-balance-section" id="muscle-balance">
+      <div class="section-header">
+        <div>
+          <div class="section-title">부위 밸런스</div>
+          <div class="section-subtitle">{{ muscle_balance.period }} · {{ muscle_balance.message }}</div>
+        </div>
+      </div>
+      <div class="muscle-balance-grid">
+        {% for item in muscle_balance["items"] %}
+          <article class="muscle-balance-card {{ item.class_name }}">
+            <div>
+              <strong>{{ item.body_part }}</strong>
+              <span>{{ item.state }} · {{ item.set_count }}세트</span>
+            </div>
+            <div class="muscle-heatbar"><i style="width: {{ item.intensity }}%"></i></div>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">운동 기록 검색</div>
+      </div>
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="tool-form">
+        <input list="exercise-search-list" name="q" value="{{ search_query }}" autocomplete="off" placeholder="운동명 또는 부위 검색">
+        <button class="btn-small" type="submit">검색</button>
+      </form>
+      <datalist id="exercise-search-list">
+        {% for exercise in exercise_choices %}
+          <option value="{{ exercise.name }}"></option>
+        {% endfor %}
+      </datalist>
+      {% if search_query %}
+        <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form">
+          <input type="hidden" name="q" value="{{ search_query }}">
+          <input type="hidden" name="sort" value="{{ exercise_sort }}">
+          {{ result_toolbar(search_pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("weight", "중량순"), ("volume", "볼륨순")], search_sort, url_for('exercise_summary_page')) }}
+          <button class="btn-small" type="submit">적용</button>
+        </form>
+        <div class="detail-list search-result-list">
+          {% for result in search_results %}
+            <div class="detail-row">
+              <strong>{{ result.workout_date }} · {{ result.exercise_name }}</strong>
+              <span>
+                {{ result.body_part }} ·
+                {% if result.body_part == "유산소" %}
+                  인클라인 {% if result.cardio_incline is not none %}{{ "%.1f"|format(result.cardio_incline) }}{% else %}-{% endif %}
+                  · 속도 {% if result.cardio_speed is not none %}{{ "%.1f"|format(result.cardio_speed) }}{% else %}-{% endif %}
+                  · {% if result.cardio_minutes is not none %}{{ "%.0f"|format(result.cardio_minutes) }}분{% else %}-분{% endif %}
+                  {% if result.estimated_calories %} · 예상 {{ "%.0f"|format(result.estimated_calories) }}kcal{% endif %}
+                {% else %}
+                  {% if result.weight is not none %}{{ "%.1f"|format(result.weight) }}kg{% else %}-kg{% endif %}
+                  · {% if result.reps is not none %}{{ result.reps }}회{% else %}-회{% endif %}
+                {% endif %}
+              </span>
+            </div>
+          {% else %}
+            <div class="empty">검색 결과가 없습니다.</div>
+          {% endfor %}
+        </div>
+        {{ pagination_nav(search_pagination) }}
+      {% endif %}
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">🏆 운동별 기록</div>
+      </div>
+      {% if recent_pr_events %}
+        <div class="detail-list compact-detail-list">
+          {% for event in recent_pr_events[:8] %}
+            <div class="detail-row">
+              <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
+              <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form">
+        {{ result_toolbar(exercise_pagination, [("sets", "세트순"), ("volume", "볼륨순"), ("recent", "최근순"), ("name", "이름순")], exercise_sort, url_for('exercise_summary_page')) }}
+        <button class="btn-small" type="submit">적용</button>
+      </form>
+      <div class="record-list">
+        {% for item in exercise_summary %}
+          <a class="ex-rank-item {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">
+            <span class="rank-num">{{ loop.index }}위</span>
+            <div class="ex-rank-main">
+              <strong>{{ item.name }}</strong>
+              <div class="record-summary">
+                <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+                <span class="badge">{{ item.set_count }}세트</span>
+                {% if item.body_part == "유산소" %}
+                  {% if item.cardio_minutes %}<span class="badge">{{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+                  {% if item.exercise_calories %}<span class="badge">{{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
+                {% else %}
+                  <span class="badge">{{ item.rep_count }}회</span>
+                  <span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        {% else %}
+          <div class="empty">운동 기록 없음</div>
+        {% endfor %}
+      </div>
+      {{ pagination_nav(exercise_pagination) }}
+      <div class="body-part-toggle-panel">
+        <div class="quick-panel-title">부위별 운동 리스트</div>
+        <div class="body-part-toggle-list">
+          {% for part in body_parts %}
+            {% set rows = body_part_exercise_summary.get(part, []) %}
+            {% set detail_id = "exercise-part-list-" ~ loop.index %}
+            <button
+              type="button"
+              class="body-part-toggle {{ body_part_class(part) }}"
+              data-toggle-detail
+              data-detail-target="{{ detail_id }}"
+              aria-expanded="false"
+              {% if not rows %}disabled{% endif %}
+            >
+              {{ part }}
+              <span>{{ rows|length }}</span>
+            </button>
+          {% endfor %}
+        </div>
+        {% for part in body_parts %}
+          {% set rows = body_part_exercise_summary.get(part, []) %}
+          {% set detail_id = "exercise-part-list-" ~ loop.index %}
+          <div id="{{ detail_id }}" class="detail-list full-detail-list is-collapsed body-part-exercise-list" aria-hidden="true">
+            <div class="detail-list-head">
+              <strong>{{ part }} 운동 리스트</strong>
+              <span>{{ rows|length }}개</span>
+            </div>
+            {% for exercise in rows %}
+              <div class="detail-row">
+                <strong>{{ exercise.name }}</strong>
+                <span>
+                  {% if part == "유산소" %}
+                    {{ exercise.set_count }}세트{% if exercise.cardio_minutes %} · {{ "%.0f"|format(exercise.cardio_minutes) }}분{% endif %}{% if exercise.exercise_calories %} · {{ "%.0f"|format(exercise.exercise_calories) }}kcal{% endif %}
+                  {% else %}
+                    {{ exercise.set_count }}세트 · {{ exercise.rep_count }}회 · {{ "%.0f"|format(exercise.volume) }}kg
+                  {% endif %}
+                </span>
+              </div>
+            {% else %}
+              <div class="empty">이 부위의 운동 기록이 없습니다.</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </section>
