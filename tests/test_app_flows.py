@@ -971,6 +971,17 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn(f'value="{strength_name}"', html)
         self.assertIn(f'value="{cardio_name}"', html)
         self.assertIn('class="set-row-actions"', html)
+        self.assertIn("finish-review-card", html)
+        self.assertIn("운동 완료 리뷰", html)
+
+        response = self.client.post(
+            f"/sessions/{session_id}/complete",
+            data={"mode": "workout", "completed": "1"},
+        )
+        self.assertEqual(response.status_code, 302)
+        completed_html = self.client.get(f"/app?date={workout_date}&mode=workout").data.decode("utf-8")
+        self.assertIn("완료된 기록 기준", completed_html)
+        self.assertIn("다음 행동", completed_html)
 
         response = self.client.get("/summaries/exercises")
         self.assertIn('list="exercise-search-list"', response.data.decode("utf-8"))

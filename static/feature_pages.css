@@ -1057,6 +1057,101 @@ label span {
   margin: 9px 0;
 }
 
+.finish-review-card {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  border: 1px solid rgb(14 165 233 / 30%);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgb(15 23 42 / 88%), rgb(8 13 24 / 92%));
+  padding: 12px;
+}
+
+.finish-review-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.finish-review-head > div {
+  display: grid;
+  gap: 3px;
+}
+
+.finish-review-head strong {
+  color: var(--strong);
+  font-size: 15px;
+}
+
+.finish-review-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.finish-review-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.finish-review-metrics article,
+.finish-review-panel {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(2 6 23 / 42%);
+  padding: 10px;
+}
+
+.finish-review-metrics article {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.finish-review-metrics span,
+.finish-review-metrics small {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.finish-review-metrics strong {
+  color: var(--strong);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.finish-review-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.finish-review-panel {
+  display: grid;
+  gap: 7px;
+  align-content: start;
+}
+
+.finish-review-panel > strong {
+  color: var(--strong);
+  font-size: 13px;
+}
+
+.finish-review-panel p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.finish-review-panel b {
+  color: #bae6fd;
+}
+
 .pr-card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

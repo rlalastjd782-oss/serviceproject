@@ -259,6 +259,7 @@ from health_tracker.services.workout import (
 from health_tracker.services.workout_plan import (
     apply_default_program_to_db,
     build_workout_completion_summary_from_db,
+    build_workout_finish_review_from_db,
     build_workout_session_flow_from_db,
     create_workout_plan_item_in_db,
     delete_workout_plan_item_from_db,
@@ -600,6 +601,10 @@ def list_workout_plan(workout_date: str) -> list[sqlite3.Row]:
 
 def build_workout_completion_summary(workout_date: str) -> dict[str, object]:
     return build_workout_completion_summary_from_db(get_db(), workout_date, get_or_create_session)
+
+
+def build_workout_finish_review(workout_date: str) -> dict[str, object]:
+    return build_workout_finish_review_from_db(get_db(), workout_date, get_or_create_session)
 
 
 def build_workout_session_flow(workout_date: str) -> dict[str, object]:

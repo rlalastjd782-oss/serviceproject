@@ -47,6 +47,40 @@
         </div>
       {% endif %}
     {% endif %}
+    {% if workout_finish_review.visible %}
+      <div class="finish-review-card">
+        <div class="finish-review-head">
+          <div>
+            <strong>운동 완료 리뷰</strong>
+            <span>{% if workout_finish_review.completed %}완료된 기록 기준{% else %}현재 입력 기준{% endif %}</span>
+          </div>
+          <a class="btn-small" href="{{ url_for('daily_summary_page', date=session.workout_date) }}">분석 보기</a>
+        </div>
+        <div class="finish-review-metrics">
+          {% for metric in workout_finish_review.metrics %}
+            <article>
+              <span>{{ metric.label }}</span>
+              <strong>{{ metric.value }}</strong>
+              <small>{{ metric.note }}</small>
+            </article>
+          {% endfor %}
+        </div>
+        <div class="finish-review-columns">
+          <div class="finish-review-panel">
+            <strong>오늘 피드백</strong>
+            {% for insight in workout_finish_review.insights %}
+              <p>{{ insight }}</p>
+            {% endfor %}
+          </div>
+          <div class="finish-review-panel">
+            <strong>다음 행동</strong>
+            {% for action in workout_finish_review.next_actions %}
+              <p><b>{{ action.label }}</b> {{ action.detail }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
   </section>
 
   <section class="section overview-only workout-only workout-recovery-section">

@@ -829,6 +829,19 @@
 }
 
 @media (max-width: 760px) {
+  .finish-review-head,
+  .finish-review-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .finish-review-head {
+    display: grid;
+  }
+
+  .finish-review-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .record-list,
   .detail-list,
   .meal-entry-list,
