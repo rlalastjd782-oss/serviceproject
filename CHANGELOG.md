@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.4.4 - 2026-05-28
+
+- 식단 빠른선택과 장소 인사이트 SQL을 서비스 모듈로 분리해 `app.py` 책임을 줄였습니다.
+- 장소 인사이트는 장소별 반복 조회 대신 bulk 집계 방식으로 변경해 N+1 쿼리를 줄였습니다.
+- SQLite 연결에 `foreign_keys`, `busy_timeout`, `journal_mode=WAL`, `synchronous=NORMAL` 설정을 추가하고 분석/검색용 복합 인덱스를 보강했습니다.
+- 요청 처리 시간, DB 쿼리 수, `Server-Timing` 응답 헤더를 추가해 성능 계측 기반을 만들었습니다.
+- 알림 스크립트, 식단 입력 스크립트, 식단 CSS, 오늘 화면 partial, 식단 입력 partial, 보안/마이그레이션 테스트를 분리했습니다.
+- 로컬 `__pycache__` 산출물을 정리했습니다.
+- 검증: `python -m unittest discover -v` 27개 통과, `python -m compileall health_tracker tests`, 주요 JS `node --check`, `git diff --check`.
+
 ## v2.4.3 - 2026-05-28
 
 - 식단 저장 시 입력한 모든 음식이 자동으로 즐겨찾기에 등록되던 흐름을 제거했습니다.

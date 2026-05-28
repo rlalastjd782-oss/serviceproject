@@ -1,5 +1,16 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.4.4 구조 및 성능 최적화
+- `health_tracker/services/food_shortcuts.py`, `location_insights.py`, `goals.py`, `reminders.py`를 추가해 `app.py`에 몰려 있던 식단 빠른선택, 장소 인사이트, 목표, 리마인더 DB 로직을 분리했습니다.
+- 장소 인사이트는 장소마다 top exercise/equipment/equipment list를 반복 조회하던 구조를 bulk 조회 후 Python에서 그룹핑하는 방식으로 바꿨습니다.
+- SQLite 연결 설정에 foreign key, busy timeout, WAL, synchronous NORMAL을 적용했고 식단/운동/장소 장비 복합 인덱스를 추가했습니다.
+- 응답 헤더에 `X-Request-Duration-ms`, `X-DB-Query-Count`, `Server-Timing`을 추가해 각 화면의 처리 시간과 DB 쿼리 수를 확인할 수 있게 했습니다.
+- `static/notifications.js`, `static/meal_entry.js`, `static/meal.css`를 추가하고 service worker precache 및 layout 로드를 갱신했습니다.
+- 오늘 화면은 `_body_metrics.html`, `_status_panels.html`, `_meal_input.html` partial로 추가 분리했습니다.
+- 보안/마이그레이션 테스트는 `tests/test_security_and_migration.py`로 분리했고 전체 테스트는 27개로 통과했습니다.
+- 로컬 `__pycache__` 산출물을 정리했습니다.
+- 검증 완료: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/meal_entry.js`, `node --check static/notifications.js`, `node --check static/workout_entry.js`, `node --check static/offline_queue.js`, `node --check static/workout_tools.js`, `node --check static/ui_interactions.js`, `git diff --check`.
+
 ## 2026-05-28 v2.4.3 식단 빠른 선택 정리
 - 식단 입력 저장 시 모든 음식이 `food_favorites`에 자동 등록되던 처리를 제거했습니다. 앞으로 고정 음식은 사용자가 직접 `고정` 버튼으로 등록한 항목만 표시됩니다.
 - 식단 입력 패널을 `고정 음식`, `자주 먹는 음식`, `최근 입력 음식`으로 분리했습니다. 고정 음식은 최대 6개, 최근 입력은 식사 구분별 최대 6개만 노출됩니다.
