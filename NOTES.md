@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.5.3 static 폴더 구조 정리
+- `static` 루트의 CSS 파일을 `static/css/`, JS 파일을 `static/js/`로 이동했습니다.
+- PWA 호환성을 위해 `static/sw.js`, `static/manifest.webmanifest`, `static/icon.svg`는 루트에 유지했습니다.
+- `layouts/base.html`, `layouts/auth.html`, `layouts/admin.html`의 정적 파일 경로를 새 구조로 갱신했습니다.
+- 서비스워커 precache 목록과 캐시명을 `workout-pwa-v2.5.3`으로 갱신해 배포 후 이전 정적 캐시가 남는 문제를 줄였습니다.
+- 테스트의 CSS/JS 파일 직접 참조와 서비스워커 자산 검증 경로를 새 구조에 맞췄습니다.
+- 검증은 Ruff, 전체 unittest 27개, compileall, 주요 JS 문법 검사, `git diff --check`까지 통과했습니다.
+
 ## 2026-05-28 v2.5.2 운동 중 집중 모드
 - `/app?mode=workout&focus=1`로 운동 중 집중 모드를 추가했습니다.
 - 오늘 운동 탭의 상단 모드 버튼에 집중 모드/집중 해제 토글을 추가했습니다.

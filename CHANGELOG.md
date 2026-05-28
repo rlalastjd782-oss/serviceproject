@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.5.3 - 2026-05-28
+
+- `static` 루트에 몰려 있던 CSS와 JS를 `static/css`, `static/js` 폴더로 분리했습니다.
+- 사용자/관리자/인증 레이아웃의 정적 파일 로드 경로를 새 폴더 구조에 맞게 갱신했습니다.
+- 서비스워커 precache 목록을 새 정적 파일 경로로 갱신하고 캐시 버전을 `2.5.3`으로 올렸습니다.
+- 정적 파일 무결성 테스트와 서비스워커 자산 검증 테스트를 새 경로 기준으로 수정했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v`, `python -m compileall health_tracker tests`, 주요 JS `node --check`, `git diff --check`.
+
 ## v2.5.2 - 2026-05-28
 
 - 오늘 운동 탭에 운동 중 집중 모드를 추가했습니다.
