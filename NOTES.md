@@ -1,591 +1,600 @@
-# Codex Handoff Notes
-
-## 2026-05-29 v2.5.7 성능/배포/소스 진단 개선
-- 요청 단위 `current_account`, app setting, app preferences 캐시를 추가했습니다.
-- `touch_account_seen`은 세션 기준 5분 간격으로 제한해 페이지 이동마다 계정 DB write가 발생하지 않게 했습니다.
-- SQLite 성능 진단용 `services/performance.py`를 추가하고 QA 화면에서 핵심 인덱스, 누락 인덱스, 대표 쿼리 계획, `ANALYZE` 실행을 볼 수 있게 했습니다.
-- 배포 점검용 `services/deployment.py`와 소스 길이 점검용 `services/source_audit.py`를 추가했습니다.
-- 서비스워커 precache는 HTML 페이지를 제거하고 핵심 정적 파일만 사전 캐시하도록 줄였습니다.
-- 긴 파일 현황: `static/css/feature_pages.css`, `health_tracker/app.py`, `static/css/styles.css`, `tests/test_app_flows.py`, `static/css/ui_rebuild.css`가 계속 분리 대상입니다.
-- PythonAnywhere는 `/static/` mapping을 Web 탭에서 실제 static 폴더로 지정하고 Reload해야 Flask worker 부담이 줄어듭니다.
-- 검증은 Ruff, 전체 unittest 30개, compileall, 주요 JS 문법 검사, `git diff --check`로 진행했습니다.
-
-## 2026-05-28 v2.5.6 요청 초기화 경량화
-- `before_request`에서 모든 요청마다 `init_accounts_db`와 `init_db`를 실행하던 구조를 제거했습니다.
-- 계정 DB와 운동 DB는 파일 경로별로 최초 필요 시 1회만 스키마/마이그레이션을 확인하도록 캐시했습니다.
-- 정적 파일, `/sw.js`, `/favicon.ico`는 인증/계정 조회/앱 DB 초기화를 건너뛰도록 빠른 경로를 추가했습니다.
-- PythonAnywhere에서는 추가로 Web 탭 Static files mapping에서 `/static/`을 실제 `static` 폴더에 매핑하면 Flask worker 부담을 더 줄일 수 있습니다.
-- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사까지 통과했습니다.
-
-## 2026-05-28 v2.5.5 favicon 404 수정
-- PythonAnywhere에서 `GET /favicon.ico 404`가 발생하는 문제를 루트 favicon 라우트 추가로 수정했습니다.
-- `/favicon.ico`는 기존 `static/icon.svg`를 `image/svg+xml`로 반환하며 인증 전 공개 접근이 가능합니다.
-- `base/auth/admin` 레이아웃에 `rel=icon`과 `shortcut icon` 링크를 명시했습니다.
-- 서비스워커 precache에 `/favicon.ico`를 추가하고 앱/manifest/cache 버전을 `2.5.5`로 올렸습니다.
-- 로컬 실제 서버에서 `/favicon.ico` 200, 로그인 HTML의 favicon 링크와 `v2.5.5` 반영을 확인했습니다.
-- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사까지 통과했습니다.
-
-## 2026-05-28 v2.5.4 모바일 상단 메뉴 복구
-- 모바일에서 상단 메뉴가 `오늘` 하나만 보인 원인은 `ui_rebuild.css`의 공통 버튼 모바일 규칙이 `.tab-btn`에 `width: 100%`를 적용했기 때문입니다.
-- `.tab-btn`을 공통 100% 버튼 규칙에서 제외하고 `.tabs .tab-btn`만 `width: auto`로 유지하도록 수정했습니다.
-- 브라우저/서비스워커 캐시를 피하기 위해 `VERSION`, manifest, service worker 캐시명을 `2.5.4`로 올렸습니다.
-- 정적 CSS 테스트에 상단 탭이 다시 공통 버튼 규칙에 포함되지 않도록 회귀 검증을 추가했습니다.
-- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사까지 통과했습니다.
-
-## 2026-05-28 v2.5.3-hotfix static 경로 렌더링 검증 보강
-- 로컬 5000 포트 서버가 이전 프로세스 상태로 남아 `/static/styles.css`를 응답 HTML에 남기고 있어 UI가 깨진 것을 확인했습니다.
-- 서버를 재시작한 뒤 `/login` 렌더 HTML이 `/static/css/...` 경로를 쓰고 핵심 CSS/JS가 200으로 응답하는 것을 확인했습니다.
-- 같은 누락을 막기 위해 비로그인/로그인 렌더 페이지에서 예전 정적 경로가 남지 않는 테스트를 추가했습니다.
-- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사, `git diff --check`까지 통과했습니다.
-
-## 2026-05-28 v2.5.3 static 폴더 구조 정리
-- `static` 루트의 CSS 파일을 `static/css/`, JS 파일을 `static/js/`로 이동했습니다.
-- PWA 호환성을 위해 `static/sw.js`, `static/manifest.webmanifest`, `static/icon.svg`는 루트에 유지했습니다.
-- `layouts/base.html`, `layouts/auth.html`, `layouts/admin.html`의 정적 파일 경로를 새 구조로 갱신했습니다.
-- 서비스워커 precache 목록과 캐시명을 `workout-pwa-v2.5.3`으로 갱신해 배포 후 이전 정적 캐시가 남는 문제를 줄였습니다.
-- 테스트의 CSS/JS 파일 직접 참조와 서비스워커 자산 검증 경로를 새 구조에 맞췄습니다.
-- 검증은 Ruff, 전체 unittest 27개, compileall, 주요 JS 문법 검사, `git diff --check`까지 통과했습니다.
-
-## 2026-05-28 v2.5.2 운동 중 집중 모드
-- `/app?mode=workout&focus=1`로 운동 중 집중 모드를 추가했습니다.
-- 오늘 운동 탭의 상단 모드 버튼에 집중 모드/집중 해제 토글을 추가했습니다.
-- 집중 모드에서는 보조 섹션을 숨기고 운동 타이머, 휴식 타이머, 빠른 이동, 오늘 할 일, 운동 입력, 오늘 운동, 완료 리뷰를 중심으로 정렬합니다.
-- 완료 리뷰 섹션에 `workout-finish` 앵커를 추가해 운동 중 빠른 메뉴에서 바로 이동할 수 있게 했습니다.
-- 테스트에는 집중 모드 렌더링, 빠른 이동 앵커, CSS 숨김 규칙 검증을 추가했습니다.
-- 검증은 Ruff, 전체 unittest, compileall, 주요 JS 문법 검사, `git diff --check`로 확인했습니다.
-
-## 2026-05-28 v2.5.1 Ruff QC 도구 설치
-- 현재 가상환경에 `ruff==0.15.14`를 설치했고 `requirements-dev.txt`에 개발 의존성으로 고정했습니다.
-- `pyproject.toml`을 추가해 Ruff 기본 검사 범위를 `F` 계열로 설정했습니다.
-- 현재 라우트 모듈은 `globals().update(ctx)`로 `app.py` 컨텍스트를 주입받는 구조라, `health_tracker/routes/*.py`의 F821은 per-file ignore로 예외 처리했습니다.
-- `app.py`도 라우트 컨텍스트 전달을 위해 일부 import를 `globals()`에 남기는 구조라 F401을 예외 처리했습니다.
-- `tests/test_app_flows.py`의 실제 미사용 import는 제거했습니다.
-- 검증은 `ruff check health_tracker tests`, 전체 unittest, compileall, 주요 JS 문법 검사, `git diff --check`로 확인했습니다.
-
-## 2026-05-28 v2.5.0 운동 완료 리뷰 및 목표 진행률
-- 오늘 운동 완료 영역에 `workout_finish_review` 컨텍스트를 추가하고 `services/workout_plan.py`에서 완료 리뷰 데이터를 생성하도록 했습니다.
-- 완료 리뷰는 총 세트, 운동 볼륨, PR, 유산소, 직전 운동 대비 볼륨, 계획 달성률, RPE 기반 회복 코멘트를 표시합니다.
-- 운동별 목표 진행률은 기존 `exercise_settings.target_weight`, `target_reps`, `target_sets`를 활용해 `services/exercise_settings.py`에서 계산합니다.
-- 오늘 운동 기록 카드에 목표 진행률 막대와 목표별 현재/목표 값을 표시합니다.
-- 신규 DB 테이블 없이 기존 데이터만 재사용했습니다.
-- `VERSION`, `static/manifest.webmanifest`, `static/sw.js`를 `2.5.0`으로 맞췄습니다.
-- 검증은 전체 unittest, compileall, 주요 JS 문법 검사, `git diff --check`로 마무리했습니다.
-
-## 2026-05-28 v2.4.5 라우트 및 서비스 추가 정리
-- `routes/main.py`에 남아 있던 분석/캘린더/식단/기록/홈/프로그램/API 라우트를 `summaries.py`, `calendar.py`, `meal_pages.py`, `records.py`, `home.py`, `programs.py`, `api.py`로 나눴습니다.
-- `app.py`에 직접 남아 있던 운동 세션 생성/조회, 운동 목록, 최근 세트, 운동 통계 SQL을 `services/workout.py`로 옮겼습니다.
-- 즐겨찾기 운동 조회는 `services/exercise_settings.py`, 과부하 제안 조회는 `services/progressive_overload.py`로 분리했습니다.
-- `meta.py`의 앱 갱신시각 참조 브랜치를 `master`에서 `main`으로 수정했습니다.
-- `VERSION`, `static/manifest.webmanifest`, `static/sw.js`를 `2.4.5`로 맞췄습니다.
-- 단위별 검증 후 커밋/푸시를 나눠 진행했습니다. 최종 검증은 전체 unittest, compileall, 주요 JS 문법 검사, `git diff --check`로 확인했습니다.
-
-## 2026-05-28 v2.4.4 구조 및 성능 최적화
-- `health_tracker/services/food_shortcuts.py`, `location_insights.py`, `goals.py`, `reminders.py`를 추가해 `app.py`에 몰려 있던 식단 빠른선택, 장소 인사이트, 목표, 리마인더 DB 로직을 분리했습니다.
-- 장소 인사이트는 장소마다 top exercise/equipment/equipment list를 반복 조회하던 구조를 bulk 조회 후 Python에서 그룹핑하는 방식으로 바꿨습니다.
-- SQLite 연결 설정에 foreign key, busy timeout, WAL, synchronous NORMAL을 적용했고 식단/운동/장소 장비 복합 인덱스를 추가했습니다.
-- 응답 헤더에 `X-Request-Duration-ms`, `X-DB-Query-Count`, `Server-Timing`을 추가해 각 화면의 처리 시간과 DB 쿼리 수를 확인할 수 있게 했습니다.
-- `static/notifications.js`, `static/meal_entry.js`, `static/meal.css`를 추가하고 service worker precache 및 layout 로드를 갱신했습니다.
-- 오늘 화면은 `_body_metrics.html`, `_status_panels.html`, `_meal_input.html` partial로 추가 분리했습니다.
-- 보안/마이그레이션 테스트는 `tests/test_security_and_migration.py`로 분리했고 전체 테스트는 27개로 통과했습니다.
-- 로컬 `__pycache__` 산출물을 정리했습니다.
-- 검증 완료: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/meal_entry.js`, `node --check static/notifications.js`, `node --check static/workout_entry.js`, `node --check static/offline_queue.js`, `node --check static/workout_tools.js`, `node --check static/ui_interactions.js`, `git diff --check`.
-
-## 2026-05-28 v2.4.3 식단 빠른 선택 정리
-- 식단 입력 저장 시 모든 음식이 `food_favorites`에 자동 등록되던 처리를 제거했습니다. 앞으로 고정 음식은 사용자가 직접 `고정` 버튼으로 등록한 항목만 표시됩니다.
-- 식단 입력 패널을 `고정 음식`, `자주 먹는 음식`, `최근 입력 음식`으로 분리했습니다. 고정 음식은 최대 6개, 최근 입력은 식사 구분별 최대 6개만 노출됩니다.
-- 고정 음식 행에 해제 버튼을 추가해 잘못 고정한 음식은 식단 화면에서 바로 제거할 수 있게 했습니다.
-- 회귀 테스트에 “식단 저장만으로 즐겨찾기가 늘어나지 않는다”는 검증과 수동 고정 음식 렌더링 검증을 추가했습니다.
-- 검증 완료: 전체 unittest 26개, compileall, 주요 JS 문법 검사, `git diff --check`.
-
-## 2026-05-28 v2.4.2 장소 장비 인사이트 고도화
-- 장소별 인사이트에 등록 장비 대비 실제 사용 장비 비율을 계산하는 `equipment_coverage` 값을 추가했습니다.
-- 등록 장비 비교 기준은 장비명과 장비 유형을 함께 사용하도록 보강해, 운동 입력에서 저장되는 장비 분류와 장소 장비 관리 데이터가 더 잘 연결되게 했습니다.
-- `/locations/insights` 화면에는 장비활용률과 미사용 장비 목록을 노출하고, 미사용 장비 행은 별도 강조 스타일을 적용했습니다.
-- 버전은 `VERSION`, `static/manifest.webmanifest`, `static/sw.js` 모두 `2.4.2`로 맞췄습니다.
-- 검증 완료: 전체 unittest 26개, compileall, 주요 JS 문법 검사, `git diff --check`.
-
-## 2026-05-28 v2.4.1 구조 고도화 및 모바일 UX 보강
-- GitHub 기본 브랜치는 `main`으로 변경했고 기존 원격 `master`는 삭제했습니다.
-- `routes/main.py`를 추가 분리했습니다. 오늘 운동 액션은 `routes/today_actions.py`, 식단/세트 수정은 `routes/entries.py`, 백업/샘플/삭제 입출력은 `routes/data.py`에서 등록합니다.
-- `health_tracker/app_accounts.py`를 추가해 계정 조회, 관리자 대시보드 집계, 사용자 상태/비밀번호/메모 변경 헬퍼를 `app.py`에서 분리했습니다. 테스트에서 DB 경로를 바꾸는 흐름을 위해 DB provider 방식으로 연결했습니다.
-- `static/styles.css`의 화면별 규칙을 `static/feature_pages.css`, 하단 반응형 규칙을 `static/responsive.css`로 분리했습니다. 레이아웃 템플릿과 서비스워커 캐시 목록도 같이 갱신했습니다.
-- 오프라인 폼 큐는 `static/offline_queue.js`로 분리했습니다. `app.js`는 기존처럼 `queueOfflineForm`, `processOfflineQueue`를 호출합니다.
-- 모바일 UX 보강으로 기록/분석/식단/장비 카드의 줄바꿈, 배지, 필터 폼, 액션 버튼 간격을 좁은 폭 기준으로 정리했습니다.
-- 검증 완료: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/offline_queue.js`, `node --check static/workout_entry.js`.
-
-## 2026-05-28 v2.4.0 반응형 UI 및 소스 분리 정리
-- 인증 라우트는 `health_tracker/routes/auth.py`, 설정 라우트는 `health_tracker/routes/settings.py`로 분리했습니다. 기존 흐름은 테스트로 유지 확인했습니다.
-- 공통 반응형 보강은 `static/ui_rebuild.css` 하단에 추가했습니다. 모바일/폴드 폭에서 카드, 버튼, 필터, 폼, 테이블이 한 줄로 눌리거나 겹치는 경우를 줄이는 방어 규칙입니다.
-- `today/index.html`에서 루틴/운동 입력, 운동 기록, 식단 기록을 각각 `today/_workout_library_input.html`, `today/_workout_records.html`, `today/_meal_records.html`로 분리했습니다.
-- `summaries/summary.html`에서 운동별 분석과 장비별 분석을 각각 `summaries/_exercise_summary.html`, `summaries/_equipment_summary.html`로 분리했습니다.
-- 버전은 `VERSION`, `static/manifest.webmanifest`, `static/sw.js` 모두 `2.4.0`으로 맞췄습니다.
-- 이번 작업 중 확인한 다음 정리 대상은 `health_tracker/app.py`, `static/styles.css`, `health_tracker/routes/main.py`, `static/app.js`입니다. 기능 분리 범위가 커서 별도 회귀 테스트 단위로 나누는 것이 맞습니다.
-- 검증 완료: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`.
-
-## 2026-05-28 v2.3.11 렌더링 병목 추가 점검
-- 속도 병목 후보를 다시 점검했고, `today/index.html`이 템플릿 안에서 `grouped_sets_for_session(session.id)`를 직접 호출하던 부분을 제거했습니다.
-- `today_context.py`에서 운동 모드일 때 `workout_groups`를 미리 구성해 템플릿에는 렌더링 데이터만 전달하도록 정리했습니다.
-- 큰 분리 대상은 `today/index.html` 약 63KB, `summaries/summary.html` 약 48KB, `routes/main.py` 약 53KB로 확인했습니다.
-- 조건 렌더링 범위 조정 중 운동 입력 영역이 빠지는 회귀를 테스트로 확인했고, 운동 입력/빠른 선택/장소 영역이 정상 출력되도록 복구했습니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/workout_entry.js` 통과.
-
-## 2026-05-28 v2.3.10 운동 탭 로딩 최적화
-- `/app?mode=workout` 진입 시 `build_today_context`가 식단, 전체 요약, 최근 기록 데이터를 모두 만들던 구조를 모드별 컨텍스트로 분리했습니다.
-- 운동 모드에서는 운동 입력, 오늘 운동, 루틴, 회복, PR에 필요한 데이터만 실제 조회하고 식단/전체 전용 값은 안전한 기본값으로 둡니다.
-- 오늘 템플릿에서 CSS로 숨기던 전체 요약/식단 큰 영역을 `{% if today_mode == 'overview' %}`, `{% if meal_mode %}` 조건 렌더링으로 전환했습니다.
-- 첫 테스트에서 식단 조건 범위가 운동 기록 카드까지 덮어 운동명 일괄 수정 UI가 빠지는 회귀를 확인했고, 조건 범위를 분리해 수정했습니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests` 통과.
-
-## 2026-05-28 v2.3.9 모바일 운동 빠른 메뉴 겹침 수정
-- 430px 이하 모바일 화면에서 `.workout-action-dock`, `.mobile-action-dock` sticky 위치를 `122px`로 조정해 상단 앱 메뉴와 겹치지 않게 했습니다.
-- `#workout-input`, `#today-workout`, `#rest-timer`, 오늘 할 일, 운동 타이머 섹션에 `scroll-margin-top: 174px`를 적용해 빠른 메뉴 이동 시 큰 섹션 제목이 가려지지 않도록 했습니다.
-- 모바일 운동 메뉴 겹침 방지 CSS 회귀 테스트를 추가했습니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js` 통과.
-
-## 2026-05-28 v2.3.8 모바일 헤더 겹침 수정
-- 430px 이하 모바일 화면에서 `.header`를 1열 2줄 구조로 바꿔 `피트니스 트래커`, 환영 문구, 버전 배지가 겹치지 않도록 수정했습니다.
-- 모바일에서 `.tabs` sticky top 값을 새 헤더 높이에 맞춰 조정했습니다.
-- 사용자 앱 헤더에 `header-meta`, `account-greeting`, `app-version`이 렌더링되는 회귀 테스트를 추가했습니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js` 통과.
-
-## 2026-05-28 v2.3.7 관리자 운영 기능 확장
-- `/admin`에 사용자 검색, 상태 필터, 정렬 폼을 추가했습니다. 필터는 전체/활성/비활성/조치 필요/미사용/기록 부족, 정렬은 가입순/최근 로그인순/최근 기록순/세트 많은순/이름순입니다.
-- 조치 필요 사용자 섹션을 추가해 미사용, 기록 부족, DB 확인 필요, 비활성 계정을 대시보드 상단에서 바로 볼 수 있게 했습니다.
-- `admin_audit_logs` 테이블을 추가하고 관리자 비밀번호 변경, 사용자 비밀번호 초기화, 활성/비활성, 메모 수정, 사용자 데이터 내보내기를 기록합니다.
-- `/admin/users/<id>/export`를 추가해 사용자별 JSON 내보내기를 지원합니다. 원본 테이블과 관리자 상세에서 보는 사용 요약을 함께 포함합니다.
-- 관리자 대시보드와 사용자 상세 템플릿을 정상 한글 문구로 다시 정리했고, 필터/액션 버튼 모바일 정렬 CSS를 추가했습니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` 통과.
-
-## 2026-05-28 v2.3.6 관리자 현황 집계 수정
-- 관리자 계정은 운동/식단 사용자 현황 대상이 아니므로 `build_admin_dashboard`에서 `role == "user"` 계정만 집계하도록 수정했습니다.
-- `/admin/users/<id>` 상세도 사용자 계정만 허용하고 관리자 계정 접근은 `/admin?error=user_only`로 되돌립니다.
-- 관리자 대시보드에 운영 체크포인트를 추가했습니다: 가입/활성, 기록 상태, 데이터 규모.
-- 확인된 추가 관리 컨택포인트: 계정 가입/활성 관리, 비밀번호 초기화, 관리자 메모, 사용자별 최근 기록, 부위/장비 사용량, 저활동/미사용 사용자 확인.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `git diff --check` 통과.
-
-## 2026-05-28 v2.3.5 미리보기 UI 개선
-- `/auth/preview` 화면을 단순 카드 나열에서 히어로, 모바일형 오늘 운동 샘플, 핵심 기능 요약, 기록/분석/장소/식단 카드 구조로 재구성했습니다.
-- 미리보기 템플릿의 깨진 한글을 정상 문구로 교체했습니다.
-- 모바일에서 히어로, 지표 카드, 기록 행이 한 줄에 눌리지 않도록 반응형 CSS를 추가했습니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `git diff --check` 통과.
-
-## 2026-05-28 v2.3.4 가입 전 미리보기 페이지
-- `/auth/preview` 공개 페이지를 추가해 가입 전에도 오늘 운동, 기록, 분석, 장소/장비 흐름을 샘플로 확인할 수 있게 했습니다.
-- 로그인/회원가입 화면에 미리보기 이동 버튼을 추가했습니다.
-- 미리보기는 샘플 전용 화면이며 `<form>` 입력과 실제 DB 데이터, 관리자 화면 정보가 노출되지 않도록 테스트로 고정했습니다.
-- 공개 접근은 `preview_page` GET 엔드포인트만 허용했고, 기존 앱/관리자 데이터 접근은 로그인 보호를 유지합니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` 통과.
-
-## 2026-05-28 v2.3.3 인증 UX 및 관리자 비밀번호 변경
-- 사용자/관리자 레이아웃 헤더에서 `계정명님 환영합니다`와 `v2.3.3` 버전을 별도 영역으로 분리했습니다.
-- 로그인 탭 선택 상태를 더 진한 배경/흰색 글자로 바꿔 사용자/관리자 선택이 명확해졌습니다.
-- 로그인 화면에는 로그인 폼만 남기고, 사용자 회원가입은 `/auth/signup` 전용 화면으로 분리했습니다.
-- 사용자 로그인에는 “비밀번호를 잊으셨나요? 관리자에게 초기화를 요청하세요.” 문구를, 관리자 로그인에는 서버 관리자 문의 문구를 추가했습니다.
-- `/admin/password`를 추가해 관리자 본인 비밀번호를 현재 비밀번호 확인 후 변경할 수 있게 했습니다.
-- 관리자 비밀번호 변경 시 `accounts.db`의 관리자 계정 해시와 `workout.db`의 `settings_password_hash`를 함께 갱신합니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` 통과.
-
-## 2026-05-28 v2.3.2 인증 화면 CSRF 수정
-- `layouts/auth.html`은 앱 공통 JS를 로드하지 않으므로, 로그인/회원가입 폼의 CSRF hidden input을 `templates/auth/login.html`에서 직접 렌더링하도록 수정했습니다.
-- 실제 로컬 HTTP에서 `/auth/login?mode=admin` 페이지의 CSRF 토큰 존재와 `admin / 1234` 로그인 후 `/admin` 진입을 확인했습니다.
-- 로컬 `instance/workout.db`, `instance/accounts.db`의 관리자 비밀번호는 테스트 편의를 위해 `1234`로 맞췄습니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `git diff --check` 통과.
-
-## 2026-05-28 v2.3.1 인증/앱/관리자 화면 분리
-- `/`는 더 이상 오늘 운동 화면을 렌더링하지 않고, 세션 상태에 따라 `/auth/login`, `/app`, `/admin`으로 이동하는 라우터가 되었습니다.
-- 오늘 운동 화면은 `/app`으로 이동했습니다. 기존 `url_for("index")` 내부 링크는 `/app`을 가리킵니다.
-- 로그인 화면은 `templates/auth/login.html`과 `layouts/auth.html`로 분리해 앱 헤더/메뉴가 나오지 않게 했습니다.
-- 관리자 화면은 `layouts/admin.html`을 사용하도록 분리해 사용자 앱 메뉴와 섞이지 않게 했습니다.
-- 기존 `/login`은 `/auth/login`으로 보내는 호환 라우트로만 남겼고, `/auth/logout`과 `/logout` 모두 세션을 완전히 비웁니다.
-- PWA `start_url`은 `/`로 변경했습니다. 서비스워커 캐시는 `workout-pwa-v2.3.1`입니다.
-- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js` 통과.
-
-## 2026-05-28 v2.3.0 로그인 게이트 및 관리자 전용 화면 분리
-- `/login`을 앱 첫 진입점으로 고정하고, 로그인 전 일반 페이지 접근은 로그인 화면으로 보내도록 변경했습니다.
-- 관리자 계정은 `/admin` 및 관리자 세부 화면만 볼 수 있게 라우트 단계에서 차단했습니다. 관리자가 일반 앱 주소를 직접 열면 `/admin`으로 이동합니다.
-- 사용자 계정은 기존 운동 앱 화면만 사용하고, 관리자 화면 직접 접근은 관리자 로그인 화면으로 돌리도록 분리했습니다.
-- 로그인 화면은 관리자/사용자 탭을 유지하되 사용자 회원가입에는 비밀번호 확인 필드를 추가했습니다.
-- 기본 관리자 계정이 먼저 보장되도록 수정했고, 첫 일반 사용자 계정은 기존 메인 운동 DB를 이어받도록 DB 매핑을 조정했습니다.
-- 검증: `python -m unittest discover -v` 전체 24개 테스트 통과.
-
-## 2026-05-28 v2.2.0 관리자/사용자 로그인 및 운영 대시보드
-
-- `/login`을 관리자/사용자 탭으로 재구성하고, 사용자 탭에서 일반 사용자 회원가입을 지원합니다.
-- `/admin`과 `/admin/users/<id>`를 추가해 관리자만 사용자별 사용량과 상세 기록 요약을 볼 수 있습니다.
-- 관리자 상세에서 사용자 비밀번호 초기화, 비활성/활성 전환, 표시 이름/관리자 메모 저장을 처리합니다.
-- 설정 화면의 계정 생성 UI는 관리자 대시보드 진입점으로 정리했습니다.
-- 검증: 단위별 계정/관리자 테스트, 전체 회귀 테스트, 로그인/관리자/서비스워커 로컬 HTTP 확인을 통과했습니다.
-
-## 2026-05-27 v2.1.0 2인 계정 분리
-
-- 계정별 데이터 분리를 위해 `health_tracker/services/accounts.py`를 추가했습니다.
-- 기본 `admin` 계정은 기존 DB를 계속 사용하고, 추가 계정은 `instance/accounts/user_<id>.db` 형태의 별도 DB를 사용합니다.
-- 설정 화면에서 계정을 생성하고 `/login`, `/logout`으로 계정을 전환할 수 있습니다.
-- 기존 설정 비밀번호를 저장하면 기본 `admin` 계정의 비밀번호도 함께 동기화됩니다.
-- 검증: 계정별 데이터 분리 테스트, 전체 회귀 테스트, 로그인/서비스워커 로컬 HTTP 확인을 통과했습니다.
-
-## 2026-05-27 v2.0.7 PWA 메타 태그 경고 수정
-
-- `health_tracker/templates/layouts/base.html`에 `<meta name="mobile-web-app-capable" content="yes">`를 추가했습니다.
-- 기존 `apple-mobile-web-app-capable`은 iOS Safari 호환 목적으로 유지했습니다.
-- 검증: 컴파일, 전체 회귀 테스트, 로컬 HTTP head/service worker 확인을 통과했습니다.
-
-## 2026-05-27 v2.0.6 장비 카테고리 머신 분리
-
-- 공통 장비 카테고리에서 `머신`을 제거하고 `핀머신`, `플레이트로디드머신`을 추가했습니다.
-- 기존 `머신` 데이터는 초기화 마이그레이션에서 `핀머신`으로 정리되며, 스미스/플레이트 로디드 계열 텍스트는 `플레이트로디드머신`으로 정규화됩니다.
-- 오늘 운동, 기록 검색, 장소 장비 관리, 운동 수정 select가 긴 장비명을 담을 수 있도록 장비 select 전용 글자 크기와 padding을 조정했습니다.
-- 검증: 컴파일, JS 문법 검사, 전체 회귀 테스트, 운동/기록 검색/서비스워커 HTTP 확인을 통과했습니다.
-
-## 2026-05-26 v2.0.5 운동 완료 타이머 재복원 방지
-
-- `v2.0.4`는 완료 submit 순간에는 타이머를 0으로 만들었지만, 리다이렉트 후 `data-initial-duration`이 저장된 운동시간을 다시 타이머 표시로 복원하는 문제가 있었습니다.
-- 완료 시 `completedReset` 플래그를 localStorage에 남겨, 완료된 날짜는 저장된 운동시간과 별개로 진행 타이머 표시를 `00:00:00`으로 유지하도록 수정했습니다.
-- HTML이 최신 템플릿을 못 받은 배포 상태에서도 `/sessions/<id>/complete` form action을 감지해 같은 동작을 하도록 fallback을 추가했습니다.
-- 검증: 컴파일, JS 문법 검사, 전체 회귀 테스트, 운동/서비스워커 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v2.0.4 운동 완료 시 타이머 표시 리셋
-
-- 운동 완료 버튼을 누르면 저장된 운동시간은 유지하고, 브라우저 로컬 타이머 표시만 `00:00:00`으로 리셋되도록 했습니다.
-- `data-workout-complete-form` submit 시 `resetWorkoutClockDisplayOnly("운동 완료")`를 실행하며, 별도 duration 저장 API는 호출하지 않습니다.
-- 검증: 컴파일, JS 문법 검사, 전체 회귀 테스트, 운동/서비스워커 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v2.0.3 오늘 식단 공통 selector 덮어쓰기 수정
-
-- `v2.0.2`의 식단 전용 CSS가 기존 `.record-list > .record-card:not(...)` 공통 selector보다 약해서 실제 화면에서 2열 규칙이 계속 적용됐습니다.
-- 공통 selector에서 `meal-record-card`를 제외하고, `ui_rebuild.css` 하단에 `.record-list > .meal-record-card` 1열 고정 override를 추가했습니다.
-- 검증: 식단 회귀 테스트, CSS 무결성 테스트, 식단 화면 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v2.0.2 오늘 식단 리스트 UI 수정
-
-- 오늘 식단 리스트가 공통 `.record-list > .record-card` 2열 규칙의 영향을 받아 식단 그룹/음식 행 배치가 깨지던 문제를 수정했습니다.
-- 식단 그룹 카드에 `meal-record-card`, 음식 행에 `meal-record-item` 클래스를 추가하고 `today-meal-section` 전용 grid/버튼/입력폼 규칙을 `ui_rebuild.css`에 추가했습니다.
-- 검증: 컴파일, JS 문법 검사, 전체 회귀 테스트, 식단/운동 HTTP 200 확인, CSS 무결성 검증을 통과했습니다.
-
-## 2026-05-26 v2.0.1 부위별 분석 카드 겹침 수정
-
-- 기록 탭의 부위별 분석 카드에서 날짜(`cat-stat-unit`)와 운동시간/칼로리 줄이 같은 `meta` grid area에 배치되어 겹치던 문제를 수정했습니다.
-- `summary.html`에 `cat-stat-period`, `cat-stat-detail` 클래스를 추가하고, `ui_rebuild.css`에서 `period/detail/pr` 영역을 분리했습니다.
-- 검증: 컴파일, 기록/분석 렌더링 테스트, CSS 중괄호/깨진 selector 테스트, 일별/주간 분석 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v2.0.0 릴리즈 준비 완료
-
-- 앱 버전을 `2.0.0`으로 전환하고 manifest/service worker cache도 같은 기준으로 갱신했습니다.
-- 2.0 전 준비 정리로 `app.py`의 설정, 데이터 정리/복원, 요약 조회, 연간 export, 최근 세션 조회 로직을 서비스 계층으로 분리했습니다.
-- README 기능 목록을 현재 실사용 범위에 맞춰 운동/식단, 위치/장비, 분석, 잠금, 백업/복원 중심으로 업데이트했습니다.
-- 최종 검증은 전체 회귀 테스트, 컴파일, JS 문법 검사, diff 검사, 핵심 HTTP 렌더링 확인으로 진행합니다.
-
-## 2026-05-26 v1.25.17 최근 세션 조회 서비스 분리
-
-- `app.py`에 있던 최근 운동 세션 SQL을 `health_tracker/services/workout.py`의 `list_recent_sessions_from_db`로 이동했습니다.
-- `/api/sessions`가 사용하는 기존 wrapper는 유지해 라우트 변경 없이 app.py SQL 본문을 줄였습니다.
-- 검증: `python -m compileall health_tracker tests`, 메인/운동·식단 회귀 테스트, `/api/sessions`와 오늘 운동 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.16 연간 export 서비스 분리
-
-- `app.py`의 연간 JSON payload 조립, CSV 직렬화, 연간 운동/식단 CSV export 본문을 `health_tracker/services/yearly.py`로 이동했습니다.
-- 라우트가 쓰는 기존 함수명은 wrapper로 유지해 호출부 변경 없이 app.py 책임을 줄였습니다.
-- 검증: `python -m compileall health_tracker tests`, 연간 QA/메인 페이지 회귀 테스트, 연간 JSON/운동 CSV/식단 CSV HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.15 요약 조회 서비스 분리
-
-- `app.py`에 있던 `get_day_summary`, `list_daily_summary`, `list_weekly_summary` SQL 본문을 `health_tracker/services/summary.py`로 이동했습니다.
-- 분석/기록 화면의 데이터 조회 책임을 서비스 계층으로 넘기고, app.py는 기존 함수명 wrapper만 유지했습니다.
-- 검증: `python -m compileall health_tracker tests`, 샘플 데이터/메인 페이지/분석 메뉴 회귀 테스트, 일별/주별/월별 분석 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.14 데이터 복원 로직 분리
-
-- `app.py`의 전체 데이터 import/복원 로직을 `health_tracker/services/export.py`의 `import_all_data_to_db`로 이동했습니다.
-- export와 import가 같은 `EXPORT_TABLES`를 쓰도록 정리해 테이블 순서 중복을 제거했습니다.
-- 연간 JSON export 라우트의 `json` 암묵 의존성을 `routes/main.py` 직접 import로 고쳤습니다.
-- 검증: `python -m compileall health_tracker tests`, 전체 20개 회귀 테스트, 설정/데이터센터/연간 JSON export/서비스워커 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.13 데이터 정리 서비스 분리
-
-- `app.py`에 있던 전체 데이터 삭제 백업, 빈 운동 세션 삭제, 내부 점검 데이터 삭제 로직을 `health_tracker/services/data_maintenance.py`로 이동했습니다.
-- 설정 화면/DB 초기화/라우트가 쓰는 기존 함수명은 wrapper로 유지해 호출부 변경 범위를 줄였습니다.
-- 검증: `python -m compileall health_tracker tests`, 샘플 데이터/위험 삭제 확인/설정 잠금 회귀 테스트, 설정/데이터센터 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.12 설정 서비스 분리
-
-- `app.py`에 있던 앱 설정 조회/저장과 설정 비밀번호 해시/검증 로직을 `health_tracker/services/settings.py`로 분리했습니다.
-- `app.py` wrapper는 기존 라우트 의존성을 유지하되, 세션 unlock 상태 처리만 담당하도록 줄였습니다.
-- 검증: `python -m compileall health_tracker tests`, 설정 비밀번호 잠금/재설정, 비밀번호 해시, 방문자 read-only 보안 회귀 테스트를 통과했습니다.
-
-## 2026-05-26 v1.25.11 분석 요약 내비게이션 분리
-
-- `summaries/summary.html` 상단의 기록/분석 내비게이션 조건문을 `summaries/_summary_nav.html`로 분리했습니다.
-- 일별 기록과 분석 화면의 공통 진입부를 partial화해 긴 요약 템플릿의 책임을 조금 더 줄였습니다.
-- 검증: `python -m compileall health_tracker tests`, 메인 페이지/메뉴 분리 회귀 테스트, 일별/주간 분석 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.10 오늘 식단 행 분리
-
-- `today/index.html`의 식단 음식별 읽기/수정/삭제 행을 `today/_meal_record_item.html`로 분리했습니다.
-- 운동 세트 행 분리와 같은 패턴으로 식단 반복 구조를 partial화해 `today/index.html`의 길이를 추가로 줄였습니다.
-- 검증: `python -m compileall health_tracker tests`, 식단/메인 렌더링 회귀 테스트, 식단 모드 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.9 오늘 운동 세트 행 분리
-
-- `today/index.html`의 세트별 읽기/수정/복사/삭제 행을 `today/_workout_set_item.html`로 분리했습니다.
-- 운동 기록 카드 내부 반복 구조를 partial로 빼서 `today/index.html` 과밀도를 낮췄습니다.
-- 검증: `python -m compileall health_tracker tests`, `node --check static\app.js`, 운동/식단 핵심 회귀 테스트, 오늘 운동 HTTP 200 확인을 통과했습니다.
-
-## 2026-05-26 v1.25.8 템플릿 구조 정리
-
-- 2.0 준비 전 코드 정리로 긴 템플릿 블록을 partial로 분리했습니다.
-- `summaries/summary.html`의 날짜별 기록 섹션을 `summaries/_daily_records.html`로 이동했습니다.
-- `today/index.html`의 운동 바로 선택 패널을 `today/_workout_quick_panel.html`로 이동했습니다.
-- 렌더링 유지 검증: `/?date=2026-05-26&mode=workout`, `/summaries/daily?days=7`, `/static/ui_rebuild.css` HTTP 200 확인.
-- 회귀 검증: `test_fold_ui_regression_markers_render`, `test_main_pages_render` 통과.
-
-## 2026-05-26 v1.25.7 코드 정리
-
-- 2.0 준비 전 코드 정리로 QA 리포트의 오래된 `/sw.js 캐시 v1.4.0 기준` 문구를 현재 `app_version` 표시로 변경했습니다.
-- `static/ui_rebuild.css`의 `v1.25.5` 고정 주석을 최종 UI override 파일 역할에 맞는 일반 주석으로 바꿨습니다.
-- `tests/test_app_flows.py`에 `StaticAssetIntegrityTest`를 추가해 `styles.css`, `rules.css`, `ui_rebuild.css`의 중괄호 균형과 과거 UI 붕괴 원인이었던 `.next-set-advice-row {.next-set-advice-row` 패턴을 검사합니다.
-- service worker precache 테스트에서 `/static/ui_rebuild.css` 포함 여부를 직접 확인하도록 보강했습니다.
-- 이번 정리는 중복 CSS를 무리하게 삭제하지 않았습니다. `ui_rebuild.css`는 현재 후순위 override 역할이라 삭제/병합 전에 브라우저 computed style 검증이 필요합니다.
-
-## 2026-05-26 UI 회귀 원인과 수정 내역
-
-- 잘못된 점:
-  - `static/styles.css` 안에 `.next-set-advice-row {.next-set-advice-row {`처럼 selector와 중괄호가 중복으로 들어간 문법 오류가 있었습니다.
-  - 이 오류 때문에 해당 지점 뒤에 작성된 캘린더, 운동 라이브러리, 설정, 기록 관련 CSS가 브라우저에서 정상 적용되지 않았습니다.
-  - 결과적으로 월간 캘린더가 7열 그리드가 아니라 세로 텍스트 목록처럼 보였고, 운동 라이브러리/기록/분석/데이터 관리 화면의 카드와 버튼 간격도 깨져 보였습니다.
-  - 이전 수정에서 깨진 화면을 CSS로 덮는 데 집중했고, 원본 CSS 문법 오류까지 먼저 검증하지 못한 것이 문제였습니다.
-
-- 수정한 내용:
-  - 깨진 selector를 `.next-set-advice-row {`로 바로잡았습니다.
-  - `static/styles.css`, `static/rules.css`, `static/ui_rebuild.css` 전체의 중괄호 균형을 검사해 CSS 문법 구조가 닫혀 있는지 확인했습니다.
-  - `static/ui_rebuild.css`에 캘린더, 운동 라이브러리, 운동 입력 빠른 선택, 날짜별 기록, 부위별 분석, 데이터 관리/QA 카드의 공통 UI 보정 규칙을 추가했습니다.
-  - `VERSION`, `static/manifest.webmanifest`, `static/sw.js`를 `v1.25.6`으로 올려 PWA와 브라우저 캐시가 이전 깨진 CSS를 계속 사용하지 않도록 했습니다.
-
-- 검증한 내용:
-  - `/calendar`, `/exercises/library`, `/summaries/daily`, `/summaries/weekly`, `/settings`, `/sw.js` HTTP 200 확인.
-  - 브라우저 DOM 기준으로 주요 화면의 `overflowX = 0` 확인.
-  - 캘린더는 `display:grid`와 7열 grid가 적용되는 것을 확인.
-  - 운동 라이브러리와 기록 카드는 카드/그리드 레이아웃이 적용되는 것을 확인.
-  - `.\.venv\Scripts\python.exe -m compileall health_tracker tests` 통과.
-  - `.\.venv\Scripts\python.exe -m unittest discover -v` 19개 테스트 통과.
-
-- 재발 방지 기준:
-  - UI가 광범위하게 무너졌을 때는 먼저 CSS 문법 오류와 로드 순서를 확인합니다.
-  - 새 CSS를 추가하기 전에 `styles.css`, `rules.css`, `ui_rebuild.css`의 중괄호 균형을 검사합니다.
-  - 공통 UI 보정 후에는 실제 브라우저 DOM에서 `display`, `gridTemplateColumns`, `padding`, `overflowX`를 확인합니다.
-  - PWA 앱은 CSS/JS/manifest/service worker 버전을 함께 올려 캐시 문제를 같이 차단합니다.
-
-## 2026-05-26 v1.25.6 전체 UI 점검
-
-- 업데이트 후 캘린더가 세로 텍스트처럼 무너진 핵심 원인은 `static/styles.css`의 `.next-set-advice-row {.next-set-advice-row {` 중괄호 오류였습니다. 이 줄 때문에 뒤쪽 CSS 블록이 브라우저에서 정상 적용되지 않았습니다.
-- 오류를 `.next-set-advice-row {`로 바로잡고 `styles.css`, `rules.css`, `ui_rebuild.css`의 중괄호 균형을 검사했습니다.
-- `static/ui_rebuild.css`에 캘린더, 운동 라이브러리, 빠른 운동 선택, 날짜별 기록, 부위별 분석, 데이터 관리/QA 카드의 공통 UI 보정 규칙을 추가했습니다.
-- 브라우저 DOM 기준으로 `/calendar`, `/exercises/library`, `/summaries/daily`, `/summaries/weekly`의 주요 그리드와 카드가 적용되고 가로 overflow가 0인 것을 확인했습니다.
-- 버전, manifest, service worker cache를 `v1.25.6`으로 올려 PWA 캐시가 예전 깨진 CSS를 잡고 있지 않게 했습니다.
-
-## 2026-05-26 추가 UI 리빌딩 메모
-
-- `v1.25.5` 보정 CSS가 일부 화면에서 캐시/로드 순서 영향으로 바로 반영되지 않는 문제가 있어 `static/ui_rebuild.css`를 별도 파일로 분리하고 `rules.css` 뒤에서 마지막으로 로드되게 했습니다.
-- 캡처에서 보인 운동 입력, 세트 빌더, 최근/주별/일별 기록, 분석 상세행, 부위별 분석처럼 텍스트가 한 줄로 붙는 UI를 카드/그리드/배지 구조로 다시 고정했습니다.
-- 브라우저 DOM 검증에서 `/summaries/weekly`의 `.detail-row`가 `display:grid`, `padding:10px`, `border-radius:8px`로 적용되는 것을 확인했습니다.
-- 이후 UI 작업은 공통 CSS를 추가한 뒤 실제 브라우저에서 최종 로드 순서와 computed style까지 확인해야 합니다.
-
-이 문서는 VS Code/CLI를 껐다가 새 Codex 세션을 시작했을 때 바로 이어받기 위한 작업 메모입니다.
-
-## 2026-05-26 작업 기록
-
-- `v1.25.5` UI 리빌딩:
-  - 사용자가 제보한 운동 입력, 최근 기록, 주별 기록, 부위별 분석, 일별 추이의 텍스트 붙음/버튼 깨짐/세트 행 불균형을 공통 CSS 레이어로 재정리했습니다.
-  - 운동 바로 선택은 탭 버튼과 운동 후보 버튼을 분리하고, 긴 운동명은 자연스럽게 줄바꿈되도록 했습니다.
-  - 세트 빌더는 세트 번호, 입력 필드, 고급 옵션, 복사/삭제 액션 영역을 명확히 분리했습니다.
-  - 기록/분석 리스트는 날짜/기간 제목과 지표 뱃지를 grid로 나눠 단순 텍스트 나열처럼 보이지 않게 했습니다.
-  - `styles.css`, `rules.css`, `app.js`, `timers.js`, `workout_entry.js`에 앱 버전 쿼리를 붙여 서비스워커/브라우저 캐시가 예전 UI를 계속 보여주는 문제를 줄였습니다.
-  - 검증: `.venv\Scripts\python.exe -m compileall health_tracker tests`, `.venv\Scripts\python.exe -m unittest discover -v` 19개 테스트 통과. 기본 Python은 Flask 미설치라 테스트 실패하므로 가상환경 Python을 사용해야 합니다.
-- UI 관리 반성 및 다음 작업 기준:
-  - 이번 UI 보정은 공통 CSS를 넓게 덮어쓰면서 실제 화면별 버튼/입력칸/리스트 구조를 충분히 확인하지 못해, 사용자가 보기 어려운 상태가 반복됐습니다.
-  - 앞으로 UI 수정은 반드시 대상 URL을 먼저 명시하고 `운동 입력`, `기록 검색`, `날짜별 기록`, `식단`, `분석`처럼 화면 단위로 DOM 구조를 확인한 뒤 수정합니다.
-  - 버튼은 용도별로 `탭 버튼`, `후보 선택 버튼`, `행 액션 버튼`, `폼 제출 버튼`을 분리해 같은 화면 안에서 크기/테두리/배치가 섞이지 않게 관리합니다.
-  - 리스트는 단순 `텍스트 나열` 금지입니다. 각 행은 제목, 메타 정보, 핵심 값, 액션 영역을 명확히 분리하고 모바일에서는 세로 배치로 무너지지 않게 합니다.
-  - `NOTES.md`는 작업이 끝날 때마다 항상 갱신합니다. 버전 변경이 없더라도 UI 검증/사용자 지적/남은 리스크를 기록합니다.
-- `v1.25.4` 버튼/날짜별 기록 UI 재정리:
-  - 운동 바로 선택의 최근/즐겨찾기/루틴 탭, 운동 후보 버튼, 기본 프로그램 버튼을 같은 버튼 체계로 통일했습니다.
-  - 세트 복사/삭제 버튼의 폭과 높이를 다시 맞춰 운동 입력칸과 다른 버튼처럼 보이지 않게 했습니다.
-  - 날짜별 기록 리스트를 날짜 헤더와 지표 카드가 분리된 형태로 재구성했습니다.
-- `v1.25.3` 입력/기록 리스트 재보정:
-  - 오늘 운동 입력의 운동명/장비/세트 행/복사/삭제 버튼 배치를 실제 폼 구조 기준으로 다시 잡았습니다.
-  - 기록 검색 결과 템플릿을 날짜/장소/장비 메타 영역과 중량/횟수 값 영역으로 분리했습니다.
-  - 오늘 기록 수정 행의 버튼 영역을 grid 기반으로 보정해 모바일에서 버튼이 깨지지 않도록 했습니다.
-- `v1.25.2` 전체 리스트 UI 보정:
-  - 기록/분석/식단/더보기에서 쓰는 `detail-row`, `ex-rank-item`, `ex-item`, 식단 일자/주차 항목, 누락/템플릿 항목을 카드형 박스 UI로 정리했습니다.
-  - 모바일에서 목록 값, 배지, 버튼이 한 줄에 붙지 않도록 grid 기반 세로 재배치를 추가했습니다.
-  - 앱 버전, manifest, service worker 캐시를 `v1.25.2`로 갱신했습니다.
-- `v1.25.1` UI 긴급 보정:
-  - 신규 기록 점검/QA 리포트 CSS의 범용 selector를 전용 클래스 기반으로 좁혀 다른 표/목록 UI에 영향이 가지 않도록 수정했습니다.
-  - 공통 `summary-grid`, `detail-list`, `detail-row`, `table-wrap`, `table`의 모바일 폭/줄바꿈/가로 스크롤 처리를 보강했습니다.
-  - 앱 버전, manifest, service worker 캐시를 `v1.25.1`로 갱신했습니다.
-- `v1.19.0`~`v1.25.0` 연속 개발:
-  - 오늘 운동 세트 입력에서 세트 타입/RPE/메모를 `고급` 접힘 영역으로 이동해 기본 입력 흐름을 간소화했습니다.
-  - `services/data_cleanup.py`를 추가해 운동명 중복 후보와 이상 세트 후보를 기록 점검 화면에서 확인하도록 했습니다.
-  - 기록 점검 화면에 정리 후보 UI를 추가해 누락일, 중복명, 과도한 중량/반복/RPE를 같은 흐름에서 점검합니다.
-  - `services/release_readiness.py`를 추가해 QA 리포트에서 2.0 준비 상태를 점수와 체크리스트로 확인하게 했습니다.
-  - 입력 UI/정리 후보/릴리즈 준비도 회귀 테스트 마커를 추가하고 앱 버전, manifest, service worker 캐시를 `v1.25.0`으로 갱신했습니다.
-- `v1.18.0` 소스 정리 및 QA:
-  - `services/summary_context.py`, `services/settings_context.py`를 추가해 분석/설정 화면 컨텍스트 생성을 라우트에서 분리했습니다.
-  - `today/_rule_cards.html`, `summaries/_rule_report.html` partial을 추가해 룰셋 UI 블록을 템플릿 본문에서 분리했습니다.
-  - `static/rules.css`를 추가하고 `base.html`, service worker 캐시에 반영해 룰셋 스타일을 분리했습니다.
-  - 전체 테스트, JS 문법 검증, 주요 HTTP 렌더링 확인 후 앱 버전/manifest/service worker를 `v1.18.0`으로 갱신했습니다.
-- `v1.17.0` 운동 지식 룰셋:
-  - `services/exercise_rules.py`를 추가해 부위별 주간 권장 세트 범위, RPE 기반 조정, 권장 휴식시간, 대체 운동 후보를 로컬 룰셋으로 계산합니다.
-  - 오늘 운동 화면에 `운동 룰셋` 카드를 추가해 부족/과다/적정 부위와 다음 액션을 보여줍니다.
-  - 주간 분석 화면에 `운동 지식 룰셋` 섹션을 추가해 실제 기록과 권장 범위를 비교합니다.
-  - 앱 버전, manifest, service worker 캐시를 `v1.17.0`으로 갱신했습니다.
-- `v1.16.0` A/B/C 고도화 및 소스 분산:
-  - A: `services/smart_workout.py`와 `static/workout_entry.js`를 추가해 운동명 선택 시 이전 기록/설정 기반으로 부위, 장비, 세트수, 무게, 횟수를 자동 채움 처리했습니다.
-  - B: `services/personal_coach.py`를 추가해 오늘 화면의 `다음 액션` 패널에서 부족한 부위, 회복 확인, 식단 보강, 분석 확인을 제안합니다.
-  - C: 설정 화면에 개인 사용 안전 상태를 추가해 관리자 잠금, 현재 세션 권한, 자동 백업 상태를 확인하도록 했습니다.
-  - 구조: `services/today_context.py`로 오늘 화면 렌더링 컨텍스트를 분리해 `routes/main.py`의 `/` 라우트를 얇게 만들었습니다.
-  - 앱 버전, manifest, service worker 캐시를 `v1.16.0`으로 갱신하고 `workout_entry.js`를 PWA 캐시에 포함했습니다.
-- `v1.15.0` 오늘 운동 간소화:
-  - 오늘 운동 모드 상단을 `오늘 할 일`로 재구성해 다음 입력, 마지막 기록, 휴식 타이머, 추천 운동을 한 번에 확인하게 했습니다.
-  - 운동 입력 폼을 기본 접힘 상태로 바꾸고, 운동 추가/추천 적용/최근 운동 선택 시 자동으로 열리도록 `static/app.js` 흐름을 정리했습니다.
-  - 운동 장소 패널은 현재 장소 중심으로 압축하고, 최근 운동/도구/계획은 접힘 보조 영역으로 낮춰 모바일 첫 화면 부담을 줄였습니다.
-  - 앱 버전, manifest, service worker 캐시를 `v1.15.0`으로 갱신했습니다.
-- `v1.14.0` 기능/분석 UI 고도화:
-  - `services/progressive_overload.py`를 추가해 다음 세트 추천과 운동별 과부하 상태 분석을 구현했습니다.
-  - `services/muscle_balance.py`를 추가해 최근 7일 부위별 세트/볼륨/유산소 분포를 계산합니다.
-  - 오늘 운동 입력에 다음 세트 추천 카드와 추천값 적용 버튼을 연결했습니다.
-  - 분석 > 운동별 화면에 과부하 분석 카드와 부위 밸런스 히트맵을 추가했습니다.
-  - 더보기에 헬스장 도구 섹션과 `/tools/plate-calculator` 독립 페이지를 추가했습니다.
-  - 검증: `python -m compileall health_tracker tests`, `node --check static\app.js`, `python -m unittest discover -v` 19개 테스트 통과.
-- `v1.13.0` DB/운동 설정 분리:
-  - DB schema, index, migration성 컬럼 보정, 식단 legacy 보정, 장소 bootstrap 호출을 `health_tracker/database/schema.py`로 분리했습니다.
-  - 운동 세트 순서 변경과 운동 생성 helper를 `services/workout.py`로 이동했습니다.
-  - 운동 메모/휴식시간/즐겨찾기/장비/목표 설정 로직을 `services/exercise_settings.py`로 분리했습니다.
-  - `app.py`는 `3555`라인에서 `3200`라인까지 줄었습니다.
-  - 검증: `python -m compileall health_tracker tests`, `python -m unittest discover -v` 19개 테스트 통과.
-- `v1.12.0` app.py 추가 경량화:
-  - 추천 세션, 운동 부위 추천, 회복 체크인, readiness, 일일 코칭, 적응형 추천을 `services/coaching.py`로 분리했습니다.
-  - 루틴 템플릿 적용/저장/삭제와 운동 계획 생성/요약/기본 프로그램 적용을 각각 `services/routine.py`, `services/workout_plan.py`로 분리했습니다.
-  - 체성분/진행 사진 로직을 `services/body.py`로 분리하고, 식단 템플릿/복사/자주 쓰는 식단 조합 로직을 `services/meal.py`로 이동했습니다.
-  - `app.py`는 `4378`라인에서 `3555`라인까지 줄었습니다.
-  - 검증: `python -m compileall health_tracker tests`, `python -m unittest discover -v` 19개 테스트 통과.
-- `v1.11.0` 소스트리 리빌딩:
-  - `app.py`에서 날짜/칼로리/샘플 데이터/캘린더/부위 분석/기록 검색/장비 분석/PR 조회 로직을 서비스 모듈로 분리했습니다.
-  - 오늘 운동 화면의 운동 시간, 휴식 타이머, 장소 패널을 partial 템플릿으로 분리했습니다.
-  - 운동 시간/휴식 타이머 스크립트를 `static/timers.js`로 분리하고 서비스워커 캐시에 반영했습니다.
-  - 검증: `python -m compileall health_tracker tests`, `node --check static\app.js`, `node --check static\timers.js`, `python -m unittest discover -v` 19개 테스트 통과.
-- `v1.10.0` 하드코딩 제거 1차:
-  - 앱 기본값 설정 서비스를 추가하고 `app_settings` 기반으로 휴식 타이머, 기본 세트 수, 입력 힌트, 세트 타입, 목표 기본값을 조회/저장하게 했습니다.
-  - 설정 화면에 앱 기본값 관리 섹션을 추가했습니다.
-  - 오늘 운동 템플릿과 JS 세트 행 생성이 같은 설정값을 사용하도록 연결했습니다.
-  - 일간 기록/기록 점검 기간 옵션과 기본 페이지 크기를 설정값으로 연결했습니다.
-- `v1.9.8` 휴식 타이머 동작 수정:
-  - 운동 모드 표시 순서에서 휴식 타이머를 운동 시간 바로 아래로 올렸습니다.
-  - 세트 저장 후 `rest=90` 파라미터로 타이머가 자동 시작되던 흐름을 제거했습니다.
-  - 이제 휴식 타이머는 60초/90초/120초/타이머 시작 버튼을 직접 눌렀을 때만 동작합니다.
-- `v1.9.7` 운동 장소 카드 UI 보정:
-  - 현재 장소 아래 장비 카테고리 칩 영역을 별도 박스로 분리하고 아래 최근 운동 목록과 간격/구분선을 추가했습니다.
-  - 장소 안내 문구를 실제 동작에 맞게 수정했습니다.
-- `v1.9.6` 운동명 수정/장비 표시 보강:
-  - 오늘 운동 카드에서 운동명을 세트별이 아니라 같은 운동 그룹 단위로 일괄 수정할 수 있게 했습니다.
-  - 운동별 기본 장비 설정값을 카드 헤더와 빠른 운동 선택 버튼에 같이 보여주도록 했습니다.
-  - 세트 수정 폼이 열릴 때 입력칸이 밀리는 문제를 줄이도록 편집 레이아웃을 정리했습니다.
-- `v1.9.5` 운동 입력 UX 보정:
-  - 휴식 타이머를 운동 시간 카드 바로 아래로 이동했습니다.
-  - 장비 카테고리는 장소와 무관하게 `바벨`, `덤벨`, `머신`, `케이블`, `프리웨이트`, `맨몸`, `유산소기구` 전체가 항상 보이게 수정했습니다.
-  - 장소별 제한은 운동명 후보에만 적용되도록 안내 문구를 정리했습니다.
-- `v1.9.4` 장소별 운동 입력 후보 제한:
-  - 오늘 운동 입력의 운동명 datalist, 최근 세트, 운동 통계, 즐겨찾기, 루틴 목록을 선택 장소 기준으로 제한했습니다.
-  - 다른 장소에서만 입력한 운동명은 현재 장소의 입력 후보에 보이지 않게 했습니다.
-  - 루틴 저장 시 원본 세션의 장소도 함께 저장하도록 했습니다.
-- `v1.9.3` 장비 카테고리 정규화:
-  - 장비 후보에 운동명이나 세부 장비명이 섞이지 않도록 저장/조회/장소 동기화 단계에서 카테고리로 정규화했습니다.
-  - 장소 장비 관리는 자유 텍스트 입력 대신 장비 카테고리 선택 방식으로 바꿨습니다.
-  - `스미스 머신`, `런닝머신` 등 기존 세부 장비명은 `머신`, `유산소기구`로 정리되도록 했습니다.
-- `v1.9.2` 장비 목록 보강:
-  - 기본 장비 목록에 `프리웨이트`를 추가했습니다.
-  - 오늘 운동 입력/수정/검색 fallback과 QA 더미데이터 장비 후보에 같은 장비 구성을 반영했습니다.
-  - 장소 장비가 이미 있는 경우에도 `프리웨이트`는 공통 후보로 표시되게 보정했습니다.
-- `v1.9.1` 장소별 장비 필터:
-  - 오늘 운동의 장비 선택 목록을 선택 장소에 자동 수집된 장비 우선으로 변경했습니다.
-  - 장소 장비가 하나라도 있으면 기본 장비 전체 목록을 섞지 않고 해당 장소 장비만 보여줍니다.
-  - 신규 장소처럼 장비가 없을 때만 기본 장비 목록을 fallback으로 표시합니다.
-- `v1.9.0` 고도화:
-  - 더보기 화면을 섹션형 정보 구조로 재정리했습니다.
-  - `데이터 센터`, `장소 인사이트`, `실행 인사이트` 화면을 추가했습니다.
-  - 현재 운동 장소 기준 빠른 운동 불러오기를 오늘 운동 화면에 추가했습니다.
-  - 장소별 운동/장비 사용, 데이터 상태, 백업/내보내기, 분석 신뢰도 기반 점검 흐름을 연결했습니다.
-- `v1.8.0` 더보기 기능 추가:
-  - `기록 점검` 화면을 추가해 분석 신뢰도, 누락일, 주요 데이터 수를 확인할 수 있게 했습니다.
-  - `식단 템플릿` 화면을 추가해 저장된 템플릿 적용/삭제와 최근 식단 기반 템플릿 저장을 관리할 수 있게 했습니다.
-  - 더보기 카드와 PWA 캐시에 신규 화면을 반영했습니다.
-- `v1.7.6` 세트 입력 UI 보정:
-  - 운동 입력의 무게/횟수 입력칸 기준선이 어긋나 보이던 문제를 수정했습니다.
-  - 무게 단위와 kg 미리보기 줄 때문에 생기던 높이 차이를 세트 입력 전용 CSS로 맞췄습니다.
-- `v1.7.5` 장소 삭제:
-  - 기록이 없는 장소는 운동 장소 관리에서 완전 삭제할 수 있게 했습니다.
-  - 기록이 연결된 장소는 기존 기록 보호를 위해 비활성화만 가능하게 유지했습니다.
-- `v1.7.4` 장소 추가 UI 보정:
-  - 장소 추가 입력칸이 grid 안에서 겹치지 않도록 input 폭과 최소 폭을 보정했습니다.
-  - 기본 장소 체크박스가 너무 크게 보이지 않도록 장소 관리 화면 전용 크기를 적용했습니다.
-- `v1.7.3` 운동 장소 관리 재정리:
-  - 장소 카드 기본 화면은 요약과 장비 칩만 보이게 단순화했습니다.
-  - 장소 수정과 장비 추가/제외는 접힘 관리 영역으로 이동했습니다.
-  - 모바일 과밀 배치를 줄이기 위해 버튼/폼/장비 목록 CSS를 다시 보정했습니다.
-- `v1.7.2` UI 정리:
-  - 운동 장소 관리 화면을 요약 카드, 새 장소 추가, 장소별 수정/장비 관리 구조로 재정리했습니다.
-  - 모바일에서 입력칸과 버튼이 겹치지 않도록 장소 관리 CSS 반응형 규칙을 보강했습니다.
-  - 전체 소스 점검과 QA를 다시 진행했습니다.
-- `v1.7.1` 긴급 수정:
-  - 기존 로컬 DB에서 `location_id` 컬럼 추가보다 장소 인덱스 생성이 먼저 실행되어 `/more`가 500 오류가 나던 문제를 수정했습니다.
-  - 기존 DB 마이그레이션 회귀 테스트를 추가했습니다.
-- 앱 버전을 `v1.7.0`으로 올렸습니다.
-- 운동 장소/헬스장 관리 기능을 추가했습니다.
-  - `workout_locations`, `location_equipment` 테이블을 추가했습니다.
-  - 기존 운동 세션은 기본 헬스장으로 자동 연결됩니다.
-  - 오늘 운동 화면에서 현재 장소를 선택하고, 장소별 장비 목록을 우선 표시합니다.
-  - 운동 저장 시 선택한 장소와 장비가 같이 저장되고, 새 장비는 해당 장소 장비 목록에 자동 등록됩니다.
-  - 더보기 > 운동 장소에서 장소 추가, 기본 장소 지정, 비활성화, 장소별 장비 추가/제외를 관리합니다.
-  - 기록 검색에서 장소 필터와 장소명을 표시합니다.
-- 검증:
+﻿# Codex Handoff Notes
+
+## 2026-05-29 v2.5.8 구조 분리와 쿼리 경량화
+- `app_lifecycle.py`로 before/after request, DB teardown, 템플릿 컨텍스트 주입을 분리했습니다.
+- `app_settings.py`로 app setting, app preferences, 설정 잠금/해제 헬퍼를 분리했습니다.
+- 기존 CSS URL은 유지하면서 `static/css/core`, `features`, `overrides`, `responsive` 하위 파일로 대형 CSS를 나눴습니다.
+- `dom_data.js`, `pwa.js`, `select_theme.js`, `readiness.js`를 추가해 `app.js`의 공통 기능을 분리했습니다.
+- 서비스 계층의 주요 `SELECT *`를 명시 컬럼 조회로 바꿔 불필요한 컬럼 로딩을 줄였습니다.
+- 남은 큰 파일은 `app.py`, `tests/test_app_flows.py`, `app.js`, `meal.css`, `today/index.html`, `summaries/summary.html`입니다.
+- 검증은 Ruff, 단계별 unittest, CSS 재귀 검사, JS 문법 검사 기준으로 진행했습니다.
+
+## 2026-05-29 v2.5.7 ?깅뒫/諛고룷/?뚯뒪 吏꾨떒 媛쒖꽑
+- ?붿껌 ?⑥쐞 `current_account`, app setting, app preferences 罹먯떆瑜?異붽??덉뒿?덈떎.
+- `touch_account_seen`? ?몄뀡 湲곗? 5遺?媛꾧꺽?쇰줈 ?쒗븳???섏씠吏 ?대룞留덈떎 怨꾩젙 DB write媛 諛쒖깮?섏? ?딄쾶 ?덉뒿?덈떎.
+- SQLite ?깅뒫 吏꾨떒??`services/performance.py`瑜?異붽??섍퀬 QA ?붾㈃?먯꽌 ?듭떖 ?몃뜳?? ?꾨씫 ?몃뜳?? ???荑쇰━ 怨꾪쉷, `ANALYZE` ?ㅽ뻾??蹂????덇쾶 ?덉뒿?덈떎.
+- 諛고룷 ?먭???`services/deployment.py`? ?뚯뒪 湲몄씠 ?먭???`services/source_audit.py`瑜?異붽??덉뒿?덈떎.
+- ?쒕퉬?ㅼ썙而?precache??HTML ?섏씠吏瑜??쒓굅?섍퀬 ?듭떖 ?뺤쟻 ?뚯씪留??ъ쟾 罹먯떆?섎룄濡?以꾩??듬땲??
+- 湲??뚯씪 ?꾪솴: `static/css/feature_pages.css`, `health_tracker/app.py`, `static/css/styles.css`, `tests/test_app_flows.py`, `static/css/ui_rebuild.css`媛 怨꾩냽 遺꾨━ ??곸엯?덈떎.
+- PythonAnywhere??`/static/` mapping??Web ??뿉???ㅼ젣 static ?대뜑濡?吏?뺥븯怨?Reload?댁빞 Flask worker 遺?댁씠 以꾩뼱??땲??
+- 寃利앹? Ruff, ?꾩껜 unittest 30媛? compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`濡?吏꾪뻾?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.6 ?붿껌 珥덇린??寃쎈웾??
+- `before_request`?먯꽌 紐⑤뱺 ?붿껌留덈떎 `init_accounts_db`? `init_db`瑜??ㅽ뻾?섎뜕 援ъ“瑜??쒓굅?덉뒿?덈떎.
+- 怨꾩젙 DB? ?대룞 DB???뚯씪 寃쎈줈蹂꾨줈 理쒖큹 ?꾩슂 ??1?뚮쭔 ?ㅽ궎留?留덉씠洹몃젅?댁뀡???뺤씤?섎룄濡?罹먯떆?덉뒿?덈떎.
+- ?뺤쟻 ?뚯씪, `/sw.js`, `/favicon.ico`???몄쬆/怨꾩젙 議고쉶/??DB 珥덇린?붾? 嫄대꼫?곕룄濡?鍮좊Ⅸ 寃쎈줈瑜?異붽??덉뒿?덈떎.
+- PythonAnywhere?먯꽌??異붽?濡?Web ??Static files mapping?먯꽌 `/static/`???ㅼ젣 `static` ?대뜑??留ㅽ븨?섎㈃ Flask worker 遺?댁쓣 ??以꾩씪 ???덉뒿?덈떎.
+- 寃利앹? Ruff, ?꾩껜 unittest 28媛? compileall, 二쇱슂 JS 臾몃쾿 寃?ш퉴吏 ?듦낵?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.5 favicon 404 ?섏젙
+- PythonAnywhere?먯꽌 `GET /favicon.ico 404`媛 諛쒖깮?섎뒗 臾몄젣瑜?猷⑦듃 favicon ?쇱슦??異붽?濡??섏젙?덉뒿?덈떎.
+- `/favicon.ico`??湲곗〈 `static/icon.svg`瑜?`image/svg+xml`濡?諛섑솚?섎ŉ ?몄쬆 ??怨듦컻 ?묎렐??媛?ν빀?덈떎.
+- `base/auth/admin` ?덉씠?꾩썐??`rel=icon`怨?`shortcut icon` 留곹겕瑜?紐낆떆?덉뒿?덈떎.
+- ?쒕퉬?ㅼ썙而?precache??`/favicon.ico`瑜?異붽??섍퀬 ??manifest/cache 踰꾩쟾??`2.5.5`濡??щ졇?듬땲??
+- 濡쒖뺄 ?ㅼ젣 ?쒕쾭?먯꽌 `/favicon.ico` 200, 濡쒓렇??HTML??favicon 留곹겕? `v2.5.5` 諛섏쁺???뺤씤?덉뒿?덈떎.
+- 寃利앹? Ruff, ?꾩껜 unittest 28媛? compileall, 二쇱슂 JS 臾몃쾿 寃?ш퉴吏 ?듦낵?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.4 紐⑤컮???곷떒 硫붾돱 蹂듦뎄
+- 紐⑤컮?쇱뿉???곷떒 硫붾돱媛 `?ㅻ뒛` ?섎굹留?蹂댁씤 ?먯씤? `ui_rebuild.css`??怨듯넻 踰꾪듉 紐⑤컮??洹쒖튃??`.tab-btn`??`width: 100%`瑜??곸슜?덇린 ?뚮Ц?낅땲??
+- `.tab-btn`??怨듯넻 100% 踰꾪듉 洹쒖튃?먯꽌 ?쒖쇅?섍퀬 `.tabs .tab-btn`留?`width: auto`濡??좎??섎룄濡??섏젙?덉뒿?덈떎.
+- 釉뚮씪?곗?/?쒕퉬?ㅼ썙而?罹먯떆瑜??쇳븯湲??꾪빐 `VERSION`, manifest, service worker 罹먯떆紐낆쓣 `2.5.4`濡??щ졇?듬땲??
+- ?뺤쟻 CSS ?뚯뒪?몄뿉 ?곷떒 ??씠 ?ㅼ떆 怨듯넻 踰꾪듉 洹쒖튃???ы븿?섏? ?딅룄濡??뚭? 寃利앹쓣 異붽??덉뒿?덈떎.
+- 寃利앹? Ruff, ?꾩껜 unittest 28媛? compileall, 二쇱슂 JS 臾몃쾿 寃?ш퉴吏 ?듦낵?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.3-hotfix static 寃쎈줈 ?뚮뜑留?寃利?蹂닿컯
+- 濡쒖뺄 5000 ?ы듃 ?쒕쾭媛 ?댁쟾 ?꾨줈?몄뒪 ?곹깭濡??⑥븘 `/static/styles.css`瑜??묐떟 HTML???④린怨??덉뼱 UI媛 源⑥쭊 寃껋쓣 ?뺤씤?덉뒿?덈떎.
+- ?쒕쾭瑜??ъ떆?묓븳 ??`/login` ?뚮뜑 HTML??`/static/css/...` 寃쎈줈瑜??곌퀬 ?듭떖 CSS/JS媛 200?쇰줈 ?묐떟?섎뒗 寃껋쓣 ?뺤씤?덉뒿?덈떎.
+- 媛숈? ?꾨씫??留됯린 ?꾪빐 鍮꾨줈洹몄씤/濡쒓렇???뚮뜑 ?섏씠吏?먯꽌 ?덉쟾 ?뺤쟻 寃쎈줈媛 ?⑥? ?딅뒗 ?뚯뒪?몃? 異붽??덉뒿?덈떎.
+- 寃利앹? Ruff, ?꾩껜 unittest 28媛? compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`源뚯? ?듦낵?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.3 static ?대뜑 援ъ“ ?뺣━
+- `static` 猷⑦듃??CSS ?뚯씪??`static/css/`, JS ?뚯씪??`static/js/`濡??대룞?덉뒿?덈떎.
+- PWA ?명솚?깆쓣 ?꾪빐 `static/sw.js`, `static/manifest.webmanifest`, `static/icon.svg`??猷⑦듃???좎??덉뒿?덈떎.
+- `layouts/base.html`, `layouts/auth.html`, `layouts/admin.html`???뺤쟻 ?뚯씪 寃쎈줈瑜???援ъ“濡?媛깆떊?덉뒿?덈떎.
+- ?쒕퉬?ㅼ썙而?precache 紐⑸줉怨?罹먯떆紐낆쓣 `workout-pwa-v2.5.3`?쇰줈 媛깆떊??諛고룷 ???댁쟾 ?뺤쟻 罹먯떆媛 ?⑤뒗 臾몄젣瑜?以꾩??듬땲??
+- ?뚯뒪?몄쓽 CSS/JS ?뚯씪 吏곸젒 李몄“? ?쒕퉬?ㅼ썙而??먯궛 寃利?寃쎈줈瑜???援ъ“??留욎톬?듬땲??
+- 寃利앹? Ruff, ?꾩껜 unittest 27媛? compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`源뚯? ?듦낵?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.2 ?대룞 以?吏묒쨷 紐⑤뱶
+- `/app?mode=workout&focus=1`濡??대룞 以?吏묒쨷 紐⑤뱶瑜?異붽??덉뒿?덈떎.
+- ?ㅻ뒛 ?대룞 ??쓽 ?곷떒 紐⑤뱶 踰꾪듉??吏묒쨷 紐⑤뱶/吏묒쨷 ?댁젣 ?좉???異붽??덉뒿?덈떎.
+- 吏묒쨷 紐⑤뱶?먯꽌??蹂댁“ ?뱀뀡???④린怨??대룞 ??대㉧, ?댁떇 ??대㉧, 鍮좊Ⅸ ?대룞, ?ㅻ뒛 ???? ?대룞 ?낅젰, ?ㅻ뒛 ?대룞, ?꾨즺 由щ럭瑜?以묒떖?쇰줈 ?뺣젹?⑸땲??
+- ?꾨즺 由щ럭 ?뱀뀡??`workout-finish` ?듭빱瑜?異붽????대룞 以?鍮좊Ⅸ 硫붾돱?먯꽌 諛붾줈 ?대룞?????덇쾶 ?덉뒿?덈떎.
+- ?뚯뒪?몄뿉??吏묒쨷 紐⑤뱶 ?뚮뜑留? 鍮좊Ⅸ ?대룞 ?듭빱, CSS ?④? 洹쒖튃 寃利앹쓣 異붽??덉뒿?덈떎.
+- 寃利앹? Ruff, ?꾩껜 unittest, compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`濡??뺤씤?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.1 Ruff QC ?꾧뎄 ?ㅼ튂
+- ?꾩옱 媛?곹솚寃쎌뿉 `ruff==0.15.14`瑜??ㅼ튂?덇퀬 `requirements-dev.txt`??媛쒕컻 ?섏〈?깆쑝濡?怨좎젙?덉뒿?덈떎.
+- `pyproject.toml`??異붽???Ruff 湲곕낯 寃??踰붿쐞瑜?`F` 怨꾩뿴濡??ㅼ젙?덉뒿?덈떎.
+- ?꾩옱 ?쇱슦??紐⑤뱢? `globals().update(ctx)`濡?`app.py` 而⑦뀓?ㅽ듃瑜?二쇱엯諛쏅뒗 援ъ“?? `health_tracker/routes/*.py`??F821? per-file ignore濡??덉쇅 泥섎━?덉뒿?덈떎.
+- `app.py`???쇱슦??而⑦뀓?ㅽ듃 ?꾨떖???꾪빐 ?쇰? import瑜?`globals()`???④린??援ъ“??F401???덉쇅 泥섎━?덉뒿?덈떎.
+- `tests/test_app_flows.py`???ㅼ젣 誘몄궗??import???쒓굅?덉뒿?덈떎.
+- 寃利앹? `ruff check health_tracker tests`, ?꾩껜 unittest, compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`濡??뺤씤?덉뒿?덈떎.
+
+## 2026-05-28 v2.5.0 ?대룞 ?꾨즺 由щ럭 諛?紐⑺몴 吏꾪뻾瑜?
+- ?ㅻ뒛 ?대룞 ?꾨즺 ?곸뿭??`workout_finish_review` 而⑦뀓?ㅽ듃瑜?異붽??섍퀬 `services/workout_plan.py`?먯꽌 ?꾨즺 由щ럭 ?곗씠?곕? ?앹꽦?섎룄濡??덉뒿?덈떎.
+- ?꾨즺 由щ럭??珥??명듃, ?대룞 蹂쇰ⅷ, PR, ?좎궛?? 吏곸쟾 ?대룞 ?鍮?蹂쇰ⅷ, 怨꾪쉷 ?ъ꽦瑜? RPE 湲곕컲 ?뚮났 肄붾찘?몃? ?쒖떆?⑸땲??
+- ?대룞蹂?紐⑺몴 吏꾪뻾瑜좎? 湲곗〈 `exercise_settings.target_weight`, `target_reps`, `target_sets`瑜??쒖슜??`services/exercise_settings.py`?먯꽌 怨꾩궛?⑸땲??
+- ?ㅻ뒛 ?대룞 湲곕줉 移대뱶??紐⑺몴 吏꾪뻾瑜?留됰?? 紐⑺몴蹂??꾩옱/紐⑺몴 媛믪쓣 ?쒖떆?⑸땲??
+- ?좉퇋 DB ?뚯씠釉??놁씠 湲곗〈 ?곗씠?곕쭔 ?ъ궗?⑺뻽?듬땲??
+- `VERSION`, `static/manifest.webmanifest`, `static/sw.js`瑜?`2.5.0`?쇰줈 留욎톬?듬땲??
+- 寃利앹? ?꾩껜 unittest, compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`濡?留덈Т由ы뻽?듬땲??
+
+## 2026-05-28 v2.4.5 ?쇱슦??諛??쒕퉬??異붽? ?뺣━
+- `routes/main.py`???⑥븘 ?덈뜕 遺꾩꽍/罹섎┛???앸떒/湲곕줉/???꾨줈洹몃옩/API ?쇱슦?몃? `summaries.py`, `calendar.py`, `meal_pages.py`, `records.py`, `home.py`, `programs.py`, `api.py`濡??섎댋?듬땲??
+- `app.py`??吏곸젒 ?⑥븘 ?덈뜕 ?대룞 ?몄뀡 ?앹꽦/議고쉶, ?대룞 紐⑸줉, 理쒓렐 ?명듃, ?대룞 ?듦퀎 SQL??`services/workout.py`濡???꼈?듬땲??
+- 利먭꺼李얘린 ?대룞 議고쉶??`services/exercise_settings.py`, 怨쇰????쒖븞 議고쉶??`services/progressive_overload.py`濡?遺꾨━?덉뒿?덈떎.
+- `meta.py`????媛깆떊?쒓컖 李몄“ 釉뚮옖移섎? `master`?먯꽌 `main`?쇰줈 ?섏젙?덉뒿?덈떎.
+- `VERSION`, `static/manifest.webmanifest`, `static/sw.js`瑜?`2.4.5`濡?留욎톬?듬땲??
+- ?⑥쐞蹂?寃利???而ㅻ컠/?몄떆瑜??섎닠 吏꾪뻾?덉뒿?덈떎. 理쒖쥌 寃利앹? ?꾩껜 unittest, compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`濡??뺤씤?덉뒿?덈떎.
+
+## 2026-05-28 v2.4.4 援ъ“ 諛??깅뒫 理쒖쟻??
+- `health_tracker/services/food_shortcuts.py`, `location_insights.py`, `goals.py`, `reminders.py`瑜?異붽???`app.py`??紐곕젮 ?덈뜕 ?앸떒 鍮좊Ⅸ?좏깮, ?μ냼 ?몄궗?댄듃, 紐⑺몴, 由щ쭏?몃뜑 DB 濡쒖쭅??遺꾨━?덉뒿?덈떎.
+- ?μ냼 ?몄궗?댄듃???μ냼留덈떎 top exercise/equipment/equipment list瑜?諛섎났 議고쉶?섎뜕 援ъ“瑜?bulk 議고쉶 ??Python?먯꽌 洹몃９?묓븯??諛⑹떇?쇰줈 諛붽엥?듬땲??
+- SQLite ?곌껐 ?ㅼ젙??foreign key, busy timeout, WAL, synchronous NORMAL???곸슜?덇퀬 ?앸떒/?대룞/?μ냼 ?λ퉬 蹂듯빀 ?몃뜳?ㅻ? 異붽??덉뒿?덈떎.
+- ?묐떟 ?ㅻ뜑??`X-Request-Duration-ms`, `X-DB-Query-Count`, `Server-Timing`??異붽???媛??붾㈃??泥섎━ ?쒓컙怨?DB 荑쇰━ ?섎? ?뺤씤?????덇쾶 ?덉뒿?덈떎.
+- `static/notifications.js`, `static/meal_entry.js`, `static/meal.css`瑜?異붽??섍퀬 service worker precache 諛?layout 濡쒕뱶瑜?媛깆떊?덉뒿?덈떎.
+- ?ㅻ뒛 ?붾㈃? `_body_metrics.html`, `_status_panels.html`, `_meal_input.html` partial濡?異붽? 遺꾨━?덉뒿?덈떎.
+- 蹂댁븞/留덉씠洹몃젅?댁뀡 ?뚯뒪?몃뒗 `tests/test_security_and_migration.py`濡?遺꾨━?덇퀬 ?꾩껜 ?뚯뒪?몃뒗 27媛쒕줈 ?듦낵?덉뒿?덈떎.
+- 濡쒖뺄 `__pycache__` ?곗텧臾쇱쓣 ?뺣━?덉뒿?덈떎.
+- 寃利??꾨즺: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/meal_entry.js`, `node --check static/notifications.js`, `node --check static/workout_entry.js`, `node --check static/offline_queue.js`, `node --check static/workout_tools.js`, `node --check static/ui_interactions.js`, `git diff --check`.
+
+## 2026-05-28 v2.4.3 ?앸떒 鍮좊Ⅸ ?좏깮 ?뺣━
+- ?앸떒 ?낅젰 ?????紐⑤뱺 ?뚯떇??`food_favorites`???먮룞 ?깅줉?섎뜕 泥섎━瑜??쒓굅?덉뒿?덈떎. ?욎쑝濡?怨좎젙 ?뚯떇? ?ъ슜?먭? 吏곸젒 `怨좎젙` 踰꾪듉?쇰줈 ?깅줉????ぉ留??쒖떆?⑸땲??
+- ?앸떒 ?낅젰 ?⑤꼸??`怨좎젙 ?뚯떇`, `?먯＜ 癒밸뒗 ?뚯떇`, `理쒓렐 ?낅젰 ?뚯떇`?쇰줈 遺꾨━?덉뒿?덈떎. 怨좎젙 ?뚯떇? 理쒕? 6媛? 理쒓렐 ?낅젰? ?앹궗 援щ텇蹂?理쒕? 6媛쒕쭔 ?몄텧?⑸땲??
+- 怨좎젙 ?뚯떇 ?됱뿉 ?댁젣 踰꾪듉??異붽????섎せ 怨좎젙???뚯떇? ?앸떒 ?붾㈃?먯꽌 諛붾줈 ?쒓굅?????덇쾶 ?덉뒿?덈떎.
+- ?뚭? ?뚯뒪?몄뿉 ?쒖떇????λ쭔?쇰줈 利먭꺼李얘린媛 ?섏뼱?섏? ?딅뒗?ㅲ앸뒗 寃利앷낵 ?섎룞 怨좎젙 ?뚯떇 ?뚮뜑留?寃利앹쓣 異붽??덉뒿?덈떎.
+- 寃利??꾨즺: ?꾩껜 unittest 26媛? compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`.
+
+## 2026-05-28 v2.4.2 ?μ냼 ?λ퉬 ?몄궗?댄듃 怨좊룄??
+- ?μ냼蹂??몄궗?댄듃???깅줉 ?λ퉬 ?鍮??ㅼ젣 ?ъ슜 ?λ퉬 鍮꾩쑉??怨꾩궛?섎뒗 `equipment_coverage` 媛믪쓣 異붽??덉뒿?덈떎.
+- ?깅줉 ?λ퉬 鍮꾧탳 湲곗?? ?λ퉬紐낃낵 ?λ퉬 ?좏삎???④퍡 ?ъ슜?섎룄濡?蹂닿컯?? ?대룞 ?낅젰?먯꽌 ??λ릺???λ퉬 遺꾨쪟? ?μ냼 ?λ퉬 愿由??곗씠?곌? ?????곌껐?섍쾶 ?덉뒿?덈떎.
+- `/locations/insights` ?붾㈃?먮뒗 ?λ퉬?쒖슜瑜좉낵 誘몄궗???λ퉬 紐⑸줉???몄텧?섍퀬, 誘몄궗???λ퉬 ?됱? 蹂꾨룄 媛뺤“ ?ㅽ??쇱쓣 ?곸슜?덉뒿?덈떎.
+- 踰꾩쟾? `VERSION`, `static/manifest.webmanifest`, `static/sw.js` 紐⑤몢 `2.4.2`濡?留욎톬?듬땲??
+- 寃利??꾨즺: ?꾩껜 unittest 26媛? compileall, 二쇱슂 JS 臾몃쾿 寃?? `git diff --check`.
+
+## 2026-05-28 v2.4.1 援ъ“ 怨좊룄??諛?紐⑤컮??UX 蹂닿컯
+- GitHub 湲곕낯 釉뚮옖移섎뒗 `main`?쇰줈 蹂寃쏀뻽怨?湲곗〈 ?먭꺽 `master`????젣?덉뒿?덈떎.
+- `routes/main.py`瑜?異붽? 遺꾨━?덉뒿?덈떎. ?ㅻ뒛 ?대룞 ?≪뀡? `routes/today_actions.py`, ?앸떒/?명듃 ?섏젙? `routes/entries.py`, 諛깆뾽/?섑뵆/??젣 ?낆텧?μ? `routes/data.py`?먯꽌 ?깅줉?⑸땲??
+- `health_tracker/app_accounts.py`瑜?異붽???怨꾩젙 議고쉶, 愿由ъ옄 ??쒕낫??吏묎퀎, ?ъ슜???곹깭/鍮꾨?踰덊샇/硫붾え 蹂寃??ы띁瑜?`app.py`?먯꽌 遺꾨━?덉뒿?덈떎. ?뚯뒪?몄뿉??DB 寃쎈줈瑜?諛붽씀???먮쫫???꾪빐 DB provider 諛⑹떇?쇰줈 ?곌껐?덉뒿?덈떎.
+- `static/styles.css`???붾㈃蹂?洹쒖튃??`static/feature_pages.css`, ?섎떒 諛섏쓳??洹쒖튃??`static/responsive.css`濡?遺꾨━?덉뒿?덈떎. ?덉씠?꾩썐 ?쒗뵆由욧낵 ?쒕퉬?ㅼ썙而?罹먯떆 紐⑸줉??媛숈씠 媛깆떊?덉뒿?덈떎.
+- ?ㅽ봽?쇱씤 ???먮뒗 `static/offline_queue.js`濡?遺꾨━?덉뒿?덈떎. `app.js`??湲곗〈泥섎읆 `queueOfflineForm`, `processOfflineQueue`瑜??몄텧?⑸땲??
+- 紐⑤컮??UX 蹂닿컯?쇰줈 湲곕줉/遺꾩꽍/?앸떒/?λ퉬 移대뱶??以꾨컮轅? 諛곗?, ?꾪꽣 ?? ?≪뀡 踰꾪듉 媛꾧꺽??醫곸? ??湲곗??쇰줈 ?뺣━?덉뒿?덈떎.
+- 寃利??꾨즺: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/offline_queue.js`, `node --check static/workout_entry.js`.
+
+## 2026-05-28 v2.4.0 諛섏쓳??UI 諛??뚯뒪 遺꾨━ ?뺣━
+- ?몄쬆 ?쇱슦?몃뒗 `health_tracker/routes/auth.py`, ?ㅼ젙 ?쇱슦?몃뒗 `health_tracker/routes/settings.py`濡?遺꾨━?덉뒿?덈떎. 湲곗〈 ?먮쫫? ?뚯뒪?몃줈 ?좎? ?뺤씤?덉뒿?덈떎.
+- 怨듯넻 諛섏쓳??蹂닿컯? `static/ui_rebuild.css` ?섎떒??異붽??덉뒿?덈떎. 紐⑤컮???대뱶 ??뿉??移대뱶, 踰꾪듉, ?꾪꽣, ?? ?뚯씠釉붿씠 ??以꾨줈 ?뚮━嫄곕굹 寃뱀튂??寃쎌슦瑜?以꾩씠??諛⑹뼱 洹쒖튃?낅땲??
+- `today/index.html`?먯꽌 猷⑦떞/?대룞 ?낅젰, ?대룞 湲곕줉, ?앸떒 湲곕줉??媛곴컖 `today/_workout_library_input.html`, `today/_workout_records.html`, `today/_meal_records.html`濡?遺꾨━?덉뒿?덈떎.
+- `summaries/summary.html`?먯꽌 ?대룞蹂?遺꾩꽍怨??λ퉬蹂?遺꾩꽍??媛곴컖 `summaries/_exercise_summary.html`, `summaries/_equipment_summary.html`濡?遺꾨━?덉뒿?덈떎.
+- 踰꾩쟾? `VERSION`, `static/manifest.webmanifest`, `static/sw.js` 紐⑤몢 `2.4.0`?쇰줈 留욎톬?듬땲??
+- ?대쾲 ?묒뾽 以??뺤씤???ㅼ쓬 ?뺣━ ??곸? `health_tracker/app.py`, `static/styles.css`, `health_tracker/routes/main.py`, `static/app.js`?낅땲?? 湲곕뒫 遺꾨━ 踰붿쐞媛 而ㅼ꽌 蹂꾨룄 ?뚭? ?뚯뒪???⑥쐞濡??섎늻??寃껋씠 留욎뒿?덈떎.
+- 寃利??꾨즺: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`.
+
+## 2026-05-28 v2.3.11 ?뚮뜑留?蹂묐ぉ 異붽? ?먭?
+- ?띾룄 蹂묐ぉ ?꾨낫瑜??ㅼ떆 ?먭??덇퀬, `today/index.html`???쒗뵆由??덉뿉??`grouped_sets_for_session(session.id)`瑜?吏곸젒 ?몄텧?섎뜕 遺遺꾩쓣 ?쒓굅?덉뒿?덈떎.
+- `today_context.py`?먯꽌 ?대룞 紐⑤뱶????`workout_groups`瑜?誘몃━ 援ъ꽦???쒗뵆由우뿉???뚮뜑留??곗씠?곕쭔 ?꾨떖?섎룄濡??뺣━?덉뒿?덈떎.
+- ??遺꾨━ ??곸? `today/index.html` ??63KB, `summaries/summary.html` ??48KB, `routes/main.py` ??53KB濡??뺤씤?덉뒿?덈떎.
+- 議곌굔 ?뚮뜑留?踰붿쐞 議곗젙 以??대룞 ?낅젰 ?곸뿭??鍮좎????뚭?瑜??뚯뒪?몃줈 ?뺤씤?덇퀬, ?대룞 ?낅젰/鍮좊Ⅸ ?좏깮/?μ냼 ?곸뿭???뺤긽 異쒕젰?섎룄濡?蹂듦뎄?덉뒿?덈떎.
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/workout_entry.js` ?듦낵.
+
+## 2026-05-28 v2.3.10 ?대룞 ??濡쒕뵫 理쒖쟻??
+- `/app?mode=workout` 吏꾩엯 ??`build_today_context`媛 ?앸떒, ?꾩껜 ?붿빟, 理쒓렐 湲곕줉 ?곗씠?곕? 紐⑤몢 留뚮뱾??援ъ“瑜?紐⑤뱶蹂?而⑦뀓?ㅽ듃濡?遺꾨━?덉뒿?덈떎.
+- ?대룞 紐⑤뱶?먯꽌???대룞 ?낅젰, ?ㅻ뒛 ?대룞, 猷⑦떞, ?뚮났, PR???꾩슂???곗씠?곕쭔 ?ㅼ젣 議고쉶?섍퀬 ?앸떒/?꾩껜 ?꾩슜 媛믪? ?덉쟾??湲곕낯媛믪쑝濡??〓땲??
+- ?ㅻ뒛 ?쒗뵆由우뿉??CSS濡??④린???꾩껜 ?붿빟/?앸떒 ???곸뿭??`{% if today_mode == 'overview' %}`, `{% if meal_mode %}` 議곌굔 ?뚮뜑留곸쑝濡??꾪솚?덉뒿?덈떎.
+- 泥??뚯뒪?몄뿉???앸떒 議곌굔 踰붿쐞媛 ?대룞 湲곕줉 移대뱶源뚯? ??뼱 ?대룞紐??쇨큵 ?섏젙 UI媛 鍮좎????뚭?瑜??뺤씤?덇퀬, 議곌굔 踰붿쐞瑜?遺꾨━???섏젙?덉뒿?덈떎.
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests` ?듦낵.
+
+## 2026-05-28 v2.3.9 紐⑤컮???대룞 鍮좊Ⅸ 硫붾돱 寃뱀묠 ?섏젙
+- 430px ?댄븯 紐⑤컮???붾㈃?먯꽌 `.workout-action-dock`, `.mobile-action-dock` sticky ?꾩튂瑜?`122px`濡?議곗젙???곷떒 ??硫붾돱? 寃뱀튂吏 ?딄쾶 ?덉뒿?덈떎.
+- `#workout-input`, `#today-workout`, `#rest-timer`, ?ㅻ뒛 ???? ?대룞 ??대㉧ ?뱀뀡??`scroll-margin-top: 174px`瑜??곸슜??鍮좊Ⅸ 硫붾돱 ?대룞 ?????뱀뀡 ?쒕ぉ??媛?ㅼ?吏 ?딅룄濡??덉뒿?덈떎.
+- 紐⑤컮???대룞 硫붾돱 寃뱀묠 諛⑹? CSS ?뚭? ?뚯뒪?몃? 異붽??덉뒿?덈떎.
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js` ?듦낵.
+
+## 2026-05-28 v2.3.8 紐⑤컮???ㅻ뜑 寃뱀묠 ?섏젙
+- 430px ?댄븯 紐⑤컮???붾㈃?먯꽌 `.header`瑜?1??2以?援ъ“濡?諛붽퓭 `?쇳듃?덉뒪 ?몃옒而?, ?섏쁺 臾멸뎄, 踰꾩쟾 諛곗?媛 寃뱀튂吏 ?딅룄濡??섏젙?덉뒿?덈떎.
+- 紐⑤컮?쇱뿉??`.tabs` sticky top 媛믪쓣 ???ㅻ뜑 ?믪씠??留욎떠 議곗젙?덉뒿?덈떎.
+- ?ъ슜?????ㅻ뜑??`header-meta`, `account-greeting`, `app-version`???뚮뜑留곷릺???뚭? ?뚯뒪?몃? 異붽??덉뒿?덈떎.
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js` ?듦낵.
+
+## 2026-05-28 v2.3.7 愿由ъ옄 ?댁쁺 湲곕뒫 ?뺤옣
+- `/admin`???ъ슜??寃?? ?곹깭 ?꾪꽣, ?뺣젹 ?쇱쓣 異붽??덉뒿?덈떎. ?꾪꽣???꾩껜/?쒖꽦/鍮꾪솢??議곗튂 ?꾩슂/誘몄궗??湲곕줉 遺議? ?뺣젹? 媛?낆닚/理쒓렐 濡쒓렇?몄닚/理쒓렐 湲곕줉???명듃 留롮????대쫫?쒖엯?덈떎.
+- 議곗튂 ?꾩슂 ?ъ슜???뱀뀡??異붽???誘몄궗?? 湲곕줉 遺議? DB ?뺤씤 ?꾩슂, 鍮꾪솢??怨꾩젙????쒕낫???곷떒?먯꽌 諛붾줈 蹂????덇쾶 ?덉뒿?덈떎.
+- `admin_audit_logs` ?뚯씠釉붿쓣 異붽??섍퀬 愿由ъ옄 鍮꾨?踰덊샇 蹂寃? ?ъ슜??鍮꾨?踰덊샇 珥덇린?? ?쒖꽦/鍮꾪솢?? 硫붾え ?섏젙, ?ъ슜???곗씠???대낫?닿린瑜?湲곕줉?⑸땲??
+- `/admin/users/<id>/export`瑜?異붽????ъ슜?먮퀎 JSON ?대낫?닿린瑜?吏?먰빀?덈떎. ?먮낯 ?뚯씠釉붽낵 愿由ъ옄 ?곸꽭?먯꽌 蹂대뒗 ?ъ슜 ?붿빟???④퍡 ?ы븿?⑸땲??
+- 愿由ъ옄 ??쒕낫?쒖? ?ъ슜???곸꽭 ?쒗뵆由우쓣 ?뺤긽 ?쒓? 臾멸뎄濡??ㅼ떆 ?뺣━?덇퀬, ?꾪꽣/?≪뀡 踰꾪듉 紐⑤컮???뺣젹 CSS瑜?異붽??덉뒿?덈떎.
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` ?듦낵.
+
+## 2026-05-28 v2.3.6 愿由ъ옄 ?꾪솴 吏묎퀎 ?섏젙
+- 愿由ъ옄 怨꾩젙? ?대룞/?앸떒 ?ъ슜???꾪솴 ??곸씠 ?꾨땲誘濡?`build_admin_dashboard`?먯꽌 `role == "user"` 怨꾩젙留?吏묎퀎?섎룄濡??섏젙?덉뒿?덈떎.
+- `/admin/users/<id>` ?곸꽭???ъ슜??怨꾩젙留??덉슜?섍퀬 愿由ъ옄 怨꾩젙 ?묎렐? `/admin?error=user_only`濡??섎룎由쎈땲??
+- 愿由ъ옄 ??쒕낫?쒖뿉 ?댁쁺 泥댄겕?ъ씤?몃? 異붽??덉뒿?덈떎: 媛???쒖꽦, 湲곕줉 ?곹깭, ?곗씠??洹쒕え.
+- ?뺤씤??異붽? 愿由?而⑦깮?ъ씤?? 怨꾩젙 媛???쒖꽦 愿由? 鍮꾨?踰덊샇 珥덇린?? 愿由ъ옄 硫붾え, ?ъ슜?먮퀎 理쒓렐 湲곕줉, 遺???λ퉬 ?ъ슜?? ??쒕룞/誘몄궗???ъ슜???뺤씤.
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `git diff --check` ?듦낵.
+
+## 2026-05-28 v2.3.5 誘몃━蹂닿린 UI 媛쒖꽑
+- `/auth/preview` ?붾㈃???⑥닚 移대뱶 ?섏뿴?먯꽌 ?덉뼱濡? 紐⑤컮?쇳삎 ?ㅻ뒛 ?대룞 ?섑뵆, ?듭떖 湲곕뒫 ?붿빟, 湲곕줉/遺꾩꽍/?μ냼/?앸떒 移대뱶 援ъ“濡??ш뎄?깊뻽?듬땲??
+- 誘몃━蹂닿린 ?쒗뵆由우쓽 源⑥쭊 ?쒓????뺤긽 臾멸뎄濡?援먯껜?덉뒿?덈떎.
+- 紐⑤컮?쇱뿉???덉뼱濡? 吏??移대뱶, 湲곕줉 ?됱씠 ??以꾩뿉 ?뚮━吏 ?딅룄濡?諛섏쓳??CSS瑜?異붽??덉뒿?덈떎.
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `git diff --check` ?듦낵.
+
+## 2026-05-28 v2.3.4 媛????誘몃━蹂닿린 ?섏씠吏
+- `/auth/preview` 怨듦컻 ?섏씠吏瑜?異붽???媛???꾩뿉???ㅻ뒛 ?대룞, 湲곕줉, 遺꾩꽍, ?μ냼/?λ퉬 ?먮쫫???섑뵆濡??뺤씤?????덇쾶 ?덉뒿?덈떎.
+- 濡쒓렇???뚯썝媛???붾㈃??誘몃━蹂닿린 ?대룞 踰꾪듉??異붽??덉뒿?덈떎.
+- 誘몃━蹂닿린???섑뵆 ?꾩슜 ?붾㈃?대ŉ `<form>` ?낅젰怨??ㅼ젣 DB ?곗씠?? 愿由ъ옄 ?붾㈃ ?뺣낫媛 ?몄텧?섏? ?딅룄濡??뚯뒪?몃줈 怨좎젙?덉뒿?덈떎.
+- 怨듦컻 ?묎렐? `preview_page` GET ?붾뱶?ъ씤?몃쭔 ?덉슜?덇퀬, 湲곗〈 ??愿由ъ옄 ?곗씠???묎렐? 濡쒓렇??蹂댄샇瑜??좎??⑸땲??
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` ?듦낵.
+
+## 2026-05-28 v2.3.3 ?몄쬆 UX 諛?愿由ъ옄 鍮꾨?踰덊샇 蹂寃?
+- ?ъ슜??愿由ъ옄 ?덉씠?꾩썐 ?ㅻ뜑?먯꽌 `怨꾩젙紐낅떂 ?섏쁺?⑸땲??? `v2.3.3` 踰꾩쟾??蹂꾨룄 ?곸뿭?쇰줈 遺꾨━?덉뒿?덈떎.
+- 濡쒓렇?????좏깮 ?곹깭瑜???吏꾪븳 諛곌꼍/?곗깋 湲?먮줈 諛붽퓭 ?ъ슜??愿由ъ옄 ?좏깮??紐낇솗?댁죱?듬땲??
+- 濡쒓렇???붾㈃?먮뒗 濡쒓렇???쇰쭔 ?④린怨? ?ъ슜???뚯썝媛?낆? `/auth/signup` ?꾩슜 ?붾㈃?쇰줈 遺꾨━?덉뒿?덈떎.
+- ?ъ슜??濡쒓렇?몄뿉???쒕퉬諛踰덊샇瑜??딆쑝?⑤굹?? 愿由ъ옄?먭쾶 珥덇린?붾? ?붿껌?섏꽭????臾멸뎄瑜? 愿由ъ옄 濡쒓렇?몄뿉???쒕쾭 愿由ъ옄 臾몄쓽 臾멸뎄瑜?異붽??덉뒿?덈떎.
+- `/admin/password`瑜?異붽???愿由ъ옄 蹂몄씤 鍮꾨?踰덊샇瑜??꾩옱 鍮꾨?踰덊샇 ?뺤씤 ??蹂寃쏀븷 ???덇쾶 ?덉뒿?덈떎.
+- 愿由ъ옄 鍮꾨?踰덊샇 蹂寃???`accounts.db`??愿由ъ옄 怨꾩젙 ?댁떆? `workout.db`??`settings_password_hash`瑜??④퍡 媛깆떊?⑸땲??
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js`, `git diff --check` ?듦낵.
+
+## 2026-05-28 v2.3.2 ?몄쬆 ?붾㈃ CSRF ?섏젙
+- `layouts/auth.html`? ??怨듯넻 JS瑜?濡쒕뱶?섏? ?딆쑝誘濡? 濡쒓렇???뚯썝媛???쇱쓽 CSRF hidden input??`templates/auth/login.html`?먯꽌 吏곸젒 ?뚮뜑留곹븯?꾨줉 ?섏젙?덉뒿?덈떎.
+- ?ㅼ젣 濡쒖뺄 HTTP?먯꽌 `/auth/login?mode=admin` ?섏씠吏??CSRF ?좏겙 議댁옱? `admin / 1234` 濡쒓렇????`/admin` 吏꾩엯???뺤씤?덉뒿?덈떎.
+- 濡쒖뺄 `instance/workout.db`, `instance/accounts.db`??愿由ъ옄 鍮꾨?踰덊샇???뚯뒪???몄쓽瑜??꾪빐 `1234`濡?留욎톬?듬땲??
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `git diff --check` ?듦낵.
+
+## 2026-05-28 v2.3.1 ?몄쬆/??愿由ъ옄 ?붾㈃ 遺꾨━
+- `/`?????댁긽 ?ㅻ뒛 ?대룞 ?붾㈃???뚮뜑留곹븯吏 ?딄퀬, ?몄뀡 ?곹깭???곕씪 `/auth/login`, `/app`, `/admin`?쇰줈 ?대룞?섎뒗 ?쇱슦?곌? ?섏뿀?듬땲??
+- ?ㅻ뒛 ?대룞 ?붾㈃? `/app`?쇰줈 ?대룞?덉뒿?덈떎. 湲곗〈 `url_for("index")` ?대? 留곹겕??`/app`??媛由ы궢?덈떎.
+- 濡쒓렇???붾㈃? `templates/auth/login.html`怨?`layouts/auth.html`濡?遺꾨━?????ㅻ뜑/硫붾돱媛 ?섏삤吏 ?딄쾶 ?덉뒿?덈떎.
+- 愿由ъ옄 ?붾㈃? `layouts/admin.html`???ъ슜?섎룄濡?遺꾨━???ъ슜????硫붾돱? ?욎씠吏 ?딄쾶 ?덉뒿?덈떎.
+- 湲곗〈 `/login`? `/auth/login`?쇰줈 蹂대궡???명솚 ?쇱슦?몃줈留??④꼈怨? `/auth/logout`怨?`/logout` 紐⑤몢 ?몄뀡???꾩쟾??鍮꾩썎?덈떎.
+- PWA `start_url`? `/`濡?蹂寃쏀뻽?듬땲?? ?쒕퉬?ㅼ썙而?罹먯떆??`workout-pwa-v2.3.1`?낅땲??
+- 寃利? `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/timers.js`, `node --check static/workout_entry.js` ?듦낵.
+
+## 2026-05-28 v2.3.0 濡쒓렇??寃뚯씠??諛?愿由ъ옄 ?꾩슜 ?붾㈃ 遺꾨━
+- `/login`????泥?吏꾩엯?먯쑝濡?怨좎젙?섍퀬, 濡쒓렇?????쇰컲 ?섏씠吏 ?묎렐? 濡쒓렇???붾㈃?쇰줈 蹂대궡?꾨줉 蹂寃쏀뻽?듬땲??
+- 愿由ъ옄 怨꾩젙? `/admin` 諛?愿由ъ옄 ?몃? ?붾㈃留?蹂????덇쾶 ?쇱슦???④퀎?먯꽌 李⑤떒?덉뒿?덈떎. 愿由ъ옄媛 ?쇰컲 ??二쇱냼瑜?吏곸젒 ?대㈃ `/admin`?쇰줈 ?대룞?⑸땲??
+- ?ъ슜??怨꾩젙? 湲곗〈 ?대룞 ???붾㈃留??ъ슜?섍퀬, 愿由ъ옄 ?붾㈃ 吏곸젒 ?묎렐? 愿由ъ옄 濡쒓렇???붾㈃?쇰줈 ?뚮━?꾨줉 遺꾨━?덉뒿?덈떎.
+- 濡쒓렇???붾㈃? 愿由ъ옄/?ъ슜????쓣 ?좎??섎릺 ?ъ슜???뚯썝媛?낆뿉??鍮꾨?踰덊샇 ?뺤씤 ?꾨뱶瑜?異붽??덉뒿?덈떎.
+- 湲곕낯 愿由ъ옄 怨꾩젙??癒쇱? 蹂댁옣?섎룄濡??섏젙?덇퀬, 泥??쇰컲 ?ъ슜??怨꾩젙? 湲곗〈 硫붿씤 ?대룞 DB瑜??댁뼱諛쏅룄濡?DB 留ㅽ븨??議곗젙?덉뒿?덈떎.
+- 寃利? `python -m unittest discover -v` ?꾩껜 24媛??뚯뒪???듦낵.
+
+## 2026-05-28 v2.2.0 愿由ъ옄/?ъ슜??濡쒓렇??諛??댁쁺 ??쒕낫??
+
+- `/login`??愿由ъ옄/?ъ슜????쑝濡??ш뎄?깊븯怨? ?ъ슜????뿉???쇰컲 ?ъ슜???뚯썝媛?낆쓣 吏?먰빀?덈떎.
+- `/admin`怨?`/admin/users/<id>`瑜?異붽???愿由ъ옄留??ъ슜?먮퀎 ?ъ슜?됯낵 ?곸꽭 湲곕줉 ?붿빟??蹂????덉뒿?덈떎.
+- 愿由ъ옄 ?곸꽭?먯꽌 ?ъ슜??鍮꾨?踰덊샇 珥덇린?? 鍮꾪솢???쒖꽦 ?꾪솚, ?쒖떆 ?대쫫/愿由ъ옄 硫붾え ??μ쓣 泥섎━?⑸땲??
+- ?ㅼ젙 ?붾㈃??怨꾩젙 ?앹꽦 UI??愿由ъ옄 ??쒕낫??吏꾩엯?먯쑝濡??뺣━?덉뒿?덈떎.
+- 寃利? ?⑥쐞蹂?怨꾩젙/愿由ъ옄 ?뚯뒪?? ?꾩껜 ?뚭? ?뚯뒪?? 濡쒓렇??愿由ъ옄/?쒕퉬?ㅼ썙而?濡쒖뺄 HTTP ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-27 v2.1.0 2??怨꾩젙 遺꾨━
+
+- 怨꾩젙蹂??곗씠??遺꾨━瑜??꾪빐 `health_tracker/services/accounts.py`瑜?異붽??덉뒿?덈떎.
+- 湲곕낯 `admin` 怨꾩젙? 湲곗〈 DB瑜?怨꾩냽 ?ъ슜?섍퀬, 異붽? 怨꾩젙? `instance/accounts/user_<id>.db` ?뺥깭??蹂꾨룄 DB瑜??ъ슜?⑸땲??
+- ?ㅼ젙 ?붾㈃?먯꽌 怨꾩젙???앹꽦?섍퀬 `/login`, `/logout`?쇰줈 怨꾩젙???꾪솚?????덉뒿?덈떎.
+- 湲곗〈 ?ㅼ젙 鍮꾨?踰덊샇瑜???ν븯硫?湲곕낯 `admin` 怨꾩젙??鍮꾨?踰덊샇???④퍡 ?숆린?붾맗?덈떎.
+- 寃利? 怨꾩젙蹂??곗씠??遺꾨━ ?뚯뒪?? ?꾩껜 ?뚭? ?뚯뒪?? 濡쒓렇???쒕퉬?ㅼ썙而?濡쒖뺄 HTTP ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-27 v2.0.7 PWA 硫뷀? ?쒓렇 寃쎄퀬 ?섏젙
+
+- `health_tracker/templates/layouts/base.html`??`<meta name="mobile-web-app-capable" content="yes">`瑜?異붽??덉뒿?덈떎.
+- 湲곗〈 `apple-mobile-web-app-capable`? iOS Safari ?명솚 紐⑹쟻?쇰줈 ?좎??덉뒿?덈떎.
+- 寃利? 而댄뙆?? ?꾩껜 ?뚭? ?뚯뒪?? 濡쒖뺄 HTTP head/service worker ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-27 v2.0.6 ?λ퉬 移댄뀒怨좊━ 癒몄떊 遺꾨━
+
+- 怨듯넻 ?λ퉬 移댄뀒怨좊━?먯꽌 `癒몄떊`???쒓굅?섍퀬 `?癒몄떊`, `?뚮젅?댄듃濡쒕뵒?쒕㉧????異붽??덉뒿?덈떎.
+- 湲곗〈 `癒몄떊` ?곗씠?곕뒗 珥덇린??留덉씠洹몃젅?댁뀡?먯꽌 `?癒몄떊`?쇰줈 ?뺣━?섎ŉ, ?ㅻ????뚮젅?댄듃 濡쒕뵒??怨꾩뿴 ?띿뒪?몃뒗 `?뚮젅?댄듃濡쒕뵒?쒕㉧???쇰줈 ?뺢퇋?붾맗?덈떎.
+- ?ㅻ뒛 ?대룞, 湲곕줉 寃?? ?μ냼 ?λ퉬 愿由? ?대룞 ?섏젙 select媛 湲??λ퉬紐낆쓣 ?댁쓣 ???덈룄濡??λ퉬 select ?꾩슜 湲???ш린? padding??議곗젙?덉뒿?덈떎.
+- 寃利? 而댄뙆?? JS 臾몃쾿 寃?? ?꾩껜 ?뚭? ?뚯뒪?? ?대룞/湲곕줉 寃???쒕퉬?ㅼ썙而?HTTP ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v2.0.5 ?대룞 ?꾨즺 ??대㉧ ?щ났??諛⑹?
+
+- `v2.0.4`???꾨즺 submit ?쒓컙?먮뒗 ??대㉧瑜?0?쇰줈 留뚮뱾?덉?留? 由щ떎?대젆????`data-initial-duration`????λ맂 ?대룞?쒓컙???ㅼ떆 ??대㉧ ?쒖떆濡?蹂듭썝?섎뒗 臾몄젣媛 ?덉뿀?듬땲??
+- ?꾨즺 ??`completedReset` ?뚮옒洹몃? localStorage???④꺼, ?꾨즺???좎쭨????λ맂 ?대룞?쒓컙怨?蹂꾧컻濡?吏꾪뻾 ??대㉧ ?쒖떆瑜?`00:00:00`?쇰줈 ?좎??섎룄濡??섏젙?덉뒿?덈떎.
+- HTML??理쒖떊 ?쒗뵆由우쓣 紐?諛쏆? 諛고룷 ?곹깭?먯꽌??`/sessions/<id>/complete` form action??媛먯???媛숈? ?숈옉???섎룄濡?fallback??異붽??덉뒿?덈떎.
+- 寃利? 而댄뙆?? JS 臾몃쾿 寃?? ?꾩껜 ?뚭? ?뚯뒪?? ?대룞/?쒕퉬?ㅼ썙而?HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v2.0.4 ?대룞 ?꾨즺 ????대㉧ ?쒖떆 由ъ뀑
+
+- ?대룞 ?꾨즺 踰꾪듉???꾨Ⅴ硫???λ맂 ?대룞?쒓컙? ?좎??섍퀬, 釉뚮씪?곗? 濡쒖뺄 ??대㉧ ?쒖떆留?`00:00:00`?쇰줈 由ъ뀑?섎룄濡??덉뒿?덈떎.
+- `data-workout-complete-form` submit ??`resetWorkoutClockDisplayOnly("?대룞 ?꾨즺")`瑜??ㅽ뻾?섎ŉ, 蹂꾨룄 duration ???API???몄텧?섏? ?딆뒿?덈떎.
+- 寃利? 而댄뙆?? JS 臾몃쾿 寃?? ?꾩껜 ?뚭? ?뚯뒪?? ?대룞/?쒕퉬?ㅼ썙而?HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v2.0.3 ?ㅻ뒛 ?앸떒 怨듯넻 selector ??뼱?곌린 ?섏젙
+
+- `v2.0.2`???앸떒 ?꾩슜 CSS媛 湲곗〈 `.record-list > .record-card:not(...)` 怨듯넻 selector蹂대떎 ?쏀빐???ㅼ젣 ?붾㈃?먯꽌 2??洹쒖튃??怨꾩냽 ?곸슜?먯뒿?덈떎.
+- 怨듯넻 selector?먯꽌 `meal-record-card`瑜??쒖쇅?섍퀬, `ui_rebuild.css` ?섎떒??`.record-list > .meal-record-card` 1??怨좎젙 override瑜?異붽??덉뒿?덈떎.
+- 寃利? ?앸떒 ?뚭? ?뚯뒪?? CSS 臾닿껐???뚯뒪?? ?앸떒 ?붾㈃ HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v2.0.2 ?ㅻ뒛 ?앸떒 由ъ뒪??UI ?섏젙
+
+- ?ㅻ뒛 ?앸떒 由ъ뒪?멸? 怨듯넻 `.record-list > .record-card` 2??洹쒖튃???곹뼢??諛쏆븘 ?앸떒 洹몃９/?뚯떇 ??諛곗튂媛 源⑥???臾몄젣瑜??섏젙?덉뒿?덈떎.
+- ?앸떒 洹몃９ 移대뱶??`meal-record-card`, ?뚯떇 ?됱뿉 `meal-record-item` ?대옒?ㅻ? 異붽??섍퀬 `today-meal-section` ?꾩슜 grid/踰꾪듉/?낅젰??洹쒖튃??`ui_rebuild.css`??異붽??덉뒿?덈떎.
+- 寃利? 而댄뙆?? JS 臾몃쾿 寃?? ?꾩껜 ?뚭? ?뚯뒪?? ?앸떒/?대룞 HTTP 200 ?뺤씤, CSS 臾닿껐??寃利앹쓣 ?듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v2.0.1 遺?꾨퀎 遺꾩꽍 移대뱶 寃뱀묠 ?섏젙
+
+- 湲곕줉 ??쓽 遺?꾨퀎 遺꾩꽍 移대뱶?먯꽌 ?좎쭨(`cat-stat-unit`)? ?대룞?쒓컙/移쇰줈由?以꾩씠 媛숈? `meta` grid area??諛곗튂?섏뼱 寃뱀튂??臾몄젣瑜??섏젙?덉뒿?덈떎.
+- `summary.html`??`cat-stat-period`, `cat-stat-detail` ?대옒?ㅻ? 異붽??섍퀬, `ui_rebuild.css`?먯꽌 `period/detail/pr` ?곸뿭??遺꾨━?덉뒿?덈떎.
+- 寃利? 而댄뙆?? 湲곕줉/遺꾩꽍 ?뚮뜑留??뚯뒪?? CSS 以묎큵??源⑥쭊 selector ?뚯뒪?? ?쇰퀎/二쇨컙 遺꾩꽍 HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v2.0.0 由대━利?以鍮??꾨즺
+
+- ??踰꾩쟾??`2.0.0`?쇰줈 ?꾪솚?섍퀬 manifest/service worker cache??媛숈? 湲곗??쇰줈 媛깆떊?덉뒿?덈떎.
+- 2.0 ??以鍮??뺣━濡?`app.py`???ㅼ젙, ?곗씠???뺣━/蹂듭썝, ?붿빟 議고쉶, ?곌컙 export, 理쒓렐 ?몄뀡 議고쉶 濡쒖쭅???쒕퉬??怨꾩링?쇰줈 遺꾨━?덉뒿?덈떎.
+- README 湲곕뒫 紐⑸줉???꾩옱 ?ㅼ궗??踰붿쐞??留욎떠 ?대룞/?앸떒, ?꾩튂/?λ퉬, 遺꾩꽍, ?좉툑, 諛깆뾽/蹂듭썝 以묒떖?쇰줈 ?낅뜲?댄듃?덉뒿?덈떎.
+- 理쒖쥌 寃利앹? ?꾩껜 ?뚭? ?뚯뒪?? 而댄뙆?? JS 臾몃쾿 寃?? diff 寃?? ?듭떖 HTTP ?뚮뜑留??뺤씤?쇰줈 吏꾪뻾?⑸땲??
+
+## 2026-05-26 v1.25.17 理쒓렐 ?몄뀡 議고쉶 ?쒕퉬??遺꾨━
+
+- `app.py`???덈뜕 理쒓렐 ?대룞 ?몄뀡 SQL??`health_tracker/services/workout.py`??`list_recent_sessions_from_db`濡??대룞?덉뒿?덈떎.
+- `/api/sessions`媛 ?ъ슜?섎뒗 湲곗〈 wrapper???좎????쇱슦??蹂寃??놁씠 app.py SQL 蹂몃Ц??以꾩??듬땲??
+- 寃利? `python -m compileall health_tracker tests`, 硫붿씤/?대룞쨌?앸떒 ?뚭? ?뚯뒪?? `/api/sessions`? ?ㅻ뒛 ?대룞 HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.16 ?곌컙 export ?쒕퉬??遺꾨━
+
+- `app.py`???곌컙 JSON payload 議곕┰, CSV 吏곷젹?? ?곌컙 ?대룞/?앸떒 CSV export 蹂몃Ц??`health_tracker/services/yearly.py`濡??대룞?덉뒿?덈떎.
+- ?쇱슦?멸? ?곕뒗 湲곗〈 ?⑥닔紐낆? wrapper濡??좎????몄텧遺 蹂寃??놁씠 app.py 梨낆엫??以꾩??듬땲??
+- 寃利? `python -m compileall health_tracker tests`, ?곌컙 QA/硫붿씤 ?섏씠吏 ?뚭? ?뚯뒪?? ?곌컙 JSON/?대룞 CSV/?앸떒 CSV HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.15 ?붿빟 議고쉶 ?쒕퉬??遺꾨━
+
+- `app.py`???덈뜕 `get_day_summary`, `list_daily_summary`, `list_weekly_summary` SQL 蹂몃Ц??`health_tracker/services/summary.py`濡??대룞?덉뒿?덈떎.
+- 遺꾩꽍/湲곕줉 ?붾㈃???곗씠??議고쉶 梨낆엫???쒕퉬??怨꾩링?쇰줈 ?섍린怨? app.py??湲곗〈 ?⑥닔紐?wrapper留??좎??덉뒿?덈떎.
+- 寃利? `python -m compileall health_tracker tests`, ?섑뵆 ?곗씠??硫붿씤 ?섏씠吏/遺꾩꽍 硫붾돱 ?뚭? ?뚯뒪?? ?쇰퀎/二쇰퀎/?붾퀎 遺꾩꽍 HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.14 ?곗씠??蹂듭썝 濡쒖쭅 遺꾨━
+
+- `app.py`???꾩껜 ?곗씠??import/蹂듭썝 濡쒖쭅??`health_tracker/services/export.py`??`import_all_data_to_db`濡??대룞?덉뒿?덈떎.
+- export? import媛 媛숈? `EXPORT_TABLES`瑜??곕룄濡??뺣━???뚯씠釉??쒖꽌 以묐났???쒓굅?덉뒿?덈떎.
+- ?곌컙 JSON export ?쇱슦?몄쓽 `json` ?붾У ?섏〈?깆쓣 `routes/main.py` 吏곸젒 import濡?怨좎낀?듬땲??
+- 寃利? `python -m compileall health_tracker tests`, ?꾩껜 20媛??뚭? ?뚯뒪?? ?ㅼ젙/?곗씠?곗꽱???곌컙 JSON export/?쒕퉬?ㅼ썙而?HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.13 ?곗씠???뺣━ ?쒕퉬??遺꾨━
+
+- `app.py`???덈뜕 ?꾩껜 ?곗씠????젣 諛깆뾽, 鍮??대룞 ?몄뀡 ??젣, ?대? ?먭? ?곗씠????젣 濡쒖쭅??`health_tracker/services/data_maintenance.py`濡??대룞?덉뒿?덈떎.
+- ?ㅼ젙 ?붾㈃/DB 珥덇린???쇱슦?멸? ?곕뒗 湲곗〈 ?⑥닔紐낆? wrapper濡??좎????몄텧遺 蹂寃?踰붿쐞瑜?以꾩??듬땲??
+- 寃利? `python -m compileall health_tracker tests`, ?섑뵆 ?곗씠???꾪뿕 ??젣 ?뺤씤/?ㅼ젙 ?좉툑 ?뚭? ?뚯뒪?? ?ㅼ젙/?곗씠?곗꽱??HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.12 ?ㅼ젙 ?쒕퉬??遺꾨━
+
+- `app.py`???덈뜕 ???ㅼ젙 議고쉶/??κ낵 ?ㅼ젙 鍮꾨?踰덊샇 ?댁떆/寃利?濡쒖쭅??`health_tracker/services/settings.py`濡?遺꾨━?덉뒿?덈떎.
+- `app.py` wrapper??湲곗〈 ?쇱슦???섏〈?깆쓣 ?좎??섎릺, ?몄뀡 unlock ?곹깭 泥섎━留??대떦?섎룄濡?以꾩??듬땲??
+- 寃利? `python -m compileall health_tracker tests`, ?ㅼ젙 鍮꾨?踰덊샇 ?좉툑/?ъ꽕?? 鍮꾨?踰덊샇 ?댁떆, 諛⑸Ц??read-only 蹂댁븞 ?뚭? ?뚯뒪?몃? ?듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.11 遺꾩꽍 ?붿빟 ?대퉬寃뚯씠??遺꾨━
+
+- `summaries/summary.html` ?곷떒??湲곕줉/遺꾩꽍 ?대퉬寃뚯씠??議곌굔臾몄쓣 `summaries/_summary_nav.html`濡?遺꾨━?덉뒿?덈떎.
+- ?쇰퀎 湲곕줉怨?遺꾩꽍 ?붾㈃??怨듯넻 吏꾩엯遺瑜?partial?뷀빐 湲??붿빟 ?쒗뵆由우쓽 梨낆엫??議곌툑 ??以꾩??듬땲??
+- 寃利? `python -m compileall health_tracker tests`, 硫붿씤 ?섏씠吏/硫붾돱 遺꾨━ ?뚭? ?뚯뒪?? ?쇰퀎/二쇨컙 遺꾩꽍 HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.10 ?ㅻ뒛 ?앸떒 ??遺꾨━
+
+- `today/index.html`???앸떒 ?뚯떇蹂??쎄린/?섏젙/??젣 ?됱쓣 `today/_meal_record_item.html`濡?遺꾨━?덉뒿?덈떎.
+- ?대룞 ?명듃 ??遺꾨━? 媛숈? ?⑦꽩?쇰줈 ?앸떒 諛섎났 援ъ“瑜?partial?뷀빐 `today/index.html`??湲몄씠瑜?異붽?濡?以꾩??듬땲??
+- 寃利? `python -m compileall health_tracker tests`, ?앸떒/硫붿씤 ?뚮뜑留??뚭? ?뚯뒪?? ?앸떒 紐⑤뱶 HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.9 ?ㅻ뒛 ?대룞 ?명듃 ??遺꾨━
+
+- `today/index.html`???명듃蹂??쎄린/?섏젙/蹂듭궗/??젣 ?됱쓣 `today/_workout_set_item.html`濡?遺꾨━?덉뒿?덈떎.
+- ?대룞 湲곕줉 移대뱶 ?대? 諛섎났 援ъ“瑜?partial濡?鍮쇱꽌 `today/index.html` 怨쇰??꾨? ??톬?듬땲??
+- 寃利? `python -m compileall health_tracker tests`, `node --check static\app.js`, ?대룞/?앸떒 ?듭떖 ?뚭? ?뚯뒪?? ?ㅻ뒛 ?대룞 HTTP 200 ?뺤씤???듦낵?덉뒿?덈떎.
+
+## 2026-05-26 v1.25.8 ?쒗뵆由?援ъ“ ?뺣━
+
+- 2.0 以鍮???肄붾뱶 ?뺣━濡?湲??쒗뵆由?釉붾줉??partial濡?遺꾨━?덉뒿?덈떎.
+- `summaries/summary.html`???좎쭨蹂?湲곕줉 ?뱀뀡??`summaries/_daily_records.html`濡??대룞?덉뒿?덈떎.
+- `today/index.html`???대룞 諛붾줈 ?좏깮 ?⑤꼸??`today/_workout_quick_panel.html`濡??대룞?덉뒿?덈떎.
+- ?뚮뜑留??좎? 寃利? `/?date=2026-05-26&mode=workout`, `/summaries/daily?days=7`, `/static/ui_rebuild.css` HTTP 200 ?뺤씤.
+- ?뚭? 寃利? `test_fold_ui_regression_markers_render`, `test_main_pages_render` ?듦낵.
+
+## 2026-05-26 v1.25.7 肄붾뱶 ?뺣━
+
+- 2.0 以鍮???肄붾뱶 ?뺣━濡?QA 由ы룷?몄쓽 ?ㅻ옒??`/sw.js 罹먯떆 v1.4.0 湲곗?` 臾멸뎄瑜??꾩옱 `app_version` ?쒖떆濡?蹂寃쏀뻽?듬땲??
+- `static/ui_rebuild.css`??`v1.25.5` 怨좎젙 二쇱꽍??理쒖쥌 UI override ?뚯씪 ??븷??留욌뒗 ?쇰컲 二쇱꽍?쇰줈 諛붽엥?듬땲??
+- `tests/test_app_flows.py`??`StaticAssetIntegrityTest`瑜?異붽???`styles.css`, `rules.css`, `ui_rebuild.css`??以묎큵??洹좏삎怨?怨쇨굅 UI 遺뺢눼 ?먯씤?댁뿀??`.next-set-advice-row {.next-set-advice-row` ?⑦꽩??寃?ы빀?덈떎.
+- service worker precache ?뚯뒪?몄뿉??`/static/ui_rebuild.css` ?ы븿 ?щ?瑜?吏곸젒 ?뺤씤?섎룄濡?蹂닿컯?덉뒿?덈떎.
+- ?대쾲 ?뺣━??以묐났 CSS瑜?臾대━?섍쾶 ??젣?섏? ?딆븯?듬땲?? `ui_rebuild.css`???꾩옱 ?꾩닚??override ??븷?대씪 ??젣/蹂묓빀 ?꾩뿉 釉뚮씪?곗? computed style 寃利앹씠 ?꾩슂?⑸땲??
+
+## 2026-05-26 UI ?뚭? ?먯씤怨??섏젙 ?댁뿭
+
+- ?섎せ????
+  - `static/styles.css` ?덉뿉 `.next-set-advice-row {.next-set-advice-row {`泥섎읆 selector? 以묎큵?멸? 以묐났?쇰줈 ?ㅼ뼱媛?臾몃쾿 ?ㅻ쪟媛 ?덉뿀?듬땲??
+  - ???ㅻ쪟 ?뚮Ц???대떦 吏???ㅼ뿉 ?묒꽦??罹섎┛?? ?대룞 ?쇱씠釉뚮윭由? ?ㅼ젙, 湲곕줉 愿??CSS媛 釉뚮씪?곗??먯꽌 ?뺤긽 ?곸슜?섏? ?딆븯?듬땲??
+  - 寃곌낵?곸쑝濡??붽컙 罹섎┛?붽? 7??洹몃━?쒓? ?꾨땲???몃줈 ?띿뒪??紐⑸줉泥섎읆 蹂댁?怨? ?대룞 ?쇱씠釉뚮윭由?湲곕줉/遺꾩꽍/?곗씠??愿由??붾㈃??移대뱶? 踰꾪듉 媛꾧꺽??源⑥졇 蹂댁??듬땲??
+  - ?댁쟾 ?섏젙?먯꽌 源⑥쭊 ?붾㈃??CSS濡???뒗 ??吏묒쨷?덇퀬, ?먮낯 CSS 臾몃쾿 ?ㅻ쪟源뚯? 癒쇱? 寃利앺븯吏 紐삵븳 寃껋씠 臾몄젣??듬땲??
+
+- ?섏젙???댁슜:
+  - 源⑥쭊 selector瑜?`.next-set-advice-row {`濡?諛붾줈?≪븯?듬땲??
+  - `static/styles.css`, `static/rules.css`, `static/ui_rebuild.css` ?꾩껜??以묎큵??洹좏삎??寃?ы빐 CSS 臾몃쾿 援ъ“媛 ?ロ? ?덈뒗吏 ?뺤씤?덉뒿?덈떎.
+  - `static/ui_rebuild.css`??罹섎┛?? ?대룞 ?쇱씠釉뚮윭由? ?대룞 ?낅젰 鍮좊Ⅸ ?좏깮, ?좎쭨蹂?湲곕줉, 遺?꾨퀎 遺꾩꽍, ?곗씠??愿由?QA 移대뱶??怨듯넻 UI 蹂댁젙 洹쒖튃??異붽??덉뒿?덈떎.
+  - `VERSION`, `static/manifest.webmanifest`, `static/sw.js`瑜?`v1.25.6`?쇰줈 ?щ젮 PWA? 釉뚮씪?곗? 罹먯떆媛 ?댁쟾 源⑥쭊 CSS瑜?怨꾩냽 ?ъ슜?섏? ?딅룄濡??덉뒿?덈떎.
+
+- 寃利앺븳 ?댁슜:
+  - `/calendar`, `/exercises/library`, `/summaries/daily`, `/summaries/weekly`, `/settings`, `/sw.js` HTTP 200 ?뺤씤.
+  - 釉뚮씪?곗? DOM 湲곗??쇰줈 二쇱슂 ?붾㈃??`overflowX = 0` ?뺤씤.
+  - 罹섎┛?붾뒗 `display:grid`? 7??grid媛 ?곸슜?섎뒗 寃껋쓣 ?뺤씤.
+  - ?대룞 ?쇱씠釉뚮윭由ъ? 湲곕줉 移대뱶??移대뱶/洹몃━???덉씠?꾩썐???곸슜?섎뒗 寃껋쓣 ?뺤씤.
+  - `.\.venv\Scripts\python.exe -m compileall health_tracker tests` ?듦낵.
+  - `.\.venv\Scripts\python.exe -m unittest discover -v` 19媛??뚯뒪???듦낵.
+
+- ?щ컻 諛⑹? 湲곗?:
+  - UI媛 愿묐쾾?꾪븯寃?臾대꼫議뚯쓣 ?뚮뒗 癒쇱? CSS 臾몃쾿 ?ㅻ쪟? 濡쒕뱶 ?쒖꽌瑜??뺤씤?⑸땲??
+  - ??CSS瑜?異붽??섍린 ?꾩뿉 `styles.css`, `rules.css`, `ui_rebuild.css`??以묎큵??洹좏삎??寃?ы빀?덈떎.
+  - 怨듯넻 UI 蹂댁젙 ?꾩뿉???ㅼ젣 釉뚮씪?곗? DOM?먯꽌 `display`, `gridTemplateColumns`, `padding`, `overflowX`瑜??뺤씤?⑸땲??
+  - PWA ?깆? CSS/JS/manifest/service worker 踰꾩쟾???④퍡 ?щ젮 罹먯떆 臾몄젣瑜?媛숈씠 李⑤떒?⑸땲??
+
+## 2026-05-26 v1.25.6 ?꾩껜 UI ?먭?
+
+- ?낅뜲?댄듃 ??罹섎┛?붽? ?몃줈 ?띿뒪?몄쿂??臾대꼫吏??듭떖 ?먯씤? `static/styles.css`??`.next-set-advice-row {.next-set-advice-row {` 以묎큵???ㅻ쪟??듬땲?? ??以??뚮Ц???ㅼそ CSS 釉붾줉??釉뚮씪?곗??먯꽌 ?뺤긽 ?곸슜?섏? ?딆븯?듬땲??
+- ?ㅻ쪟瑜?`.next-set-advice-row {`濡?諛붾줈?↔퀬 `styles.css`, `rules.css`, `ui_rebuild.css`??以묎큵??洹좏삎??寃?ы뻽?듬땲??
+- `static/ui_rebuild.css`??罹섎┛?? ?대룞 ?쇱씠釉뚮윭由? 鍮좊Ⅸ ?대룞 ?좏깮, ?좎쭨蹂?湲곕줉, 遺?꾨퀎 遺꾩꽍, ?곗씠??愿由?QA 移대뱶??怨듯넻 UI 蹂댁젙 洹쒖튃??異붽??덉뒿?덈떎.
+- 釉뚮씪?곗? DOM 湲곗??쇰줈 `/calendar`, `/exercises/library`, `/summaries/daily`, `/summaries/weekly`??二쇱슂 洹몃━?쒖? 移대뱶媛 ?곸슜?섍퀬 媛濡?overflow媛 0??寃껋쓣 ?뺤씤?덉뒿?덈떎.
+- 踰꾩쟾, manifest, service worker cache瑜?`v1.25.6`?쇰줈 ?щ젮 PWA 罹먯떆媛 ?덉쟾 源⑥쭊 CSS瑜??↔퀬 ?덉? ?딄쾶 ?덉뒿?덈떎.
+
+## 2026-05-26 異붽? UI 由щ퉴??硫붾え
+
+- `v1.25.5` 蹂댁젙 CSS媛 ?쇰? ?붾㈃?먯꽌 罹먯떆/濡쒕뱶 ?쒖꽌 ?곹뼢?쇰줈 諛붾줈 諛섏쁺?섏? ?딅뒗 臾몄젣媛 ?덉뼱 `static/ui_rebuild.css`瑜?蹂꾨룄 ?뚯씪濡?遺꾨━?섍퀬 `rules.css` ?ㅼ뿉??留덉?留됱쑝濡?濡쒕뱶?섍쾶 ?덉뒿?덈떎.
+- 罹≪쿂?먯꽌 蹂댁씤 ?대룞 ?낅젰, ?명듃 鍮뚮뜑, 理쒓렐/二쇰퀎/?쇰퀎 湲곕줉, 遺꾩꽍 ?곸꽭?? 遺?꾨퀎 遺꾩꽍泥섎읆 ?띿뒪?멸? ??以꾨줈 遺숇뒗 UI瑜?移대뱶/洹몃━??諛곗? 援ъ“濡??ㅼ떆 怨좎젙?덉뒿?덈떎.
+- 釉뚮씪?곗? DOM 寃利앹뿉??`/summaries/weekly`??`.detail-row`媛 `display:grid`, `padding:10px`, `border-radius:8px`濡??곸슜?섎뒗 寃껋쓣 ?뺤씤?덉뒿?덈떎.
+- ?댄썑 UI ?묒뾽? 怨듯넻 CSS瑜?異붽??????ㅼ젣 釉뚮씪?곗??먯꽌 理쒖쥌 濡쒕뱶 ?쒖꽌? computed style源뚯? ?뺤씤?댁빞 ?⑸땲??
+
+??臾몄꽌??VS Code/CLI瑜?猿먮떎媛 ??Codex ?몄뀡???쒖옉?덉쓣 ??諛붾줈 ?댁뼱諛쏄린 ?꾪븳 ?묒뾽 硫붾え?낅땲??
+
+## 2026-05-26 ?묒뾽 湲곕줉
+
+- `v1.25.5` UI 由щ퉴??
+  - ?ъ슜?먭? ?쒕낫???대룞 ?낅젰, 理쒓렐 湲곕줉, 二쇰퀎 湲곕줉, 遺?꾨퀎 遺꾩꽍, ?쇰퀎 異붿씠???띿뒪??遺숈쓬/踰꾪듉 源⑥쭚/?명듃 ??遺덇퇏?뺤쓣 怨듯넻 CSS ?덉씠?대줈 ?ъ젙由ы뻽?듬땲??
+  - ?대룞 諛붾줈 ?좏깮? ??踰꾪듉怨??대룞 ?꾨낫 踰꾪듉??遺꾨━?섍퀬, 湲??대룞紐낆? ?먯뿰?ㅻ읇寃?以꾨컮轅덈릺?꾨줉 ?덉뒿?덈떎.
+  - ?명듃 鍮뚮뜑???명듃 踰덊샇, ?낅젰 ?꾨뱶, 怨좉툒 ?듭뀡, 蹂듭궗/??젣 ?≪뀡 ?곸뿭??紐낇솗??遺꾨━?덉뒿?덈떎.
+  - 湲곕줉/遺꾩꽍 由ъ뒪?몃뒗 ?좎쭨/湲곌컙 ?쒕ぉ怨?吏??諭껋?瑜?grid濡??섎닠 ?⑥닚 ?띿뒪???섏뿴泥섎읆 蹂댁씠吏 ?딄쾶 ?덉뒿?덈떎.
+  - `styles.css`, `rules.css`, `app.js`, `timers.js`, `workout_entry.js`????踰꾩쟾 荑쇰━瑜?遺숈뿬 ?쒕퉬?ㅼ썙而?釉뚮씪?곗? 罹먯떆媛 ?덉쟾 UI瑜?怨꾩냽 蹂댁뿬二쇰뒗 臾몄젣瑜?以꾩??듬땲??
+  - 寃利? `.venv\Scripts\python.exe -m compileall health_tracker tests`, `.venv\Scripts\python.exe -m unittest discover -v` 19媛??뚯뒪???듦낵. 湲곕낯 Python? Flask 誘몄꽕移섎씪 ?뚯뒪???ㅽ뙣?섎?濡?媛?곹솚寃?Python???ъ슜?댁빞 ?⑸땲??
+- UI 愿由?諛섏꽦 諛??ㅼ쓬 ?묒뾽 湲곗?:
+  - ?대쾲 UI 蹂댁젙? 怨듯넻 CSS瑜??볤쾶 ??뼱?곕㈃???ㅼ젣 ?붾㈃蹂?踰꾪듉/?낅젰移?由ъ뒪??援ъ“瑜?異⑸텇???뺤씤?섏? 紐삵빐, ?ъ슜?먭? 蹂닿린 ?대젮???곹깭媛 諛섎났?먯뒿?덈떎.
+  - ?욎쑝濡?UI ?섏젙? 諛섎뱶?????URL??癒쇱? 紐낆떆?섍퀬 `?대룞 ?낅젰`, `湲곕줉 寃??, `?좎쭨蹂?湲곕줉`, `?앸떒`, `遺꾩꽍`泥섎읆 ?붾㈃ ?⑥쐞濡?DOM 援ъ“瑜??뺤씤?????섏젙?⑸땲??
+  - 踰꾪듉? ?⑸룄蹂꾨줈 `??踰꾪듉`, `?꾨낫 ?좏깮 踰꾪듉`, `???≪뀡 踰꾪듉`, `???쒖텧 踰꾪듉`??遺꾨━??媛숈? ?붾㈃ ?덉뿉???ш린/?뚮몢由?諛곗튂媛 ?욎씠吏 ?딄쾶 愿由ы빀?덈떎.
+  - 由ъ뒪?몃뒗 ?⑥닚 `?띿뒪???섏뿴` 湲덉??낅땲?? 媛??됱? ?쒕ぉ, 硫뷀? ?뺣낫, ?듭떖 媛? ?≪뀡 ?곸뿭??紐낇솗??遺꾨━?섍퀬 紐⑤컮?쇱뿉?쒕뒗 ?몃줈 諛곗튂濡?臾대꼫吏吏 ?딄쾶 ?⑸땲??
+  - `NOTES.md`???묒뾽???앸궇 ?뚮쭏????긽 媛깆떊?⑸땲?? 踰꾩쟾 蹂寃쎌씠 ?녿뜑?쇰룄 UI 寃利??ъ슜??吏???⑥? 由ъ뒪?щ? 湲곕줉?⑸땲??
+- `v1.25.4` 踰꾪듉/?좎쭨蹂?湲곕줉 UI ?ъ젙由?
+  - ?대룞 諛붾줈 ?좏깮??理쒓렐/利먭꺼李얘린/猷⑦떞 ?? ?대룞 ?꾨낫 踰꾪듉, 湲곕낯 ?꾨줈洹몃옩 踰꾪듉??媛숈? 踰꾪듉 泥닿퀎濡??듭씪?덉뒿?덈떎.
+  - ?명듃 蹂듭궗/??젣 踰꾪듉????낵 ?믪씠瑜??ㅼ떆 留욎떠 ?대룞 ?낅젰移멸낵 ?ㅻⅨ 踰꾪듉泥섎읆 蹂댁씠吏 ?딄쾶 ?덉뒿?덈떎.
+  - ?좎쭨蹂?湲곕줉 由ъ뒪?몃? ?좎쭨 ?ㅻ뜑? 吏??移대뱶媛 遺꾨━???뺥깭濡??ш뎄?깊뻽?듬땲??
+- `v1.25.3` ?낅젰/湲곕줉 由ъ뒪???щ낫??
+  - ?ㅻ뒛 ?대룞 ?낅젰???대룞紐??λ퉬/?명듃 ??蹂듭궗/??젣 踰꾪듉 諛곗튂瑜??ㅼ젣 ??援ъ“ 湲곗??쇰줈 ?ㅼ떆 ?≪븯?듬땲??
+  - 湲곕줉 寃??寃곌낵 ?쒗뵆由우쓣 ?좎쭨/?μ냼/?λ퉬 硫뷀? ?곸뿭怨?以묐웾/?잛닔 媛??곸뿭?쇰줈 遺꾨━?덉뒿?덈떎.
+  - ?ㅻ뒛 湲곕줉 ?섏젙 ?됱쓽 踰꾪듉 ?곸뿭??grid 湲곕컲?쇰줈 蹂댁젙??紐⑤컮?쇱뿉??踰꾪듉??源⑥?吏 ?딅룄濡??덉뒿?덈떎.
+- `v1.25.2` ?꾩껜 由ъ뒪??UI 蹂댁젙:
+  - 湲곕줉/遺꾩꽍/?앸떒/?붾낫湲곗뿉???곕뒗 `detail-row`, `ex-rank-item`, `ex-item`, ?앸떒 ?쇱옄/二쇱감 ??ぉ, ?꾨씫/?쒗뵆由???ぉ??移대뱶??諛뺤뒪 UI濡??뺣━?덉뒿?덈떎.
+  - 紐⑤컮?쇱뿉??紐⑸줉 媛? 諛곗?, 踰꾪듉????以꾩뿉 遺숈? ?딅룄濡?grid 湲곕컲 ?몃줈 ?щ같移섎? 異붽??덉뒿?덈떎.
+  - ??踰꾩쟾, manifest, service worker 罹먯떆瑜?`v1.25.2`濡?媛깆떊?덉뒿?덈떎.
+- `v1.25.1` UI 湲닿툒 蹂댁젙:
+  - ?좉퇋 湲곕줉 ?먭?/QA 由ы룷??CSS??踰붿슜 selector瑜??꾩슜 ?대옒??湲곕컲?쇰줈 醫곹? ?ㅻⅨ ??紐⑸줉 UI???곹뼢??媛吏 ?딅룄濡??섏젙?덉뒿?덈떎.
+  - 怨듯넻 `summary-grid`, `detail-list`, `detail-row`, `table-wrap`, `table`??紐⑤컮????以꾨컮轅?媛濡??ㅽ겕濡?泥섎━瑜?蹂닿컯?덉뒿?덈떎.
+  - ??踰꾩쟾, manifest, service worker 罹먯떆瑜?`v1.25.1`濡?媛깆떊?덉뒿?덈떎.
+- `v1.19.0`~`v1.25.0` ?곗냽 媛쒕컻:
+  - ?ㅻ뒛 ?대룞 ?명듃 ?낅젰?먯꽌 ?명듃 ???RPE/硫붾え瑜?`怨좉툒` ?묓옒 ?곸뿭?쇰줈 ?대룞??湲곕낯 ?낅젰 ?먮쫫??媛꾩냼?뷀뻽?듬땲??
+  - `services/data_cleanup.py`瑜?異붽????대룞紐?以묐났 ?꾨낫? ?댁긽 ?명듃 ?꾨낫瑜?湲곕줉 ?먭? ?붾㈃?먯꽌 ?뺤씤?섎룄濡??덉뒿?덈떎.
+  - 湲곕줉 ?먭? ?붾㈃???뺣━ ?꾨낫 UI瑜?異붽????꾨씫?? 以묐났紐? 怨쇰룄??以묐웾/諛섎났/RPE瑜?媛숈? ?먮쫫?먯꽌 ?먭??⑸땲??
+  - `services/release_readiness.py`瑜?異붽???QA 由ы룷?몄뿉??2.0 以鍮??곹깭瑜??먯닔? 泥댄겕由ъ뒪?몃줈 ?뺤씤?섍쾶 ?덉뒿?덈떎.
+  - ?낅젰 UI/?뺣━ ?꾨낫/由대━利?以鍮꾨룄 ?뚭? ?뚯뒪??留덉빱瑜?異붽??섍퀬 ??踰꾩쟾, manifest, service worker 罹먯떆瑜?`v1.25.0`?쇰줈 媛깆떊?덉뒿?덈떎.
+- `v1.18.0` ?뚯뒪 ?뺣━ 諛?QA:
+  - `services/summary_context.py`, `services/settings_context.py`瑜?異붽???遺꾩꽍/?ㅼ젙 ?붾㈃ 而⑦뀓?ㅽ듃 ?앹꽦???쇱슦?몄뿉??遺꾨━?덉뒿?덈떎.
+  - `today/_rule_cards.html`, `summaries/_rule_report.html` partial??異붽???猷곗뀑 UI 釉붾줉???쒗뵆由?蹂몃Ц?먯꽌 遺꾨━?덉뒿?덈떎.
+  - `static/rules.css`瑜?異붽??섍퀬 `base.html`, service worker 罹먯떆??諛섏쁺??猷곗뀑 ?ㅽ??쇱쓣 遺꾨━?덉뒿?덈떎.
+  - ?꾩껜 ?뚯뒪?? JS 臾몃쾿 寃利? 二쇱슂 HTTP ?뚮뜑留??뺤씤 ????踰꾩쟾/manifest/service worker瑜?`v1.18.0`?쇰줈 媛깆떊?덉뒿?덈떎.
+- `v1.17.0` ?대룞 吏??猷곗뀑:
+  - `services/exercise_rules.py`瑜?異붽???遺?꾨퀎 二쇨컙 沅뚯옣 ?명듃 踰붿쐞, RPE 湲곕컲 議곗젙, 沅뚯옣 ?댁떇?쒓컙, ?泥??대룞 ?꾨낫瑜?濡쒖뺄 猷곗뀑?쇰줈 怨꾩궛?⑸땲??
+  - ?ㅻ뒛 ?대룞 ?붾㈃??`?대룞 猷곗뀑` 移대뱶瑜?異붽???遺議?怨쇰떎/?곸젙 遺?꾩? ?ㅼ쓬 ?≪뀡??蹂댁뿬以띾땲??
+  - 二쇨컙 遺꾩꽍 ?붾㈃??`?대룞 吏??猷곗뀑` ?뱀뀡??異붽????ㅼ젣 湲곕줉怨?沅뚯옣 踰붿쐞瑜?鍮꾧탳?⑸땲??
+  - ??踰꾩쟾, manifest, service worker 罹먯떆瑜?`v1.17.0`?쇰줈 媛깆떊?덉뒿?덈떎.
+- `v1.16.0` A/B/C 怨좊룄??諛??뚯뒪 遺꾩궛:
+  - A: `services/smart_workout.py`? `static/workout_entry.js`瑜?異붽????대룞紐??좏깮 ???댁쟾 湲곕줉/?ㅼ젙 湲곕컲?쇰줈 遺?? ?λ퉬, ?명듃?? 臾닿쾶, ?잛닔瑜??먮룞 梨꾩? 泥섎━?덉뒿?덈떎.
+  - B: `services/personal_coach.py`瑜?異붽????ㅻ뒛 ?붾㈃??`?ㅼ쓬 ?≪뀡` ?⑤꼸?먯꽌 遺議깊븳 遺?? ?뚮났 ?뺤씤, ?앸떒 蹂닿컯, 遺꾩꽍 ?뺤씤???쒖븞?⑸땲??
+  - C: ?ㅼ젙 ?붾㈃??媛쒖씤 ?ъ슜 ?덉쟾 ?곹깭瑜?異붽???愿由ъ옄 ?좉툑, ?꾩옱 ?몄뀡 沅뚰븳, ?먮룞 諛깆뾽 ?곹깭瑜??뺤씤?섎룄濡??덉뒿?덈떎.
+  - 援ъ“: `services/today_context.py`濡??ㅻ뒛 ?붾㈃ ?뚮뜑留?而⑦뀓?ㅽ듃瑜?遺꾨━??`routes/main.py`??`/` ?쇱슦?몃? ?뉕쾶 留뚮뱾?덉뒿?덈떎.
+  - ??踰꾩쟾, manifest, service worker 罹먯떆瑜?`v1.16.0`?쇰줈 媛깆떊?섍퀬 `workout_entry.js`瑜?PWA 罹먯떆???ы븿?덉뒿?덈떎.
+- `v1.15.0` ?ㅻ뒛 ?대룞 媛꾩냼??
+  - ?ㅻ뒛 ?대룞 紐⑤뱶 ?곷떒??`?ㅻ뒛 ????濡??ш뎄?깊빐 ?ㅼ쓬 ?낅젰, 留덉?留?湲곕줉, ?댁떇 ??대㉧, 異붿쿇 ?대룞????踰덉뿉 ?뺤씤?섍쾶 ?덉뒿?덈떎.
+  - ?대룞 ?낅젰 ?쇱쓣 湲곕낯 ?묓옒 ?곹깭濡?諛붽씀怨? ?대룞 異붽?/異붿쿇 ?곸슜/理쒓렐 ?대룞 ?좏깮 ???먮룞?쇰줈 ?대━?꾨줉 `static/app.js` ?먮쫫???뺣━?덉뒿?덈떎.
+  - ?대룞 ?μ냼 ?⑤꼸? ?꾩옱 ?μ냼 以묒떖?쇰줈 ?뺤텞?섍퀬, 理쒓렐 ?대룞/?꾧뎄/怨꾪쉷? ?묓옒 蹂댁“ ?곸뿭?쇰줈 ??떠 紐⑤컮??泥??붾㈃ 遺?댁쓣 以꾩??듬땲??
+  - ??踰꾩쟾, manifest, service worker 罹먯떆瑜?`v1.15.0`?쇰줈 媛깆떊?덉뒿?덈떎.
+- `v1.14.0` 湲곕뒫/遺꾩꽍 UI 怨좊룄??
+  - `services/progressive_overload.py`瑜?異붽????ㅼ쓬 ?명듃 異붿쿇怨??대룞蹂?怨쇰????곹깭 遺꾩꽍??援ы쁽?덉뒿?덈떎.
+  - `services/muscle_balance.py`瑜?異붽???理쒓렐 7??遺?꾨퀎 ?명듃/蹂쇰ⅷ/?좎궛??遺꾪룷瑜?怨꾩궛?⑸땲??
+  - ?ㅻ뒛 ?대룞 ?낅젰???ㅼ쓬 ?명듃 異붿쿇 移대뱶? 異붿쿇媛??곸슜 踰꾪듉???곌껐?덉뒿?덈떎.
+  - 遺꾩꽍 > ?대룞蹂??붾㈃??怨쇰???遺꾩꽍 移대뱶? 遺??諛몃윴???덊듃留듭쓣 異붽??덉뒿?덈떎.
+  - ?붾낫湲곗뿉 ?ъ뒪???꾧뎄 ?뱀뀡怨?`/tools/plate-calculator` ?낅┰ ?섏씠吏瑜?異붽??덉뒿?덈떎.
+  - 寃利? `python -m compileall health_tracker tests`, `node --check static\app.js`, `python -m unittest discover -v` 19媛??뚯뒪???듦낵.
+- `v1.13.0` DB/?대룞 ?ㅼ젙 遺꾨━:
+  - DB schema, index, migration??而щ읆 蹂댁젙, ?앸떒 legacy 蹂댁젙, ?μ냼 bootstrap ?몄텧??`health_tracker/database/schema.py`濡?遺꾨━?덉뒿?덈떎.
+  - ?대룞 ?명듃 ?쒖꽌 蹂寃쎄낵 ?대룞 ?앹꽦 helper瑜?`services/workout.py`濡??대룞?덉뒿?덈떎.
+  - ?대룞 硫붾え/?댁떇?쒓컙/利먭꺼李얘린/?λ퉬/紐⑺몴 ?ㅼ젙 濡쒖쭅??`services/exercise_settings.py`濡?遺꾨━?덉뒿?덈떎.
+  - `app.py`??`3555`?쇱씤?먯꽌 `3200`?쇱씤源뚯? 以꾩뿀?듬땲??
+  - 寃利? `python -m compileall health_tracker tests`, `python -m unittest discover -v` 19媛??뚯뒪???듦낵.
+- `v1.12.0` app.py 異붽? 寃쎈웾??
+  - 異붿쿇 ?몄뀡, ?대룞 遺??異붿쿇, ?뚮났 泥댄겕?? readiness, ?쇱씪 肄붿묶, ?곸쓳??異붿쿇??`services/coaching.py`濡?遺꾨━?덉뒿?덈떎.
+  - 猷⑦떞 ?쒗뵆由??곸슜/?????젣? ?대룞 怨꾪쉷 ?앹꽦/?붿빟/湲곕낯 ?꾨줈洹몃옩 ?곸슜??媛곴컖 `services/routine.py`, `services/workout_plan.py`濡?遺꾨━?덉뒿?덈떎.
+  - 泥댁꽦遺?吏꾪뻾 ?ъ쭊 濡쒖쭅??`services/body.py`濡?遺꾨━?섍퀬, ?앸떒 ?쒗뵆由?蹂듭궗/?먯＜ ?곕뒗 ?앸떒 議고빀 濡쒖쭅??`services/meal.py`濡??대룞?덉뒿?덈떎.
+  - `app.py`??`4378`?쇱씤?먯꽌 `3555`?쇱씤源뚯? 以꾩뿀?듬땲??
+  - 寃利? `python -m compileall health_tracker tests`, `python -m unittest discover -v` 19媛??뚯뒪???듦낵.
+- `v1.11.0` ?뚯뒪?몃━ 由щ퉴??
+  - `app.py`?먯꽌 ?좎쭨/移쇰줈由??섑뵆 ?곗씠??罹섎┛??遺??遺꾩꽍/湲곕줉 寃???λ퉬 遺꾩꽍/PR 議고쉶 濡쒖쭅???쒕퉬??紐⑤뱢濡?遺꾨━?덉뒿?덈떎.
+  - ?ㅻ뒛 ?대룞 ?붾㈃???대룞 ?쒓컙, ?댁떇 ??대㉧, ?μ냼 ?⑤꼸??partial ?쒗뵆由우쑝濡?遺꾨━?덉뒿?덈떎.
+  - ?대룞 ?쒓컙/?댁떇 ??대㉧ ?ㅽ겕由쏀듃瑜?`static/timers.js`濡?遺꾨━?섍퀬 ?쒕퉬?ㅼ썙而?罹먯떆??諛섏쁺?덉뒿?덈떎.
+  - 寃利? `python -m compileall health_tracker tests`, `node --check static\app.js`, `node --check static\timers.js`, `python -m unittest discover -v` 19媛??뚯뒪???듦낵.
+- `v1.10.0` ?섎뱶肄붾뵫 ?쒓굅 1李?
+  - ??湲곕낯媛??ㅼ젙 ?쒕퉬?ㅻ? 異붽??섍퀬 `app_settings` 湲곕컲?쇰줈 ?댁떇 ??대㉧, 湲곕낯 ?명듃 ?? ?낅젰 ?뚰듃, ?명듃 ??? 紐⑺몴 湲곕낯媛믪쓣 議고쉶/??ν븯寃??덉뒿?덈떎.
+  - ?ㅼ젙 ?붾㈃????湲곕낯媛?愿由??뱀뀡??異붽??덉뒿?덈떎.
+  - ?ㅻ뒛 ?대룞 ?쒗뵆由욧낵 JS ?명듃 ???앹꽦??媛숈? ?ㅼ젙媛믪쓣 ?ъ슜?섎룄濡??곌껐?덉뒿?덈떎.
+  - ?쇨컙 湲곕줉/湲곕줉 ?먭? 湲곌컙 ?듭뀡怨?湲곕낯 ?섏씠吏 ?ш린瑜??ㅼ젙媛믪쑝濡??곌껐?덉뒿?덈떎.
+- `v1.9.8` ?댁떇 ??대㉧ ?숈옉 ?섏젙:
+  - ?대룞 紐⑤뱶 ?쒖떆 ?쒖꽌?먯꽌 ?댁떇 ??대㉧瑜??대룞 ?쒓컙 諛붾줈 ?꾨옒濡??щ졇?듬땲??
+  - ?명듃 ?????`rest=90` ?뚮씪誘명꽣濡???대㉧媛 ?먮룞 ?쒖옉?섎뜕 ?먮쫫???쒓굅?덉뒿?덈떎.
+  - ?댁젣 ?댁떇 ??대㉧??60珥?90珥?120珥???대㉧ ?쒖옉 踰꾪듉??吏곸젒 ?뚮????뚮쭔 ?숈옉?⑸땲??
+- `v1.9.7` ?대룞 ?μ냼 移대뱶 UI 蹂댁젙:
+  - ?꾩옱 ?μ냼 ?꾨옒 ?λ퉬 移댄뀒怨좊━ 移??곸뿭??蹂꾨룄 諛뺤뒪濡?遺꾨━?섍퀬 ?꾨옒 理쒓렐 ?대룞 紐⑸줉怨?媛꾧꺽/援щ텇?좎쓣 異붽??덉뒿?덈떎.
+  - ?μ냼 ?덈궡 臾멸뎄瑜??ㅼ젣 ?숈옉??留욊쾶 ?섏젙?덉뒿?덈떎.
+- `v1.9.6` ?대룞紐??섏젙/?λ퉬 ?쒖떆 蹂닿컯:
+  - ?ㅻ뒛 ?대룞 移대뱶?먯꽌 ?대룞紐낆쓣 ?명듃蹂꾩씠 ?꾨땲??媛숈? ?대룞 洹몃９ ?⑥쐞濡??쇨큵 ?섏젙?????덇쾶 ?덉뒿?덈떎.
+  - ?대룞蹂?湲곕낯 ?λ퉬 ?ㅼ젙媛믪쓣 移대뱶 ?ㅻ뜑? 鍮좊Ⅸ ?대룞 ?좏깮 踰꾪듉??媛숈씠 蹂댁뿬二쇰룄濡??덉뒿?덈떎.
+  - ?명듃 ?섏젙 ?쇱씠 ?대┫ ???낅젰移몄씠 諛由щ뒗 臾몄젣瑜?以꾩씠?꾨줉 ?몄쭛 ?덉씠?꾩썐???뺣━?덉뒿?덈떎.
+- `v1.9.5` ?대룞 ?낅젰 UX 蹂댁젙:
+  - ?댁떇 ??대㉧瑜??대룞 ?쒓컙 移대뱶 諛붾줈 ?꾨옒濡??대룞?덉뒿?덈떎.
+  - ?λ퉬 移댄뀒怨좊━???μ냼? 臾닿??섍쾶 `諛붾꺼`, `?ㅻ꺼`, `癒몄떊`, `耳?대툝`, `?꾨━?⑥씠??, `留⑤じ`, `?좎궛?뚭린援? ?꾩껜媛 ??긽 蹂댁씠寃??섏젙?덉뒿?덈떎.
+  - ?μ냼蹂??쒗븳? ?대룞紐??꾨낫?먮쭔 ?곸슜?섎룄濡??덈궡 臾멸뎄瑜??뺣━?덉뒿?덈떎.
+- `v1.9.4` ?μ냼蹂??대룞 ?낅젰 ?꾨낫 ?쒗븳:
+  - ?ㅻ뒛 ?대룞 ?낅젰???대룞紐?datalist, 理쒓렐 ?명듃, ?대룞 ?듦퀎, 利먭꺼李얘린, 猷⑦떞 紐⑸줉???좏깮 ?μ냼 湲곗??쇰줈 ?쒗븳?덉뒿?덈떎.
+  - ?ㅻⅨ ?μ냼?먯꽌留??낅젰???대룞紐낆? ?꾩옱 ?μ냼???낅젰 ?꾨낫??蹂댁씠吏 ?딄쾶 ?덉뒿?덈떎.
+  - 猷⑦떞 ??????먮낯 ?몄뀡???μ냼???④퍡 ??ν븯?꾨줉 ?덉뒿?덈떎.
+- `v1.9.3` ?λ퉬 移댄뀒怨좊━ ?뺢퇋??
+  - ?λ퉬 ?꾨낫???대룞紐낆씠???몃? ?λ퉬紐낆씠 ?욎씠吏 ?딅룄濡????議고쉶/?μ냼 ?숆린???④퀎?먯꽌 移댄뀒怨좊━濡??뺢퇋?뷀뻽?듬땲??
+  - ?μ냼 ?λ퉬 愿由щ뒗 ?먯쑀 ?띿뒪???낅젰 ????λ퉬 移댄뀒怨좊━ ?좏깮 諛⑹떇?쇰줈 諛붽엥?듬땲??
+  - `?ㅻ???癒몄떊`, `?곕떇癒몄떊` ??湲곗〈 ?몃? ?λ퉬紐낆? `癒몄떊`, `?좎궛?뚭린援?濡??뺣━?섎룄濡??덉뒿?덈떎.
+- `v1.9.2` ?λ퉬 紐⑸줉 蹂닿컯:
+  - 湲곕낯 ?λ퉬 紐⑸줉??`?꾨━?⑥씠??瑜?異붽??덉뒿?덈떎.
+  - ?ㅻ뒛 ?대룞 ?낅젰/?섏젙/寃??fallback怨?QA ?붾??곗씠???λ퉬 ?꾨낫??媛숈? ?λ퉬 援ъ꽦??諛섏쁺?덉뒿?덈떎.
+  - ?μ냼 ?λ퉬媛 ?대? ?덈뒗 寃쎌슦?먮룄 `?꾨━?⑥씠????怨듯넻 ?꾨낫濡??쒖떆?섍쾶 蹂댁젙?덉뒿?덈떎.
+- `v1.9.1` ?μ냼蹂??λ퉬 ?꾪꽣:
+  - ?ㅻ뒛 ?대룞???λ퉬 ?좏깮 紐⑸줉???좏깮 ?μ냼???먮룞 ?섏쭛???λ퉬 ?곗꽑?쇰줈 蹂寃쏀뻽?듬땲??
+  - ?μ냼 ?λ퉬媛 ?섎굹?쇰룄 ?덉쑝硫?湲곕낯 ?λ퉬 ?꾩껜 紐⑸줉???욎? ?딄퀬 ?대떦 ?μ냼 ?λ퉬留?蹂댁뿬以띾땲??
+  - ?좉퇋 ?μ냼泥섎읆 ?λ퉬媛 ?놁쓣 ?뚮쭔 湲곕낯 ?λ퉬 紐⑸줉??fallback?쇰줈 ?쒖떆?⑸땲??
+- `v1.9.0` 怨좊룄??
+  - ?붾낫湲??붾㈃???뱀뀡???뺣낫 援ъ“濡??ъ젙由ы뻽?듬땲??
+  - `?곗씠???쇳꽣`, `?μ냼 ?몄궗?댄듃`, `?ㅽ뻾 ?몄궗?댄듃` ?붾㈃??異붽??덉뒿?덈떎.
+  - ?꾩옱 ?대룞 ?μ냼 湲곗? 鍮좊Ⅸ ?대룞 遺덈윭?ㅺ린瑜??ㅻ뒛 ?대룞 ?붾㈃??異붽??덉뒿?덈떎.
+  - ?μ냼蹂??대룞/?λ퉬 ?ъ슜, ?곗씠???곹깭, 諛깆뾽/?대낫?닿린, 遺꾩꽍 ?좊ː??湲곕컲 ?먭? ?먮쫫???곌껐?덉뒿?덈떎.
+- `v1.8.0` ?붾낫湲?湲곕뒫 異붽?:
+  - `湲곕줉 ?먭?` ?붾㈃??異붽???遺꾩꽍 ?좊ː?? ?꾨씫?? 二쇱슂 ?곗씠???섎? ?뺤씤?????덇쾶 ?덉뒿?덈떎.
+  - `?앸떒 ?쒗뵆由? ?붾㈃??異붽?????λ맂 ?쒗뵆由??곸슜/??젣? 理쒓렐 ?앸떒 湲곕컲 ?쒗뵆由???μ쓣 愿由ы븷 ???덇쾶 ?덉뒿?덈떎.
+  - ?붾낫湲?移대뱶? PWA 罹먯떆???좉퇋 ?붾㈃??諛섏쁺?덉뒿?덈떎.
+- `v1.7.6` ?명듃 ?낅젰 UI 蹂댁젙:
+  - ?대룞 ?낅젰??臾닿쾶/?잛닔 ?낅젰移?湲곗??좎씠 ?닿툔??蹂댁씠??臾몄젣瑜??섏젙?덉뒿?덈떎.
+  - 臾닿쾶 ?⑥쐞? kg 誘몃━蹂닿린 以??뚮Ц???앷린???믪씠 李⑥씠瑜??명듃 ?낅젰 ?꾩슜 CSS濡?留욎톬?듬땲??
+- `v1.7.5` ?μ냼 ??젣:
+  - 湲곕줉???녿뒗 ?μ냼???대룞 ?μ냼 愿由ъ뿉???꾩쟾 ??젣?????덇쾶 ?덉뒿?덈떎.
+  - 湲곕줉???곌껐???μ냼??湲곗〈 湲곕줉 蹂댄샇瑜??꾪빐 鍮꾪솢?깊솕留?媛?ν븯寃??좎??덉뒿?덈떎.
+- `v1.7.4` ?μ냼 異붽? UI 蹂댁젙:
+  - ?μ냼 異붽? ?낅젰移몄씠 grid ?덉뿉??寃뱀튂吏 ?딅룄濡?input ??낵 理쒖냼 ??쓣 蹂댁젙?덉뒿?덈떎.
+  - 湲곕낯 ?μ냼 泥댄겕諛뺤뒪媛 ?덈Т ?ш쾶 蹂댁씠吏 ?딅룄濡??μ냼 愿由??붾㈃ ?꾩슜 ?ш린瑜??곸슜?덉뒿?덈떎.
+- `v1.7.3` ?대룞 ?μ냼 愿由??ъ젙由?
+  - ?μ냼 移대뱶 湲곕낯 ?붾㈃? ?붿빟怨??λ퉬 移⑸쭔 蹂댁씠寃??⑥닚?뷀뻽?듬땲??
+  - ?μ냼 ?섏젙怨??λ퉬 異붽?/?쒖쇅???묓옒 愿由??곸뿭?쇰줈 ?대룞?덉뒿?덈떎.
+  - 紐⑤컮??怨쇰? 諛곗튂瑜?以꾩씠湲??꾪빐 踰꾪듉/???λ퉬 紐⑸줉 CSS瑜??ㅼ떆 蹂댁젙?덉뒿?덈떎.
+- `v1.7.2` UI ?뺣━:
+  - ?대룞 ?μ냼 愿由??붾㈃???붿빟 移대뱶, ???μ냼 異붽?, ?μ냼蹂??섏젙/?λ퉬 愿由?援ъ“濡??ъ젙由ы뻽?듬땲??
+  - 紐⑤컮?쇱뿉???낅젰移멸낵 踰꾪듉??寃뱀튂吏 ?딅룄濡??μ냼 愿由?CSS 諛섏쓳??洹쒖튃??蹂닿컯?덉뒿?덈떎.
+  - ?꾩껜 ?뚯뒪 ?먭?怨?QA瑜??ㅼ떆 吏꾪뻾?덉뒿?덈떎.
+- `v1.7.1` 湲닿툒 ?섏젙:
+  - 湲곗〈 濡쒖뺄 DB?먯꽌 `location_id` 而щ읆 異붽?蹂대떎 ?μ냼 ?몃뜳???앹꽦??癒쇱? ?ㅽ뻾?섏뼱 `/more`媛 500 ?ㅻ쪟媛 ?섎뜕 臾몄젣瑜??섏젙?덉뒿?덈떎.
+  - 湲곗〈 DB 留덉씠洹몃젅?댁뀡 ?뚭? ?뚯뒪?몃? 異붽??덉뒿?덈떎.
+- ??踰꾩쟾??`v1.7.0`?쇰줈 ?щ졇?듬땲??
+- ?대룞 ?μ냼/?ъ뒪??愿由?湲곕뒫??異붽??덉뒿?덈떎.
+  - `workout_locations`, `location_equipment` ?뚯씠釉붿쓣 異붽??덉뒿?덈떎.
+  - 湲곗〈 ?대룞 ?몄뀡? 湲곕낯 ?ъ뒪?μ쑝濡??먮룞 ?곌껐?⑸땲??
+  - ?ㅻ뒛 ?대룞 ?붾㈃?먯꽌 ?꾩옱 ?μ냼瑜??좏깮?섍퀬, ?μ냼蹂??λ퉬 紐⑸줉???곗꽑 ?쒖떆?⑸땲??
+  - ?대룞 ??????좏깮???μ냼? ?λ퉬媛 媛숈씠 ??λ릺怨? ???λ퉬???대떦 ?μ냼 ?λ퉬 紐⑸줉???먮룞 ?깅줉?⑸땲??
+  - ?붾낫湲?> ?대룞 ?μ냼?먯꽌 ?μ냼 異붽?, 湲곕낯 ?μ냼 吏?? 鍮꾪솢?깊솕, ?μ냼蹂??λ퉬 異붽?/?쒖쇅瑜?愿由ы빀?덈떎.
+  - 湲곕줉 寃?됱뿉???μ냼 ?꾪꽣? ?μ냼紐낆쓣 ?쒖떆?⑸땲??
+- 寃利?
   - `python -m compileall health_tracker tests`
   - `node --check static\app.js`
-  - `python -m unittest discover -v` 결과 16개 테스트 통과
+  - `python -m unittest discover -v` 寃곌낵 16媛??뚯뒪???듦낵
 
-## 프로젝트 개요
+## ?꾨줈?앺듃 媛쒖슂
 
-- Flask + SQLite 기반 운동/식단 기록 PWA입니다.
-- 로컬 프로젝트 경로: `C:\Users\Minseong\Documents\Codex\2026-05-23\serviceproject`
-- GitHub 저장소: `https://github.com/rlalastjd782-oss/serviceproject.git`
-- PythonAnywhere 배포 주소: `https://kimmins.pythonanywhere.com`
-- PythonAnywhere 계정/경로:
-  - 사용자명: `kimmins`
-  - 앱 경로: `/home/kimmins/serviceproject`
+- Flask + SQLite 湲곕컲 ?대룞/?앸떒 湲곕줉 PWA?낅땲??
+- 濡쒖뺄 ?꾨줈?앺듃 寃쎈줈: `C:\Users\Minseong\Documents\Codex\2026-05-23\serviceproject`
+- GitHub ??μ냼: `https://github.com/rlalastjd782-oss/serviceproject.git`
+- PythonAnywhere 諛고룷 二쇱냼: `https://kimmins.pythonanywhere.com`
+- PythonAnywhere 怨꾩젙/寃쎈줈:
+  - ?ъ슜?먮챸: `kimmins`
+  - ??寃쎈줈: `/home/kimmins/serviceproject`
   - venv: `/home/kimmins/serviceproject/.venv`
   - WSGI: `/var/www/kimmins_pythonanywhere_com_wsgi.py`
-  - 운영 DB: `/home/kimmins/serviceproject/instance/workout.db`
+  - ?댁쁺 DB: `/home/kimmins/serviceproject/instance/workout.db`
 
-## 사용자 선호
+## ?ъ슜???좏샇
 
-- 답변은 한국어 존댓말로 합니다.
-- 작업이 끝나면 한국어 커밋 메시지로 commit/push까지 진행합니다.
-- 사용자는 모바일에서 보는 화면을 중요하게 봅니다.
-- UI 방향은 사용자가 제공한 `health-tracker_10.html` 스타일을 선호합니다.
-  - 최대 480px 모바일 앱 폭
-  - 어두운 배경 `#0f0f14`
-  - 카드 배경 `#15151e`, `#1a1a24`
+- ?듬?? ?쒓뎅??議대뙎留먮줈 ?⑸땲??
+- ?묒뾽???앸굹硫??쒓뎅??而ㅻ컠 硫붿떆吏濡?commit/push源뚯? 吏꾪뻾?⑸땲??
+- ?ъ슜?먮뒗 紐⑤컮?쇱뿉??蹂대뒗 ?붾㈃??以묒슂?섍쾶 遊낅땲??
+- UI 諛⑺뼢? ?ъ슜?먭? ?쒓났??`health-tracker_10.html` ?ㅽ??쇱쓣 ?좏샇?⑸땲??
+  - 理쒕? 480px 紐⑤컮??????
+  - ?대몢??諛곌꼍 `#0f0f14`
+  - 移대뱶 諛곌꼍 `#15151e`, `#1a1a24`
   - sticky header + tabs
-  - 조밀한 section/card/list UI
-- 사용자는 기능보다 화면 흐름과 입력 편의성을 자주 지적합니다. 구현 후 반드시 실제 렌더링을 확인합니다.
+  - 議곕???section/card/list UI
+- ?ъ슜?먮뒗 湲곕뒫蹂대떎 ?붾㈃ ?먮쫫怨??낅젰 ?몄쓽?깆쓣 ?먯＜ 吏?곹빀?덈떎. 援ы쁽 ??諛섎뱶???ㅼ젣 ?뚮뜑留곸쓣 ?뺤씤?⑸땲??
 
-## 현재 구조
+## ?꾩옱 援ъ“
 
-- 진입점: `app.py`
-- 라우트 등록: `app_routes.py`
-- 설정/상수:
+- 吏꾩엯?? `app.py`
+- ?쇱슦???깅줉: `app_routes.py`
+- ?ㅼ젙/?곸닔:
   - `app_config.py`
   - `app_constants.py`
   - `app_meta.py`
-- 서비스 레이어:
+- ?쒕퉬???덉씠??
   - `app_workout_service.py`
   - `app_meal_service.py`
   - `app_summary_service.py`
@@ -593,7 +602,7 @@
   - `app_data_service.py`
   - `app_admin_service.py`
   - `app_pr_service.py`
-- 템플릿:
+- ?쒗뵆由?
   - `templates/base.html`
   - `templates/index.html`
   - `templates/summary_page.html`
@@ -604,50 +613,50 @@
   - `templates/meal_monthly.html`
   - `templates/record_search.html`
   - `templates/macros.html`
-- 정적 파일:
+- ?뺤쟻 ?뚯씪:
   - `static/styles.css`
   - `static/app.js`
   - `static/sw.js`
   - `static/manifest.webmanifest`
-- 테스트: `tests/test_app_flows.py`
+- ?뚯뒪?? `tests/test_app_flows.py`
 
-## 주요 기능
+## 二쇱슂 湲곕뒫
 
-- 오늘 화면은 `overview`, `workout`, `meal` 모드가 있습니다.
-- 운동:
-  - 날짜별 운동 입력
-  - 부위: 하체, 가슴, 팔, 등, 어깨, 유산소, 기타
-  - 세트별 무게/횟수/메모
-  - 유산소 입력 필드
-  - 장비 선택
-  - 세트 수정/삭제/추가
-  - 운동 시간 타이머
-  - 휴식 타이머
-  - 루틴 저장/적용
-  - 운동 계획
-  - PR 기록/분석
-  - 운동별 기록, 장비별 기록
-  - 회복 체크인/회복 상태/코칭
-- 식단:
-  - 아침/점심/저녁/간식/기타
-  - 음식명, 수량, g, kcal
-  - 식단 항목 수정/삭제/추가
-  - 즐겨찾기/템플릿/최근 식단 복사
-  - 주간/월간 식단 페이지
-- 분석:
-  - 일간/주간/월간 집계
-  - 부위별 분석
-  - 주간 상세 리스트
-  - 목표 진행률
-  - 균형/볼륨 경고
-  - 체중/체지방/사진 기록
-- 데이터:
-  - JSON 전체 백업/복원
-  - 운동 CSV export
-  - 식단 CSV export
-  - 샘플 데이터 삭제/생성
+- ?ㅻ뒛 ?붾㈃? `overview`, `workout`, `meal` 紐⑤뱶媛 ?덉뒿?덈떎.
+- ?대룞:
+  - ?좎쭨蹂??대룞 ?낅젰
+  - 遺?? ?섏껜, 媛?? ?? ?? ?닿묠, ?좎궛?? 湲고?
+  - ?명듃蹂?臾닿쾶/?잛닔/硫붾え
+  - ?좎궛???낅젰 ?꾨뱶
+  - ?λ퉬 ?좏깮
+  - ?명듃 ?섏젙/??젣/異붽?
+  - ?대룞 ?쒓컙 ??대㉧
+  - ?댁떇 ??대㉧
+  - 猷⑦떞 ????곸슜
+  - ?대룞 怨꾪쉷
+  - PR 湲곕줉/遺꾩꽍
+  - ?대룞蹂?湲곕줉, ?λ퉬蹂?湲곕줉
+  - ?뚮났 泥댄겕???뚮났 ?곹깭/肄붿묶
+- ?앸떒:
+  - ?꾩묠/?먯떖/???媛꾩떇/湲고?
+  - ?뚯떇紐? ?섎웾, g, kcal
+  - ?앸떒 ??ぉ ?섏젙/??젣/異붽?
+  - 利먭꺼李얘린/?쒗뵆由?理쒓렐 ?앸떒 蹂듭궗
+  - 二쇨컙/?붽컙 ?앸떒 ?섏씠吏
+- 遺꾩꽍:
+  - ?쇨컙/二쇨컙/?붽컙 吏묎퀎
+  - 遺?꾨퀎 遺꾩꽍
+  - 二쇨컙 ?곸꽭 由ъ뒪??
+  - 紐⑺몴 吏꾪뻾瑜?
+  - 洹좏삎/蹂쇰ⅷ 寃쎄퀬
+  - 泥댁쨷/泥댁?諛??ъ쭊 湲곕줉
+- ?곗씠??
+  - JSON ?꾩껜 諛깆뾽/蹂듭썝
+  - ?대룞 CSV export
+  - ?앸떒 CSV export
+  - ?섑뵆 ?곗씠????젣/?앹꽦
 
-## 로컬 실행
+## 濡쒖뺄 ?ㅽ뻾
 
 ```powershell
 cd C:\Users\Minseong\Documents\Codex\2026-05-23\serviceproject
@@ -655,19 +664,19 @@ cd C:\Users\Minseong\Documents\Codex\2026-05-23\serviceproject
 python app.py
 ```
 
-브라우저:
+釉뚮씪?곗?:
 
 ```text
 http://127.0.0.1:5000
 ```
 
-모바일 같은 Wi-Fi 테스트:
+紐⑤컮??媛숈? Wi-Fi ?뚯뒪??
 
 ```powershell
 python app.py --host 0.0.0.0
 ```
 
-## 검증 명령
+## 寃利?紐낅졊
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests
@@ -675,86 +684,86 @@ node --check static/app.js
 .\.venv\Scripts\python.exe -c "from app import app; c=app.test_client(); print(c.get('/').status_code); print(c.get('/summaries/weekly').status_code)"
 ```
 
-## PythonAnywhere 업데이트 배포
+## PythonAnywhere ?낅뜲?댄듃 諛고룷
 
-로컬에서 변경 후 push까지 끝난 다음, PythonAnywhere Bash에서:
+濡쒖뺄?먯꽌 蹂寃???push源뚯? ?앸궃 ?ㅼ쓬, PythonAnywhere Bash?먯꽌:
 
 ```bash
 cd ~/serviceproject
 bash deploy_pythonanywhere.sh
 ```
 
-스크립트가 `git pull`, 패키지 설치 확인, WSGI reload를 한 번에 처리합니다.
-문제가 생기면 Web 탭에서 `Reload kimmins.pythonanywhere.com` 버튼을 눌러도 됩니다.
+?ㅽ겕由쏀듃媛 `git pull`, ?⑦궎吏 ?ㅼ튂 ?뺤씤, WSGI reload瑜???踰덉뿉 泥섎━?⑸땲??
+臾몄젣媛 ?앷린硫?Web ??뿉??`Reload kimmins.pythonanywhere.com` 踰꾪듉???뚮윭???⑸땲??
 
-## 새 Codex 세션 시작 프롬프트
+## ??Codex ?몄뀡 ?쒖옉 ?꾨＼?꾪듃
 
-새 CLI 세션에서 아래처럼 말하면 됩니다.
+??CLI ?몄뀡?먯꽌 ?꾨옒泥섎읆 留먰븯硫??⑸땲??
 
 ```text
-이 프로젝트는 Flask 운동/식단 기록 앱입니다. NOTES.md와 git log를 먼저 읽고 이어서 작업해 주세요.
-한국어 존댓말로 답변하고, 작업이 끝나면 한국어 커밋 메시지로 push까지 진행해 주세요.
-UI는 health-tracker_10.html 느낌의 모바일 앱 스타일을 유지해 주세요.
+???꾨줈?앺듃??Flask ?대룞/?앸떒 湲곕줉 ?깆엯?덈떎. NOTES.md? git log瑜?癒쇱? ?쎄퀬 ?댁뼱???묒뾽??二쇱꽭??
+?쒓뎅??議대뙎留먮줈 ?듬??섍퀬, ?묒뾽???앸굹硫??쒓뎅??而ㅻ컠 硫붿떆吏濡?push源뚯? 吏꾪뻾??二쇱꽭??
+UI??health-tracker_10.html ?먮굦??紐⑤컮?????ㅽ??쇱쓣 ?좎???二쇱꽭??
 ```
 
-## 작업 시 주의
+## ?묒뾽 ??二쇱쓽
 
-- 운영 데이터는 GitHub가 아니라 PythonAnywhere의 `instance/workout.db`에 저장됩니다.
-- DB 스키마 변경 시 `init_db()`의 `CREATE TABLE`과 `ensure_column()` 흐름을 같이 확인합니다.
-- PWA 캐시 때문에 배포 후 모바일에서 예전 화면이 보일 수 있습니다. 이 경우 새로고침, 앱 재시작, 홈 화면 바로가기 재설치 순서로 확인합니다.
-- 사용자가 "배포"라고 말하면 일반적으로 `git push` 후 PythonAnywhere에서 `git pull`/reload가 필요합니다.
+- ?댁쁺 ?곗씠?곕뒗 GitHub媛 ?꾨땲??PythonAnywhere??`instance/workout.db`????λ맗?덈떎.
+- DB ?ㅽ궎留?蹂寃???`init_db()`??`CREATE TABLE`怨?`ensure_column()` ?먮쫫??媛숈씠 ?뺤씤?⑸땲??
+- PWA 罹먯떆 ?뚮Ц??諛고룷 ??紐⑤컮?쇱뿉???덉쟾 ?붾㈃??蹂댁씪 ???덉뒿?덈떎. ??寃쎌슦 ?덈줈怨좎묠, ???ъ떆?? ???붾㈃ 諛붾줈媛湲??ъ꽕移??쒖꽌濡??뺤씤?⑸땲??
+- ?ъ슜?먭? "諛고룷"?쇨퀬 留먰븯硫??쇰컲?곸쑝濡?`git push` ??PythonAnywhere?먯꽌 `git pull`/reload媛 ?꾩슂?⑸땲??
 
-## 버전관리 규칙
+## 踰꾩쟾愿由?洹쒖튃
 
-- 앱 버전의 단일 기준은 루트의 `VERSION` 파일입니다.
-- 화면/설정에 보이는 버전은 `health_tracker/meta.py`가 `VERSION`을 읽어 `vMAJOR.MINOR.PATCH` 형식으로 표시합니다.
-- PWA 캐시명은 앱 버전과 맞춰 `workout-pwa-vMAJOR.MINOR.PATCH`로 올립니다.
-- 기능 추가는 `MINOR`, 버그 수정은 `PATCH`, 데이터/호환성 깨짐은 `MAJOR`를 올립니다.
-- 릴리즈마다 `CHANGELOG.md`에 변경사항과 날짜를 남깁니다.
+- ??踰꾩쟾???⑥씪 湲곗?? 猷⑦듃??`VERSION` ?뚯씪?낅땲??
+- ?붾㈃/?ㅼ젙??蹂댁씠??踰꾩쟾? `health_tracker/meta.py`媛 `VERSION`???쎌뼱 `vMAJOR.MINOR.PATCH` ?뺤떇?쇰줈 ?쒖떆?⑸땲??
+- PWA 罹먯떆紐낆? ??踰꾩쟾怨?留욎떠 `workout-pwa-vMAJOR.MINOR.PATCH`濡??щ┰?덈떎.
+- 湲곕뒫 異붽???`MINOR`, 踰꾧렇 ?섏젙? `PATCH`, ?곗씠???명솚??源⑥쭚? `MAJOR`瑜??щ┰?덈떎.
+- 由대━利덈쭏??`CHANGELOG.md`??蹂寃쎌궗??낵 ?좎쭨瑜??④퉩?덈떎.
 
-## 2026-05-25 작업 노트
+## 2026-05-25 ?묒뾽 ?명듃
 
-- Python/HTML 구조를 `health_tracker/` 패키지 기준으로 정리했습니다.
-- 설정 비밀번호 잠금/재설정, 기록/분석 페이징, 연도별 기록, QA 더미데이터, QA 리포트, 연간 export를 추가했습니다.
-- 더보기 중복 메뉴, 분석 PR 하단 메뉴, 모바일 목록 밀림, 연간 분석 active 표시를 수정했습니다.
-- 기록 검색과 일별 기록 페이징 UI를 추가/개선했습니다.
-- Galaxy Z Fold7 기준으로 모바일 UI 폭을 커버 화면(400px대)과 내부 화면(900px 이하) 중심으로 재정리하기 시작했습니다.
-- 오늘 운동 입력의 이전 운동 전체 노출을 최근 사용 8개 중심으로 줄이고, 전체 탐색은 운동 라이브러리로 분리했습니다.
-- 운동 입력 빠른 선택을 최근/즐겨찾기/루틴 탭으로 분리하고, 기록 검색 상세 필터를 접이식으로 정리했습니다.
-- 컨디션 기반 운동 강도 코치 카드를 추가해 슬라이더 변경 시 점수와 권장 강도가 즉시 갱신되게 했습니다.
-- 최근 14일 기준 기록 상태 카드를 추가해 운동/식단/체성분/누락일을 데이터 품질 점수로 확인할 수 있게 했습니다.
-- Fold UI 회귀 테스트를 추가하고 QA 리포트 기준에 빠른 선택 탭, 컨디션 코치, 기록 상태 카드, 상세 필터 확인 항목을 보강했습니다.
-- 프로젝트 루트/소스 폴더의 `__pycache__`와 로컬 서버 로그를 정리했습니다. `.venv`, `instance`, QA 더미데이터는 유지합니다.
-- 브라우저는 사용자가 명시적으로 요청할 때만 엽니다.
-- 기본 검증 명령은 `python -m unittest discover -v`, `node --check static\app.js`, 주요 Flask test client 응답 확인입니다.
+- Python/HTML 援ъ“瑜?`health_tracker/` ?⑦궎吏 湲곗??쇰줈 ?뺣━?덉뒿?덈떎.
+- ?ㅼ젙 鍮꾨?踰덊샇 ?좉툑/?ъ꽕?? 湲곕줉/遺꾩꽍 ?섏씠吏? ?곕룄蹂?湲곕줉, QA ?붾??곗씠?? QA 由ы룷?? ?곌컙 export瑜?異붽??덉뒿?덈떎.
+- ?붾낫湲?以묐났 硫붾돱, 遺꾩꽍 PR ?섎떒 硫붾돱, 紐⑤컮??紐⑸줉 諛由? ?곌컙 遺꾩꽍 active ?쒖떆瑜??섏젙?덉뒿?덈떎.
+- 湲곕줉 寃?됯낵 ?쇰퀎 湲곕줉 ?섏씠吏?UI瑜?異붽?/媛쒖꽑?덉뒿?덈떎.
+- Galaxy Z Fold7 湲곗??쇰줈 紐⑤컮??UI ??쓣 而ㅻ쾭 ?붾㈃(400px?)怨??대? ?붾㈃(900px ?댄븯) 以묒떖?쇰줈 ?ъ젙由ы븯湲??쒖옉?덉뒿?덈떎.
+- ?ㅻ뒛 ?대룞 ?낅젰???댁쟾 ?대룞 ?꾩껜 ?몄텧??理쒓렐 ?ъ슜 8媛?以묒떖?쇰줈 以꾩씠怨? ?꾩껜 ?먯깋? ?대룞 ?쇱씠釉뚮윭由щ줈 遺꾨━?덉뒿?덈떎.
+- ?대룞 ?낅젰 鍮좊Ⅸ ?좏깮??理쒓렐/利먭꺼李얘린/猷⑦떞 ??쑝濡?遺꾨━?섍퀬, 湲곕줉 寃???곸꽭 ?꾪꽣瑜??묒씠?앹쑝濡??뺣━?덉뒿?덈떎.
+- 而⑤뵒??湲곕컲 ?대룞 媛뺣룄 肄붿튂 移대뱶瑜?異붽????щ씪?대뜑 蹂寃????먯닔? 沅뚯옣 媛뺣룄媛 利됱떆 媛깆떊?섍쾶 ?덉뒿?덈떎.
+- 理쒓렐 14??湲곗? 湲곕줉 ?곹깭 移대뱶瑜?異붽????대룞/?앸떒/泥댁꽦遺??꾨씫?쇱쓣 ?곗씠???덉쭏 ?먯닔濡??뺤씤?????덇쾶 ?덉뒿?덈떎.
+- Fold UI ?뚭? ?뚯뒪?몃? 異붽??섍퀬 QA 由ы룷??湲곗???鍮좊Ⅸ ?좏깮 ?? 而⑤뵒??肄붿튂, 湲곕줉 ?곹깭 移대뱶, ?곸꽭 ?꾪꽣 ?뺤씤 ??ぉ??蹂닿컯?덉뒿?덈떎.
+- ?꾨줈?앺듃 猷⑦듃/?뚯뒪 ?대뜑??`__pycache__`? 濡쒖뺄 ?쒕쾭 濡쒓렇瑜??뺣━?덉뒿?덈떎. `.venv`, `instance`, QA ?붾??곗씠?곕뒗 ?좎??⑸땲??
+- 釉뚮씪?곗????ъ슜?먭? 紐낆떆?곸쑝濡??붿껌???뚮쭔 ?쎈땲??
+- 湲곕낯 寃利?紐낅졊? `python -m unittest discover -v`, `node --check static\app.js`, 二쇱슂 Flask test client ?묐떟 ?뺤씤?낅땲??
 
-## 2026-05-26 작업 노트
+## 2026-05-26 ?묒뾽 ?명듃
 
-- 앱 버전 기준을 `VERSION` 파일로 통일하고 `CHANGELOG.md`를 추가했습니다.
-- `기록 상태` 카드를 `분석 신뢰도` 카드로 바꾸고 원형 점수 링, 근거 미니 바, 부족 항목 액션을 추가했습니다.
-- 분석 신뢰도 계산을 `health_tracker/services/data_quality.py`로 분리했습니다.
-- 1년치 QA 더미데이터에 체성분 변화와 회복 패턴을 추가했습니다.
-- 주간/월간 분석 상단 UI를 연간 리포트와 같은 대시보드형 UI로 정리했습니다.
-- 기록 검색, PR 분석, 장비 분석 상단 UI도 대시보드형으로 정리했습니다.
-- 오늘 화면, 기록 검색 결과, 더보기 화면을 대시보드형 UX로 개선했습니다.
-- 공통 카드/버튼/빈 상태 스타일을 더 입체적으로 정리했습니다.
-- 앱/PWA 버전을 `v1.4.0`으로 갱신했습니다.
-## 2026-05-26 추가 작업 노트
+- ??踰꾩쟾 湲곗???`VERSION` ?뚯씪濡??듭씪?섍퀬 `CHANGELOG.md`瑜?異붽??덉뒿?덈떎.
+- `湲곕줉 ?곹깭` 移대뱶瑜?`遺꾩꽍 ?좊ː?? 移대뱶濡?諛붽씀怨??먰삎 ?먯닔 留? 洹쇨굅 誘몃땲 諛? 遺議???ぉ ?≪뀡??異붽??덉뒿?덈떎.
+- 遺꾩꽍 ?좊ː??怨꾩궛??`health_tracker/services/data_quality.py`濡?遺꾨━?덉뒿?덈떎.
+- 1?꾩튂 QA ?붾??곗씠?곗뿉 泥댁꽦遺?蹂?붿? ?뚮났 ?⑦꽩??異붽??덉뒿?덈떎.
+- 二쇨컙/?붽컙 遺꾩꽍 ?곷떒 UI瑜??곌컙 由ы룷?몄? 媛숈? ??쒕낫?쒗삎 UI濡??뺣━?덉뒿?덈떎.
+- 湲곕줉 寃?? PR 遺꾩꽍, ?λ퉬 遺꾩꽍 ?곷떒 UI????쒕낫?쒗삎?쇰줈 ?뺣━?덉뒿?덈떎.
+- ?ㅻ뒛 ?붾㈃, 湲곕줉 寃??寃곌낵, ?붾낫湲??붾㈃????쒕낫?쒗삎 UX濡?媛쒖꽑?덉뒿?덈떎.
+- 怨듯넻 移대뱶/踰꾪듉/鍮??곹깭 ?ㅽ??쇱쓣 ???낆껜?곸쑝濡??뺣━?덉뒿?덈떎.
+- ??PWA 踰꾩쟾??`v1.4.0`?쇰줈 媛깆떊?덉뒿?덈떎.
+## 2026-05-26 異붽? ?묒뾽 ?명듃
 
-- 운동 입력에 `kg/lb` 단위 선택을 추가했습니다. `lb`로 입력한 무게는 저장 시 kg로 자동 변환되어 기존 분석/PR/볼륨 계산과 호환됩니다.
-- 모바일 운동 입력을 세트 빌더 중심으로 개선했습니다. 3/4/5세트 프리셋, 세트 수 직접 입력, 같은 무게 채우기, +5 증량 채우기, kg 저장 미리보기를 추가했습니다.
-- 세트 빌더 UI와 LB 변환 저장 테스트를 추가했습니다.
-- 기록/분석 목록의 기본 페이징 표시 개수를 10개로 낮췄습니다. 20개/50개 선택지는 유지했습니다.
-- 운동 입력 세트 빌더의 행 레이아웃 깨짐을 수정했습니다. 세트 번호, 무게/횟수 입력, 복사/삭제 버튼을 카드형 그리드로 재배치했습니다.
-- 세트 행을 상단 액션형 카드 구조로 다시 정리해 무게/횟수 입력칸과 복사/X 버튼 정렬 문제를 보정했습니다.
-- 방문자 읽기 전용 모드와 관리자 잠금을 추가했습니다. 모든 POST 요청, export/import/delete/API 민감 라우트는 관리자 세션과 CSRF 토큰을 요구합니다.
-- 방문자 화면에서는 작성/수정/삭제 UI를 숨기고, 관리자는 비밀번호 해제 후 기존 기능을 사용할 수 있게 했습니다.
-- CSRF 토큰과 관리자 보호 라우트 기준을 `health_tracker/security.py`로 분리해 `app.py`의 보안 공통 로직을 정리했습니다.
-- 설정 비밀번호 PBKDF2 해시 생성/검증도 `health_tracker/security.py`로 옮기고 회귀 테스트를 추가했습니다.
-- 배포 서버 UTC 시간대 영향으로 오늘 화면이 한국 시간보다 하루 늦게 잡힐 수 있어 `APP_TIMEZONE` 기본값을 `Asia/Seoul`로 두고 앱 기준 오늘 날짜를 계산하게 수정했습니다.
-- 날짜가 박히는 첫 화면(`/`, `/?mode=workout`, `/?mode=meal`)은 PWA precache에서 제외했습니다.
-- 기록 탭의 일간 기록 화면 부위별 분석에만 부위 카테고리 필터가 나오도록 재정리하고, 필터/카드 사이 여백을 보정했습니다.
-- 기록 탭 부위별 분석 전체 보기에서 특정 부위만 보이던 문제를 완화하고, 필터 클릭 시 부위별 분석 섹션에 머물도록 앵커를 추가했습니다.
-- 오늘 운동 화면의 운동 진행 카드 휴식 버튼을 `타이머 시작`으로 정리하고, 오늘 컨디션 카드 점수 정렬을 보정했습니다.
-- 오늘 컨디션 카드의 퍼센트 숫자가 `%`보다 작게 보이던 CSS 상속 문제를 수정했습니다.
-- 현재 PWA 버전은 `v1.6.8`로 갱신했습니다.
+- ?대룞 ?낅젰??`kg/lb` ?⑥쐞 ?좏깮??異붽??덉뒿?덈떎. `lb`濡??낅젰??臾닿쾶???????kg濡??먮룞 蹂?섎릺??湲곗〈 遺꾩꽍/PR/蹂쇰ⅷ 怨꾩궛怨??명솚?⑸땲??
+- 紐⑤컮???대룞 ?낅젰???명듃 鍮뚮뜑 以묒떖?쇰줈 媛쒖꽑?덉뒿?덈떎. 3/4/5?명듃 ?꾨━?? ?명듃 ??吏곸젒 ?낅젰, 媛숈? 臾닿쾶 梨꾩슦湲? +5 利앸웾 梨꾩슦湲? kg ???誘몃━蹂닿린瑜?異붽??덉뒿?덈떎.
+- ?명듃 鍮뚮뜑 UI? LB 蹂??????뚯뒪?몃? 異붽??덉뒿?덈떎.
+- 湲곕줉/遺꾩꽍 紐⑸줉??湲곕낯 ?섏씠吏??쒖떆 媛쒖닔瑜?10媛쒕줈 ??톬?듬땲?? 20媛?50媛??좏깮吏???좎??덉뒿?덈떎.
+- ?대룞 ?낅젰 ?명듃 鍮뚮뜑?????덉씠?꾩썐 源⑥쭚???섏젙?덉뒿?덈떎. ?명듃 踰덊샇, 臾닿쾶/?잛닔 ?낅젰, 蹂듭궗/??젣 踰꾪듉??移대뱶??洹몃━?쒕줈 ?щ같移섑뻽?듬땲??
+- ?명듃 ?됱쓣 ?곷떒 ?≪뀡??移대뱶 援ъ“濡??ㅼ떆 ?뺣━??臾닿쾶/?잛닔 ?낅젰移멸낵 蹂듭궗/X 踰꾪듉 ?뺣젹 臾몄젣瑜?蹂댁젙?덉뒿?덈떎.
+- 諛⑸Ц???쎄린 ?꾩슜 紐⑤뱶? 愿由ъ옄 ?좉툑??異붽??덉뒿?덈떎. 紐⑤뱺 POST ?붿껌, export/import/delete/API 誘쇨컧 ?쇱슦?몃뒗 愿由ъ옄 ?몄뀡怨?CSRF ?좏겙???붽뎄?⑸땲??
+- 諛⑸Ц???붾㈃?먯꽌???묒꽦/?섏젙/??젣 UI瑜??④린怨? 愿由ъ옄??鍮꾨?踰덊샇 ?댁젣 ??湲곗〈 湲곕뒫???ъ슜?????덇쾶 ?덉뒿?덈떎.
+- CSRF ?좏겙怨?愿由ъ옄 蹂댄샇 ?쇱슦??湲곗???`health_tracker/security.py`濡?遺꾨━??`app.py`??蹂댁븞 怨듯넻 濡쒖쭅???뺣━?덉뒿?덈떎.
+- ?ㅼ젙 鍮꾨?踰덊샇 PBKDF2 ?댁떆 ?앹꽦/寃利앸룄 `health_tracker/security.py`濡???린怨??뚭? ?뚯뒪?몃? 異붽??덉뒿?덈떎.
+- 諛고룷 ?쒕쾭 UTC ?쒓컙? ?곹뼢?쇰줈 ?ㅻ뒛 ?붾㈃???쒓뎅 ?쒓컙蹂대떎 ?섎（ ??쾶 ?≫옄 ???덉뼱 `APP_TIMEZONE` 湲곕낯媛믪쓣 `Asia/Seoul`濡??먭퀬 ??湲곗? ?ㅻ뒛 ?좎쭨瑜?怨꾩궛?섍쾶 ?섏젙?덉뒿?덈떎.
+- ?좎쭨媛 諛뺥엳??泥??붾㈃(`/`, `/?mode=workout`, `/?mode=meal`)? PWA precache?먯꽌 ?쒖쇅?덉뒿?덈떎.
+- 湲곕줉 ??쓽 ?쇨컙 湲곕줉 ?붾㈃ 遺?꾨퀎 遺꾩꽍?먮쭔 遺??移댄뀒怨좊━ ?꾪꽣媛 ?섏삤?꾨줉 ?ъ젙由ы븯怨? ?꾪꽣/移대뱶 ?ъ씠 ?щ갚??蹂댁젙?덉뒿?덈떎.
+- 湲곕줉 ??遺?꾨퀎 遺꾩꽍 ?꾩껜 蹂닿린?먯꽌 ?뱀젙 遺?꾨쭔 蹂댁씠??臾몄젣瑜??꾪솕?섍퀬, ?꾪꽣 ?대┃ ??遺?꾨퀎 遺꾩꽍 ?뱀뀡??癒몃Ъ?꾨줉 ?듭빱瑜?異붽??덉뒿?덈떎.
+- ?ㅻ뒛 ?대룞 ?붾㈃???대룞 吏꾪뻾 移대뱶 ?댁떇 踰꾪듉??`??대㉧ ?쒖옉`?쇰줈 ?뺣━?섍퀬, ?ㅻ뒛 而⑤뵒??移대뱶 ?먯닔 ?뺣젹??蹂댁젙?덉뒿?덈떎.
+- ?ㅻ뒛 而⑤뵒??移대뱶???쇱꽱???レ옄媛 `%`蹂대떎 ?묎쾶 蹂댁씠??CSS ?곸냽 臾몄젣瑜??섏젙?덉뒿?덈떎.
+- ?꾩옱 PWA 踰꾩쟾? `v1.6.8`濡?媛깆떊?덉뒿?덈떎.
