@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.11 렌더링 병목 추가 점검
+- 속도 병목 후보를 다시 점검했고, `today/index.html`이 템플릿 안에서 `grouped_sets_for_session(session.id)`를 직접 호출하던 부분을 제거했습니다.
+- `today_context.py`에서 운동 모드일 때 `workout_groups`를 미리 구성해 템플릿에는 렌더링 데이터만 전달하도록 정리했습니다.
+- 큰 분리 대상은 `today/index.html` 약 63KB, `summaries/summary.html` 약 48KB, `routes/main.py` 약 53KB로 확인했습니다.
+- 조건 렌더링 범위 조정 중 운동 입력 영역이 빠지는 회귀를 테스트로 확인했고, 운동 입력/빠른 선택/장소 영역이 정상 출력되도록 복구했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/workout_entry.js` 통과.
+
 ## 2026-05-28 v2.3.10 운동 탭 로딩 최적화
 - `/app?mode=workout` 진입 시 `build_today_context`가 식단, 전체 요약, 최근 기록 데이터를 모두 만들던 구조를 모드별 컨텍스트로 분리했습니다.
 - 운동 모드에서는 운동 입력, 오늘 운동, 루틴, 회복, PR에 필요한 데이터만 실제 조회하고 식단/전체 전용 값은 안전한 기본값으로 둡니다.

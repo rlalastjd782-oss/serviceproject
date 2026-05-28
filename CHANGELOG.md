@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.3.11 - 2026-05-28
+
+- 오늘 운동 리스트를 템플릿 내부 DB 호출 대신 `today_context`에서 미리 만든 `workout_groups`로 렌더링하도록 바꿨습니다.
+- 운동 탭 렌더링 중 템플릿이 직접 `grouped_sets_for_session()`을 호출하던 병목 후보를 제거했습니다.
+- 남은 큰 분리 대상은 `today/index.html`, `summaries/summary.html`, `routes/main.py`로 확인했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/workout_entry.js`.
+
 ## v2.3.10 - 2026-05-28
 
 - 오늘 화면 컨텍스트를 모드별로 나누어 운동 탭 진입 시 식단/전체 요약용 데이터를 불필요하게 만들지 않도록 정리했습니다.

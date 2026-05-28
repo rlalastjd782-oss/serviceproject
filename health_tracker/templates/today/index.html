@@ -863,7 +863,6 @@
       </div>
     </form>
   </section>
-
   {% if meal_mode %}
   <section class="section meal-only meal-goal-section">
     <div class="section-header">
@@ -1036,7 +1035,6 @@
       <span class="badge">⏱ {{ format_duration(session.duration_seconds) }}</span>
     </div>
     <div class="record-list">
-      {% set workout_groups = grouped_sets_for_session(session.id) %}
       {% if workout_groups %}
         {% for group in workout_groups %}
           {% set group_pr_events = pr_events | selectattr("exercise_name", "equalto", group.exercise_name) | list %}
