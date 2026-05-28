@@ -623,7 +623,11 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
     def test_auth_preview_is_public_sample_only(self) -> None:
         self.client.post("/logout")
-        html = self.client.get("/auth/preview").data.decode("utf-8")
+        response = self.client.get("/auth/preview")
+        self.assertRegex(response.headers.get("X-Request-Duration-ms", ""), r"^\d+\.\d$")
+        self.assertRegex(response.headers.get("X-DB-Query-Count", ""), r"^\d+$")
+        self.assertIn("app;dur=", response.headers.get("Server-Timing", ""))
+        html = response.data.decode("utf-8")
         self.assertIn("가입 전 미리보기", html)
         self.assertIn("운동 기록, 분석, 장소 관리를", html)
         self.assertIn("/auth/login", html)

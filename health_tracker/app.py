@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import secrets
 import sqlite3
+from time import perf_counter
 
 from flask import Flask, Response, abort, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
 
@@ -288,6 +289,8 @@ def create_app() -> Flask:
 
     @app.before_request
     def before_request() -> None:
+        g.request_started_at = perf_counter()
+        g.db_query_count = 0
         init_accounts_db(DATABASE)
         init_db()
         endpoint = request.endpoint or ""
@@ -327,6 +330,14 @@ def create_app() -> Flask:
             abort(403)
         if request.method == "GET" and request.endpoint in ADMIN_GET_ENDPOINTS and not settings_unlocked():
             return redirect(url_for("settings_page"))
+
+    @app.after_request
+    def add_diagnostics_headers(response: Response) -> Response:
+        elapsed_ms = (perf_counter() - float(getattr(g, "request_started_at", perf_counter()))) * 1000
+        response.headers["X-Request-Duration-ms"] = f"{elapsed_ms:.1f}"
+        response.headers["X-DB-Query-Count"] = str(int(getattr(g, "db_query_count", 0)))
+        response.headers["Server-Timing"] = f"app;dur={elapsed_ms:.1f}"
+        return response
 
     @app.teardown_appcontext
     def close_db(error: Exception | None = None) -> None:
@@ -370,6 +381,7 @@ def get_db() -> sqlite3.Connection:
         g.db.execute("PRAGMA busy_timeout = 5000")
         g.db.execute("PRAGMA journal_mode = WAL")
         g.db.execute("PRAGMA synchronous = NORMAL")
+        g.db.set_trace_callback(lambda _sql: setattr(g, "db_query_count", int(getattr(g, "db_query_count", 0)) + 1))
     return g.db
 
 
