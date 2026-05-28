@@ -24,3 +24,5 @@ class StaticAssetIntegrityTest(unittest.TestCase):
                 if path.name == "ui_rebuild.css":
                     self.assertIn(":not(.meal-record-card)", source)
                     self.assertIn(".record-list > .meal-record-card", source)
+                    self.assertNotIn(".tab-btn,\n  .mode-button", source)
+                    self.assertIn(".tabs .tab-btn", source)

@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.5.4 모바일 상단 메뉴 복구
+- 모바일에서 상단 메뉴가 `오늘` 하나만 보인 원인은 `ui_rebuild.css`의 공통 버튼 모바일 규칙이 `.tab-btn`에 `width: 100%`를 적용했기 때문입니다.
+- `.tab-btn`을 공통 100% 버튼 규칙에서 제외하고 `.tabs .tab-btn`만 `width: auto`로 유지하도록 수정했습니다.
+- 브라우저/서비스워커 캐시를 피하기 위해 `VERSION`, manifest, service worker 캐시명을 `2.5.4`로 올렸습니다.
+- 정적 CSS 테스트에 상단 탭이 다시 공통 버튼 규칙에 포함되지 않도록 회귀 검증을 추가했습니다.
+- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사까지 통과했습니다.
+
 ## 2026-05-28 v2.5.3-hotfix static 경로 렌더링 검증 보강
 - 로컬 5000 포트 서버가 이전 프로세스 상태로 남아 `/static/styles.css`를 응답 HTML에 남기고 있어 UI가 깨진 것을 확인했습니다.
 - 서버를 재시작한 뒤 `/login` 렌더 HTML이 `/static/css/...` 경로를 쓰고 핵심 CSS/JS가 200으로 응답하는 것을 확인했습니다.

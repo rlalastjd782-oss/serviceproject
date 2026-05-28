@@ -1152,7 +1152,6 @@ button {
   .btn-primary,
   .btn-danger,
   .btn-ghost,
-  .tab-btn,
   .mode-button,
   .exercise-quick-button,
   .row-copy-button,
@@ -1160,6 +1159,10 @@ button {
     min-height: 42px;
     width: 100%;
     justify-content: center;
+  }
+
+  .tabs .tab-btn {
+    width: auto;
   }
 
   .set-entry-row,

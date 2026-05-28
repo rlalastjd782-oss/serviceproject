@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.5.4 - 2026-05-28
+
+- 모바일 폭에서 공통 버튼 규칙이 상단 탭 `.tab-btn`까지 `width: 100%`로 잡아 `오늘` 탭만 보이던 문제를 수정했습니다.
+- 상단 메뉴 탭은 `.tabs .tab-btn` 예외로 분리해 `오늘/기록/분석` 등이 가로 메뉴로 표시되게 했습니다.
+- CSS 캐시 반영을 위해 앱/manifest/service worker 버전을 `2.5.4`로 갱신했습니다.
+- 회귀 방지를 위해 `ui_rebuild.css`가 모바일 공통 버튼 규칙에 `.tab-btn`을 다시 포함하지 않는지 검증하는 테스트를 추가했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v` 28개, `python -m compileall health_tracker tests`, 주요 JS `node --check`.
+
 ## v2.5.3-hotfix - 2026-05-28
 
 - static 폴더 분리 후 실행 중인 서버가 예전 템플릿을 응답하면 CSS가 깨질 수 있음을 확인하고 로컬 서버를 재시작했습니다.
