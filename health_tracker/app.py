@@ -145,6 +145,17 @@ from health_tracker.services.location import (
     set_session_location as set_session_location_in_db,
     upsert_location_equipment,
 )
+from health_tracker.services.location_insights import (
+    list_location_quick_exercises_from_db,
+    list_location_training_insights_from_db,
+)
+from health_tracker.services.food_shortcuts import (
+    delete_food_favorite_from_db,
+    list_favorite_foods_from_db,
+    list_foods_by_meal_type_from_db,
+    list_frequent_foods_from_db,
+    save_food_favorite_to_db,
+)
 from health_tracker.services.meal import (
     apply_meal_template_to_db,
     build_monthly_meal_summary_from_db,
@@ -611,91 +622,23 @@ def list_exercise_stats_by_name(location_id: int | None = None) -> dict[str, dic
 
 
 def list_foods_by_meal_type(limit: int = 6) -> dict[str, list[dict[str, float | str | None]]]:
-    rows = get_db().execute(
-        """
-        SELECT
-            COALESCE(NULLIF(meal_type, ''), '기타') AS meal_type,
-            food_name,
-            quantity,
-            grams,
-            calories,
-            COUNT(id) AS use_count,
-            MAX(meal_date) AS last_date
-        FROM meal_entries
-        GROUP BY meal_type, food_name
-        ORDER BY meal_type, last_date DESC, use_count DESC, food_name
-        """
-    ).fetchall()
-    grouped = {meal_type: [] for meal_type in ["아침", "점심", "저녁", "간식", "기타"]}
-    for row in rows:
-        meal_type = row["meal_type"] or "기타"
-        if len(grouped.setdefault(meal_type, [])) >= limit:
-            continue
-        grouped[meal_type].append(
-            {
-                "food_name": row["food_name"],
-                "quantity": row["quantity"],
-                "grams": row["grams"],
-                "calories": row["calories"],
-            }
-        )
-    return grouped
+    return list_foods_by_meal_type_from_db(get_db(), limit)
 
 
 def list_favorite_foods(limit: int = 6) -> list[sqlite3.Row]:
-    return get_db().execute(
-        """
-        SELECT food_name, quantity, grams, calories
-        FROM food_favorites
-        WHERE is_favorite = 1
-        ORDER BY updated_at DESC, food_name
-        LIMIT ?
-        """,
-        (limit,),
-    ).fetchall()
+    return list_favorite_foods_from_db(get_db(), limit)
 
 
 def list_frequent_foods(limit: int = 6) -> list[sqlite3.Row]:
-    return get_db().execute(
-        """
-        SELECT
-            food_name,
-            quantity,
-            grams,
-            calories,
-            COUNT(id) AS use_count,
-            MAX(meal_date) AS last_date
-        FROM meal_entries
-        WHERE meal_date >= date('now', 'localtime', '-30 day')
-        GROUP BY food_name
-        HAVING COUNT(id) >= 3
-        ORDER BY use_count DESC, last_date DESC, food_name
-        LIMIT ?
-        """,
-        (limit,),
-    ).fetchall()
+    return list_frequent_foods_from_db(get_db(), limit)
 
 
 def save_food_favorite(food_name: str, quantity: float | None, grams: float | None, calories: float | None) -> None:
-    get_db().execute(
-        """
-        INSERT INTO food_favorites (food_name, quantity, grams, calories, is_favorite, updated_at)
-        VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
-        ON CONFLICT(food_name) DO UPDATE SET
-            quantity = excluded.quantity,
-            grams = excluded.grams,
-            calories = excluded.calories,
-            is_favorite = 1,
-            updated_at = CURRENT_TIMESTAMP
-        """,
-        (food_name, quantity, grams, calories),
-    )
-    get_db().commit()
+    save_food_favorite_to_db(get_db(), food_name, quantity, grams, calories)
 
 
 def delete_food_favorite(food_name: str) -> None:
-    get_db().execute("DELETE FROM food_favorites WHERE food_name = ?", (food_name,))
-    get_db().commit()
+    delete_food_favorite_from_db(get_db(), food_name)
 
 
 def list_routines(location_id: int | None = None) -> list[dict[str, object]]:
@@ -1563,136 +1506,11 @@ def build_data_center_status(date_text: str | None = None) -> dict[str, object]:
 
 
 def list_location_training_insights(limit: int = 20) -> list[dict[str, object]]:
-    rows = get_db().execute(
-        """
-        SELECT
-            wl.id,
-            wl.name,
-            wl.is_default,
-            wl.is_active,
-            COUNT(DISTINCT s.workout_date) AS workout_days,
-            COUNT(ws.id) AS set_count,
-            COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
-            MAX(s.workout_date) AS last_date
-        FROM workout_locations wl
-        LEFT JOIN workout_sessions s ON s.location_id = wl.id
-        LEFT JOIN workout_sets ws ON ws.session_id = s.id
-        GROUP BY wl.id
-        ORDER BY wl.is_active DESC, workout_days DESC, last_date DESC, wl.name
-        LIMIT ?
-        """,
-        (limit,),
-    ).fetchall()
-    insights = []
-    for row in rows:
-        top_exercises = get_db().execute(
-            """
-            SELECT e.name, COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
-            FROM workout_sessions s
-            JOIN workout_sets ws ON ws.session_id = s.id
-            JOIN exercises e ON e.id = ws.exercise_id
-            WHERE s.location_id = ?
-            GROUP BY e.id, e.name, body_part
-            ORDER BY set_count DESC, MAX(s.workout_date) DESC
-            LIMIT 4
-            """,
-            (row["id"],),
-        ).fetchall()
-        equipment_rows = get_db().execute(
-            """
-            SELECT COALESCE(NULLIF(ws.equipment, ''), '미지정') AS equipment, COUNT(ws.id) AS use_count
-            FROM workout_sessions s
-            JOIN workout_sets ws ON ws.session_id = s.id
-            WHERE s.location_id = ?
-            GROUP BY equipment
-            ORDER BY use_count DESC, equipment
-            LIMIT 5
-            """,
-            (row["id"],),
-        ).fetchall()
-        equipment_counts: dict[str, int] = {}
-        for equipment_row in equipment_rows:
-            category = normalize_equipment_category(equipment_row["equipment"])
-            if category:
-                equipment_counts[category] = equipment_counts.get(category, 0) + int(equipment_row["use_count"] or 0)
-        top_equipment = [
-            {"equipment": name, "use_count": count}
-            for name, count in sorted(equipment_counts.items(), key=lambda item: (-item[1], item[0]))[:5]
-        ]
-        registered_equipment = [
-            normalize_equipment_category(str(item["equipment_name"] or ""))
-            or normalize_equipment_category(str(item["equipment_type"] or ""))
-            for item in list_location_equipment(int(row["id"]))
-            if int(item["is_active"] or 0)
-        ]
-        registered_equipment = [item for item in dict.fromkeys(registered_equipment) if item]
-        used_equipment_names = set(equipment_counts)
-        unused_equipment = [item for item in registered_equipment if item not in used_equipment_names]
-        equipment_coverage = (
-            round(((len(registered_equipment) - len(unused_equipment)) / len(registered_equipment)) * 100)
-            if registered_equipment
-            else 0
-        )
-        insights.append(
-            {
-                "location": row,
-                "top_exercises": top_exercises,
-                "top_equipment": top_equipment,
-                "registered_equipment": registered_equipment,
-                "unused_equipment": unused_equipment[:6],
-                "equipment_coverage": equipment_coverage,
-                "message": build_location_message(row, top_exercises),
-            }
-        )
-    return insights
-
-
-def build_location_message(location: sqlite3.Row, top_exercises: list[sqlite3.Row]) -> str:
-    if not location["workout_days"]:
-        return "아직 기록이 없어 오늘 운동을 저장하면 장소별 추천이 시작됩니다."
-    if top_exercises:
-        return f"{top_exercises[0]['name']} 기록이 가장 많습니다. 오늘 입력에서 이 운동을 빠르게 불러올 수 있습니다."
-    return "장소 기록은 있지만 세트 상세가 부족합니다. 장비와 세트를 함께 저장하면 추천 정확도가 올라갑니다."
+    return list_location_training_insights_from_db(get_db(), limit)
 
 
 def list_location_quick_exercises(location_id: int | None, limit: int = 6) -> list[sqlite3.Row]:
-    return get_db().execute(
-        """
-        SELECT
-            e.name AS exercise_name,
-            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
-            COALESCE(NULLIF(ws.equipment, ''), '') AS equipment,
-            COUNT(ws.id) AS set_count,
-            MAX(s.workout_date) AS last_date,
-            (
-                SELECT recent.weight
-                FROM workout_sets recent
-                JOIN workout_sessions rs ON rs.id = recent.session_id
-                JOIN exercises re ON re.id = recent.exercise_id
-                WHERE rs.location_id = s.location_id AND re.name = e.name
-                ORDER BY rs.workout_date DESC, recent.id DESC
-                LIMIT 1
-            ) AS last_weight,
-            (
-                SELECT recent.reps
-                FROM workout_sets recent
-                JOIN workout_sessions rs ON rs.id = recent.session_id
-                JOIN exercises re ON re.id = recent.exercise_id
-                WHERE rs.location_id = s.location_id AND re.name = e.name
-                ORDER BY rs.workout_date DESC, recent.id DESC
-                LIMIT 1
-            ) AS last_reps
-        FROM workout_sessions s
-        JOIN workout_sets ws ON ws.session_id = s.id
-        JOIN exercises e ON e.id = ws.exercise_id
-        WHERE s.location_id = ?
-        GROUP BY e.name, body_part, equipment
-        ORDER BY set_count DESC, last_date DESC, e.name
-        LIMIT ?
-        """,
-        (location_id, limit),
-    ).fetchall()
+    return list_location_quick_exercises_from_db(get_db(), location_id, limit)
 
 
 def build_action_insights(date_text: str | None = None) -> dict[str, object]:
