@@ -642,49 +642,7 @@
     </form>
   </section>
 
-  <section class="section optional-section" id="body-metrics">
-    <div class="section-header">
-      <div>
-        <div class="section-title">목표 달성률</div>
-        <div class="section-subtitle">목표 수정은 주별/월별 페이지에서 관리합니다.</div>
-      </div>
-    </div>
-    {{ goal_cards(goals) }}
-  </section>
-
-  <section class="section optional-section">
-    <div class="section-header">
-      <div class="section-title">체성분</div>
-    </div>
-    <form method="post" action="{{ url_for('save_body_metric_route') }}" class="body-metric-form">
-      <input type="hidden" name="metric_date" value="{{ session.workout_date }}">
-      <input name="body_weight" type="number" min="0" step="0.1" value="{% if body_metric and body_metric.body_weight is not none %}{{ body_metric.body_weight }}{% endif %}" placeholder="체중 kg">
-      <input name="muscle_mass" type="number" min="0" step="0.1" value="{% if body_metric and body_metric.muscle_mass is not none %}{{ body_metric.muscle_mass }}{% endif %}" placeholder="골격근 kg">
-      <input name="body_fat" type="number" min="0" step="0.1" value="{% if body_metric and body_metric.body_fat is not none %}{{ body_metric.body_fat }}{% endif %}" placeholder="체지방 %">
-      <input name="waist" type="number" min="0" step="0.1" value="{% if body_metric and body_metric.waist is not none %}{{ body_metric.waist }}{% endif %}" placeholder="허리 cm">
-      <button class="btn-small" type="submit">저장</button>
-    </form>
-    <form method="post" action="{{ url_for('save_body_photo_route') }}" enctype="multipart/form-data" class="body-photo-form">
-      <input type="hidden" name="photo_date" value="{{ session.workout_date }}">
-      <input name="photo" type="file" accept="image/*">
-      <button class="btn-small" type="submit">사진 저장</button>
-    </form>
-    <div class="detail-list compact-detail-list">
-      {% for message in body_progress_insights %}
-        <div class="detail-row">
-          <strong>진행</strong>
-          <span>{{ message }}</span>
-        </div>
-      {% endfor %}
-    </div>
-    {% if body_photos %}
-      <div class="photo-strip">
-        {% for photo in body_photos %}
-          <img src="{{ url_for('static', filename=photo.file_path) }}" alt="{{ photo.photo_date }} 몸 사진">
-        {% endfor %}
-      </div>
-    {% endif %}
-  </section>
+  {% include "today/_body_metrics.html" %}
 
   {% include "today/_workout_library_input.html" %}
 
