@@ -26,13 +26,21 @@ class StaticAssetIntegrityTest(unittest.TestCase):
             *Path("health_tracker/templates").rglob("*.html"),
             *Path("health_tracker/services").rglob("*.py"),
             *Path("static/js").rglob("*.js"),
+            *Path("static/css").rglob("*.css"),
         ]
         repeated_question_mark = re.compile(r"\?{3,}")
+        repeated_user_text_question_mark = re.compile(r"\?{2,}")
+        broken_question_hangul = re.compile(r"\?[가-힣]")
+        cjk_ideograph = re.compile(r"[\u4E00-\u9FFF]")
 
         for path in sorted(paths):
             with self.subTest(path=str(path)):
                 source = path.read_text(encoding="utf-8-sig")
                 self.assertIsNone(repeated_question_mark.search(source))
+                if path.suffix != ".js":
+                    self.assertIsNone(repeated_user_text_question_mark.search(source))
+                self.assertIsNone(broken_question_hangul.search(source))
+                self.assertIsNone(cjk_ideograph.search(source))
                 for token in broken_tokens:
                     self.assertNotIn(token, source)
 

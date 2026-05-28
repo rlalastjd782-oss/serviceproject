@@ -193,7 +193,7 @@ document.addEventListener("click", (event) => {
   }
 
   if (workoutClockSaveButton) {
-    persistWorkoutClock("??λ맖");
+    persistWorkoutClock("저장됨");
     return;
   }
 
@@ -254,7 +254,7 @@ document.addEventListener("click", (event) => {
       mealForm.classList.remove("is-collapsed");
       const toggleButton = document.querySelector("[data-toggle-meal-form]");
       if (toggleButton) {
-        toggleButton.textContent = "?낅젰 ?リ린";
+        toggleButton.textContent = "입력 닫기";
       }
     }
     loadFoodEntry(foodQuickButton, mealList);
