@@ -1,5 +1,13 @@
 ﻿# Codex Handoff Notes
 
+## 2026-05-29 v2.5.9 대형 파일 추가 분리
+- `app_database.py`를 추가해 DB 연결, DB 초기화, secret key 생성을 `app.py`에서 분리했습니다.
+- `tests/test_app_flows.py`를 공통 base와 도메인별 테스트 파일로 분리했습니다. 인코딩 문제를 피하기 위해 Node UTF-8 방식으로 재분리했습니다.
+- `form_submit.js`를 추가해 submit/CSRF/운동완료 타이머 리셋 처리 로직을 `app.js`에서 분리했습니다.
+- `tools/check_release.py`를 추가해 배포 전 버전/정적파일 상태를 확인할 수 있게 했습니다.
+- 남은 큰 파일은 `app.py`, `app.js`, `meal.css`, `today/index.html`, `summaries/summary.html`, `services/coaching.py`입니다.
+- 검증은 전체 unittest, Ruff, JS 문법 검사, compileall, release check로 진행했습니다.
+
 ## 2026-05-29 v2.5.8 구조 분리와 쿼리 경량화
 - `app_lifecycle.py`로 before/after request, DB teardown, 템플릿 컨텍스트 주입을 분리했습니다.
 - `app_settings.py`로 app setting, app preferences, 설정 잠금/해제 헬퍼를 분리했습니다.

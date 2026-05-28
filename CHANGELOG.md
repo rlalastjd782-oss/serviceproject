@@ -1,5 +1,13 @@
 ﻿# Changelog
 
+## v2.5.9 - 2026-05-29
+
+- `app.py`의 DB 연결, 초기화, secret key 생성 책임을 `app_database.py`로 분리했습니다.
+- 흐름 테스트를 공통 `flow_base.py`와 UI/계정관리/운동식단/연간정적 테스트 파일로 도메인별 분리했습니다.
+- `app.js`의 form submit, CSRF, 운동완료 타이머 처리 로직을 `form_submit.js`로 분리했습니다.
+- `tools/check_release.py`를 추가해 VERSION, manifest, service worker cache, 주요 static 파일 존재 여부를 배포 전에 점검합니다.
+- 검증: 전체 unittest 30개, Ruff, 전체 JS `node --check`, compileall, release check를 통과했습니다.
+
 ## v2.5.8 - 2026-05-29
 
 - `app.py`에서 요청 생명주기 훅과 설정/환경설정 헬퍼를 분리해 앱 진입점의 책임을 줄였습니다.
