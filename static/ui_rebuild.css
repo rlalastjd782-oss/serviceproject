@@ -913,3 +913,321 @@
   width: 100%;
 }
 
+/* v2.4 responsive hardening layer */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img,
+svg,
+canvas,
+video {
+  max-width: 100%;
+}
+
+.content,
+.section,
+.record-card,
+.summary-card,
+.goal-card,
+.health-card,
+.settings-action-card,
+.location-card,
+.admin-user-card,
+.admin-contact-card,
+.equipment-summary-card,
+.daily-record-card,
+.meal-record-card,
+.workout-summary-card {
+  min-width: 0;
+}
+
+.section-title,
+.section-subtitle,
+.record-date,
+.record-summary,
+.detail-row,
+.summary-label,
+.summary-value,
+.badge,
+.cat-badge,
+.exercise-quick-button,
+.btn-small,
+.btn-primary,
+.btn-danger,
+.btn-ghost,
+input,
+select,
+textarea,
+button {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.filter-form,
+.period-filter-form,
+.record-list-toolbar,
+.tool-form,
+.routine-form,
+.inline-add-form,
+.settings-password-form,
+.location-create-form,
+.location-edit-form,
+.location-equipment-form,
+.admin-filter-form,
+.pr-filter-form,
+.library-filter-form,
+.body-metric-form,
+.body-photo-form,
+.meal-add-form {
+  max-width: 100%;
+}
+
+.filter-form input,
+.filter-form select,
+.period-filter-form input,
+.period-filter-form select,
+.record-list-toolbar input,
+.record-list-toolbar select,
+.tool-form input,
+.tool-form select,
+.routine-form input,
+.routine-form select,
+.inline-add-form input,
+.inline-add-form select,
+.settings-password-form input,
+.settings-password-form select,
+.location-create-form input,
+.location-edit-form input,
+.location-equipment-form input,
+.location-equipment-form select,
+.admin-filter-form input,
+.admin-filter-form select,
+.pr-filter-form input,
+.pr-filter-form select,
+.library-filter-form input,
+.library-filter-form select,
+.body-metric-form input,
+.meal-add-form input {
+  width: 100%;
+  min-height: 42px;
+}
+
+.table-wrap,
+.chart-card,
+.summary-chart,
+.trend-chart,
+.comparison-table,
+.record-list,
+.detail-list {
+  max-width: 100%;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 920px) {
+  .summary-grid,
+  .focus-grid,
+  .today-task-grid,
+  .next-action-grid,
+  .routine-recommend-grid,
+  .pr-card-grid,
+  .goal-grid,
+  .location-overview-grid,
+  .admin-contact-grid,
+  .admin-user-grid,
+  .admin-detail-grid,
+  .settings-action-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filter-form,
+  .period-filter-form,
+  .record-list-toolbar,
+  .tool-form,
+  .admin-filter-form,
+  .pr-filter-form,
+  .library-filter-form,
+  .location-create-form,
+  .location-edit-form,
+  .location-equipment-form,
+  .body-metric-form,
+  .body-photo-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: end;
+  }
+
+  .record-card,
+  .daily-record-card,
+  .equipment-summary-card,
+  .meal-record-card,
+  .workout-summary-card {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    padding-inline: 10px;
+  }
+
+  .section {
+    padding: 12px;
+  }
+
+  .section-header,
+  .today-hero-head,
+  .location-page-head,
+  .daily-record-head,
+  .record-date,
+  .record-summary,
+  .record-toggle,
+  .routine-load-row,
+  .detail-row,
+  .admin-user-head,
+  .location-card-main,
+  .location-title-row,
+  .location-card-actions,
+  .form-action-row,
+  .settings-action-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .summary-grid,
+  .focus-grid,
+  .today-task-grid,
+  .next-action-grid,
+  .routine-recommend-grid,
+  .pr-card-grid,
+  .goal-grid,
+  .location-overview-grid,
+  .admin-contact-grid,
+  .admin-user-grid,
+  .admin-detail-grid,
+  .settings-action-grid,
+  .compact-summary-grid,
+  .record-list,
+  .detail-list,
+  .location-card-list,
+  .location-manage-grid,
+  .location-insight-columns,
+  .workout-tool-grid,
+  .meal-entry-list,
+  .set-entry-list {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-form,
+  .period-filter-form,
+  .record-list-toolbar,
+  .tool-form,
+  .routine-form,
+  .inline-add-form,
+  .settings-password-form,
+  .location-create-form,
+  .location-edit-form,
+  .location-equipment-form,
+  .admin-filter-form,
+  .pr-filter-form,
+  .library-filter-form,
+  .body-metric-form,
+  .body-photo-form,
+  .meal-add-form,
+  .ex-input-row,
+  .compact-field-grid,
+  .meal-compact-grid,
+  .set-builder-toolbar,
+  .set-advanced-grid,
+  .tool-input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-small,
+  .btn-primary,
+  .btn-danger,
+  .btn-ghost,
+  .tab-btn,
+  .mode-button,
+  .exercise-quick-button,
+  .row-copy-button,
+  .row-remove-button {
+    min-height: 42px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .set-entry-row,
+  .meal-entry-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .set-entry-row .set-row-actions,
+  .meal-entry-row .set-row-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .row-remove-button {
+    min-width: 42px;
+  }
+
+  table {
+    min-width: 640px;
+  }
+}
+
+@media (max-width: 430px) {
+  .content {
+    padding-inline: 8px;
+  }
+
+  .section {
+    padding: 10px;
+  }
+
+  .header-title,
+  .account-greeting,
+  .app-version,
+  .section-title,
+  .record-toggle strong,
+  .location-title-row strong {
+    line-height: 1.25;
+  }
+
+  .summary-card,
+  .today-task-card,
+  .record-card,
+  .daily-record-card,
+  .equipment-summary-card,
+  .meal-record-card,
+  .workout-summary-card,
+  .location-card,
+  .admin-user-card {
+    padding: 11px;
+  }
+
+  .compact-set-preview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-tab-list,
+  .mode-actions,
+  .timer-actions,
+  .set-preset-list,
+  .set-builder-actions,
+  .program-chip-list,
+  .exercise-quick-list,
+  .location-equipment-chip-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+}
+
