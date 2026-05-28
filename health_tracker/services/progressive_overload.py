@@ -173,3 +173,28 @@ def list_progressive_overload_rows(
             }
         )
     return items
+
+
+def list_overload_suggestions_from_db(db: sqlite3.Connection) -> dict[str, str]:
+    rows = db.execute(
+        """
+        SELECT e.name, ws.weight, ws.reps, s.workout_date
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.weight IS NOT NULL AND ws.reps IS NOT NULL
+        ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
+        """
+    ).fetchall()
+    suggestions: dict[str, str] = {}
+    for row in rows:
+        name = row["name"]
+        if name in suggestions:
+            continue
+        next_weight = float(row["weight"]) + 2.5
+        next_reps = int(row["reps"]) + 1
+        suggestions[name] = (
+            f"최근 기록 기준: {float(row['weight']):.1f}kg {int(row['reps'])}회 -> "
+            f"{next_weight:.1f}kg 또는 {next_reps}회 도전"
+        )
+    return suggestions

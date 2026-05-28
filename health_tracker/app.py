@@ -189,6 +189,7 @@ from health_tracker.services.preferences import app_preferences as build_app_pre
 from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
 from health_tracker.services.progressive_overload import (
     build_next_set_suggestions as build_next_set_suggestions_from_db,
+    list_overload_suggestions_from_db,
     list_progressive_overload_rows as list_progressive_overload_rows_from_db,
 )
 from health_tracker.services.pr import (
@@ -1095,25 +1096,7 @@ def list_exercise_best_sets(exercise_id: int | None) -> list[dict[str, object]]:
 
 
 def list_overload_suggestions() -> dict[str, str]:
-    rows = get_db().execute(
-        """
-        SELECT e.name, ws.weight, ws.reps, s.workout_date
-        FROM workout_sets ws
-        JOIN exercises e ON e.id = ws.exercise_id
-        JOIN workout_sessions s ON s.id = ws.session_id
-        WHERE ws.weight IS NOT NULL AND ws.reps IS NOT NULL
-        ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
-        """
-    ).fetchall()
-    suggestions: dict[str, str] = {}
-    for row in rows:
-        name = row["name"]
-        if name in suggestions:
-            continue
-        next_weight = float(row["weight"]) + 2.5
-        next_reps = int(row["reps"]) + 1
-        suggestions[name] = f"지난 기록 기준: {float(row['weight']):.1f}kg {int(row['reps'])}회 → {next_weight:.1f}kg 또는 {next_reps}회 도전"
-    return suggestions
+    return list_overload_suggestions_from_db(get_db())
 
 
 def list_exercise_notes() -> dict[str, str]:
