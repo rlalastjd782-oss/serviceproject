@@ -31,6 +31,7 @@ const ASSETS = [
   "/static/offline_queue.js",
   "/static/workout_tools.js",
   "/static/ui_interactions.js",
+  "/static/notifications.js",
   "/static/app.js",
   "/static/workout_entry.js",
   "/sw.js",
