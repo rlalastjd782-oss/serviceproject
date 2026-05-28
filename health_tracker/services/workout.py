@@ -49,6 +49,190 @@ def get_or_create_exercise_in_db(db: sqlite3.Connection, name: str) -> int:
     return int(cursor.lastrowid)
 
 
+def get_or_create_session_from_db(
+    db: sqlite3.Connection,
+    workout_date: str | None,
+    location_id: int | None,
+    normalize_date,
+    get_location,
+    get_recent_or_default_location,
+    get_session_by_date,
+) -> sqlite3.Row:
+    date_value = normalize_date(workout_date)
+    location = get_location(db, location_id) if location_id else get_recent_or_default_location(db)
+    existing = db.execute(
+        "SELECT * FROM workout_sessions WHERE workout_date = ?",
+        (date_value,),
+    ).fetchone()
+    if existing:
+        if location_id and existing["location_id"] != location["id"]:
+            db.execute(
+                "UPDATE workout_sessions SET location_id = ? WHERE id = ?",
+                (location["id"], existing["id"]),
+            )
+            db.commit()
+            return get_session_by_date(date_value)
+        return existing
+
+    db.execute(
+        "INSERT INTO workout_sessions (workout_date, location_id) VALUES (?, ?)",
+        (date_value, location["id"]),
+    )
+    db.commit()
+    return db.execute(
+        "SELECT * FROM workout_sessions WHERE workout_date = ?",
+        (date_value,),
+    ).fetchone()
+
+
+def get_session_by_date_from_db(db: sqlite3.Connection, workout_date: str) -> sqlite3.Row | None:
+    return db.execute(
+        "SELECT * FROM workout_sessions WHERE workout_date = ?",
+        (workout_date,),
+    ).fetchone()
+
+
+def get_session_by_id_from_db(db: sqlite3.Connection, session_id: int) -> sqlite3.Row | None:
+    return db.execute("SELECT * FROM workout_sessions WHERE id = ?", (session_id,)).fetchone()
+
+
+def mark_session_completed_in_db(db: sqlite3.Connection, session_id: int, completed: bool) -> None:
+    db.execute("UPDATE workout_sessions SET completed = ? WHERE id = ?", (1 if completed else 0, session_id))
+    db.commit()
+
+
+def update_session_duration_in_db(db: sqlite3.Connection, session_id: int, duration_seconds: int) -> None:
+    db.execute(
+        "UPDATE workout_sessions SET duration_seconds = ? WHERE id = ?",
+        (max(0, int(duration_seconds or 0)), session_id),
+    )
+    db.commit()
+
+
+def list_exercises_from_db(db: sqlite3.Connection, location_id: int | None = None) -> list[sqlite3.Row]:
+    if location_id:
+        return db.execute(
+            """
+            SELECT DISTINCT e.id, e.name
+            FROM exercises e
+            JOIN workout_sets ws ON ws.exercise_id = e.id
+            JOIN workout_sessions s ON s.id = ws.session_id
+            WHERE s.location_id = ?
+            ORDER BY e.name
+            """,
+            (location_id,),
+        ).fetchall()
+    return db.execute("SELECT id, name FROM exercises ORDER BY name").fetchall()
+
+
+def list_exercises_by_body_part_from_db(
+    db: sqlite3.Connection,
+    body_parts: list[str],
+    location_id: int | None = None,
+) -> dict[str, list[str]]:
+    location_where = "WHERE s.location_id = ?" if location_id else ""
+    params = (location_id,) if location_id else ()
+    rows = db.execute(
+        f"""
+        SELECT
+            COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part,
+            e.name,
+            COUNT(ws.id) AS use_count,
+            MAX(s.workout_date) AS last_date
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        {location_where}
+        GROUP BY body_part, e.name
+        ORDER BY body_part, last_date DESC, use_count DESC, e.name
+        """,
+        params,
+    ).fetchall()
+    exercises_by_part = {part: [] for part in body_parts}
+    for row in rows:
+        part = row["body_part"] or "기타"
+        exercises_by_part.setdefault(part, []).append(row["name"])
+    return exercises_by_part
+
+
+def list_recent_sets_by_exercise_from_db(
+    db: sqlite3.Connection,
+    limit: int = 6,
+    location_id: int | None = None,
+) -> dict[str, list[dict[str, float | int | None]]]:
+    location_filter = "AND s.location_id = ?" if location_id else ""
+    params = (location_id,) if location_id else ()
+    rows = db.execute(
+        f"""
+        SELECT e.name, ws.weight, ws.reps, s.workout_date, ws.sort_order
+        FROM workout_sets ws
+        JOIN exercises e ON e.id = ws.exercise_id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.weight IS NOT NULL OR ws.reps IS NOT NULL
+        {location_filter}
+        ORDER BY s.workout_date DESC, ws.sort_order ASC, ws.id ASC
+        """,
+        params,
+    ).fetchall()
+    grouped: dict[str, list[dict[str, float | int | None]]] = {}
+    seen_dates: set[str] = set()
+    for row in rows:
+        name = row["name"]
+        if name in grouped and len(grouped[name]) >= limit:
+            continue
+        marker = f"{name}:{row['workout_date']}"
+        if marker in seen_dates:
+            grouped.setdefault(name, []).append({"weight": row["weight"], "reps": row["reps"]})
+        elif name not in grouped:
+            grouped[name] = [{"weight": row["weight"], "reps": row["reps"]}]
+            seen_dates.add(marker)
+    return grouped
+
+
+def list_exercise_stats_by_name_from_db(
+    db: sqlite3.Connection,
+    location_id: int | None = None,
+) -> dict[str, dict[str, object]]:
+    location_filter = "AND s.location_id = ?" if location_id else ""
+    recent_location_filter = "AND s2.location_id = ?" if location_id else ""
+    params: tuple[object, ...] = (location_id, location_id) if location_id else ()
+    rows = db.execute(
+        f"""
+        SELECT
+            e.name,
+            MAX(ws.weight) AS best_weight,
+            MAX(ws.reps) AS best_reps,
+            MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)) AS best_volume,
+            (
+                SELECT s2.workout_date || ' · ' || COALESCE(ws2.weight, 0) || 'kg ' || COALESCE(ws2.reps, 0) || '회'
+                FROM workout_sets ws2
+                JOIN workout_sessions s2 ON s2.id = ws2.session_id
+                WHERE ws2.exercise_id = e.id
+                  AND (ws2.weight IS NOT NULL OR ws2.reps IS NOT NULL)
+                  {recent_location_filter}
+                ORDER BY s2.workout_date DESC, ws2.sort_order DESC, ws2.id DESC
+                LIMIT 1
+            ) AS recent
+        FROM exercises e
+        JOIN workout_sets ws ON ws.exercise_id = e.id
+        JOIN workout_sessions s ON s.id = ws.session_id
+        WHERE ws.weight IS NOT NULL OR ws.reps IS NOT NULL
+        {location_filter}
+        GROUP BY e.id, e.name
+        """,
+        params,
+    ).fetchall()
+    return {
+        row["name"]: {
+            "recent": row["recent"],
+            "best_weight": row["best_weight"],
+            "best_reps": row["best_reps"],
+            "best_volume": row["best_volume"],
+        }
+        for row in rows
+    }
+
+
 def list_sets_for_session_from_db(db: sqlite3.Connection, session_id: int) -> list[sqlite3.Row]:
     return db.execute(
         """
