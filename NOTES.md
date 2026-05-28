@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.4.5 라우트 및 서비스 추가 정리
+- `routes/main.py`에 남아 있던 분석/캘린더/식단/기록/홈/프로그램/API 라우트를 `summaries.py`, `calendar.py`, `meal_pages.py`, `records.py`, `home.py`, `programs.py`, `api.py`로 나눴습니다.
+- `app.py`에 직접 남아 있던 운동 세션 생성/조회, 운동 목록, 최근 세트, 운동 통계 SQL을 `services/workout.py`로 옮겼습니다.
+- 즐겨찾기 운동 조회는 `services/exercise_settings.py`, 과부하 제안 조회는 `services/progressive_overload.py`로 분리했습니다.
+- `meta.py`의 앱 갱신시각 참조 브랜치를 `master`에서 `main`으로 수정했습니다.
+- `VERSION`, `static/manifest.webmanifest`, `static/sw.js`를 `2.4.5`로 맞췄습니다.
+- 단위별 검증 후 커밋/푸시를 나눠 진행했습니다. 최종 검증은 전체 unittest, compileall, 주요 JS 문법 검사, `git diff --check`로 확인했습니다.
+
 ## 2026-05-28 v2.4.4 구조 및 성능 최적화
 - `health_tracker/services/food_shortcuts.py`, `location_insights.py`, `goals.py`, `reminders.py`를 추가해 `app.py`에 몰려 있던 식단 빠른선택, 장소 인사이트, 목표, 리마인더 DB 로직을 분리했습니다.
 - 장소 인사이트는 장소마다 top exercise/equipment/equipment list를 반복 조회하던 구조를 bulk 조회 후 Python에서 그룹핑하는 방식으로 바꿨습니다.

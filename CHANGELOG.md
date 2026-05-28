@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.4.5 - 2026-05-28
+
+- 분석, 캘린더, 식단 주/월간, 기록 검색 라우트를 별도 모듈로 분리해 `routes/main.py`를 등록 허브 중심으로 정리했습니다.
+- 홈, 프로그램 적용, 최근 세션 API 라우트를 `routes/home.py`, `routes/programs.py`, `routes/api.py`로 분리했습니다.
+- 운동 세션 생성/조회, 운동 목록, 최근 세트, 운동 통계, 즐겨찾기 운동, 과부하 제안 SQL을 서비스 계층으로 옮겨 `app.py`의 직접 DB 책임을 줄였습니다.
+- 기본 브랜치 변경 이후 앱 갱신시각이 `master`를 참조하던 문제를 `main` 기준으로 수정했습니다.
+- PWA manifest와 service worker 캐시 버전을 `2.4.5`로 갱신했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, 주요 JS `node --check`, `git diff --check`.
+
 ## v2.4.4 - 2026-05-28
 
 - 식단 빠른선택과 장소 인사이트 SQL을 서비스 모듈로 분리해 `app.py` 책임을 줄였습니다.

@@ -42,7 +42,7 @@ def get_app_version() -> str:
 
 
 def get_app_updated_at() -> str:
-    ref_path = BASE_DIR / ".git" / "refs" / "heads" / "master"
+    ref_path = BASE_DIR / ".git" / "refs" / "heads" / "main"
     fallback_path = BASE_DIR / "app.py"
     target_path = ref_path if ref_path.exists() else fallback_path
     try:
