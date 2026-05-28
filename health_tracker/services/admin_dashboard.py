@@ -204,6 +204,9 @@ def build_admin_dashboard(
     low_activity_users = sum(1 for item in all_users if item["status"] in {"empty", "low", "db_missing"})
     total_sets = sum(int(item["set_count"]) for item in all_users)
     total_meals = sum(int(item["meal_count"]) for item in all_users)
+    recording_users = sum(1 for item in all_users if int(item["workout_days"]) or int(item["meal_count"]))
+    dormant_users = sum(1 for item in all_users if not item["last_record_date"])
+    active_rate = round(recording_users / len(user_accounts) * 100) if user_accounts else 0
     return {
         "users": users,
         "all_users": all_users,
@@ -217,23 +220,25 @@ def build_admin_dashboard(
         "total_workout_days": sum(int(item["workout_days"]) for item in all_users),
         "total_sets": total_sets,
         "total_meals": total_meals,
-        "recording_users": sum(1 for item in all_users if int(item["workout_days"]) or int(item["meal_count"])),
+        "recording_users": recording_users,
+        "active_rate": active_rate,
+        "dormant_users": dormant_users,
         "low_activity_users": low_activity_users,
         "contact_points": [
             {
-                "label": "가입/활성",
-                "value": f"{len(user_accounts)}명",
-                "detail": f"비활성 {disabled_users}명",
+                "label": "??? ??",
+                "value": f"{active_rate}%",
+                "detail": f"?? ??? {recording_users}? / ?? {len(user_accounts)}?",
             },
             {
-                "label": "기록 상태",
-                "value": f"{low_activity_users}명",
-                "detail": "초기/저활동/DB 확인 필요",
+                "label": "?? ??",
+                "value": f"{low_activity_users}?",
+                "detail": f"???/???/DB ?? ??, ??? {disabled_users}?",
             },
             {
-                "label": "데이터 규모",
-                "value": f"{total_sets}세트",
-                "detail": f"식단 {total_meals}개",
+                "label": "??? ??",
+                "value": f"{total_sets}??",
+                "detail": f"?? {total_meals}?, ?? ?? ?? {dormant_users}?",
             },
         ],
     }
