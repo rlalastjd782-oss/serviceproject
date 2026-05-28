@@ -87,6 +87,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
             "/more",
             "/locations",
             "/sw.js",
+            "/favicon.ico",
         ]
         for path in paths:
             with self.subTest(path=path):
@@ -126,6 +127,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
             with self.subTest(page=page):
                 html = public_client.get(page).data.decode("utf-8")
                 self.assertIn("/static/css/styles.css", html)
+                self.assertIn("/static/icon.svg", html)
+                self.assertIn("/favicon.ico", html)
                 for asset in legacy_assets:
                     self.assertNotIn(asset, html)
 
@@ -133,6 +136,8 @@ class HealthTrackerFlowTest(unittest.TestCase):
             with self.subTest(page=page):
                 html = self.client.get(page).data.decode("utf-8")
                 self.assertIn("/static/css/styles.css", html)
+                self.assertIn("/static/icon.svg", html)
+                self.assertIn("/favicon.ico", html)
                 for asset in legacy_assets:
                     self.assertNotIn(asset, html)
 
@@ -815,6 +820,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("/summaries/yearly", assets)
         self.assertIn("/static/css/ui_rebuild.css", assets)
         self.assertIn("/sw.js", assets)
+        self.assertIn("/favicon.ico", assets)
         self.assertIn("self.skipWaiting()", sw_source)
         self.assertIn("self.clients.claim()", sw_source)
         self.assertIn("offlineFallback", sw_source)
@@ -830,6 +836,12 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
         expected_version = Path("VERSION").read_text(encoding="utf-8").strip()
         self.assertIn(f"workout-pwa-v{expected_version}", response.data.decode("utf-8"))
+
+        public_client = self.app.test_client()
+        response = public_client.get("/favicon.ico")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("image/svg+xml", response.headers.get("Content-Type", ""))
+        self.assertIn("<svg", response.data.decode("utf-8"))
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/app?mode=workout").data.decode("utf-8")

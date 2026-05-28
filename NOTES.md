@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.5.5 favicon 404 수정
+- PythonAnywhere에서 `GET /favicon.ico 404`가 발생하는 문제를 루트 favicon 라우트 추가로 수정했습니다.
+- `/favicon.ico`는 기존 `static/icon.svg`를 `image/svg+xml`로 반환하며 인증 전 공개 접근이 가능합니다.
+- `base/auth/admin` 레이아웃에 `rel=icon`과 `shortcut icon` 링크를 명시했습니다.
+- 서비스워커 precache에 `/favicon.ico`를 추가하고 앱/manifest/cache 버전을 `2.5.5`로 올렸습니다.
+- 로컬 실제 서버에서 `/favicon.ico` 200, 로그인 HTML의 favicon 링크와 `v2.5.5` 반영을 확인했습니다.
+- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사까지 통과했습니다.
+
 ## 2026-05-28 v2.5.4 모바일 상단 메뉴 복구
 - 모바일에서 상단 메뉴가 `오늘` 하나만 보인 원인은 `ui_rebuild.css`의 공통 버튼 모바일 규칙이 `.tab-btn`에 `width: 100%`를 적용했기 때문입니다.
 - `.tab-btn`을 공통 100% 버튼 규칙에서 제외하고 `.tabs .tab-btn`만 `width: auto`로 유지하도록 수정했습니다.

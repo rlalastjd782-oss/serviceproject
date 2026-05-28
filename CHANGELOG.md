@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.5.5 - 2026-05-28
+
+- 브라우저가 자동 요청하는 루트 `/favicon.ico` 경로를 추가해 PythonAnywhere 배포 콘솔의 favicon 404를 제거했습니다.
+- 기존 `static/icon.svg`를 favicon 응답과 레이아웃 icon 링크에 재사용했습니다.
+- 인증 전에도 favicon을 받을 수 있도록 공개 GET/공유 엔드포인트 허용 목록에 `root_favicon`을 추가했습니다.
+- 서비스워커 precache와 앱/manifest 버전을 `2.5.5`로 갱신했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v` 28개, `python -m compileall health_tracker tests`, 주요 JS `node --check`.
+
 ## v2.5.4 - 2026-05-28
 
 - 모바일 폭에서 공통 버튼 규칙이 상단 탭 `.tab-btn`까지 `width: 100%`로 잡아 `오늘` 탭만 보이던 문제를 수정했습니다.

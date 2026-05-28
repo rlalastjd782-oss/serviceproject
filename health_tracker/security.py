@@ -7,11 +7,20 @@ import secrets
 from flask import session
 
 
-PUBLIC_GET_ENDPOINTS = {"root_route", "login_page", "signup_page", "preview_page", "legacy_login_page", "root_service_worker", "static"}
+PUBLIC_GET_ENDPOINTS = {
+    "root_route",
+    "login_page",
+    "signup_page",
+    "preview_page",
+    "legacy_login_page",
+    "root_service_worker",
+    "root_favicon",
+    "static",
+}
 
 PUBLIC_POST_ENDPOINTS = {"login_route", "signup_route"}
 
-AUTHENTICATED_SHARED_ENDPOINTS = {"logout_route", "root_service_worker", "static"}
+AUTHENTICATED_SHARED_ENDPOINTS = {"logout_route", "root_service_worker", "root_favicon", "static"}
 
 ADMIN_ONLY_ENDPOINTS = {"create_account_route"}
 

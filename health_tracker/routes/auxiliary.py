@@ -170,6 +170,15 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
         response.headers["Cache-Control"] = "no-cache"
         return response
 
+    @app.get("/favicon.ico")
+    def root_favicon():
+        response = Response(
+            (BASE_DIR / "static" / "icon.svg").read_text(encoding="utf-8"),
+            content_type="image/svg+xml; charset=utf-8",
+        )
+        response.headers["Cache-Control"] = "public, max-age=86400"
+        return response
+
     @app.get("/exercises/library")
     def exercise_library_page():
         page, per_page = configured_page_params(request.args)
