@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import secrets
 import sqlite3
+from pathlib import Path
 from time import perf_counter
 
 from flask import Flask, Response, abort, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
@@ -314,9 +315,9 @@ def create_app() -> Flask:
     def before_request() -> None:
         g.request_started_at = perf_counter()
         g.db_query_count = 0
-        init_accounts_db(DATABASE)
-        init_db()
         endpoint = request.endpoint or ""
+        if request.method == "GET" and endpoint in {"static", "root_favicon", "root_service_worker"}:
+            return None
         if request.endpoint != "static":
             account_id = parse_int(str(session.get("account_id") or ""))
             if account_id:
@@ -393,6 +394,10 @@ def create_app() -> Flask:
     return app
 
 
+_INITIALIZED_WORKOUT_DATABASES: set[Path] = set()
+_INITIALIZING_WORKOUT_DATABASES: set[Path] = set()
+
+
 def get_db() -> sqlite3.Connection:
     if "db" not in g:
         account_id = parse_int(str(session.get("account_id") or "")) if has_request_context() else None
@@ -405,18 +410,35 @@ def get_db() -> sqlite3.Connection:
         g.db.execute("PRAGMA journal_mode = WAL")
         g.db.execute("PRAGMA synchronous = NORMAL")
         g.db.set_trace_callback(lambda _sql: setattr(g, "db_query_count", int(getattr(g, "db_query_count", 0)) + 1))
+        ensure_workout_database_initialized(database_path)
     return g.db
 
 
 def init_db() -> None:
-    init_database(
-        get_db(),
-        recalculate_missing_exercise_calories,
-        bootstrap_locations,
-        delete_internal_test_data,
-    )
+    account_id = parse_int(str(session.get("account_id") or "")) if has_request_context() else None
+    database_path = account_db_path(DATABASE, account_id or 1)
+    database_path.parent.mkdir(exist_ok=True)
+    ensure_workout_database_initialized(database_path, force=True)
 
 
+def ensure_workout_database_initialized(database_path: Path, force: bool = False) -> None:
+    if not force and database_path in _INITIALIZED_WORKOUT_DATABASES and database_path.exists():
+        return
+    if database_path in _INITIALIZING_WORKOUT_DATABASES:
+        return
+    _INITIALIZING_WORKOUT_DATABASES.add(database_path)
+    try:
+        db = get_db()
+        init_database(
+            db,
+            recalculate_missing_exercise_calories,
+            bootstrap_locations,
+            delete_internal_test_data,
+        )
+        db.commit()
+        _INITIALIZED_WORKOUT_DATABASES.add(database_path)
+    finally:
+        _INITIALIZING_WORKOUT_DATABASES.discard(database_path)
 
 def get_or_create_secret_key() -> str:
     secret_path = BASE_DIR / "instance" / "secret_key.txt"

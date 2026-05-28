@@ -8,6 +8,7 @@ import re
 from health_tracker.security import make_password_hash, verify_password_hash
 
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{2,32}$")
+_INITIALIZED_AUTH_DATABASES: set[Path] = set()
 
 
 def account_db_path(main_database: Path, account_id: int) -> Path:
@@ -29,6 +30,9 @@ def connect_auth_db(main_database: Path) -> sqlite3.Connection:
 
 
 def init_accounts_db(main_database: Path) -> None:
+    path = auth_database_path(main_database)
+    if path in _INITIALIZED_AUTH_DATABASES and path.exists():
+        return
     with closing(connect_auth_db(main_database)) as db:
         with db:
             db.executescript(
@@ -63,6 +67,7 @@ def init_accounts_db(main_database: Path) -> None:
             ]:
                 if column not in columns:
                     db.execute(f"ALTER TABLE users ADD COLUMN {column} {column_type}")
+    _INITIALIZED_AUTH_DATABASES.add(path)
 
 
 def list_accounts(main_database: Path) -> list[sqlite3.Row]:

@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.5.6 - 2026-05-28
+
+- 매 요청마다 실행되던 앱 DB/계정 DB 초기화를 DB 파일 경로별 1회 초기화 캐시로 변경했습니다.
+- 정적 파일, 서비스워커, favicon GET 요청은 인증/DB 조회 흐름을 건너뛰도록 해 배포 환경의 불필요한 SQLite 접근을 줄였습니다.
+- `/sw.js`, `/favicon.ico`, `/static/css/styles.css`가 DB 쿼리 없이 응답하는 회귀 검증을 추가했습니다.
+- 앱/manifest/service worker 버전을 `2.5.6`으로 갱신했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v` 28개, `python -m compileall health_tracker tests`, 주요 JS `node --check`.
+
 ## v2.5.5 - 2026-05-28
 
 - 브라우저가 자동 요청하는 루트 `/favicon.ico` 경로를 추가해 PythonAnywhere 배포 콘솔의 favicon 404를 제거했습니다.

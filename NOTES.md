@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.5.6 요청 초기화 경량화
+- `before_request`에서 모든 요청마다 `init_accounts_db`와 `init_db`를 실행하던 구조를 제거했습니다.
+- 계정 DB와 운동 DB는 파일 경로별로 최초 필요 시 1회만 스키마/마이그레이션을 확인하도록 캐시했습니다.
+- 정적 파일, `/sw.js`, `/favicon.ico`는 인증/계정 조회/앱 DB 초기화를 건너뛰도록 빠른 경로를 추가했습니다.
+- PythonAnywhere에서는 추가로 Web 탭 Static files mapping에서 `/static/`을 실제 `static` 폴더에 매핑하면 Flask worker 부담을 더 줄일 수 있습니다.
+- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사까지 통과했습니다.
+
 ## 2026-05-28 v2.5.5 favicon 404 수정
 - PythonAnywhere에서 `GET /favicon.ico 404`가 발생하는 문제를 루트 favicon 라우트 추가로 수정했습니다.
 - `/favicon.ico`는 기존 `static/icon.svg`를 `image/svg+xml`로 반환하며 인증 전 공개 접근이 가능합니다.

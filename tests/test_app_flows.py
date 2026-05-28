@@ -833,6 +833,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
 
         response = self.client.get("/sw.js")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("X-DB-Query-Count"), "0")
         self.assertEqual(response.headers.get("Service-Worker-Allowed"), "/")
         expected_version = Path("VERSION").read_text(encoding="utf-8").strip()
         self.assertIn(f"workout-pwa-v{expected_version}", response.data.decode("utf-8"))
@@ -840,8 +841,14 @@ class HealthTrackerFlowTest(unittest.TestCase):
         public_client = self.app.test_client()
         response = public_client.get("/favicon.ico")
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("X-DB-Query-Count"), "0")
         self.assertIn("image/svg+xml", response.headers.get("Content-Type", ""))
         self.assertIn("<svg", response.data.decode("utf-8"))
+
+        response = public_client.get("/static/css/styles.css")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers.get("X-DB-Query-Count"), "0")
+        response.close()
 
     def test_lb_weights_are_saved_as_kg_and_set_builder_ui_exists(self) -> None:
         html = self.client.get("/app?mode=workout").data.decode("utf-8")
