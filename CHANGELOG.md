@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.4.2 - 2026-05-28
+
+- 장소 인사이트에서 등록 장비와 실제 사용 장비를 비교해 장비활용률과 미사용 장비를 표시하도록 확장했습니다.
+- 등록 장비는 장비명뿐 아니라 장비 유형까지 기준으로 삼아 운동 입력에서 선택한 분류와 더 정확히 맞물리도록 보강했습니다.
+- 미사용 장비 행은 별도 강조 스타일을 적용해 장소별로 아직 기록이 없는 장비를 빠르게 확인할 수 있게 했습니다.
+- PWA manifest와 service worker 캐시 버전을 `2.4.2`로 갱신했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/ui_interactions.js`, `node --check static/workout_tools.js`, `node --check static/offline_queue.js`, `node --check static/workout_entry.js`, `git diff --check`.
+
 ## v2.4.1 - 2026-05-28
 
 - 기본 브랜치를 `main`으로 전환한 뒤 코드 구조 고도화를 진행했습니다.

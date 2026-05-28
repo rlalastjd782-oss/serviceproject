@@ -28,6 +28,7 @@
             <span>운동 {{ item.location.workout_days or 0 }}일</span>
             <span>세트 {{ item.location.set_count or 0 }}개</span>
             <span>볼륨 {{ "%.0f"|format(item.location.volume or 0) }}kg</span>
+            <span>장비활용 {{ item.equipment_coverage }}%</span>
             <span>최근 {{ item.location.last_date or "-" }}</span>
           </div>
           <div class="location-insight-columns">
@@ -52,6 +53,12 @@
               {% else %}
                 <span class="muted">장비 기록이 없습니다.</span>
               {% endfor %}
+              {% if item.unused_equipment %}
+                <span class="mini-list-row location-unused-equipment">
+                  <span>미사용 장비</span>
+                  <em>{{ item.unused_equipment|join(", ") }}</em>
+                </span>
+              {% endif %}
             </div>
           </div>
         </article>

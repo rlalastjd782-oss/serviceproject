@@ -1597,11 +1597,28 @@ def list_location_training_insights(limit: int = 20) -> list[dict[str, object]]:
             {"equipment": name, "use_count": count}
             for name, count in sorted(equipment_counts.items(), key=lambda item: (-item[1], item[0]))[:5]
         ]
+        registered_equipment = [
+            normalize_equipment_category(str(item["equipment_name"] or ""))
+            or normalize_equipment_category(str(item["equipment_type"] or ""))
+            for item in list_location_equipment(int(row["id"]))
+            if int(item["is_active"] or 0)
+        ]
+        registered_equipment = [item for item in dict.fromkeys(registered_equipment) if item]
+        used_equipment_names = set(equipment_counts)
+        unused_equipment = [item for item in registered_equipment if item not in used_equipment_names]
+        equipment_coverage = (
+            round(((len(registered_equipment) - len(unused_equipment)) / len(registered_equipment)) * 100)
+            if registered_equipment
+            else 0
+        )
         insights.append(
             {
                 "location": row,
                 "top_exercises": top_exercises,
                 "top_equipment": top_equipment,
+                "registered_equipment": registered_equipment,
+                "unused_equipment": unused_equipment[:6],
+                "equipment_coverage": equipment_coverage,
                 "message": build_location_message(row, top_exercises),
             }
         )

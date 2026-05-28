@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.4.2 장소 장비 인사이트 고도화
+- 장소별 인사이트에 등록 장비 대비 실제 사용 장비 비율을 계산하는 `equipment_coverage` 값을 추가했습니다.
+- 등록 장비 비교 기준은 장비명과 장비 유형을 함께 사용하도록 보강해, 운동 입력에서 저장되는 장비 분류와 장소 장비 관리 데이터가 더 잘 연결되게 했습니다.
+- `/locations/insights` 화면에는 장비활용률과 미사용 장비 목록을 노출하고, 미사용 장비 행은 별도 강조 스타일을 적용했습니다.
+- 버전은 `VERSION`, `static/manifest.webmanifest`, `static/sw.js` 모두 `2.4.2`로 맞췄습니다.
+- 검증 완료: 전체 unittest 26개, compileall, 주요 JS 문법 검사, `git diff --check`.
+
 ## 2026-05-28 v2.4.1 구조 고도화 및 모바일 UX 보강
 - GitHub 기본 브랜치는 `main`으로 변경했고 기존 원격 `master`는 삭제했습니다.
 - `routes/main.py`를 추가 분리했습니다. 오늘 운동 액션은 `routes/today_actions.py`, 식단/세트 수정은 `routes/entries.py`, 백업/샘플/삭제 입출력은 `routes/data.py`에서 등록합니다.
