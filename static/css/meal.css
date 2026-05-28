@@ -425,6 +425,11 @@
   padding: 9px;
 }
 
+.meal-builder-toolbar {
+  grid-template-columns: 1fr;
+  margin-bottom: 10px;
+}
+
 .set-count-control {
   display: grid;
   gap: 4px;
@@ -666,92 +671,3 @@
   padding: 12px 13px;
   box-shadow: var(--shadow-soft);
 }
-
-.record-result-list {
-  display: grid;
-  gap: 10px;
-}
-
-.record-result-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(96px, auto);
-  align-items: stretch;
-  gap: 12px;
-  margin-bottom: 0;
-}
-
-.record-result-main {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-content: start;
-  align-items: center;
-  gap: 7px 8px;
-  min-width: 0;
-}
-
-.record-result-main strong {
-  min-width: 0;
-}
-
-.record-result-card strong {
-  color: var(--strong);
-  font-size: 14px;
-  overflow-wrap: anywhere;
-}
-
-.record-result-meta {
-  display: flex;
-  flex-wrap: wrap;
-  grid-column: 1 / -1;
-  gap: 5px;
-}
-
-.record-result-meta span {
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  background: rgb(8 13 22 / 54%);
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.25;
-  padding: 3px 7px;
-}
-
-.record-result-card small {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.record-result-value {
-  display: grid;
-  align-content: center;
-  justify-items: end;
-  min-width: 86px;
-  border-left: 1px solid var(--line);
-  padding-left: 12px;
-  text-align: right;
-}
-
-.record-result-value strong {
-  color: var(--blue);
-  font-size: 16px;
-  white-space: nowrap;
-}
-
-.record-result-value span {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.equipment-summary-card {
-  display: block;
-  color: inherit;
-}
-
-.equipment-summary-card.is-selected {
-  border-color: #60a5fa;
-  background: #101b2e;
-}
-

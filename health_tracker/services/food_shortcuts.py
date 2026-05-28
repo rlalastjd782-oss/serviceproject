@@ -17,6 +17,7 @@ def list_foods_by_meal_type_from_db(db: sqlite3.Connection, limit: int = 6) -> d
             COUNT(id) AS use_count,
             MAX(meal_date) AS last_date
         FROM meal_entries
+        WHERE meal_date >= date('now', 'localtime', '-180 day')
         GROUP BY meal_type, food_name
         ORDER BY meal_type, last_date DESC, use_count DESC, food_name
         """

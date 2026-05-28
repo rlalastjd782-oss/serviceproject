@@ -98,6 +98,7 @@ document.addEventListener("click", (event) => {
   const addSetButton = event.target.closest("[data-add-set-row]");
   const removeSetButton = event.target.closest("[data-remove-set-row]");
   const addMealButton = event.target.closest("[data-add-meal-row]");
+  const addMealPresetButton = event.target.closest("[data-add-meal-preset]");
   const removeMealButton = event.target.closest("[data-remove-meal-row]");
   const editButton = event.target.closest("[data-toggle-edit]");
   const openSetEditButton = event.target.closest("[data-open-set-edit]");
@@ -287,6 +288,15 @@ document.addEventListener("click", (event) => {
 
   if (addMealButton && mealList) {
     addRow(mealList, "meal");
+    return;
+  }
+
+  if (addMealPresetButton && mealList) {
+    const targetCount = Math.max(1, Math.min(10, Number(addMealPresetButton.dataset.addMealPreset || 1)));
+    while (mealList.querySelectorAll(".meal-entry-row").length < targetCount) {
+      addRow(mealList, "meal", { focus: false });
+    }
+    mealList.querySelector(".meal-entry-row:last-child input")?.focus();
     return;
   }
 

@@ -187,6 +187,7 @@ class WorkoutMealFlowTest(FlowTestBase):
         meal_html = self.client.get(f"/app?date={workout_date}&mode=meal").data.decode("utf-8")
         self.assertIn("고정 음식", meal_html)
         self.assertIn("meal-favorite-row", meal_html)
+        self.assertIn("data-add-meal-preset", meal_html)
         self.assertIn("__TEST__ 고정음식", meal_html)
 
         response = self.client.get(f"/app?date={workout_date}&mode=workout")
