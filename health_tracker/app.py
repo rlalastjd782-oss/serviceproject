@@ -32,6 +32,24 @@ from health_tracker.date_utils import (
     week_start_for_date,
 )
 from health_tracker.database.schema import init_database
+from health_tracker.app_accounts import (
+    account_by_id,
+    account_options,
+    admin_audit_logs,
+    build_account_usage,
+    build_admin_dashboard,
+    configure_account_helpers,
+    create_account,
+    current_account,
+    ensure_default_account,
+    is_admin_account,
+    log_admin_action,
+    mark_account_login,
+    reset_user_password,
+    save_user_admin_note,
+    set_user_active,
+    verify_account,
+)
 from health_tracker.meta import get_app_updated_at, get_app_version
 from health_tracker.security import (
     ADMIN_GET_ENDPOINTS,
@@ -43,26 +61,11 @@ from health_tracker.security import (
     validate_csrf_token,
 )
 from health_tracker.services.admin import build_app_health_status
-from health_tracker.services.admin_dashboard import (
-    account_usage_summary,
-    build_admin_dashboard as build_admin_dashboard_from_accounts,
-)
 from health_tracker.services.accounts import (
     account_db_path,
-    create_account as create_account_in_auth_db,
     ensure_primary_account,
-    get_account_any_status,
-    get_account as get_account_from_auth_db,
     init_accounts_db,
-    list_admin_audit_logs as list_admin_audit_logs_from_auth_db,
-    list_accounts as list_accounts_from_auth_db,
-    log_admin_action as log_admin_action_to_auth_db,
-    reset_account_password,
     touch_account_seen,
-    update_account_memo,
-    update_account_login,
-    update_account_status,
-    verify_account as verify_account_from_auth_db,
 )
 from health_tracker.services.body_part_analysis import (
     list_body_part_summary_from_db,
@@ -258,6 +261,7 @@ def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder=str(BASE_DIR / "static"), static_url_path="/static")
     app.config["DATABASE"] = DATABASE
     app.secret_key = get_or_create_secret_key()
+    configure_account_helpers(get_db, lambda: DATABASE)
     app.config.update(
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
@@ -393,84 +397,6 @@ def normalize_summary_days(value: str | None) -> int:
 
 def save_app_preferences(form) -> None:
     save_app_preferences_to_db(get_db(), form)
-
-
-def current_account() -> sqlite3.Row | None:
-    if not has_request_context():
-        return None
-    account_id = parse_int(str(session.get("account_id") or ""))
-    return get_account_from_auth_db(DATABASE, account_id)
-
-
-def account_options() -> list[sqlite3.Row]:
-    ensure_default_account()
-    return list_accounts_from_auth_db(DATABASE)
-
-
-def account_by_id(account_id: int) -> sqlite3.Row | None:
-    ensure_default_account()
-    return get_account_any_status(DATABASE, account_id)
-
-
-def ensure_default_account() -> None:
-    stored_hash = get_app_setting_from_db(get_db(), "settings_password_hash", "")
-    ensure_primary_account(DATABASE, stored_hash or None)
-
-
-def create_account(username: str, password: str, display_name: str = "", role: str = "user") -> tuple[bool, str]:
-    ensure_default_account()
-    return create_account_in_auth_db(DATABASE, username, password, display_name, role)
-
-
-def verify_account(username: str, password: str) -> sqlite3.Row | None:
-    ensure_default_account()
-    return verify_account_from_auth_db(DATABASE, username, password)
-
-
-def mark_account_login(account_id: int) -> None:
-    update_account_login(DATABASE, account_id)
-
-
-def is_admin_account() -> bool:
-    account = current_account()
-    return bool(account and account["role"] == "admin" and session.get("settings_unlocked"))
-
-
-def build_admin_dashboard(
-    accounts: list[sqlite3.Row],
-    query: str = "",
-    status: str = "all",
-    sort_key: str = "id",
-) -> dict[str, object]:
-    return build_admin_dashboard_from_accounts(DATABASE, accounts, query, status, sort_key)
-
-
-def build_account_usage(account: sqlite3.Row) -> dict[str, object]:
-    return account_usage_summary(DATABASE, account)
-
-
-def reset_user_password(account_id: int, password: str) -> bool:
-    return reset_account_password(DATABASE, account_id, password)
-
-
-def set_user_active(account_id: int, is_active: bool) -> None:
-    update_account_status(DATABASE, account_id, is_active)
-
-
-def save_user_admin_note(account_id: int, memo: str, display_name: str = "") -> None:
-    update_account_memo(DATABASE, account_id, memo, display_name)
-
-
-def log_admin_action(action: str, target_account_id: int | None = None, detail: str = "") -> None:
-    account = current_account()
-    if not account:
-        return
-    log_admin_action_to_auth_db(DATABASE, int(account["id"]), action, target_account_id, detail)
-
-
-def admin_audit_logs(limit: int = 20) -> list[sqlite3.Row]:
-    return list_admin_audit_logs_from_auth_db(DATABASE, limit)
-
 
 def has_settings_password() -> bool:
     return has_settings_password_in_db(get_db())
