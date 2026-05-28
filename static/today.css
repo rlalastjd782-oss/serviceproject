@@ -1,0 +1,196 @@
+.workout-mode .optional-section {
+  display: none;
+}
+
+.today-shell:not(.workout-mode) .workout-only:not(.overview-only),
+.today-shell:not(.meal-mode) .meal-only,
+.workout-mode .overview-only:not(.workout-only),
+.meal-mode .overview-only,
+.meal-mode .workout-only {
+  display: none;
+}
+
+.today-shell.workout-mode,
+.today-shell.meal-mode {
+  display: flex;
+  flex-direction: column;
+}
+
+.workout-mode .date-row,
+.workout-mode .today-mode-actions,
+.meal-mode .date-row,
+.meal-mode .today-mode-actions {
+  order: 0;
+}
+
+.workout-mode .workout-clock-section {
+  order: 10;
+}
+
+.workout-mode #rest-timer {
+  order: 11;
+}
+
+.workout-mode .workout-action-dock {
+  order: 12;
+}
+
+.workout-mode #workout-input {
+  order: 18;
+}
+
+.workout-mode #today-workout {
+  order: 30;
+}
+
+.workout-mode .session-flow-section {
+  order: 50;
+}
+
+.workout-mode .workout-focus-section {
+  order: 16;
+}
+
+.workout-mode .workout-finish-section {
+  order: 70;
+}
+
+.workout-mode .workout-recovery-section {
+  order: 80;
+}
+
+.workout-mode .workout-plan-section,
+.workout-mode .routine-library-section,
+.workout-mode .workout-secondary-section,
+.workout-mode .optional-section {
+  order: 90;
+}
+
+.meal-mode .meal-input-section {
+  order: 10;
+}
+
+.meal-mode .today-meal-section {
+  order: 20;
+}
+
+.meal-mode .meal-goal-section {
+  order: 30;
+}
+
+.meal-mode .meal-helper-section {
+  order: 40;
+}
+
+.date-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: var(--panel-2);
+}
+
+.date-picker-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.date-picker-form input {
+  width: 145px;
+  min-height: 34px;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.arrow-btn {
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font-size: 24px;
+  line-height: 1;
+  padding: 0 10px;
+}
+
+.section {
+  margin-bottom: 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-soft);
+  padding: 13px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent 48%),
+    var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.workout-mode .section {
+  margin-bottom: 9px;
+  padding: 11px;
+}
+
+.workout-mode .workout-plan-section,
+.workout-mode .routine-library-section,
+.workout-mode .workout-secondary-section {
+  background: rgb(17 24 39 / 55%);
+  border-color: rgb(75 85 99 / 55%);
+}
+
+.meal-mode .meal-helper-section,
+.meal-mode .meal-goal-section {
+  background: rgb(17 24 39 / 55%);
+  border-color: rgb(75 85 99 / 55%);
+}
+
+.workout-mode .workout-plan-section .section-header,
+.workout-mode .routine-library-section .section-header,
+.workout-mode .workout-secondary-section .section-header {
+  margin-bottom: 8px;
+}
+
+.mode-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.today-mode-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mode-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  text-align: center;
+}
+
+.mobile-action-dock {
+  position: sticky;
+  top: 91px;
+  z-index: 8;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(15 15 20 / 92%);
+  padding: 7px;
+  backdrop-filter: blur(10px);
+}
+
+.mobile-action-dock a {
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 8px 6px;
+  text-align: center;
+}
