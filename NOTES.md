@@ -1,5 +1,15 @@
 # Codex Handoff Notes
 
+## 2026-05-29 v2.5.7 성능/배포/소스 진단 개선
+- 요청 단위 `current_account`, app setting, app preferences 캐시를 추가했습니다.
+- `touch_account_seen`은 세션 기준 5분 간격으로 제한해 페이지 이동마다 계정 DB write가 발생하지 않게 했습니다.
+- SQLite 성능 진단용 `services/performance.py`를 추가하고 QA 화면에서 핵심 인덱스, 누락 인덱스, 대표 쿼리 계획, `ANALYZE` 실행을 볼 수 있게 했습니다.
+- 배포 점검용 `services/deployment.py`와 소스 길이 점검용 `services/source_audit.py`를 추가했습니다.
+- 서비스워커 precache는 HTML 페이지를 제거하고 핵심 정적 파일만 사전 캐시하도록 줄였습니다.
+- 긴 파일 현황: `static/css/feature_pages.css`, `health_tracker/app.py`, `static/css/styles.css`, `tests/test_app_flows.py`, `static/css/ui_rebuild.css`가 계속 분리 대상입니다.
+- PythonAnywhere는 `/static/` mapping을 Web 탭에서 실제 static 폴더로 지정하고 Reload해야 Flask worker 부담이 줄어듭니다.
+- 검증은 Ruff, 전체 unittest 30개, compileall, 주요 JS 문법 검사, `git diff --check`로 진행했습니다.
+
 ## 2026-05-28 v2.5.6 요청 초기화 경량화
 - `before_request`에서 모든 요청마다 `init_accounts_db`와 `init_db`를 실행하던 구조를 제거했습니다.
 - 계정 DB와 운동 DB는 파일 경로별로 최초 필요 시 1회만 스키마/마이그레이션을 확인하도록 캐시했습니다.

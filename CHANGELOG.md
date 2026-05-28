@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.5.7 - 2026-05-29
+
+- 요청 단위 계정/설정 캐시를 추가하고 계정 `last_seen_at` 갱신을 5분 단위로 제한해 매 요청 DB write를 줄였습니다.
+- SQLite 성능 진단 서비스, `ANALYZE` 실행, 대표 `EXPLAIN QUERY PLAN` 표시, 핵심 인덱스 누락 점검을 QA 화면에 추가했습니다.
+- 기록/식단/PR 분석용 복합 인덱스를 보강했습니다.
+- PythonAnywhere 정적 파일 배포 점검과 소스 길이 진단을 QA 화면에 추가했습니다.
+- 서비스워커 사전 캐시에서 HTML 페이지를 제외하고 핵심 정적 파일 중심으로 경량화했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v` 30개, `python -m compileall health_tracker tests`, 주요 JS `node --check`, `git diff --check`.
+
 ## v2.5.6 - 2026-05-28
 
 - 매 요청마다 실행되던 앱 DB/계정 DB 초기화를 DB 파일 경로별 1회 초기화 캐시로 변경했습니다.
