@@ -6,6 +6,7 @@ from contextlib import closing
 
 from flask import Response
 
+from health_tracker.services.accounts import account_db_path
 from health_tracker.services.export import export_all_data_from_db
 
 
