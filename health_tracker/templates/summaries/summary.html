@@ -70,6 +70,27 @@
             <small>기록된 식단일</small>
           </article>
         </div>
+        <div class="analysis-action-plan" aria-label="?? ?? ??">
+          {% for insight in report_insights[:2] %}
+            <article class="analysis-action-card">
+              <span>???</span>
+              <strong>{{ insight }}</strong>
+            </article>
+          {% endfor %}
+          {% for warning in balance_warnings[:2] %}
+            <article class="analysis-action-card is-warning">
+              <span>?? ??</span>
+              <strong>{{ warning }}</strong>
+            </article>
+          {% endfor %}
+          {% for insight in weekly_goal_insights[:1] %}
+            <article class="analysis-action-card is-goal">
+              <span>??</span>
+              <strong>{{ insight }}</strong>
+            </article>
+          {% endfor %}
+        </div>
+
         <div class="detail-list">
           {% for item in period_highlights %}
             <div class="detail-row highlight-row">
@@ -224,6 +245,27 @@
             </div>
           {% endif %}
         {% endif %}
+        <div class="analysis-action-plan" aria-label="?? ?? ?? ??">
+          {% for insight in report_insights[:2] %}
+            <article class="analysis-action-card">
+              <span>???</span>
+              <strong>{{ insight }}</strong>
+            </article>
+          {% endfor %}
+          {% if monthly_report.missing %}
+            <article class="analysis-action-card is-warning">
+              <span>?? ??</span>
+              <strong>{{ monthly_report.missing[:3]|join(', ') }}</strong>
+            </article>
+          {% endif %}
+          {% for insight in monthly_goal_insights[:1] %}
+            <article class="analysis-action-card is-goal">
+              <span>??</span>
+              <strong>{{ insight }}</strong>
+            </article>
+          {% endfor %}
+        </div>
+
         <div class="detail-list">
           {% for item in period_highlights %}
             <div class="detail-row highlight-row">
