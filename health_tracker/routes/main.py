@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 
-from health_tracker.services.settings_context import build_settings_context
 from health_tracker.services.summary_context import (
     build_daily_summary_context,
     build_monthly_summary_context,
@@ -10,11 +9,13 @@ from health_tracker.services.summary_context import (
 )
 from health_tracker.services.today_context import build_today_context
 from health_tracker.routes.auth import register_auth_routes
+from health_tracker.routes.settings import register_settings_routes
 
 
 def register_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
     register_auth_routes(app, ctx)
+    register_settings_routes(app, ctx)
 
     def parse_weight_kg(value: str, unit: str) -> float | None:
         parsed = parse_float(value)
@@ -246,72 +247,6 @@ def register_routes(app, ctx: dict[str, object]) -> None:
             active_page="meals",
         )
 
-    @app.get("/settings")
-    def settings_page():
-        if not settings_unlocked():
-            return render_template(
-                "settings/lock.html",
-                active_page="settings",
-                has_password=has_settings_password(),
-                error=request.args.get("error", ""),
-            )
-        return render_template("settings/index.html", **build_settings_context(request.args, globals()))
-
-    @app.post("/settings/unlock")
-    def unlock_settings_route():
-        password = request.form.get("password", "")
-        if verify_settings_password(password):
-            session["settings_unlocked"] = True
-            return redirect(url_for("settings_page"))
-        return redirect(url_for("settings_page", error="invalid"))
-
-    @app.post("/settings/password")
-    def save_settings_password_route():
-        if has_settings_password() and not settings_unlocked():
-            return redirect(url_for("settings_page"))
-        password = request.form.get("password", "")
-        password_confirm = request.form.get("password_confirm", "")
-        if password != password_confirm or not set_settings_password(password):
-            return redirect(url_for("settings_page", error="password"))
-        return redirect(url_for("settings_page"))
-
-    @app.post("/settings/password/reset")
-    def reset_settings_password_route():
-        if settings_unlocked() and request.form.get("confirm_reset", "").strip() == "RESET":
-            reset_settings_password()
-        return redirect(url_for("settings_page"))
-
-    @app.post("/settings/app-preferences")
-    def save_app_preferences_route():
-        if settings_unlocked():
-            save_app_preferences(request.form)
-        return redirect(url_for("settings_page"))
-
-    @app.post("/settings/accounts")
-    def create_account_route():
-        if not settings_unlocked():
-            return redirect(url_for("settings_page"))
-        ok, error = create_account(
-            request.form.get("username", ""),
-            request.form.get("password", ""),
-            request.form.get("display_name", ""),
-            request.form.get("role", "user"),
-        )
-        if not ok:
-            return redirect(url_for("settings_page", error=f"account_{error}"))
-        return redirect(url_for("settings_page"))
-
-    @app.post("/settings/lock")
-    def lock_settings_route():
-        session.pop("settings_unlocked", None)
-        return redirect(url_for("settings_page"))
-
-    @app.post("/qa-dummy/year")
-    def generate_year_qa_dummy_route():
-        if settings_unlocked():
-            generate_year_qa_dummy_data()
-        return redirect(url_for("settings_page"))
-
     from health_tracker.routes.auxiliary import register_aux_routes
     from health_tracker.routes.admin import register_admin_routes
 
@@ -336,12 +271,6 @@ def register_routes(app, ctx: dict[str, object]) -> None:
         rest_date = normalize_date(request.form.get("rest_date"))
         save_rest_day(rest_date, request.form.get("rest_reason", ""), request.form.get("memo", ""))
         return redirect(url_for("index", date=rest_date))
-
-    @app.post("/data/cleanup-empty")
-    def cleanup_empty_data_route():
-        delete_empty_workout_sessions()
-        get_db().commit()
-        return redirect(url_for("settings_page"))
 
     @app.post("/sets")
     def create_set():
