@@ -50,6 +50,28 @@ from health_tracker.app_accounts import (
     set_user_active,
     verify_account,
 )
+from health_tracker.app_data import (
+    build_v2_readiness,
+    configure_data_helpers,
+    create_may_sample_data,
+    delete_all_data,
+    delete_empty_workout_sessions,
+    delete_internal_test_data,
+    delete_sample_data,
+    export_all_data,
+    export_meal_csv,
+    export_workout_csv,
+    generate_year_qa_dummy_data,
+    get_app_health_status,
+    get_backup_status,
+    get_data_counts,
+    get_data_safety_status,
+    get_qa_dummy_status,
+    get_sample_data_counts,
+    import_all_data,
+    list_duplicate_exercise_candidates,
+    list_outlier_set_candidates,
+)
 from health_tracker.meta import get_app_updated_at, get_app_version
 from health_tracker.security import (
     ADMIN_GET_ENDPOINTS,
@@ -60,7 +82,6 @@ from health_tracker.security import (
     ensure_csrf_token,
     validate_csrf_token,
 )
-from health_tracker.services.admin import build_app_health_status
 from health_tracker.services.accounts import (
     account_db_path,
     ensure_primary_account,
@@ -80,16 +101,6 @@ from health_tracker.services.body import (
     save_body_metric_to_db,
     save_body_photo_to_db,
 )
-from health_tracker.services.data import (
-    get_backup_status as build_backup_status,
-    get_data_counts as build_data_counts,
-    get_sample_data_counts as build_sample_data_counts,
-)
-from health_tracker.services.data_maintenance import (
-    delete_all_data as delete_all_data_from_db,
-    delete_empty_workout_sessions as delete_empty_workout_sessions_from_db,
-    delete_internal_test_data as delete_internal_test_data_from_db,
-)
 from health_tracker.services.calendar import list_month_calendar_days_from_db
 from health_tracker.services.coaching import (
     build_adaptive_training_recommendations_from_db,
@@ -105,18 +116,6 @@ from health_tracker.services.coaching import (
 from health_tracker.services.data_quality import (
     build_data_quality_profile_from_db,
     list_record_gaps_from_db,
-)
-from health_tracker.services.data_cleanup import (
-    list_duplicate_exercise_candidates as list_duplicate_exercise_candidates_from_db,
-    list_outlier_set_candidates as list_outlier_set_candidates_from_db,
-)
-from health_tracker.services.dummy_data import generate_year_qa_dummy_data as generate_year_qa_dummy_data_in_db
-from health_tracker.services.dummy_data import get_qa_dummy_status as get_qa_dummy_status_from_db
-from health_tracker.services.export import (
-    export_all_data_from_db,
-    export_meal_csv_from_db,
-    export_workout_csv_from_db,
-    import_all_data_to_db,
 )
 from health_tracker.services.exercise_calorie import estimate_exercise_calories_from_weight
 from health_tracker.services.exercise_settings import (
@@ -164,7 +163,6 @@ from health_tracker.services.meal import (
 )
 from health_tracker.services.muscle_balance import build_muscle_balance as build_muscle_balance_from_db
 from health_tracker.services.personal_coach import (
-    build_data_safety_status,
     build_next_actions_from_db,
 )
 from health_tracker.services.pagination import build_pagination, page_params, query_url
@@ -202,7 +200,6 @@ from health_tracker.services.routine import (
     list_routines_from_db,
     rename_routine_template_in_db,
 )
-from health_tracker.services.sample_data import create_may_sample_data_in_db, delete_sample_data_from_db
 from health_tracker.services.settings import (
     get_app_setting as get_app_setting_from_db,
     has_settings_password as has_settings_password_in_db,
@@ -226,7 +223,6 @@ from health_tracker.services.workout import (
     list_sets_for_session_from_db,
     reorder_set_within_exercise_in_db,
 )
-from health_tracker.services.release_readiness import build_v2_readiness_report
 from health_tracker.services.workout_plan import (
     apply_default_program_to_db,
     build_workout_completion_summary_from_db,
@@ -262,6 +258,17 @@ def create_app() -> Flask:
     app.config["DATABASE"] = DATABASE
     app.secret_key = get_or_create_secret_key()
     configure_account_helpers(get_db, lambda: DATABASE)
+    configure_data_helpers(
+        get_db_func=get_db,
+        get_database_func=lambda: DATABASE,
+        get_base_dir_func=lambda: BASE_DIR,
+        has_settings_password_func=has_settings_password,
+        settings_unlocked_func=settings_unlocked,
+        get_or_create_session_func=get_or_create_session,
+        get_or_create_exercise_func=get_or_create_exercise,
+        save_exercise_equipment_func=save_exercise_equipment,
+        estimate_exercise_calories_func=estimate_exercise_calories,
+    )
     app.config.update(
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
@@ -425,15 +432,6 @@ def settings_unlocked() -> bool:
 def reset_settings_password() -> None:
     reset_settings_password_in_db(get_db())
     session.pop("settings_unlocked", None)
-
-
-def get_qa_dummy_status() -> dict[str, object]:
-    return get_qa_dummy_status_from_db(get_db())
-
-
-def generate_year_qa_dummy_data() -> dict[str, object]:
-    return generate_year_qa_dummy_data_in_db(get_db())
-
 
 def get_or_create_session(workout_date: str | None = None, location_id: int | None = None) -> sqlite3.Row:
     db = get_db()
@@ -2229,87 +2227,6 @@ def build_period_highlights(scope: str, date_text: str) -> list[dict[str, str]]:
     if not highlights:
         highlights.append({"label": "리포트", "value": "기록 대기", "note": "운동이나 회복 기록을 입력하면 표시됩니다."})
     return highlights[:3]
-
-
-def get_data_counts() -> dict[str, int]:
-    return build_data_counts(get_db())
-
-
-def get_backup_status() -> dict[str, str]:
-    return build_backup_status(BASE_DIR)
-
-
-def get_data_safety_status() -> list[dict[str, str]]:
-    return build_data_safety_status(get_backup_status(), has_settings_password(), settings_unlocked())
-
-
-def get_sample_data_counts() -> dict[str, int]:
-    return build_sample_data_counts(get_db())
-
-
-def get_app_health_status() -> list[dict[str, str]]:
-    return build_app_health_status(DATABASE, get_data_counts(), get_sample_data_counts(), get_backup_status())
-
-
-def list_duplicate_exercise_candidates(limit: int = 10) -> list[dict[str, object]]:
-    return list_duplicate_exercise_candidates_from_db(get_db(), limit)
-
-
-def list_outlier_set_candidates(limit: int = 10) -> list[dict[str, object]]:
-    return list_outlier_set_candidates_from_db(get_db(), limit)
-
-
-def build_v2_readiness() -> dict[str, object]:
-    return build_v2_readiness_report(
-        get_data_counts(),
-        get_qa_dummy_status(),
-        get_backup_status(),
-        has_settings_password(),
-    )
-
-
-def delete_sample_data() -> None:
-    delete_sample_data_from_db(get_db(), delete_empty_workout_sessions)
-
-
-def create_may_sample_data() -> None:
-    create_may_sample_data_in_db(
-        get_db(),
-        delete_sample_data,
-        get_or_create_session,
-        get_or_create_exercise,
-        save_exercise_equipment,
-        estimate_exercise_calories,
-    )
-
-
-def delete_empty_workout_sessions() -> None:
-    delete_empty_workout_sessions_from_db(get_db())
-
-
-def delete_all_data() -> None:
-    delete_all_data_from_db(get_db(), BASE_DIR, export_all_data)
-
-
-def delete_internal_test_data() -> None:
-    delete_internal_test_data_from_db(get_db())
-
-
-def export_all_data() -> dict[str, object]:
-    return export_all_data_from_db(get_db())
-
-
-def export_workout_csv() -> str:
-    return export_workout_csv_from_db(get_db())
-
-
-def export_meal_csv() -> str:
-    return export_meal_csv_from_db(get_db())
-
-
-def import_all_data(payload: dict[str, object]) -> None:
-    import_all_data_to_db(get_db(), BASE_DIR, payload)
-
 
 def body_part_options() -> list[str]:
     return BODY_PARTS
