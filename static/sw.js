@@ -23,6 +23,7 @@ const ASSETS = [
   "/static/styles.css",
   "/static/today.css",
   "/static/feature_pages.css",
+  "/static/meal.css",
   "/static/analysis.css",
   "/static/responsive.css",
   "/static/rules.css",
