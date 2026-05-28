@@ -32,6 +32,7 @@ const ASSETS = [
   "/static/workout_tools.js",
   "/static/ui_interactions.js",
   "/static/notifications.js",
+  "/static/meal_entry.js",
   "/static/app.js",
   "/static/workout_entry.js",
   "/sw.js",
