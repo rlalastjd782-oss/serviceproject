@@ -1,5 +1,14 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.5.0 운동 완료 리뷰 및 목표 진행률
+- 오늘 운동 완료 영역에 `workout_finish_review` 컨텍스트를 추가하고 `services/workout_plan.py`에서 완료 리뷰 데이터를 생성하도록 했습니다.
+- 완료 리뷰는 총 세트, 운동 볼륨, PR, 유산소, 직전 운동 대비 볼륨, 계획 달성률, RPE 기반 회복 코멘트를 표시합니다.
+- 운동별 목표 진행률은 기존 `exercise_settings.target_weight`, `target_reps`, `target_sets`를 활용해 `services/exercise_settings.py`에서 계산합니다.
+- 오늘 운동 기록 카드에 목표 진행률 막대와 목표별 현재/목표 값을 표시합니다.
+- 신규 DB 테이블 없이 기존 데이터만 재사용했습니다.
+- `VERSION`, `static/manifest.webmanifest`, `static/sw.js`를 `2.5.0`으로 맞췄습니다.
+- 검증은 전체 unittest, compileall, 주요 JS 문법 검사, `git diff --check`로 마무리했습니다.
+
 ## 2026-05-28 v2.4.5 라우트 및 서비스 추가 정리
 - `routes/main.py`에 남아 있던 분석/캘린더/식단/기록/홈/프로그램/API 라우트를 `summaries.py`, `calendar.py`, `meal_pages.py`, `records.py`, `home.py`, `programs.py`, `api.py`로 나눴습니다.
 - `app.py`에 직접 남아 있던 운동 세션 생성/조회, 운동 목록, 최근 세트, 운동 통계 SQL을 `services/workout.py`로 옮겼습니다.
