@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.5.3-hotfix static 경로 렌더링 검증 보강
+- 로컬 5000 포트 서버가 이전 프로세스 상태로 남아 `/static/styles.css`를 응답 HTML에 남기고 있어 UI가 깨진 것을 확인했습니다.
+- 서버를 재시작한 뒤 `/login` 렌더 HTML이 `/static/css/...` 경로를 쓰고 핵심 CSS/JS가 200으로 응답하는 것을 확인했습니다.
+- 같은 누락을 막기 위해 비로그인/로그인 렌더 페이지에서 예전 정적 경로가 남지 않는 테스트를 추가했습니다.
+- 검증은 Ruff, 전체 unittest 28개, compileall, 주요 JS 문법 검사, `git diff --check`까지 통과했습니다.
+
 ## 2026-05-28 v2.5.3 static 폴더 구조 정리
 - `static` 루트의 CSS 파일을 `static/css/`, JS 파일을 `static/js/`로 이동했습니다.
 - PWA 호환성을 위해 `static/sw.js`, `static/manifest.webmanifest`, `static/icon.svg`는 루트에 유지했습니다.

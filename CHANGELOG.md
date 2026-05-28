@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.5.3-hotfix - 2026-05-28
+
+- static 폴더 분리 후 실행 중인 서버가 예전 템플릿을 응답하면 CSS가 깨질 수 있음을 확인하고 로컬 서버를 재시작했습니다.
+- 로그인/앱/기록/식단/더보기 렌더 HTML에 예전 `/static/*.css` 및 `/static/*.js` 경로가 남지 않는 회귀 테스트를 추가했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v` 28개, `python -m compileall health_tracker tests`, 주요 JS `node --check`, `git diff --check`.
+
 ## v2.5.3 - 2026-05-28
 
 - `static` 루트에 몰려 있던 CSS와 JS를 `static/css`, `static/js` 폴더로 분리했습니다.

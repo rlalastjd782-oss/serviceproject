@@ -93,6 +93,49 @@ class HealthTrackerFlowTest(unittest.TestCase):
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
 
+    def test_rendered_pages_use_nested_static_assets(self) -> None:
+        auth_pages = [
+            "/auth/login?mode=user",
+        ]
+        app_pages = [
+            "/app",
+            "/summaries/daily",
+            "/meals/weekly",
+            "/more",
+        ]
+        legacy_assets = [
+            "/static/styles.css",
+            "/static/today.css",
+            "/static/feature_pages.css",
+            "/static/meal.css",
+            "/static/analysis.css",
+            "/static/responsive.css",
+            "/static/rules.css",
+            "/static/ui_rebuild.css",
+            "/static/app.js",
+            "/static/timers.js",
+            "/static/offline_queue.js",
+            "/static/workout_tools.js",
+            "/static/ui_interactions.js",
+            "/static/notifications.js",
+            "/static/meal_entry.js",
+            "/static/workout_entry.js",
+        ]
+        public_client = self.app.test_client()
+        for page in auth_pages:
+            with self.subTest(page=page):
+                html = public_client.get(page).data.decode("utf-8")
+                self.assertIn("/static/css/styles.css", html)
+                for asset in legacy_assets:
+                    self.assertNotIn(asset, html)
+
+        for page in app_pages:
+            with self.subTest(page=page):
+                html = self.client.get(page).data.decode("utf-8")
+                self.assertIn("/static/css/styles.css", html)
+                for asset in legacy_assets:
+                    self.assertNotIn(asset, html)
+
     def test_fold_ui_regression_markers_render(self) -> None:
         overview_html = self.client.get("/app").data.decode("utf-8")
         self.assertIn("data-quality-card", overview_html)
