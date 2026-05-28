@@ -10,5 +10,6 @@ instance/
 .test-tmp/
 *.db
 local-server*.log
+server*.log
 .DS_Store
 Thumbs.db
