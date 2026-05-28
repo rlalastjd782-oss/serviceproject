@@ -113,7 +113,8 @@ def apply_routine_template_to_db(
 ) -> None:
     items = db.execute(
         """
-        SELECT *
+        SELECT id, routine_id, exercise_name, body_part, set_type, weight, reps,
+               cardio_incline, cardio_speed, cardio_minutes, equipment, sort_order
         FROM routine_items
         WHERE routine_id = ?
         ORDER BY sort_order, id

@@ -5,9 +5,11 @@ from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
 
+BODY_METRIC_COLUMNS = "metric_date, body_weight, muscle_mass, body_fat, waist, created_at, updated_at"
+
 
 def get_body_metric_from_db(db: sqlite3.Connection, metric_date: str) -> sqlite3.Row | None:
-    return db.execute("SELECT * FROM body_metrics WHERE metric_date = ?", (metric_date,)).fetchone()
+    return db.execute(f"SELECT {BODY_METRIC_COLUMNS} FROM body_metrics WHERE metric_date = ?", (metric_date,)).fetchone()
 
 
 def save_body_metric_to_db(
@@ -42,8 +44,8 @@ def list_body_metrics_from_db(
     shift_month: Callable[[str, int], str],
 ) -> list[sqlite3.Row]:
     return db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {BODY_METRIC_COLUMNS}
         FROM body_metrics
         WHERE metric_date >= ? AND metric_date < ?
         ORDER BY metric_date DESC
@@ -105,7 +107,7 @@ def save_body_photo_to_db(db: sqlite3.Connection, photo_dir: Path, photo_date: s
 def list_body_photos_from_db(db: sqlite3.Connection, photo_date: str, limit: int = 3) -> list[sqlite3.Row]:
     return db.execute(
         """
-        SELECT *
+        SELECT id, photo_date, file_path, created_at
         FROM body_photos
         WHERE photo_date <= ?
         ORDER BY photo_date DESC, id DESC

@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import sqlite3
 
+PR_EVENT_COLUMNS = "id, workout_date, set_id, exercise_id, exercise_name, record_type, record_value, created_at"
+
 
 def list_pr_events_from_db(db: sqlite3.Connection, workout_date: str) -> list[sqlite3.Row]:
     return db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {PR_EVENT_COLUMNS}
         FROM pr_events
         WHERE workout_date = ?
         ORDER BY id DESC
@@ -17,8 +19,8 @@ def list_pr_events_from_db(db: sqlite3.Connection, workout_date: str) -> list[sq
 
 def list_recent_pr_events_from_db(db: sqlite3.Connection, limit: int = 12) -> list[sqlite3.Row]:
     return db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {PR_EVENT_COLUMNS}
         FROM pr_events
         ORDER BY workout_date DESC, id DESC
         LIMIT ?
@@ -60,8 +62,8 @@ def list_exercise_pr_history_from_db(db: sqlite3.Connection, exercise_id: int | 
     if not exercise_id:
         return []
     return db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {PR_EVENT_COLUMNS}
         FROM pr_events
         WHERE exercise_id = ?
         ORDER BY workout_date DESC, id DESC

@@ -3,11 +3,14 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Callable
 
+MEAL_ENTRY_COLUMNS = "id, meal_date, meal_type, food_name, quantity, grams, calories, protein, carbs, fat, memo, created_at"
+MEAL_TEMPLATE_ITEM_COLUMNS = "id, template_id, meal_type, food_name, quantity, grams, calories, sort_order"
+
 
 def list_meals_for_date_from_db(db: sqlite3.Connection, meal_date: str) -> list[sqlite3.Row]:
     return db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {MEAL_ENTRY_COLUMNS}
         FROM meal_entries
         WHERE meal_date = ?
         ORDER BY created_at DESC, id DESC
@@ -18,8 +21,8 @@ def list_meals_for_date_from_db(db: sqlite3.Connection, meal_date: str) -> list[
 
 def grouped_meals_for_date_from_db(db: sqlite3.Connection, meal_date: str) -> list[dict[str, object]]:
     rows = db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {MEAL_ENTRY_COLUMNS}
         FROM meal_entries
         WHERE meal_date = ?
         ORDER BY
@@ -54,8 +57,8 @@ def list_weekly_meal_days_from_db(
 ) -> list[dict[str, object]]:
     week_end = shift_date(week_start, 6)
     rows = db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {MEAL_ENTRY_COLUMNS}
         FROM meal_entries
         WHERE meal_date BETWEEN ? AND ?
         ORDER BY meal_date ASC,
@@ -237,8 +240,8 @@ def list_meal_templates_from_db(db: sqlite3.Connection) -> list[dict[str, object
 
 def create_meal_template_from_day_in_db(db: sqlite3.Connection, name: str, meal_date: str) -> None:
     rows = db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {MEAL_ENTRY_COLUMNS}
         FROM meal_entries
         WHERE meal_date = ?
         ORDER BY id
@@ -263,8 +266,8 @@ def create_meal_template_from_day_in_db(db: sqlite3.Connection, name: str, meal_
 
 def apply_meal_template_to_db(db: sqlite3.Connection, template_id: int, meal_date: str) -> None:
     rows = db.execute(
-        """
-        SELECT *
+        f"""
+        SELECT {MEAL_TEMPLATE_ITEM_COLUMNS}
         FROM meal_template_items
         WHERE template_id = ?
         ORDER BY sort_order, id

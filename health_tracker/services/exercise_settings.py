@@ -24,7 +24,12 @@ def list_exercise_settings_from_db(
     db: sqlite3.Connection,
     default_rest_seconds: int,
 ) -> dict[str, dict[str, int | float | bool | str | None]]:
-    rows = db.execute("SELECT * FROM exercise_settings").fetchall()
+    rows = db.execute(
+        """
+        SELECT exercise_name, rest_seconds, is_favorite, equipment, target_weight, target_reps, target_sets
+        FROM exercise_settings
+        """
+    ).fetchall()
     return {
         row["exercise_name"]: {
             "rest_seconds": int(row["rest_seconds"] or default_rest_seconds),

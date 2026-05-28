@@ -1,22 +1,22 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import sqlite3
 
 from health_tracker.constants import normalize_equipment_category
 
 
-DEFAULT_LOCATION_NAME = "기본 헬스장"
+DEFAULT_LOCATION_NAME = "기본 장소"
 
 
 def ensure_default_location(db: sqlite3.Connection) -> sqlite3.Row:
     row = db.execute(
-        "SELECT * FROM workout_locations WHERE is_default = 1 AND is_active = 1 ORDER BY id LIMIT 1"
+        "SELECT id, name, address, memo, is_default, is_active, created_at, updated_at FROM workout_locations WHERE is_default = 1 AND is_active = 1 ORDER BY id LIMIT 1"
     ).fetchone()
     if row:
         return row
 
     row = db.execute(
-        "SELECT * FROM workout_locations WHERE name = ?",
+        "SELECT id, name, address, memo, is_default, is_active, created_at, updated_at FROM workout_locations WHERE name = ?",
         (DEFAULT_LOCATION_NAME,),
     ).fetchone()
     if not row:
@@ -25,7 +25,7 @@ def ensure_default_location(db: sqlite3.Connection) -> sqlite3.Row:
             INSERT INTO workout_locations (name, memo, is_default, is_active)
             VALUES (?, ?, 1, 1)
             """,
-            (DEFAULT_LOCATION_NAME, "기존 기록을 보존하기 위한 기본 장소"),
+            (DEFAULT_LOCATION_NAME, "湲곗〈 湲곕줉??蹂댁〈?섍린 ?꾪븳 湲곕낯 ?μ냼"),
         )
         location_id = cursor.lastrowid
     else:
@@ -35,7 +35,7 @@ def ensure_default_location(db: sqlite3.Connection) -> sqlite3.Row:
             (location_id,),
         )
     db.execute("UPDATE workout_locations SET is_default = CASE WHEN id = ? THEN 1 ELSE 0 END", (location_id,))
-    return db.execute("SELECT * FROM workout_locations WHERE id = ?", (location_id,)).fetchone()
+    return db.execute("SELECT id, name, address, memo, is_default, is_active, created_at, updated_at FROM workout_locations WHERE id = ?", (location_id,)).fetchone()
 
 
 def bootstrap_locations(db: sqlite3.Connection) -> sqlite3.Row:
@@ -84,7 +84,7 @@ def list_locations(db: sqlite3.Connection, include_inactive: bool = False) -> li
 
 def get_location(db: sqlite3.Connection, location_id: int | None) -> sqlite3.Row:
     if location_id:
-        row = db.execute("SELECT * FROM workout_locations WHERE id = ?", (location_id,)).fetchone()
+        row = db.execute("SELECT id, name, address, memo, is_default, is_active, created_at, updated_at FROM workout_locations WHERE id = ?", (location_id,)).fetchone()
         if row:
             return row
     return ensure_default_location(db)
@@ -211,7 +211,7 @@ def location_equipment_names(db: sqlite3.Connection, location_id: int | None) ->
         return list(dict.fromkeys(names))
     rows = db.execute(
         """
-        SELECT DISTINCT COALESCE(NULLIF(equipment, ''), '미지정') AS equipment
+        SELECT DISTINCT COALESCE(NULLIF(equipment, ''), '誘몄???) AS equipment
         FROM workout_sets
         WHERE COALESCE(NULLIF(equipment, ''), '') != ''
         ORDER BY equipment
@@ -282,3 +282,4 @@ def deactivate_location_equipment(db: sqlite3.Connection, equipment_id: int) -> 
         "UPDATE location_equipment SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         (equipment_id,),
     )
+

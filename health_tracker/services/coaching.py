@@ -7,7 +7,12 @@ from datetime import datetime
 
 def get_recovery_checkin_from_db(db: sqlite3.Connection, date_text: str) -> dict[str, object]:
     row = db.execute(
-        "SELECT * FROM recovery_checkins WHERE checkin_date = ?",
+        """
+        SELECT checkin_date, condition_score, sleep_score, soreness_score, fatigue_score,
+               is_rest_day, rest_reason, memo, created_at, updated_at
+        FROM recovery_checkins
+        WHERE checkin_date = ?
+        """,
         (date_text,),
     ).fetchone()
     if row:

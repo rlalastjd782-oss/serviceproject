@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import sqlite3
 
+WORKOUT_SESSION_COLUMNS = "id, workout_date, location_id, note, completed, duration_seconds, created_at"
+
 
 def reorder_set_within_exercise_in_db(db: sqlite3.Connection, set_id: int, requested_set_number: int) -> None:
     current = db.execute(
@@ -61,7 +63,7 @@ def get_or_create_session_from_db(
     date_value = normalize_date(workout_date)
     location = get_location(db, location_id) if location_id else get_recent_or_default_location(db)
     existing = db.execute(
-        "SELECT * FROM workout_sessions WHERE workout_date = ?",
+        f"SELECT {WORKOUT_SESSION_COLUMNS} FROM workout_sessions WHERE workout_date = ?",
         (date_value,),
     ).fetchone()
     if existing:
@@ -80,20 +82,20 @@ def get_or_create_session_from_db(
     )
     db.commit()
     return db.execute(
-        "SELECT * FROM workout_sessions WHERE workout_date = ?",
+        f"SELECT {WORKOUT_SESSION_COLUMNS} FROM workout_sessions WHERE workout_date = ?",
         (date_value,),
     ).fetchone()
 
 
 def get_session_by_date_from_db(db: sqlite3.Connection, workout_date: str) -> sqlite3.Row | None:
     return db.execute(
-        "SELECT * FROM workout_sessions WHERE workout_date = ?",
+        f"SELECT {WORKOUT_SESSION_COLUMNS} FROM workout_sessions WHERE workout_date = ?",
         (workout_date,),
     ).fetchone()
 
 
 def get_session_by_id_from_db(db: sqlite3.Connection, session_id: int) -> sqlite3.Row | None:
-    return db.execute("SELECT * FROM workout_sessions WHERE id = ?", (session_id,)).fetchone()
+    return db.execute(f"SELECT {WORKOUT_SESSION_COLUMNS} FROM workout_sessions WHERE id = ?", (session_id,)).fetchone()
 
 
 def mark_session_completed_in_db(db: sqlite3.Connection, session_id: int, completed: bool) -> None:

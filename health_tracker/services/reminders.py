@@ -11,7 +11,7 @@ REMINDER_DEFAULTS = {
 
 
 def list_reminder_settings_from_db(db: sqlite3.Connection) -> dict[str, dict[str, object]]:
-    rows = db.execute("SELECT * FROM reminder_settings").fetchall()
+    rows = db.execute("SELECT key, enabled, time_text, message FROM reminder_settings").fetchall()
     settings = {key: value.copy() for key, value in REMINDER_DEFAULTS.items()}
     for row in rows:
         settings[row["key"]] = {
