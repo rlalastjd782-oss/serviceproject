@@ -132,7 +132,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
             }
         )
 
-    if workout_mode or today_mode == "overview":
+    if workout_mode:
         exercises = deps["list_exercises"](current_location["id"])
         quick_names = [row["name"] for row in exercises[:12]]
         location_equipment = deps["list_location_equipment"](current_location["id"])
@@ -171,7 +171,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
                 "adaptive_training_recommendations": deps["build_adaptive_training_recommendations"](today_session["workout_date"]),
                 "daily_coaching": deps["list_daily_coaching"](today_session["workout_date"]),
                 "workout_session_flow": deps["build_workout_session_flow"](today_session["workout_date"]),
-                "workout_groups": deps["grouped_sets_for_session"](today_session["id"]) if workout_mode else [],
+                "workout_groups": deps["grouped_sets_for_session"](today_session["id"]),
                 "location_equipment": location_equipment,
                 "location_quick_exercises": deps["list_location_quick_exercises"](current_location["id"]),
                 "equipment_options": deps["equipment_options_for_location"](current_location["id"]),
@@ -179,7 +179,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
             }
         )
 
-    if meal_mode or today_mode == "overview":
+    if meal_mode:
         context.update(
             {
                 "foods_by_meal_type": deps["list_foods_by_meal_type"](),

@@ -445,9 +445,12 @@
 
   {% include "today/_body_metrics.html" %}
 
-  {% include "today/_workout_library_input.html" %}
+  {% if workout_mode %}
+    {% include "today/_workout_library_input.html" %}
+  {% endif %}
 
   {% if meal_mode %}
+    {% include "today/_meal_input.html" %}
     {% include "today/_meal_records.html" %}
   {% endif %}
 

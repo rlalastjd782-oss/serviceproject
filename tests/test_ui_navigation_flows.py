@@ -96,8 +96,10 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn("quality-metric-list", overview_html)
         self.assertIn("today-hero-section", overview_html)
         self.assertIn("today-mode-actions", overview_html)
+        self.assertNotIn('id="workout-input"', overview_html)
 
         workout_html = self.client.get("/app?mode=workout").data.decode("utf-8")
+        self.assertIn('id="workout-input"', workout_html)
         self.assertIn("data-workout-quick-tab=\"recent\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"favorite\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"routine\"", workout_html)
