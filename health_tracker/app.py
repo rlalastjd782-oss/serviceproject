@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import argparse
-import secrets
 import sqlite3
-from pathlib import Path
 
 from flask import Flask, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
 
+from health_tracker.app_database import configure_database_helpers, get_db, get_or_create_secret_key, init_db
 from health_tracker.app_lifecycle import configure_lifecycle_hooks
 from health_tracker.app_settings import (
     configure_settings_helpers,
@@ -49,7 +48,6 @@ from health_tracker.date_utils import (
     shift_month,
     week_start_for_date,
 )
-from health_tracker.database.schema import init_database
 from health_tracker.app_accounts import (
     account_by_id,
     account_options,
@@ -91,7 +89,6 @@ from health_tracker.app_data import (
     list_outlier_set_candidates,
 )
 from health_tracker.services.accounts import (
-    account_db_path,
     init_accounts_db,
 )
 from health_tracker.services.body_part_analysis import (
@@ -290,6 +287,12 @@ def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder=str(BASE_DIR / "static"), static_url_path="/static")
     app.config["DATABASE"] = DATABASE
     app.secret_key = get_or_create_secret_key()
+    configure_database_helpers(
+        get_database=lambda: DATABASE,
+        recalculate_missing_exercise_calories=recalculate_missing_exercise_calories,
+        bootstrap_locations=bootstrap_locations,
+        delete_internal_test_data=delete_internal_test_data,
+    )
     configure_account_helpers(get_db, lambda: DATABASE)
     configure_settings_helpers(get_db, DATABASE)
     configure_data_helpers(
@@ -322,64 +325,6 @@ def create_app() -> Flask:
     register_routes(app, globals())
 
     return app
-
-
-_INITIALIZED_WORKOUT_DATABASES: set[Path] = set()
-_INITIALIZING_WORKOUT_DATABASES: set[Path] = set()
-
-
-def get_db() -> sqlite3.Connection:
-    if "db" not in g:
-        account_id = parse_int(str(session.get("account_id") or "")) if has_request_context() else None
-        database_path = account_db_path(DATABASE, account_id or 1)
-        database_path.parent.mkdir(exist_ok=True)
-        g.db = sqlite3.connect(database_path)
-        g.db.row_factory = sqlite3.Row
-        g.db.execute("PRAGMA foreign_keys = ON")
-        g.db.execute(f"PRAGMA busy_timeout = {SQLITE_BUSY_TIMEOUT_MS}")
-        g.db.execute("PRAGMA journal_mode = WAL")
-        g.db.execute("PRAGMA synchronous = NORMAL")
-        g.db.set_trace_callback(lambda _sql: setattr(g, "db_query_count", int(getattr(g, "db_query_count", 0)) + 1))
-        ensure_workout_database_initialized(database_path)
-    return g.db
-
-
-def init_db() -> None:
-    account_id = parse_int(str(session.get("account_id") or "")) if has_request_context() else None
-    database_path = account_db_path(DATABASE, account_id or 1)
-    database_path.parent.mkdir(exist_ok=True)
-    ensure_workout_database_initialized(database_path, force=True)
-
-
-def ensure_workout_database_initialized(database_path: Path, force: bool = False) -> None:
-    if not force and database_path in _INITIALIZED_WORKOUT_DATABASES and database_path.exists():
-        return
-    if database_path in _INITIALIZING_WORKOUT_DATABASES:
-        return
-    _INITIALIZING_WORKOUT_DATABASES.add(database_path)
-    try:
-        db = get_db()
-        init_database(
-            db,
-            recalculate_missing_exercise_calories,
-            bootstrap_locations,
-            delete_internal_test_data,
-        )
-        db.commit()
-        _INITIALIZED_WORKOUT_DATABASES.add(database_path)
-    finally:
-        _INITIALIZING_WORKOUT_DATABASES.discard(database_path)
-
-def get_or_create_secret_key() -> str:
-    secret_path = BASE_DIR / "instance" / "secret_key.txt"
-    secret_path.parent.mkdir(exist_ok=True)
-    if secret_path.exists():
-        secret = secret_path.read_text(encoding="utf-8").strip()
-        if secret:
-            return secret
-    secret = secrets.token_urlsafe(32)
-    secret_path.write_text(secret, encoding="utf-8")
-    return secret
 
 
 def get_or_create_session(workout_date: str | None = None, location_id: int | None = None) -> sqlite3.Row:
