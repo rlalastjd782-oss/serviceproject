@@ -5,7 +5,7 @@
 
 {% block content %}
   <div
-    class="today-shell {% if workout_mode %}workout-mode{% elif meal_mode %}meal-mode{% endif %}"
+    class="today-shell {% if workout_mode %}workout-mode{% elif meal_mode %}meal-mode{% endif %}{% if focus_mode %} focus-mode{% endif %}"
     data-app-preferences='{{ app_preferences|tojson }}'
     data-body-part-classes='{{ body_part_class_map|tojson }}'
     data-meal-type-classes='{{ meal_type_class_map|tojson }}'
@@ -23,8 +23,15 @@
     <a class="{% if workout_mode %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동</a>
     <a class="{% if meal_mode %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date, mode='meal') }}">식단</a>
     <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체</a>
-  </div>
 
+    {% if workout_mode %}
+      {% if focus_mode %}
+        <a class="btn-primary mode-button focus-mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout', location_id=current_location.id if current_location else None) }}">집중 해제</a>
+      {% else %}
+        <a class="btn-small mode-button focus-mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout', focus='1', location_id=current_location.id if current_location else None) }}">집중 모드</a>
+      {% endif %}
+    {% endif %}
+  </div>
   {% if today_mode == 'overview' %}
   <section class="section overview-only today-hero-section">
     <div class="today-hero-head">
@@ -157,6 +164,7 @@
       <a href="#workout-input">입력</a>
       <a href="#today-workout">기록</a>
       <a href="#rest-timer">휴식</a>
+      {% if focus_mode %}<a href="#workout-finish">완료</a>{% endif %}
       <button type="button" data-workout-clock-start>시작</button>
     </nav>
   {% endif %}

@@ -95,6 +95,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
 
     workout_mode = today_mode == "workout"
     meal_mode = today_mode == "meal"
+    focus_mode = workout_mode and args.get("focus") == "1"
     selected_location_id = deps["parse_int"](args.get("location_id"))
     today_session = deps["get_or_create_session"](selected_date, selected_location_id)
     current_location = deps["get_workout_location"](today_session["location_id"])
@@ -114,6 +115,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
         "today_mode": today_mode,
         "workout_mode": workout_mode,
         "meal_mode": meal_mode,
+        "focus_mode": focus_mode,
         "body_parts": deps["body_part_options"](),
         "prev_date": deps["shift_date"](today_session["workout_date"], -1),
         "next_date": deps["shift_date"](today_session["workout_date"], 1),

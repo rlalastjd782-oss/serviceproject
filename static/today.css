@@ -162,6 +162,40 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.workout-mode .today-mode-actions {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.focus-mode .workout-location-section,
+.focus-mode .workout-secondary-section,
+.focus-mode .optional-section,
+.focus-mode .next-action-section,
+.focus-mode .readiness-section,
+.focus-mode .workout-recovery-section,
+.focus-mode .rest-day-section {
+  display: none;
+}
+
+.focus-mode .workout-focus-section {
+  order: 13;
+}
+
+.focus-mode #workout-input {
+  order: 14;
+}
+
+.focus-mode #today-workout {
+  order: 15;
+}
+
+.focus-mode .workout-finish-section {
+  order: 16;
+}
+
+.focus-mode .workout-action-dock {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
 .mode-button {
   display: inline-flex;
   align-items: center;
