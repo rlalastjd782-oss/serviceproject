@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from flask import Response
+
 
 def register_aux_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
