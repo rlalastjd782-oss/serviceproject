@@ -24,6 +24,35 @@
   <section class="section">
     <div class="section-header">
       <div>
+        <div class="section-title">성능 진단</div>
+        <div class="section-subtitle">SQLite 인덱스와 대표 쿼리 계획을 확인합니다.</div>
+      </div>
+      <form method="post" action="{{ url_for('run_database_analyze_route') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn-small" type="submit">ANALYZE</button>
+      </form>
+    </div>
+    <div class="detail-list">
+      <div class="detail-row">
+        <strong>핵심 인덱스</strong>
+        <span>{{ performance_snapshot.present_index_count }} / {{ performance_snapshot.critical_index_count }}</span>
+      </div>
+      <div class="detail-row">
+        <strong>누락 인덱스</strong>
+        <span>{{ performance_snapshot.missing_indexes | join(', ') if performance_snapshot.missing_indexes else '없음' }}</span>
+      </div>
+      {% for name, plans in performance_snapshot.query_plans.items() %}
+        <div class="detail-row">
+          <strong>{{ name }}</strong>
+          <span>{{ plans | join(' / ') }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
         <div class="section-title">2.0 준비 상태</div>
         <div class="section-subtitle">실사용 데이터, 연간 QA, 개인 잠금, 백업, 소스 분산 상태를 한 번에 봅니다.</div>
       </div>

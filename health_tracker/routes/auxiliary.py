@@ -145,6 +145,7 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             active_page="settings",
             qa_dummy_status=get_qa_dummy_status(),
             v2_readiness=build_v2_readiness(),
+            performance_snapshot=build_performance_snapshot(get_db()),
             qa_links=[
                 {"label": "2025 연간", "href": url_for("yearly_summary_page", year="2025")},
                 {"label": "2026 연간", "href": url_for("yearly_summary_page", year="2026")},
@@ -159,6 +160,11 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
                 {"label": "서비스워커", "href": url_for("root_service_worker")},
             ],
         )
+
+    @app.post("/qa/analyze")
+    def run_database_analyze_route():
+        run_database_analyze(get_db())
+        return redirect(url_for("qa_report_page"))
 
     @app.get("/sw.js")
     def root_service_worker():

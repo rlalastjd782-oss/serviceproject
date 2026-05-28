@@ -75,7 +75,7 @@ class LegacyMigrationTest(unittest.TestCase):
                 try:
                     indexes = {
                         row[1]
-                        for table in ("workout_sessions", "workout_sets", "meal_entries", "location_equipment")
+                        for table in ("workout_sessions", "workout_sets", "meal_entries", "pr_events", "location_equipment")
                         for row in db.execute(f"PRAGMA index_list({table})").fetchall()
                     }
                 finally:
@@ -83,9 +83,11 @@ class LegacyMigrationTest(unittest.TestCase):
                 self.assertIn("idx_workout_sessions_date_location", indexes)
                 self.assertIn("idx_workout_sets_session_sort", indexes)
                 self.assertIn("idx_workout_sets_exercise_body", indexes)
+                self.assertIn("idx_workout_sets_body_part_session", indexes)
                 self.assertIn("idx_meal_entries_type_date", indexes)
                 self.assertIn("idx_meal_entries_food_date", indexes)
+                self.assertIn("idx_meal_entries_date_type_food", indexes)
+                self.assertIn("idx_pr_events_exercise_date", indexes)
                 self.assertIn("idx_location_equipment_location_active", indexes)
             finally:
                 app_module.DATABASE = original_database
-

@@ -608,6 +608,16 @@ class HealthTrackerFlowTest(unittest.TestCase):
             second_touch = sess.get("last_seen_touch_at")
         self.assertEqual(first_touch, second_touch)
 
+    def test_qa_report_includes_performance_snapshot_and_analyze(self) -> None:
+        html = self.client.get("/qa/report").data.decode("utf-8")
+        self.assertIn("성능 진단", html)
+        self.assertIn("핵심 인덱스", html)
+        self.assertIn("recent_workout_sets", html)
+
+        response = self.client.post("/qa/analyze", data={})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/qa/report", response.headers.get("Location", ""))
+
     def test_auth_preview_is_public_sample_only(self) -> None:
         self.client.post("/logout")
         response = self.client.get("/auth/preview")

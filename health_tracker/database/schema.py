@@ -309,6 +309,9 @@ def init_database(
     db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sessions_date_location ON workout_sessions(workout_date, location_id)")
     db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sets_session_sort ON workout_sets(session_id, sort_order)")
     db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sets_exercise_body ON workout_sets(exercise_id, body_part)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sets_body_part_session ON workout_sets(body_part, session_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_meal_entries_date_type_food ON meal_entries(meal_date, meal_type, food_name)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_pr_events_exercise_date ON pr_events(exercise_id, workout_date)")
     db.execute(
         """
         UPDATE meal_entries

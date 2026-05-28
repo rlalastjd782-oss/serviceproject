@@ -190,6 +190,7 @@ from health_tracker.services.personal_coach import (
     build_next_actions_from_db,
 )
 from health_tracker.services.pagination import build_pagination, page_params, query_url
+from health_tracker.services.performance import build_performance_snapshot, run_database_analyze
 from health_tracker.services.preferences import app_preferences as build_app_preferences
 from health_tracker.services.preferences import save_app_preferences as save_app_preferences_to_db
 from health_tracker.services.progressive_overload import (
