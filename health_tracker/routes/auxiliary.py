@@ -146,6 +146,8 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             qa_dummy_status=get_qa_dummy_status(),
             v2_readiness=build_v2_readiness(),
             performance_snapshot=build_performance_snapshot(get_db()),
+            deployment_checklist=build_deployment_checklist(BASE_DIR),
+            source_audit=list_long_source_files(BASE_DIR),
             qa_links=[
                 {"label": "2025 연간", "href": url_for("yearly_summary_page", year="2025")},
                 {"label": "2026 연간", "href": url_for("yearly_summary_page", year="2026")},

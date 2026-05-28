@@ -24,6 +24,49 @@
   <section class="section">
     <div class="section-header">
       <div>
+        <div class="section-title">배포 점검</div>
+        <div class="section-subtitle">PythonAnywhere static mapping과 필수 경로를 확인합니다.</div>
+      </div>
+      <span class="badge">{{ 'OK' if deployment_checklist.local_static_exists else '확인 필요' }}</span>
+    </div>
+    <div class="detail-list">
+      <div class="detail-row">
+        <strong>Static URL</strong>
+        <span>{{ deployment_checklist.pythonanywhere_static_url }}</span>
+      </div>
+      <div class="detail-row">
+        <strong>Static 폴더</strong>
+        <span>{{ deployment_checklist.pythonanywhere_static_directory }}</span>
+      </div>
+      <div class="detail-row">
+        <strong>필수 경로</strong>
+        <span>{{ deployment_checklist.expected_paths | join(', ') }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">소스 길이 점검</div>
+        <div class="section-subtitle">기준을 넘는 파일은 분리 대상입니다.</div>
+      </div>
+    </div>
+    <div class="detail-list">
+      {% for item in source_audit %}
+        <div class="detail-row">
+          <strong>{{ item.path }}</strong>
+          <span>{{ item.lines }} lines / 기준 {{ item.threshold }}</span>
+        </div>
+      {% else %}
+        <div class="detail-row"><strong>대상 없음</strong><span>현재 기준 초과 파일이 없습니다.</span></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <div>
         <div class="section-title">성능 진단</div>
         <div class="section-subtitle">SQLite 인덱스와 대표 쿼리 계획을 확인합니다.</div>
       </div>

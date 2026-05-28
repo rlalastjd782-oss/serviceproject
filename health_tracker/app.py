@@ -122,6 +122,7 @@ from health_tracker.services.data_quality import (
     build_data_quality_profile_from_db,
     list_record_gaps_from_db,
 )
+from health_tracker.services.deployment import build_deployment_checklist
 from health_tracker.services.exercise_calorie import estimate_exercise_calories_from_weight
 from health_tracker.services.exercise_settings import (
     get_exercise_rest_seconds_from_db,
@@ -234,6 +235,7 @@ from health_tracker.services.settings import (
     set_settings_password as set_settings_password_in_db,
     verify_settings_password as verify_settings_password_in_db,
 )
+from health_tracker.services.source_audit import list_long_source_files
 from health_tracker.services.reminders import (
     list_reminder_settings_from_db,
     save_reminder_settings_to_db,

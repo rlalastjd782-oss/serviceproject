@@ -613,6 +613,9 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("성능 진단", html)
         self.assertIn("핵심 인덱스", html)
         self.assertIn("recent_workout_sets", html)
+        self.assertIn("배포 점검", html)
+        self.assertIn("/static/css/styles.css", html)
+        self.assertIn("소스 길이 점검", html)
 
         response = self.client.post("/qa/analyze", data={})
         self.assertEqual(response.status_code, 302)
