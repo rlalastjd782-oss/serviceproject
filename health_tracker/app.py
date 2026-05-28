@@ -131,6 +131,12 @@ from health_tracker.services.exercise_rules import (
     today_rule_cards_from_db,
     weekly_rule_report_from_db,
 )
+from health_tracker.services.goals import (
+    build_goal_progress_from_db,
+    get_goal_value_from_db,
+    goal_item as build_goal_item,
+    save_goal_to_db,
+)
 from health_tracker.services.location import (
     bootstrap_locations,
     deactivate_location,
@@ -219,6 +225,10 @@ from health_tracker.services.settings import (
     save_app_setting as save_app_setting_to_db,
     set_settings_password as set_settings_password_in_db,
     verify_settings_password as verify_settings_password_in_db,
+)
+from health_tracker.services.reminders import (
+    list_reminder_settings_from_db,
+    save_reminder_settings_to_db,
 )
 from health_tracker.services.summary import (
     build_daily_chart_from_rows,
@@ -1011,128 +1021,27 @@ def generate_weekly_plan(week_start: str) -> int:
 
 
 def list_reminder_settings() -> dict[str, dict[str, object]]:
-    defaults = {
-        "workout": {"enabled": 0, "time_text": "18:30", "message": "운동 기록 시간입니다."},
-        "meal": {"enabled": 0, "time_text": "12:30", "message": "식단 기록을 확인하세요."},
-        "weekly": {"enabled": 0, "time_text": "20:00", "message": "주간 기록을 점검하세요."},
-    }
-    rows = get_db().execute("SELECT * FROM reminder_settings").fetchall()
-    settings = {key: value.copy() for key, value in defaults.items()}
-    for row in rows:
-        settings[row["key"]] = {
-            "enabled": int(row["enabled"] or 0),
-            "time_text": row["time_text"] or defaults.get(row["key"], {}).get("time_text", ""),
-            "message": row["message"] or defaults.get(row["key"], {}).get("message", ""),
-        }
-    return settings
+    return list_reminder_settings_from_db(get_db())
 
 
 def save_reminder_settings(key: str, enabled: bool, time_text: str, message: str) -> None:
-    if key not in {"workout", "meal", "weekly"}:
-        return
-    get_db().execute(
-        """
-        INSERT INTO reminder_settings (key, enabled, time_text, message, updated_at)
-        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(key) DO UPDATE SET
-            enabled = excluded.enabled,
-            time_text = excluded.time_text,
-            message = excluded.message,
-            updated_at = CURRENT_TIMESTAMP
-        """,
-        (key, 1 if enabled else 0, time_text[:5], message[:120]),
-    )
-    get_db().commit()
+    save_reminder_settings_to_db(get_db(), key, enabled, time_text, message)
 
 
 def save_goal(key: str, value: int) -> None:
-    get_db().execute(
-        """
-        INSERT INTO user_goals (key, value, updated_at)
-        VALUES (?, ?, CURRENT_TIMESTAMP)
-        ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP
-        """,
-        (key, max(0, value)),
-    )
-    get_db().commit()
+    save_goal_to_db(get_db(), key, value)
 
 
 def get_goal_value(key: str, default: int) -> int:
-    row = get_db().execute("SELECT value FROM user_goals WHERE key = ?", (key,)).fetchone()
-    return int(row["value"]) if row else default
+    return get_goal_value_from_db(get_db(), key, default)
 
 
 def get_goal_progress(date_text: str) -> dict[str, dict[str, int | float | str]]:
-    week_start = week_start_for_date(date_text)
-    week_end = shift_date(week_start, 6)
-    month_start = normalize_month(date_text[:7])
-    next_month = shift_month(month_start, 1)
-    db = get_db()
-    weekly_workout_days = db.execute(
-        """
-        SELECT COUNT(DISTINCT s.workout_date) AS count
-        FROM workout_sessions s
-        JOIN workout_sets ws ON ws.session_id = s.id
-        WHERE s.workout_date BETWEEN ? AND ?
-        """,
-        (week_start, week_end),
-    ).fetchone()["count"]
-    weekly_meal_days = db.execute(
-        """
-        SELECT COUNT(DISTINCT meal_date) AS count
-        FROM meal_entries
-        WHERE meal_date BETWEEN ? AND ?
-        """,
-        (week_start, week_end),
-    ).fetchone()["count"]
-    weekly_calories = db.execute(
-        """
-        SELECT COALESCE(SUM(calories), 0) AS calories
-        FROM meal_entries
-        WHERE meal_date BETWEEN ? AND ?
-        """,
-        (week_start, week_end),
-    ).fetchone()["calories"]
-    monthly_volume = db.execute(
-        """
-        SELECT COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        WHERE s.workout_date >= ? AND s.workout_date < ?
-        """,
-        (month_start, next_month),
-    ).fetchone()["volume"]
-    monthly_workout_days = db.execute(
-        """
-        SELECT COUNT(DISTINCT s.workout_date) AS count
-        FROM workout_sessions s
-        JOIN workout_sets ws ON ws.session_id = s.id
-        WHERE s.workout_date >= ? AND s.workout_date < ?
-        """,
-        (month_start, next_month),
-    ).fetchone()["count"]
-    monthly_cardio_minutes = db.execute(
-        """
-        SELECT COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS minutes
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        WHERE s.workout_date >= ? AND s.workout_date < ?
-        """,
-        (month_start, next_month),
-    ).fetchone()["minutes"]
-    return {
-        "weekly_workout_days": goal_item(int(weekly_workout_days), get_goal_value("weekly_workout_days", 3), "주간 운동일"),
-        "weekly_meal_days": goal_item(int(weekly_meal_days), get_goal_value("weekly_meal_days", 5), "주간 식단일"),
-        "weekly_calories": goal_item(float(weekly_calories), get_goal_value("weekly_calories", 14000), "주간 칼로리"),
-        "monthly_volume": goal_item(float(monthly_volume), get_goal_value("monthly_volume", 10000), "월간 볼륨"),
-        "monthly_workout_days": goal_item(int(monthly_workout_days), get_goal_value("monthly_workout_days", 12), "월간 운동일"),
-        "monthly_cardio_minutes": goal_item(float(monthly_cardio_minutes), get_goal_value("monthly_cardio_minutes", 300), "월간 유산소"),
-    }
+    return build_goal_progress_from_db(get_db(), date_text, week_start_for_date, shift_date, normalize_month, shift_month)
 
 
 def goal_item(current: int | float, target: int, label: str) -> dict[str, int | float | str]:
-    percent = 0 if target <= 0 else min(100, round(float(current) / target * 100))
-    return {"current": current, "target": target, "label": label, "percent": percent}
+    return build_goal_item(current, target, label)
 
 
 def get_exercise_record_values(exercise_id: int) -> dict[str, float]:
