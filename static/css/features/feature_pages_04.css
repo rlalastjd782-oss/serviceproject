@@ -1,0 +1,452 @@
+﻿
+.tool-card-head strong {
+  color: var(--strong);
+  font-size: 13px;
+}
+
+.tool-card-head span {
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tool-input-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.tool-input-row input {
+  width: 100%;
+  min-width: 0;
+}
+
+.plate-result,
+.warmup-result {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+  min-height: 28px;
+}
+
+.plate-result span,
+.warmup-result span {
+  border: 1px solid #293854;
+  border-radius: 999px;
+  background: #121a29;
+  color: #d8e7ff;
+  font-size: 12px;
+  font-weight: 900;
+  padding: 5px 9px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.next-set-advice {
+  border-color: rgba(80, 160, 255, 0.28);
+  background: rgba(28, 71, 130, 0.18);
+}
+
+.smart-default-note {
+  border-color: rgb(34 197 94 / 28%);
+  background: rgb(34 197 94 / 10%);
+}
+
+.next-action-section {
+  border-color: rgb(96 165 250 / 26%);
+}
+
+.next-action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.next-action-card {
+  display: grid;
+  gap: 6px;
+  min-height: 86px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 3%), transparent), var(--panel-2);
+  color: var(--text);
+  padding: 11px;
+  text-decoration: none;
+}
+
+.next-action-card span {
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.next-action-card strong {
+  color: var(--strong);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.next-action-card.action-training {
+  border-color: rgb(34 197 94 / 35%);
+}
+
+.next-action-card.action-meal {
+  border-color: rgb(245 158 11 / 32%);
+}
+
+.next-action-card.action-recovery {
+  border-color: rgb(168 85 247 / 32%);
+}
+
+.next-set-advice-row {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.next-set-advice-row span,
+.next-set-advice small {
+  color: var(--muted);
+}
+
+.next-set-advice-row strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.overload-card-grid,
+.muscle-balance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.overload-card,
+.muscle-balance-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 12px;
+}
+
+.overload-card-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.overload-card-head strong {
+  display: block;
+  margin-top: 5px;
+}
+
+.overload-card-head b {
+  color: var(--accent);
+  font-size: 0.82rem;
+}
+
+.overload-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.overload-metrics span {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 7px 6px;
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.overload-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.muscle-balance-card {
+  display: grid;
+  gap: 10px;
+}
+
+.muscle-balance-card strong,
+.muscle-balance-card span {
+  display: block;
+}
+
+.muscle-balance-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.muscle-heatbar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.muscle-heatbar i {
+  display: block;
+  height: 100%;
+  min-width: 5%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #50a0ff, #58d68d);
+}
+
+.tool-card-large {
+  min-height: 180px;
+}
+
+.period-filter-form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.workout-save-status {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+}
+
+.timer-display.is-running {
+  color: #22c55e;
+}
+
+.timer-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.duration-edit-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: end;
+  margin-top: 10px;
+}
+
+.duration-manual-edit {
+  margin-top: 8px;
+}
+
+.duration-manual-edit summary {
+  color: var(--dim);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+  list-style: none;
+}
+
+.duration-manual-edit summary::-webkit-details-marker {
+  display: none;
+}
+
+.duration-edit-form label {
+  display: grid;
+  gap: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.duration-edit-form input {
+  width: 100%;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.completion-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 11px;
+}
+
+.completion-card.is-complete {
+  border-color: #16a34a;
+  background: #102018;
+}
+
+.completion-card strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.completion-card span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.pr-card {
+  border-color: #f59e0b;
+  background: #1f1a10;
+}
+
+.pr-inline-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.pr-badge {
+  border-color: rgb(245 158 11 / 45%);
+  background: #1f1a10;
+  color: #fbbf24;
+}
+
+.routine-form,
+.routine-load-row,
+.tool-form,
+.goal-form,
+.body-metric-form,
+.note-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.routine-manage-form {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  margin-top: -4px;
+}
+
+.inline-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.body-metric-form {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+}
+
+.body-photo-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.photo-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.photo-strip img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.goal-form {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.goal-form button {
+  min-height: 38px;
+}
+
+.goal-form-compact {
+  margin-top: 10px;
+}
+
+.routine-load-row {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-2);
+  padding: 8px;
+}
+
+.routine-load-row span {
+  min-width: 0;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.weekly-meal-list {
+  display: grid;
+  gap: 9px;
+}
+
+.weekly-meal-day {
+  display: grid;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent),
+    var(--panel-2);
+  box-shadow: var(--shadow-soft);
+  padding: 12px;
+}
+
+.weekly-meal-day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.weekly-meal-day-head strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.weekly-meal-day-head span {
+  color: var(--dim);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.weekly-meal-items {
+  display: grid;
+  gap: 8px;
+}
+
+.weekly-meal-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(8 13 22 / 52%);
+  padding: 8px;
+}
+
+.weekly-meal-main {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.weekly-meal-main strong {
+  color: var(--strong);
+  font-size: 13px;
+}
+
+.weekly-meal-main span {
+  color: var(--muted);
+  font-size: 11px;
+}

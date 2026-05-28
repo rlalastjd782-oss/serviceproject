@@ -185,17 +185,7 @@ class HealthTrackerFlowTest(unittest.TestCase):
         self.assertIn("rest-start-button", workout_html)
         self.assertIn(">타이머 시작</button>", workout_html)
         self.assertNotIn("초 휴식</button>", workout_html)
-        styles = (
-            Path("static/css/styles.css").read_text(encoding="utf-8")
-            + "\n"
-            + Path("static/css/today.css").read_text(encoding="utf-8")
-            + "\n"
-            + Path("static/css/feature_pages.css").read_text(encoding="utf-8")
-            + "\n"
-            + Path("static/css/analysis.css").read_text(encoding="utf-8")
-            + "\n"
-            + Path("static/css/responsive.css").read_text(encoding="utf-8")
-        )
+        styles = "\n".join(path.read_text(encoding="utf-8") for path in sorted(Path("static/css").rglob("*.css")))
         self.assertIn(".workout-mode #rest-timer {\n  order: 11;", styles)
         self.assertIn(".workout-mode .workout-action-dock {\n  order: 12;", styles)
         self.assertIn(".focus-mode .workout-secondary-section", styles)

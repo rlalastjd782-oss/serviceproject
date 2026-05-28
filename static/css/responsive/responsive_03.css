@@ -1,0 +1,106 @@
+﻿
+@media (min-width: 561px) and (max-width: 1100px) {
+  .workout-record-head strong,
+  .set-result {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 760px) {
+  .finish-review-head,
+  .finish-review-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .finish-review-head {
+    display: grid;
+  }
+
+  .finish-review-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .record-list,
+  .detail-list,
+  .meal-entry-list,
+  .set-entry-list {
+    gap: 10px;
+  }
+
+  .record-card,
+  .daily-record-card,
+  .workout-summary-card,
+  .meal-record-card,
+  .equipment-summary-card,
+  .admin-user-card,
+  .location-card {
+    overflow: hidden;
+  }
+
+  .record-summary,
+  .progress-metrics,
+  .admin-metric-row,
+  .location-equipment-chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .record-summary .badge,
+  .progress-metrics span,
+  .admin-metric-row span,
+  .location-equipment-chip-list span {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .filter-form,
+  .tool-form,
+  .period-filter-form,
+  .record-search-form,
+  .admin-filter-form {
+    align-items: stretch;
+  }
+
+  .filter-form > *,
+  .tool-form > *,
+  .period-filter-form > *,
+  .record-search-form > *,
+  .admin-filter-form > * {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .record-card,
+  .daily-record-card,
+  .workout-summary-card,
+  .meal-record-card,
+  .equipment-summary-card {
+    border-radius: 8px;
+  }
+
+  .detail-row {
+    min-width: 0;
+  }
+
+  .detail-row strong,
+  .detail-row span,
+  .record-date,
+  .record-result-main strong,
+  .weekly-meal-main strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .record-result-value {
+    justify-content: flex-start;
+  }
+
+  .set-row-actions,
+  .edit-actions,
+  .item-actions {
+    gap: 6px;
+  }
+}

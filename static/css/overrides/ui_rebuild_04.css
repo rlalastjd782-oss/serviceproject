@@ -1,0 +1,49 @@
+﻿
+@media (max-width: 430px) {
+  .content {
+    padding-inline: 8px;
+  }
+
+  .section {
+    padding: 10px;
+  }
+
+  .header-title,
+  .account-greeting,
+  .app-version,
+  .section-title,
+  .record-toggle strong,
+  .location-title-row strong {
+    line-height: 1.25;
+  }
+
+  .summary-card,
+  .today-task-card,
+  .record-card,
+  .daily-record-card,
+  .equipment-summary-card,
+  .meal-record-card,
+  .workout-summary-card,
+  .location-card,
+  .admin-user-card {
+    padding: 11px;
+  }
+
+  .compact-set-preview {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-tab-list,
+  .mode-actions,
+  .timer-actions,
+  .set-preset-list,
+  .set-builder-actions,
+  .program-chip-list,
+  .exercise-quick-list,
+  .location-equipment-chip-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+}
+
