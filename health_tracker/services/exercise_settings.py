@@ -99,3 +99,48 @@ def get_exercise_rest_seconds_from_db(db: sqlite3.Connection, exercise_name: str
         (exercise_name,),
     ).fetchone()
     return int(row["rest_seconds"]) if row else default_rest_seconds
+
+
+def list_favorite_exercises_from_db(
+    db: sqlite3.Connection,
+    location_id: int | None = None,
+) -> list[sqlite3.Row]:
+    location_filter = (
+        """
+        AND EXISTS (
+            SELECT 1
+            FROM workout_sets lws
+            JOIN workout_sessions ls ON ls.id = lws.session_id
+            JOIN exercises le ON le.id = lws.exercise_id
+            WHERE le.name = es.exercise_name AND ls.location_id = ?
+        )
+        """
+        if location_id
+        else ""
+    )
+    params = (location_id,) if location_id else ()
+    return db.execute(
+        f"""
+        SELECT
+            es.exercise_name,
+            es.rest_seconds,
+            es.equipment,
+            COALESCE(
+                (
+                    SELECT ws.body_part
+                    FROM workout_sets ws
+                    JOIN exercises e ON e.id = ws.exercise_id
+                    JOIN workout_sessions s ON s.id = ws.session_id
+                    WHERE e.name = es.exercise_name
+                    ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
+                    LIMIT 1
+                ),
+                '기타'
+            ) AS body_part
+        FROM exercise_settings es
+        WHERE es.is_favorite = 1
+        {location_filter}
+        ORDER BY es.updated_at DESC, es.exercise_name
+        """,
+        params,
+    ).fetchall()

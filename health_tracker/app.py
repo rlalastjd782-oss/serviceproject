@@ -121,6 +121,7 @@ from health_tracker.services.data_quality import (
 from health_tracker.services.exercise_calorie import estimate_exercise_calories_from_weight
 from health_tracker.services.exercise_settings import (
     get_exercise_rest_seconds_from_db,
+    list_favorite_exercises_from_db,
     list_exercise_notes_from_db,
     list_exercise_settings_from_db,
     save_exercise_equipment_to_db,
@@ -1162,45 +1163,7 @@ def get_exercise_rest_seconds(exercise_name: str) -> int:
 
 
 def list_favorite_exercises(location_id: int | None = None) -> list[sqlite3.Row]:
-    location_filter = (
-        """
-        AND EXISTS (
-            SELECT 1
-            FROM workout_sets lws
-            JOIN workout_sessions ls ON ls.id = lws.session_id
-            JOIN exercises le ON le.id = lws.exercise_id
-            WHERE le.name = es.exercise_name AND ls.location_id = ?
-        )
-        """
-        if location_id
-        else ""
-    )
-    params = (location_id,) if location_id else ()
-    return get_db().execute(
-        f"""
-        SELECT
-            es.exercise_name,
-            es.rest_seconds,
-            es.equipment,
-            COALESCE(
-                (
-                    SELECT ws.body_part
-                    FROM workout_sets ws
-                    JOIN exercises e ON e.id = ws.exercise_id
-                    JOIN workout_sessions s ON s.id = ws.session_id
-                    WHERE e.name = es.exercise_name
-                    ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
-                    LIMIT 1
-                ),
-                '기타'
-            ) AS body_part
-        FROM exercise_settings es
-        WHERE es.is_favorite = 1
-        {location_filter}
-        ORDER BY es.updated_at DESC, es.exercise_name
-        """,
-        params,
-    ).fetchall()
+    return list_favorite_exercises_from_db(get_db(), location_id)
 
 
 def equipment_options() -> list[str]:
