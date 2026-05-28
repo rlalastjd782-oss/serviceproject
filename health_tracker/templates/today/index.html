@@ -25,6 +25,7 @@
     <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체</a>
   </div>
 
+  {% if today_mode == 'overview' %}
   <section class="section overview-only today-hero-section">
     <div class="today-hero-head">
       <div>
@@ -144,10 +145,12 @@
       </div>
     </section>
   {% endif %}
+  {% endif %}
 
-  {% include "today/_workout_clock.html" %}
-
-  {% include "today/_rest_timer.html" %}
+  {% if workout_mode %}
+    {% include "today/_workout_clock.html" %}
+    {% include "today/_rest_timer.html" %}
+  {% endif %}
 
   {% if workout_mode %}
     <nav class="workout-action-dock" aria-label="운동 중 빠른 이동">
@@ -861,6 +864,7 @@
     </form>
   </section>
 
+  {% if meal_mode %}
   <section class="section meal-only meal-goal-section">
     <div class="section-header">
       <div>
@@ -987,6 +991,7 @@
       </form>
     </div>
   </section>
+  {% endif %}
 
   {% if workout_mode and recent_pr_events %}
     <section class="section workout-only workout-secondary-section">
@@ -1024,6 +1029,7 @@
     </section>
   {% endif %}
 
+  {% if workout_mode %}
   <section class="section workout-only" id="today-workout">
     <div class="section-header">
       <div class="section-title">📋 오늘 운동</div>
@@ -1131,7 +1137,9 @@
       {% endif %}
     </div>
   </section>
+  {% endif %}
 
+  {% if meal_mode %}
   <section class="section meal-only today-meal-section">
     <div class="section-header">
       <div class="section-title">🍱 오늘 식단</div>
@@ -1167,7 +1175,9 @@
       {% endif %}
     </div>
   </section>
+  {% endif %}
 
+  {% if today_mode == 'overview' %}
   <section class="section overview-only">
     <div class="section-header">
       <div class="section-title">📅 최근 기록</div>
@@ -1188,5 +1198,6 @@
       <div class="empty">최근 기록 없음</div>
     {% endfor %}
   </section>
+  {% endif %}
   </div>
 {% endblock %}

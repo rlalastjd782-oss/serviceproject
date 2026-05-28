@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.3.10 운동 탭 로딩 최적화
+- `/app?mode=workout` 진입 시 `build_today_context`가 식단, 전체 요약, 최근 기록 데이터를 모두 만들던 구조를 모드별 컨텍스트로 분리했습니다.
+- 운동 모드에서는 운동 입력, 오늘 운동, 루틴, 회복, PR에 필요한 데이터만 실제 조회하고 식단/전체 전용 값은 안전한 기본값으로 둡니다.
+- 오늘 템플릿에서 CSS로 숨기던 전체 요약/식단 큰 영역을 `{% if today_mode == 'overview' %}`, `{% if meal_mode %}` 조건 렌더링으로 전환했습니다.
+- 첫 테스트에서 식단 조건 범위가 운동 기록 카드까지 덮어 운동명 일괄 수정 UI가 빠지는 회귀를 확인했고, 조건 범위를 분리해 수정했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests` 통과.
+
 ## 2026-05-28 v2.3.9 모바일 운동 빠른 메뉴 겹침 수정
 - 430px 이하 모바일 화면에서 `.workout-action-dock`, `.mobile-action-dock` sticky 위치를 `122px`로 조정해 상단 앱 메뉴와 겹치지 않게 했습니다.
 - `#workout-input`, `#today-workout`, `#rest-timer`, 오늘 할 일, 운동 타이머 섹션에 `scroll-margin-top: 174px`를 적용해 빠른 메뉴 이동 시 큰 섹션 제목이 가려지지 않도록 했습니다.
