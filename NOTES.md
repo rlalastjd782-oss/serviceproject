@@ -1,5 +1,14 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.4.1 구조 고도화 및 모바일 UX 보강
+- GitHub 기본 브랜치는 `main`으로 변경했고 기존 원격 `master`는 삭제했습니다.
+- `routes/main.py`를 추가 분리했습니다. 오늘 운동 액션은 `routes/today_actions.py`, 식단/세트 수정은 `routes/entries.py`, 백업/샘플/삭제 입출력은 `routes/data.py`에서 등록합니다.
+- `health_tracker/app_accounts.py`를 추가해 계정 조회, 관리자 대시보드 집계, 사용자 상태/비밀번호/메모 변경 헬퍼를 `app.py`에서 분리했습니다. 테스트에서 DB 경로를 바꾸는 흐름을 위해 DB provider 방식으로 연결했습니다.
+- `static/styles.css`의 화면별 규칙을 `static/feature_pages.css`, 하단 반응형 규칙을 `static/responsive.css`로 분리했습니다. 레이아웃 템플릿과 서비스워커 캐시 목록도 같이 갱신했습니다.
+- 오프라인 폼 큐는 `static/offline_queue.js`로 분리했습니다. `app.js`는 기존처럼 `queueOfflineForm`, `processOfflineQueue`를 호출합니다.
+- 모바일 UX 보강으로 기록/분석/식단/장비 카드의 줄바꿈, 배지, 필터 폼, 액션 버튼 간격을 좁은 폭 기준으로 정리했습니다.
+- 검증 완료: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/offline_queue.js`, `node --check static/workout_entry.js`.
+
 ## 2026-05-28 v2.4.0 반응형 UI 및 소스 분리 정리
 - 인증 라우트는 `health_tracker/routes/auth.py`, 설정 라우트는 `health_tracker/routes/settings.py`로 분리했습니다. 기존 흐름은 테스트로 유지 확인했습니다.
 - 공통 반응형 보강은 `static/ui_rebuild.css` 하단에 추가했습니다. 모바일/폴드 폭에서 카드, 버튼, 필터, 폼, 테이블이 한 줄로 눌리거나 겹치는 경우를 줄이는 방어 규칙입니다.

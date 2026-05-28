@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.4.1 - 2026-05-28
+
+- 기본 브랜치를 `main`으로 전환한 뒤 코드 구조 고도화를 진행했습니다.
+- `routes/main.py`에 몰려 있던 오늘 입력, 식단/세트 수정, 데이터 입출력 라우트를 `today_actions.py`, `entries.py`, `data.py`로 분리했습니다.
+- 계정/관리자 헬퍼를 `health_tracker/app_accounts.py`로 분리해 `app.py`의 인증/계정 책임을 줄였습니다.
+- `styles.css`를 기본 스타일, 화면별 스타일, 반응형 스타일로 나누고 `feature_pages.css`, `responsive.css`를 추가했습니다.
+- 오프라인 폼 저장 큐를 `offline_queue.js`로 분리했습니다.
+- 모바일 리스트, 카드, 필터, 입력 행의 줄바꿈과 터치 영역을 보강했습니다.
+- 검증: `python -m unittest discover -v`, `python -m compileall health_tracker tests`, `node --check static/app.js`, `node --check static/offline_queue.js`, `node --check static/workout_entry.js`.
+
 ## v2.4.0 - 2026-05-28
 
 - 인증 라우트를 `health_tracker/routes/auth.py`로 분리해 로그인, 회원가입, 로그아웃 흐름을 메인 라우트에서 분리했습니다.
