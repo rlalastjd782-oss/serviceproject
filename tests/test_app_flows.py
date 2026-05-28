@@ -7,7 +7,6 @@ import unittest
 from pathlib import Path
 
 import app as app_module
-from health_tracker.security import make_password_hash, verify_password_hash
 
 
 TEST_TMP_DIR = Path(__file__).resolve().parents[1] / ".test-tmp"

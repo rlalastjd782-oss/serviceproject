@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.5.1 - 2026-05-28
+
+- 개발 QC 도구로 `ruff`를 설치하고 `requirements-dev.txt`에 고정했습니다.
+- `pyproject.toml`에 Ruff 설정을 추가했습니다. 현재 라우트 모듈은 `globals().update(ctx)` 기반 의존성 주입 구조라 라우트 파일의 F821은 예외 처리했습니다.
+- 테스트 파일의 미사용 보안 헬퍼 import를 제거했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v`, `python -m compileall health_tracker tests`, 주요 JS `node --check`, `git diff --check`.
+
 ## v2.5.0 - 2026-05-28
 
 - 오늘 운동 완료 영역에 운동 완료 리뷰 카드를 추가했습니다. 완료/진행 상태, 총 세트, 볼륨, PR, 유산소, 오늘 피드백, 다음 행동을 한 번에 볼 수 있습니다.

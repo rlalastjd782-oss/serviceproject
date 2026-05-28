@@ -1,0 +1,9 @@
+[tool.ruff]
+target-version = "py314"
+
+[tool.ruff.lint]
+select = ["F"]
+
+[tool.ruff.lint.per-file-ignores]
+"health_tracker/app.py" = ["F401"]
+"health_tracker/routes/*.py" = ["F821"]

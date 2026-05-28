@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-28 v2.5.1 Ruff QC 도구 설치
+- 현재 가상환경에 `ruff==0.15.14`를 설치했고 `requirements-dev.txt`에 개발 의존성으로 고정했습니다.
+- `pyproject.toml`을 추가해 Ruff 기본 검사 범위를 `F` 계열로 설정했습니다.
+- 현재 라우트 모듈은 `globals().update(ctx)`로 `app.py` 컨텍스트를 주입받는 구조라, `health_tracker/routes/*.py`의 F821은 per-file ignore로 예외 처리했습니다.
+- `app.py`도 라우트 컨텍스트 전달을 위해 일부 import를 `globals()`에 남기는 구조라 F401을 예외 처리했습니다.
+- `tests/test_app_flows.py`의 실제 미사용 import는 제거했습니다.
+- 검증은 `ruff check health_tracker tests`, 전체 unittest, compileall, 주요 JS 문법 검사, `git diff --check`로 확인했습니다.
+
 ## 2026-05-28 v2.5.0 운동 완료 리뷰 및 목표 진행률
 - 오늘 운동 완료 영역에 `workout_finish_review` 컨텍스트를 추가하고 `services/workout_plan.py`에서 완료 리뷰 데이터를 생성하도록 했습니다.
 - 완료 리뷰는 총 세트, 운동 볼륨, PR, 유산소, 직전 운동 대비 볼륨, 계획 달성률, RPE 기반 회복 코멘트를 표시합니다.
