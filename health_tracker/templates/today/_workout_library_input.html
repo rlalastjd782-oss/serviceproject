@@ -1,0 +1,347 @@
+﻿  <section class="section workout-only routine-library-section workout-secondary-section" id="routine-library">
+    <div class="section-header">
+      <div class="section-title">루틴</div>
+    </div>
+    <div class="routine-actions">
+      {% if recommended_sessions %}
+        <div class="quick-panel-title">같은 요일 추천</div>
+        {% for item in recommended_sessions %}
+          <form method="post" action="{{ url_for('apply_session', source_session_id=item.id) }}" class="routine-load-row recommended-routine">
+            <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="workout">
+            <span>{{ item.workout_date }} · {{ item.body_parts }} · {{ item.set_count }}세트 · {{ format_duration(item.duration_seconds) }}</span>
+            <button class="btn-small" type="submit">불러오기</button>
+          </form>
+        {% endfor %}
+      {% endif %}
+      <div class="quick-panel-title">기본 프로그램</div>
+      <div class="program-chip-list">
+        {% for program in default_programs %}
+          <form method="post" action="{{ url_for('apply_program_route') }}">
+            <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="{% if workout_mode %}workout{% endif %}">
+            <input type="hidden" name="program_name" value="{{ program }}">
+            <button class="exercise-quick-button" type="submit">{{ program }}</button>
+          </form>
+        {% endfor %}
+      </div>
+      <form method="post" action="{{ url_for('create_routine_from_day') }}" class="routine-form">
+        <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+        <input type="hidden" name="mode" value="workout">
+        <input name="routine_name" placeholder="오늘 운동을 루틴으로 저장">
+        <button class="btn-small" type="submit">저장</button>
+      </form>
+      {% if favorite_exercises %}
+        <div class="quick-panel-title">즐겨찾기 운동</div>
+        <div class="exercise-quick-list">
+          {% for exercise in favorite_exercises %}
+            <button type="button" class="exercise-quick-button" data-copy-saved-set data-body-part="{{ exercise.body_part or '기타' }}" data-exercise-name="{{ exercise.exercise_name }}" data-equipment="{{ exercise.equipment or '' }}">{{ exercise.exercise_name }}{% if exercise.equipment %} · {{ exercise.equipment }}{% endif %} · {{ exercise.rest_seconds }}초</button>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% if routines %}
+        {% for routine in routines %}
+          <form method="post" action="{{ url_for('apply_routine', routine_id=routine.id) }}" class="routine-load-row">
+            <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="workout">
+            <span>{{ routine.name }} · {{ routine.item_count }}세트 · 약 {{ routine.estimated_minutes }}분{% if routine.body_parts %} · {{ routine.body_parts }}{% endif %}</span>
+            <button class="btn-small" type="submit">불러오기</button>
+          </form>
+          <form method="post" action="{{ url_for('update_routine', routine_id=routine.id) }}" class="routine-form routine-manage-form">
+            <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="workout">
+            <input name="routine_name" value="{{ routine.name }}" aria-label="루틴명">
+            <button class="btn-small" type="submit">수정</button>
+            <button class="btn-danger" type="submit" formaction="{{ url_for('delete_routine', routine_id=routine.id) }}">삭제</button>
+          </form>
+        {% endfor %}
+      {% else %}
+        <div class="empty compact-empty">저장된 루틴이 없습니다.</div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="section workout-only" id="workout-input">
+    <div class="section-header">
+      <div>
+        <div class="section-title">🏃 운동 입력</div>
+        <div class="section-subtitle">필요할 때 열어서 여러 세트를 한 번에 저장합니다.</div>
+      </div>
+      <button class="btn-small" type="button" data-toggle-workout-form>운동 추가</button>
+    </div>
+    <form method="post" action="{{ url_for('create_set') }}" class="record-form workout-form is-collapsed" data-workout-form>
+     <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
+      <input type="hidden" name="mode" value="workout">
+      <input type="hidden" name="location_id" value="{{ current_location.id if current_location else '' }}">
+      <div class="ex-input-row">
+        <select name="body_part" class="body-part-select" data-body-part-select aria-label="운동 부위">
+          {% for part in body_parts %}
+            <option value="{{ part }}" class="{{ body_part_class(part) }}">{{ part }}</option>
+          {% endfor %}
+        </select>
+        <input list="exercise-list" name="exercise_name" autocomplete="off" placeholder="운동 이름" data-workout-exercise-input required>
+        <select name="equipment" class="equipment-select" aria-label="운동 장비">
+          <option value="">장비 카테고리</option>
+          {% for option in equipment_options %}
+            <option value="{{ option }}">{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field-help equipment-scope-help">
+        장비는 바벨, 덤벨, 핀머신, 플레이트로디드머신, 케이블, 프리웨이트 같은 카테고리로 저장합니다. 운동명 후보만 현재 장소 기준으로 제한됩니다.
+      </div>
+      {% include "today/_workout_quick_panel.html" %}
+      <datalist id="exercise-list" data-exercise-datalist>
+        {% for exercise in exercises %}
+          <option value="{{ exercise.name }}"></option>
+        {% endfor %}
+      </datalist>
+
+      <div class="section-header compact-header set-builder-header">
+        <div>
+          <div class="section-title">세트 빌더</div>
+          <div class="section-subtitle">여러 세트를 만든 뒤 한 번에 저장합니다. lb 입력은 kg로 변환되어 저장됩니다.</div>
+        </div>
+        <button class="btn-small" type="button" data-add-set-row>+ 세트 추가</button>
+      </div>
+      <div class="set-builder-toolbar">
+        <label class="set-count-control">
+          <span>세트 수</span>
+          <input name="set_count_builder" type="number" min="1" max="20" step="1" value="{{ app_preferences.default_set_count }}" inputmode="numeric" data-set-count-input>
+        </label>
+        <div class="set-preset-list" aria-label="세트 수 빠른 선택">
+          <button type="button" class="btn-small" data-set-count-preset="3">3세트</button>
+          <button type="button" class="btn-small" data-set-count-preset="4">4세트</button>
+          <button type="button" class="btn-small" data-set-count-preset="5">5세트</button>
+        </div>
+        <div class="set-builder-actions">
+          <button type="button" class="btn-small" data-fill-weight>같은 무게</button>
+          <button type="button" class="btn-small" data-ramp-weight data-ramp-step="5">+5씩</button>
+        </div>
+      </div>
+      <div class="set-entry-list" data-set-list>
+        <div class="set-entry-row">
+          <strong class="set-row-number">1세트</strong>
+          <div class="compact-field-grid">
+            <label class="weight-unit-field" data-strength-fields>
+              <span>무게</span>
+              <div class="weight-unit-control">
+                <input name="set_weight" type="number" min="0" step="0.5" inputmode="decimal" placeholder="{{ app_preferences.default_weight_placeholder }}">
+                <select name="set_weight_unit" aria-label="무게 단위">
+                  <option value="kg">kg</option>
+                  <option value="lb">lb</option>
+                </select>
+              </div>
+              <small class="weight-preview" data-weight-preview>kg 기준 저장</small>
+            </label>
+            <label data-strength-fields>
+              <span>횟수</span>
+              <input name="set_reps" type="number" min="0" step="1" inputmode="numeric" placeholder="{{ app_preferences.default_reps_placeholder }}">
+            </label>
+            <label data-cardio-fields hidden>
+              <span>인클라인</span>
+              <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" placeholder="8" disabled>
+            </label>
+            <label data-cardio-fields hidden>
+              <span>속도</span>
+              <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" placeholder="5.5" disabled>
+            </label>
+            <label data-cardio-fields hidden>
+              <span>시간 분</span>
+              <input name="cardio_minutes" type="number" min="0" step="1" inputmode="numeric" placeholder="30" disabled>
+            </label>
+          </div>
+          <details class="set-advanced-options">
+            <summary>고급</summary>
+            <div class="set-advanced-grid">
+              <select name="set_type" aria-label="세트 타입" data-strength-fields>
+                {% for option in set_type_options %}
+                  <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+              </select>
+              <input name="set_rpe" type="number" min="1" max="10" step="0.5" inputmode="decimal" placeholder="체감강도">
+              <input name="set_memo" autocomplete="off" placeholder="메모">
+            </div>
+          </details>
+          <div class="set-row-actions">
+            <button class="btn-ghost row-copy-button" type="button" data-copy-set-row aria-label="세트 복사">복사</button>
+            <button class="btn-danger row-remove-button" type="button" data-remove-set-row aria-label="세트 삭제">X</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-action-row">
+        <button class="btn-primary" type="submit">운동 저장</button>
+        <button class="btn-small" type="button" data-cancel-workout-form>닫기</button>
+      </div>
+    </form>
+  </section>
+  {% if meal_mode %}
+  <section class="section meal-only meal-goal-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">오늘 칼로리</div>
+        <div class="section-subtitle">{{ "%.0f"|format(today_summary.calories) }} / {{ daily_calorie_goal }}kcal · 남은 {{ "%.0f"|format(daily_calorie_goal - today_summary.calories) }}kcal</div>
+      </div>
+    </div>
+    <div class="goal-card {% if today_summary.calories >= daily_calorie_goal %}is-complete{% endif %}">
+      <div class="goal-head">
+        <strong>하루 목표</strong>
+        <span>{{ "%.0f"|format(today_summary.calories / daily_calorie_goal * 100 if daily_calorie_goal else 0) }}%</span>
+      </div>
+      <div class="goal-bar"><span style="width: {{ [100, (today_summary.calories / daily_calorie_goal * 100 if daily_calorie_goal else 0)]|min }}%"></span></div>
+      <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
+        <input type="hidden" name="scope" value="daily_meals">
+        <input type="hidden" name="target_date" value="{{ session.workout_date }}">
+        <input name="daily_calories" type="number" min="0" step="50" value="{{ daily_calorie_goal }}" placeholder="오늘 kcal">
+        <button class="btn-small" type="submit">목표 저장</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="section meal-only meal-input-section">
+    <div class="section-header">
+      <div class="section-title">🍱 식단 입력</div>
+      <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
+    </div>
+    <form method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
+      <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+      <input type="hidden" name="mode" value="meal">
+      <select name="meal_type" class="meal-type-select" data-meal-type-select aria-label="식단 구분">
+        <option value="아침" class="{{ meal_type_class('아침') }}">아침</option>
+        <option value="점심" class="{{ meal_type_class('점심') }}">점심</option>
+        <option value="저녁" class="{{ meal_type_class('저녁') }}">저녁</option>
+        <option value="간식" class="{{ meal_type_class('간식') }}">간식</option>
+        <option value="기타" class="{{ meal_type_class('기타') }}">기타</option>
+      </select>
+      <div
+        class="exercise-quick-panel"
+        data-food-quick-panel
+        data-foods-by-meal-type='{{ foods_by_meal_type|tojson }}'
+      >
+        {% if favorite_foods %}
+          <div class="quick-panel-title">즐겨찾기 음식</div>
+          <div class="exercise-quick-list">
+            {% for food in favorite_foods %}
+              <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name }}</button>
+            {% endfor %}
+          </div>
+        {% endif %}
+        <div class="quick-panel-title">자주 먹은 음식</div>
+        <div class="exercise-quick-list" data-food-quick-list></div>
+        <div class="quick-empty" data-food-quick-empty>선택한 식사의 음식 기록이 없습니다.</div>
+      </div>
+      <div class="section-header compact-header">
+        <div class="section-title">음식</div>
+        <button class="btn-small" type="button" data-add-meal-row>+ 음식 추가</button>
+      </div>
+      <div class="meal-entry-list" data-meal-list>
+        <div class="meal-entry-row">
+          <input name="meal_food_name" autocomplete="off" placeholder="음식" required>
+          <div class="compact-field-grid meal-compact-grid">
+            <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
+            <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
+            <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+          </div>
+          <button class="btn-danger row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
+        </div>
+      </div>
+      <div class="form-action-row">
+        <button class="btn-primary" type="submit">식단 저장</button>
+        <button class="btn-small" type="button" data-cancel-meal-form>취소</button>
+      </div>
+    </form>
+    <div class="meal-template-panel meal-helper-section">
+      <div class="quick-panel-title">식단 조합</div>
+      {% if frequent_meal_combos %}
+        <div class="quick-panel-title">자주 먹는 조합</div>
+        {% for combo in frequent_meal_combos %}
+          <form method="post" action="{{ url_for('apply_meal_combo_route') }}" class="routine-load-row">
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="source_date" value="{{ combo.meal_date }}">
+            <input type="hidden" name="meal_type" value="{{ combo.meal_type }}">
+            <span>{{ combo.meal_type }} · {{ combo.foods }} · {{ "%.0f"|format(combo.calories) }}kcal</span>
+            <button class="btn-small" type="submit">적용</button>
+          </form>
+        {% endfor %}
+      {% endif %}
+      {% if meal_copy_sources %}
+        <div class="quick-panel-title">지난 식단 복사</div>
+        {% for day in meal_copy_sources %}
+          <form method="post" action="{{ url_for('copy_meal_day_route') }}" class="routine-load-row">
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="meal">
+            <input type="hidden" name="source_date" value="{{ day.meal_date }}">
+            <span>{{ day.meal_date }} · {{ day.meal_count }}개 · {{ "%.0f"|format(day.calories) }}kcal</span>
+            <button class="btn-small" type="submit">복사</button>
+          </form>
+        {% endfor %}
+      {% endif %}
+      <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
+        <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+        <input type="hidden" name="mode" value="meal">
+        <input name="template_name" placeholder="오늘 식단을 조합으로 저장">
+        <button class="btn-small" type="submit">조합 저장</button>
+      </form>
+      {% for template in meal_templates %}
+        <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
+         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+          <input type="hidden" name="mode" value="meal">
+          <span>식단 조합 · {{ template.name }} · {{ template.item_count }}개</span>
+          <button class="btn-small" type="submit">불러오기</button>
+        </form>
+      {% endfor %}
+      <form method="post" action="{{ url_for('save_food_favorite_route') }}" class="routine-form">
+        <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+        <input name="food_name" placeholder="즐겨찾기 음식">
+        <div class="compact-field-grid meal-compact-grid">
+          <input name="quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
+          <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
+          <input name="calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+        </div>
+        <button class="btn-small" type="submit">고정</button>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if workout_mode and recent_pr_events %}
+    <section class="section workout-only workout-secondary-section">
+      <div class="section-header">
+        <div class="section-title">최근 신기록</div>
+      </div>
+      <div class="detail-list compact-detail-list">
+        {% for event in recent_pr_events[:5] %}
+          <div class="detail-row">
+            <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
+            <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if workout_mode and pr_cards %}
+    <section class="section workout-only pr-card-section workout-secondary-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">오늘 PR 카드</div>
+          <div class="section-subtitle">오늘 갱신한 기록만 모았습니다.</div>
+        </div>
+      </div>
+      <div class="pr-card-grid">
+        {% for card in pr_cards[:6] %}
+          <article class="pr-share-card">
+            <span>{{ card.record_type }}</span>
+            <strong>{{ card.exercise_name }}</strong>
+            <b>{{ "%.0f"|format(card.record_value) }}{{ card.unit }}</b>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if workout_mode %}
+    {% include "today/_workout_records.html" %}
+  {% endif %}
+
+

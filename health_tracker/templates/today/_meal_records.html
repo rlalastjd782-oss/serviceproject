@@ -1,0 +1,36 @@
+﻿  <section class="section meal-only today-meal-section">
+    <div class="section-header">
+      <div class="section-title">🍱 오늘 식단</div>
+    </div>
+    <div class="record-list">
+      {% if meal_groups %}
+        {% for group in meal_groups %}
+          <article class="record-card meal-record-card">
+            <div class="record-date">
+              <span class="badge {{ meal_type_class(group.meal_type) }}">{{ group.meal_type }}</span>
+            </div>
+            {% for item in group.entries %}
+              {% include "today/_meal_record_item.html" %}
+            {% endfor %}
+            <div class="inline-add-panel">
+              <button type="button" class="btn-add" data-toggle-add>+ 음식 추가</button>
+              <form method="post" action="{{ url_for('create_meal') }}" class="inline-add-form meal-add-form">
+                <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+                <input type="hidden" name="mode" value="meal">
+                <input type="hidden" name="meal_type" value="{{ group.meal_type }}">
+                <input name="meal_food_name" placeholder="음식" required>
+                <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
+                <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
+                <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+                <button type="submit" class="btn-small">저장</button>
+                <button type="button" class="btn-small" data-cancel-inline-add>취소</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      {% else %}
+        <div class="empty">식단 기록 없음</div>
+      {% endif %}
+    </div>
+  </section>
+
