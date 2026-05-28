@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sqlite3
+import time
 from collections.abc import Iterable
 
 
@@ -87,3 +88,27 @@ def build_performance_snapshot(db: sqlite3.Connection) -> dict[str, object]:
             ),
         },
     }
+
+
+def build_page_timing_snapshot(app, account_id: int | None, paths: list[tuple[str, str]]) -> list[dict[str, object]]:
+    timings: list[dict[str, object]] = []
+    with app.test_client() as client:
+        if account_id:
+            with client.session_transaction() as test_session:
+                test_session["account_id"] = account_id
+                test_session["settings_unlocked"] = True
+        for label, path in paths:
+            started_at = time.perf_counter()
+            response = client.get(path)
+            elapsed_ms = round((time.perf_counter() - started_at) * 1000, 1)
+            timings.append(
+                {
+                    "label": label,
+                    "path": path,
+                    "status_code": response.status_code,
+                    "elapsed_ms": elapsed_ms,
+                    "size_kb": round(len(response.get_data()) / 1024, 1),
+                    "tone": "slow" if elapsed_ms >= 700 else "warn" if elapsed_ms >= 300 else "ok",
+                }
+            )
+    return timings

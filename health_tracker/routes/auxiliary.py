@@ -148,6 +148,17 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             qa_dummy_status=get_qa_dummy_status(),
             v2_readiness=build_v2_readiness(),
             performance_snapshot=build_performance_snapshot(get_db()),
+            page_timings=build_page_timing_snapshot(
+                app,
+                int(session.get("account_id") or 0),
+                [
+                    ("오늘 운동", "/app?mode=workout"),
+                    ("기록 검색", "/records/search"),
+                    ("주간 분석", "/summaries/weekly"),
+                    ("월간 분석", "/summaries/monthly"),
+                    ("주간 식단", "/meals/weekly"),
+                ],
+            ),
             deployment_checklist=build_deployment_checklist(BASE_DIR),
             source_audit=list_long_source_files(BASE_DIR),
             qa_links=[

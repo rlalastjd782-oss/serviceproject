@@ -189,7 +189,7 @@ from health_tracker.services.personal_coach import (
     build_next_actions_from_db,
 )
 from health_tracker.services.pagination import build_pagination
-from health_tracker.services.performance import build_performance_snapshot, run_database_analyze
+from health_tracker.services.performance import build_page_timing_snapshot, build_performance_snapshot, run_database_analyze
 from health_tracker.services.progressive_overload import (
     build_next_set_suggestions as build_next_set_suggestions_from_db,
     list_overload_suggestions_from_db,
