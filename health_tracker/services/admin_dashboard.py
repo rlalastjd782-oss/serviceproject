@@ -226,19 +226,19 @@ def build_admin_dashboard(
         "low_activity_users": low_activity_users,
         "contact_points": [
             {
-                "label": "??? ??",
+                "label": "사용자 활성",
                 "value": f"{active_rate}%",
-                "detail": f"?? ??? {recording_users}? / ?? {len(user_accounts)}?",
+                "detail": f"기록 사용자 {recording_users}명 / 전체 {len(user_accounts)}명",
             },
             {
-                "label": "?? ??",
-                "value": f"{low_activity_users}?",
-                "detail": f"???/???/DB ?? ??, ??? {disabled_users}?",
+                "label": "조치 필요",
+                "value": f"{low_activity_users}명",
+                "detail": f"미사용/저활동/DB 확인 필요, 비활성 {disabled_users}명",
             },
             {
-                "label": "??? ??",
-                "value": f"{total_sets}??",
-                "detail": f"?? {total_meals}?, ?? ?? ?? {dormant_users}?",
+                "label": "데이터 규모",
+                "value": f"{total_sets}세트",
+                "detail": f"식단 {total_meals}개, 기록 없는 계정 {dormant_users}명",
             },
         ],
     }
