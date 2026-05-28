@@ -264,9 +264,12 @@ def init_database(
         CREATE INDEX IF NOT EXISTS idx_workout_sets_body_part ON workout_sets(body_part);
         CREATE INDEX IF NOT EXISTS idx_workout_sets_equipment ON workout_sets(equipment);
         CREATE INDEX IF NOT EXISTS idx_meal_entries_date ON meal_entries(meal_date);
+        CREATE INDEX IF NOT EXISTS idx_meal_entries_type_date ON meal_entries(meal_type, meal_date);
+        CREATE INDEX IF NOT EXISTS idx_meal_entries_food_date ON meal_entries(food_name, meal_date);
         CREATE INDEX IF NOT EXISTS idx_pr_events_exercise ON pr_events(exercise_id);
         CREATE INDEX IF NOT EXISTS idx_pr_events_date ON pr_events(workout_date);
         CREATE INDEX IF NOT EXISTS idx_location_equipment_location ON location_equipment(location_id);
+        CREATE INDEX IF NOT EXISTS idx_location_equipment_location_active ON location_equipment(location_id, is_active);
         """
     )
     for table, column, column_type in [
@@ -303,6 +306,9 @@ def init_database(
     ]:
         ensure_column(db, table, column, column_type)
     db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sessions_location ON workout_sessions(location_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sessions_date_location ON workout_sessions(workout_date, location_id)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sets_session_sort ON workout_sets(session_id, sort_order)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sets_exercise_body ON workout_sets(exercise_id, body_part)")
     db.execute(
         """
         UPDATE meal_entries

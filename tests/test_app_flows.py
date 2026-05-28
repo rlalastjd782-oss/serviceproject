@@ -61,6 +61,35 @@ class LegacyMigrationTest(unittest.TestCase):
             finally:
                 app_module.DATABASE = original_database
 
+    def test_database_pragmas_and_performance_indexes_are_enabled(self) -> None:
+        TEST_TMP_DIR.mkdir(exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=TEST_TMP_DIR) as tmpdir:
+            original_database = app_module.DATABASE
+            app_module.DATABASE = Path(tmpdir) / "pragmas.db"
+            try:
+                with app_module.app.app_context():
+                    app_module.init_db()
+                    db = app_module.get_db()
+                    self.assertEqual(db.execute("PRAGMA foreign_keys").fetchone()[0], 1)
+                    self.assertGreaterEqual(db.execute("PRAGMA busy_timeout").fetchone()[0], 5000)
+                db = sqlite3.connect(app_module.DATABASE)
+                try:
+                    indexes = {
+                        row[1]
+                        for table in ("workout_sessions", "workout_sets", "meal_entries", "location_equipment")
+                        for row in db.execute(f"PRAGMA index_list({table})").fetchall()
+                    }
+                finally:
+                    db.close()
+                self.assertIn("idx_workout_sessions_date_location", indexes)
+                self.assertIn("idx_workout_sets_session_sort", indexes)
+                self.assertIn("idx_workout_sets_exercise_body", indexes)
+                self.assertIn("idx_meal_entries_type_date", indexes)
+                self.assertIn("idx_meal_entries_food_date", indexes)
+                self.assertIn("idx_location_equipment_location_active", indexes)
+            finally:
+                app_module.DATABASE = original_database
+
 class HealthTrackerFlowTest(unittest.TestCase):
     def setUp(self) -> None:
         TEST_TMP_DIR.mkdir(exist_ok=True)
