@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.5.2 - 2026-05-28
+
+- 오늘 운동 탭에 운동 중 집중 모드를 추가했습니다.
+- `focus=1` 상태에서는 장소 관리, 추천/회복/보조 도구 같은 보조 섹션을 숨기고 타이머, 빠른 이동, 오늘 할 일, 운동 입력, 오늘 운동, 완료 리뷰 중심으로 화면을 정리합니다.
+- 집중 모드 빠른 이동에 완료 리뷰 앵커를 추가했습니다.
+- 모바일 운동 중 빠른 메뉴가 5개 항목에서도 고정 폭으로 유지되도록 스타일을 보강했습니다.
+- 검증: `ruff check health_tracker tests`, `python -m unittest discover -v`, `python -m compileall health_tracker tests`, 주요 JS `node --check`, `git diff --check`.
+
 ## v2.5.1 - 2026-05-28
 
 - 개발 QC 도구로 `ruff`를 설치하고 `requirements-dev.txt`에 고정했습니다.
