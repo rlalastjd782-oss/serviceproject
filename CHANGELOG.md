@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.5.10 - 2026-05-29
+
+- `app.py`에 남아 있던 분석, 운동, PR, 장소, 요약, 회복, 신체/식단 wrapper를 기능별 facade 모듈로 분리했습니다.
+- `app.py`를 약 2,000줄대에서 560줄 수준으로 줄여 앱 팩토리와 라우트 등록 중심의 진입점으로 정리했습니다.
+- `app_coaching_reports_facade.py`와 `app_recovery_facade.py`를 분리해 리포트 계산과 회복/추천 코칭 책임을 나눴습니다.
+- `app.js`의 부팅/이벤트 바인딩을 `app_boot.js`로 분리하고 base layout과 service worker precache에 반영했습니다.
+- `today/index.html`의 전체 보기 패널을 `_overview_panels.html` partial로 분리했습니다.
+- 검증: Ruff, compileall, release check, 주요 JS `node --check`, 전체 unittest 30개를 통과했습니다.
+
 ## v2.5.9 - 2026-05-29
 
 - `app.py`의 DB 연결, DB 초기화, secret key 생성 책임을 `app_database.py`로 분리했습니다.

@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-- 현재 버전: `2.5.9`
+- 현재 버전: `2.5.10`
 - 기본 브랜치: `main`
 - 최근 작업은 모두 커밋/푸시 완료되었습니다.
 - 브라우저는 사용자가 요청할 때만 엽니다.
@@ -11,6 +11,7 @@
 
 ## 최근 커밋
 
+- 진행 중: v2.5.10 구조 정리, `app.py` 경량화, JS boot 분리, 오늘 화면 partial 분리
 - `0a5ba63` 2.5.9 대형 파일 정리 기록 갱신
 - `2954b01` 배포 점검 도구 추가
 - `a48100d` 폼 제출 스크립트 분리
@@ -28,6 +29,15 @@
 - 기존 `NOTES.md`, `CHANGELOG.md`에 깨진 인코딩 텍스트가 많이 남아 있어 문서 전체를 정상 한국어로 다시 작성했습니다.
 - 깨진 과거 전문은 유지하지 않았고, 현재 운영에 필요한 핵심 이력과 인수인계 정보만 남겼습니다.
 - 이후 문서 수정 시 PowerShell 인코딩 변환으로 한글이 깨지지 않도록 주의해야 합니다.
+
+## 2026-05-29 v2.5.10 전체 소스 구조 정리
+
+- `app.py`에 집중되어 있던 기능 wrapper와 직접 SQL helper를 `app_analysis_facade.py`, `app_workout_facade.py`, `app_pr_facade.py`, `app_location_facade.py`, `app_summary_facade.py`, `app_activity_facade.py`, `app_body_meal_facade.py`, `app_coaching_reports_facade.py`, `app_recovery_facade.py`로 분리했습니다.
+- `app.py`는 앱 생성, 설정 주입, 라우트 등록, 전역 Jinja helper 연결 중심으로 줄였습니다.
+- `static/js/app.js`에서 초기화와 이벤트 리스너를 `static/js/app_boot.js`로 분리했습니다.
+- `today/index.html`의 전체 보기 섹션을 `today/_overview_panels.html` partial로 분리했습니다.
+- `VERSION`, manifest, service worker cache를 `2.5.10`으로 맞췄습니다.
+- QA 기준: Ruff, compileall, release check, JS syntax check, 전체 unittest 30개 통과를 기준으로 마무리합니다.
 
 ## 2026-05-29 v2.5.9 대형 파일 추가 분리
 
