@@ -47,58 +47,40 @@ def build_goal_progress_from_db(
     week_end = shift_date(week_start, 6)
     month_start = normalize_month(date_text[:7])
     next_month = shift_month(month_start, 1)
-    weekly_workout_days = db.execute(
+    weekly = db.execute(
         """
-        SELECT COUNT(DISTINCT s.workout_date) AS count
-        FROM workout_sessions s
-        JOIN workout_sets ws ON ws.session_id = s.id
-        WHERE s.workout_date BETWEEN ? AND ?
+        SELECT
+          (
+            SELECT COUNT(DISTINCT s.workout_date)
+            FROM workout_sessions s
+            JOIN workout_sets ws ON ws.session_id = s.id
+            WHERE s.workout_date BETWEEN ? AND ?
+          ) AS workout_days,
+          (
+            SELECT COUNT(DISTINCT meal_date)
+            FROM meal_entries
+            WHERE meal_date BETWEEN ? AND ?
+          ) AS meal_days,
+          (
+            SELECT COALESCE(SUM(calories), 0)
+            FROM meal_entries
+            WHERE meal_date BETWEEN ? AND ?
+          ) AS calories
         """,
-        (week_start, week_end),
-    ).fetchone()["count"]
-    weekly_meal_days = db.execute(
+        (week_start, week_end, week_start, week_end, week_start, week_end),
+    ).fetchone()
+    monthly = db.execute(
         """
-        SELECT COUNT(DISTINCT meal_date) AS count
-        FROM meal_entries
-        WHERE meal_date BETWEEN ? AND ?
-        """,
-        (week_start, week_end),
-    ).fetchone()["count"]
-    weekly_calories = db.execute(
-        """
-        SELECT COALESCE(SUM(calories), 0) AS calories
-        FROM meal_entries
-        WHERE meal_date BETWEEN ? AND ?
-        """,
-        (week_start, week_end),
-    ).fetchone()["calories"]
-    monthly_volume = db.execute(
-        """
-        SELECT COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
+        SELECT
+          COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+          COUNT(DISTINCT s.workout_date) AS workout_days,
+          COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         WHERE s.workout_date >= ? AND s.workout_date < ?
         """,
         (month_start, next_month),
-    ).fetchone()["volume"]
-    monthly_workout_days = db.execute(
-        """
-        SELECT COUNT(DISTINCT s.workout_date) AS count
-        FROM workout_sessions s
-        JOIN workout_sets ws ON ws.session_id = s.id
-        WHERE s.workout_date >= ? AND s.workout_date < ?
-        """,
-        (month_start, next_month),
-    ).fetchone()["count"]
-    monthly_cardio_minutes = db.execute(
-        """
-        SELECT COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS minutes
-        FROM workout_sets ws
-        JOIN workout_sessions s ON s.id = ws.session_id
-        WHERE s.workout_date >= ? AND s.workout_date < ?
-        """,
-        (month_start, next_month),
-    ).fetchone()["minutes"]
+    ).fetchone()
     goal_values = goal_values_from_db(
         db,
         {
@@ -111,13 +93,13 @@ def build_goal_progress_from_db(
         },
     )
     return {
-        "weekly_workout_days": goal_item(int(weekly_workout_days), goal_values["weekly_workout_days"], "주간 운동일"),
-        "weekly_meal_days": goal_item(int(weekly_meal_days), goal_values["weekly_meal_days"], "주간 식단일"),
-        "weekly_calories": goal_item(float(weekly_calories), goal_values["weekly_calories"], "주간 칼로리"),
-        "monthly_volume": goal_item(float(monthly_volume), goal_values["monthly_volume"], "월간 볼륨"),
-        "monthly_workout_days": goal_item(int(monthly_workout_days), goal_values["monthly_workout_days"], "월간 운동일"),
+        "weekly_workout_days": goal_item(int(weekly["workout_days"] or 0), goal_values["weekly_workout_days"], "주간 운동일"),
+        "weekly_meal_days": goal_item(int(weekly["meal_days"] or 0), goal_values["weekly_meal_days"], "주간 식단일"),
+        "weekly_calories": goal_item(float(weekly["calories"] or 0), goal_values["weekly_calories"], "주간 칼로리"),
+        "monthly_volume": goal_item(float(monthly["volume"] or 0), goal_values["monthly_volume"], "월간 볼륨"),
+        "monthly_workout_days": goal_item(int(monthly["workout_days"] or 0), goal_values["monthly_workout_days"], "월간 운동일"),
         "monthly_cardio_minutes": goal_item(
-            float(monthly_cardio_minutes),
+            float(monthly["cardio_minutes"] or 0),
             goal_values["monthly_cardio_minutes"],
             "월간 유산소",
         ),
