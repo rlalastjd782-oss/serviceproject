@@ -196,3 +196,199 @@ small {
   }
 }
 
+body,
+button,
+input,
+select,
+textarea,
+a,
+strong,
+.header-title,
+.section-title,
+.summary-value,
+.record-toggle strong,
+.detail-row strong,
+.location-title-row strong,
+.more-link-card strong,
+.data-center-card strong,
+.focus-suggestion-card strong {
+  color: var(--strong);
+}
+
+.section,
+.record-card,
+.summary-card,
+.today-task-card,
+.meal-record-card,
+.meal-favorite-row,
+.workout-summary-card,
+.daily-record-card,
+.equipment-summary-card,
+.location-card,
+.location-create-panel,
+.location-manage-details,
+.location-equipment-panel,
+.location-equipment-item,
+.location-insight-card,
+.more-link-card,
+.more-overview-strip article,
+.data-center-card,
+.data-warning-card,
+.export-link-card,
+.record-gap-card,
+.meal-template-card,
+.recent-meal-template-row,
+.focus-suggestion-card,
+.chart-card,
+.table-wrap,
+.detail-row,
+.editable-list-item,
+.set-entry-row,
+.meal-entry-row,
+.inline-add-form,
+.routine-load-row,
+.routine-form,
+.filter-form,
+.record-list-toolbar,
+.login-panel,
+.auth-secondary-action,
+.quick-panel,
+.optional-workout-panel,
+.exercise-goal-card,
+.pr-share-card,
+.readiness-card,
+.rule-card,
+.admin-operation-card,
+.admin-user-card {
+  border-color: var(--line);
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: var(--shadow-soft);
+}
+
+.set-entry-row,
+.meal-entry-row,
+.compact-set-preview button,
+.mini-list-row,
+.location-equipment-chip-list span,
+.location-equipment-chip-list em,
+.subnav a,
+.quick-pane,
+.quick-tab-list,
+.set-builder-toolbar,
+.meal-builder-toolbar,
+.workout-tool-grid,
+.data-quality-copy,
+.pr-rank-card,
+.analysis-action-card,
+.body-part-exercise-card,
+.calendar-day,
+.table-wrap table,
+.progress-chart,
+.trend-chart {
+  border-color: var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.btn-primary,
+.btn-small,
+.btn-ghost,
+.btn-add,
+.tab-btn,
+.mode-button,
+.quick-tab-button,
+.exercise-quick-button,
+.row-copy-button,
+.row-remove-button,
+.rest-start-button,
+.body-part-filter-chip,
+.pagination-nav a,
+.auth-secondary-action a {
+  border-color: var(--line-strong);
+  background: #f8fafc;
+  color: var(--strong);
+  box-shadow: none;
+}
+
+.btn-primary,
+.tab-btn.active,
+.mode-button.btn-primary,
+.quick-tab-button.is-active,
+.body-part-filter-chip.is-active,
+.exercise-quick-button:hover,
+.pr-rank-card.is-selected {
+  border-color: rgb(37 99 235 / 42%);
+  background: #dbeafe;
+  color: #111827;
+}
+
+.btn-danger,
+.row-remove-button {
+  border-color: rgb(220 38 38 / 32%);
+  background: #fee2e2;
+  color: #111827;
+}
+
+.badge,
+.mini-badge,
+.cat-badge,
+.app-version,
+.account-greeting,
+.summary-label,
+.section-subtitle,
+.field-help,
+.record-toggle span,
+.detail-row span,
+.more-link-card span,
+.data-center-card span,
+.focus-suggestion-card small,
+.location-title-block > span,
+.empty,
+.compact-empty,
+small {
+  color: #374151;
+}
+
+.badge,
+.mini-badge,
+.cat-badge,
+.app-version {
+  border-color: var(--line);
+  background: #e5e7eb;
+}
+
+input,
+select,
+textarea,
+.weight-unit-control {
+  border-color: var(--line-strong);
+  background: #ffffff;
+  color: #111827;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #2563eb;
+  outline: 2px solid rgb(37 99 235 / 18%);
+}
+
+.login-tab-row {
+  border-color: var(--line);
+  background: #e5e7eb;
+}
+
+.login-tab-row a {
+  border-color: var(--line);
+  background: #f8fafc;
+  color: #111827;
+}
+
+.login-tab-row a.is-active {
+  border-color: rgb(37 99 235 / 42%);
+  background: #dbeafe;
+  color: #111827;
+  box-shadow: none;
+}
+
