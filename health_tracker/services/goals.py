@@ -21,6 +21,20 @@ def get_goal_value_from_db(db: sqlite3.Connection, key: str, default: int) -> in
     return int(row["value"]) if row else default
 
 
+def goal_values_from_db(db: sqlite3.Connection, defaults: dict[str, int]) -> dict[str, int]:
+    rows = db.execute(
+        f"""
+        SELECT key, value
+        FROM user_goals
+        WHERE key IN ({", ".join("?" for _ in defaults)})
+        """,
+        tuple(defaults),
+    ).fetchall()
+    values = dict(defaults)
+    values.update({row["key"]: int(row["value"]) for row in rows})
+    return values
+
+
 def build_goal_progress_from_db(
     db: sqlite3.Connection,
     date_text: str,
@@ -85,15 +99,26 @@ def build_goal_progress_from_db(
         """,
         (month_start, next_month),
     ).fetchone()["minutes"]
+    goal_values = goal_values_from_db(
+        db,
+        {
+            "weekly_workout_days": 3,
+            "weekly_meal_days": 5,
+            "weekly_calories": 14000,
+            "monthly_volume": 10000,
+            "monthly_workout_days": 12,
+            "monthly_cardio_minutes": 300,
+        },
+    )
     return {
-        "weekly_workout_days": goal_item(int(weekly_workout_days), get_goal_value_from_db(db, "weekly_workout_days", 3), "주간 운동일"),
-        "weekly_meal_days": goal_item(int(weekly_meal_days), get_goal_value_from_db(db, "weekly_meal_days", 5), "주간 식단일"),
-        "weekly_calories": goal_item(float(weekly_calories), get_goal_value_from_db(db, "weekly_calories", 14000), "주간 칼로리"),
-        "monthly_volume": goal_item(float(monthly_volume), get_goal_value_from_db(db, "monthly_volume", 10000), "월간 볼륨"),
-        "monthly_workout_days": goal_item(int(monthly_workout_days), get_goal_value_from_db(db, "monthly_workout_days", 12), "월간 운동일"),
+        "weekly_workout_days": goal_item(int(weekly_workout_days), goal_values["weekly_workout_days"], "주간 운동일"),
+        "weekly_meal_days": goal_item(int(weekly_meal_days), goal_values["weekly_meal_days"], "주간 식단일"),
+        "weekly_calories": goal_item(float(weekly_calories), goal_values["weekly_calories"], "주간 칼로리"),
+        "monthly_volume": goal_item(float(monthly_volume), goal_values["monthly_volume"], "월간 볼륨"),
+        "monthly_workout_days": goal_item(int(monthly_workout_days), goal_values["monthly_workout_days"], "월간 운동일"),
         "monthly_cardio_minutes": goal_item(
             float(monthly_cardio_minutes),
-            get_goal_value_from_db(db, "monthly_cardio_minutes", 300),
+            goal_values["monthly_cardio_minutes"],
             "월간 유산소",
         ),
     }

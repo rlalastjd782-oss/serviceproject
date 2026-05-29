@@ -6,12 +6,14 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 from health_tracker.config import APP_TIMEZONE
 
 
+try:
+    APP_ZONEINFO = ZoneInfo(APP_TIMEZONE)
+except ZoneInfoNotFoundError:
+    APP_ZONEINFO = timezone(timedelta(hours=9), name="KST")
+
+
 def current_local_date() -> str:
-    try:
-        app_timezone = ZoneInfo(APP_TIMEZONE)
-    except ZoneInfoNotFoundError:
-        app_timezone = timezone(timedelta(hours=9), name="KST")
-    return datetime.now(app_timezone).strftime("%Y-%m-%d")
+    return datetime.now(APP_ZONEINFO).strftime("%Y-%m-%d")
 
 
 def normalize_date(date_text: str | None, max_future_days: int = 31) -> str:

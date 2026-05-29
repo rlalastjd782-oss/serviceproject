@@ -4,6 +4,7 @@ import argparse
 import sqlite3
 
 from flask import Flask, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
+from jinja2 import FileSystemBytecodeCache
 
 from health_tracker.app_database import configure_database_helpers, get_db, get_or_create_secret_key, init_db
 from health_tracker.app_lifecycle import configure_lifecycle_hooks
@@ -285,6 +286,9 @@ from health_tracker.utils import (
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder="templates", static_folder=str(BASE_DIR / "static"), static_url_path="/static")
+    jinja_cache_dir = BASE_DIR / "instance" / "jinja_cache"
+    jinja_cache_dir.mkdir(parents=True, exist_ok=True)
+    app.jinja_env.bytecode_cache = FileSystemBytecodeCache(str(jinja_cache_dir))
     app.config["DATABASE"] = DATABASE
     app.secret_key = get_or_create_secret_key()
     configure_database_helpers(
