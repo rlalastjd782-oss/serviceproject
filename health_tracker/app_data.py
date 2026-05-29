@@ -4,6 +4,8 @@ import sqlite3
 from collections.abc import Callable
 from pathlib import Path
 
+from flask import g, has_request_context
+
 from health_tracker.services.admin import build_app_health_status
 from health_tracker.services.data import (
     get_backup_status as build_backup_status,
@@ -92,7 +94,12 @@ def _required(name: str, value):
 
 
 def get_qa_dummy_status() -> dict[str, object]:
-    return get_qa_dummy_status_from_db(_db())
+    if has_request_context() and hasattr(g, "qa_dummy_status_cache"):
+        return g.qa_dummy_status_cache
+    status = get_qa_dummy_status_from_db(_db())
+    if has_request_context():
+        g.qa_dummy_status_cache = status
+    return status
 
 
 def generate_year_qa_dummy_data() -> dict[str, object]:
@@ -100,11 +107,21 @@ def generate_year_qa_dummy_data() -> dict[str, object]:
 
 
 def get_data_counts() -> dict[str, int]:
-    return build_data_counts(_db())
+    if has_request_context() and hasattr(g, "data_counts_cache"):
+        return g.data_counts_cache
+    counts = build_data_counts(_db())
+    if has_request_context():
+        g.data_counts_cache = counts
+    return counts
 
 
 def get_backup_status() -> dict[str, str]:
-    return build_backup_status(_base_dir())
+    if has_request_context() and hasattr(g, "backup_status_cache"):
+        return g.backup_status_cache
+    status = build_backup_status(_base_dir())
+    if has_request_context():
+        g.backup_status_cache = status
+    return status
 
 
 def get_data_safety_status() -> list[dict[str, str]]:
@@ -116,7 +133,12 @@ def get_data_safety_status() -> list[dict[str, str]]:
 
 
 def get_sample_data_counts() -> dict[str, int]:
-    return build_sample_data_counts(_db())
+    if has_request_context() and hasattr(g, "sample_data_counts_cache"):
+        return g.sample_data_counts_cache
+    counts = build_sample_data_counts(_db())
+    if has_request_context():
+        g.sample_data_counts_cache = counts
+    return counts
 
 
 def get_app_health_status() -> list[dict[str, str]]:
