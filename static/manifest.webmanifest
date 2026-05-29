@@ -2,15 +2,15 @@
   "name": "운동 및 식단 관리",
   "short_name": "운동식단",
   "description": "운동, 식단, 목표, PR을 모바일에서 빠르게 기록하는 개인 헬스 트래커",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "lang": "ko",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#080b12",
-  "theme_color": "#080b12",
+  "background_color": "#f3f4f6",
+  "theme_color": "#f3f4f6",
   "categories": ["health", "fitness", "productivity"],
   "shortcuts": [
     {

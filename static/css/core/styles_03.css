@@ -381,25 +381,25 @@
 }
 
 :root {
-  color-scheme: dark;
-  --bg: #0b0d12;
-  --panel: #141821;
-  --panel-2: #181d28;
-  --panel-soft: #101722;
-  --line: #263142;
-  --line-strong: #3a4659;
-  --text: #e5e7eb;
-  --strong: #f3f4f6;
-  --muted: #9ca3af;
-  --dim: #6b7280;
-  --empty: #4b5563;
-  --blue: #60a5fa;
+  color-scheme: light;
+  --bg: #f3f4f6;
+  --panel: #ffffff;
+  --panel-2: #f9fafb;
+  --panel-soft: #eef0f3;
+  --line: #d1d5db;
+  --line-strong: #aeb6c2;
+  --text: #1f2937;
+  --strong: #111827;
+  --muted: #6b7280;
+  --dim: #8b949e;
+  --empty: #9ca3af;
+  --blue: #2563eb;
   --blue-strong: #1d4ed8;
-  --green: #22c55e;
-  --amber: #f59e0b;
-  --danger: #ef4444;
-  --shadow: 0 14px 34px rgb(0 0 0 / 26%);
-  --shadow-soft: 0 8px 22px rgb(0 0 0 / 18%);
+  --green: #16a34a;
+  --amber: #d97706;
+  --danger: #dc2626;
+  --shadow: 0 14px 34px rgb(15 23 42 / 10%);
+  --shadow-soft: 0 8px 22px rgb(15 23 42 / 8%);
   --radius: 8px;
   --radius-soft: 10px;
   --font-main: "Pretendard", "Noto Sans KR", "Malgun Gothic", "Segoe UI", system-ui, sans-serif;
@@ -418,7 +418,7 @@ body {
   min-height: 100vh;
   margin: 0 auto;
   background:
-    linear-gradient(180deg, #0b0d12 0, #0d1119 42%, #0b0d12 100%);
+    linear-gradient(180deg, #f8fafc 0, #f3f4f6 44%, #eceff3 100%);
   color: var(--text);
   font-family: var(--font-main);
   font-size: 14px;

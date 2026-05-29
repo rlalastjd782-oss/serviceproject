@@ -78,3 +78,121 @@
   }
 }
 
+body,
+.section,
+.record-card,
+.summary-card,
+.today-task-card,
+.meal-record-card,
+.workout-summary-card,
+.daily-record-card,
+.equipment-summary-card,
+.location-card,
+.admin-user-card,
+.more-link-card,
+.data-center-card,
+.focus-suggestion-card,
+.chart-card,
+.table-wrap,
+.detail-row,
+.editable-list-item,
+.set-entry-row,
+.meal-entry-row {
+  color: var(--text);
+}
+
+.section,
+.record-card,
+.summary-card,
+.today-task-card,
+.meal-record-card,
+.workout-summary-card,
+.daily-record-card,
+.equipment-summary-card,
+.location-card,
+.admin-user-card,
+.more-link-card,
+.data-center-card,
+.focus-suggestion-card,
+.chart-card,
+.table-wrap,
+.detail-row,
+.editable-list-item {
+  border-color: var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.header,
+.tabs,
+.subnav,
+.workout-action-dock,
+.mobile-action-dock {
+  border-color: var(--line);
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 8px 22px rgb(15 23 42 / 8%);
+}
+
+.tab-btn,
+.btn-small,
+.btn-ghost,
+.mode-button,
+.quick-tab-button,
+.exercise-quick-button,
+.body-part-filter-chip {
+  border-color: var(--line);
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.tab-btn.active,
+.btn-primary,
+.quick-tab-button.is-active,
+.mode-button.btn-primary,
+.body-part-filter-chip.is-active,
+.exercise-quick-button:hover {
+  border-color: rgb(37 99 235 / 45%);
+  background: rgb(37 99 235 / 12%);
+  color: var(--blue);
+}
+
+input,
+select,
+textarea {
+  border-color: var(--line-strong);
+  background: #ffffff;
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--dim);
+}
+
+.badge,
+.mini-badge,
+.cat-badge {
+  border-color: var(--line);
+  background: var(--panel-soft);
+  color: var(--muted);
+}
+
+.empty,
+.compact-empty,
+.section-subtitle,
+.summary-label,
+small {
+  color: var(--muted);
+}
+
+@media (max-width: 430px) {
+  body {
+    background: #f3f4f6;
+  }
+
+  .header,
+  .tabs {
+    background: rgb(248 250 252 / 96%);
+  }
+}
+

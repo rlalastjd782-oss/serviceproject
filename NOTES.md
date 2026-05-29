@@ -2,7 +2,7 @@
 
 ## 현재 상태
 
-- 현재 버전: `2.8.0`
+- 현재 버전: `2.8.1`
 - 기본 브랜치: `main`
 - 최근 작업은 모두 커밋/푸시 완료되었습니다.
 - 브라우저는 사용자가 요청할 때만 엽니다.
@@ -134,6 +134,14 @@
 - 테스트에 개인화 다음 운동 카드와 후보 운동 렌더링 검증을 추가했습니다.
 - `VERSION`, manifest, service worker cache를 `2.8.0`으로 맞췄습니다.
 - 검증 기준: Ruff, compileall, 전체 JS syntax check, 전체 unittest, release check를 모두 통과해야 합니다.
+
+## 2026-05-29 v2.8.1 회색톤 UI 우선 적용
+
+- 화면 기본 배경과 공통 컴포넌트 톤을 밝은 회색 계열로 변경했습니다.
+- `styles_03.css`의 핵심 색상 토큰을 light color-scheme 기준으로 바꾸고, `ui_rebuild_04.css`에서 섹션/카드/버튼/input 공통 배경을 정리했습니다.
+- 모바일 헤더와 탭 배경도 밝은 회색/흰색 기반으로 맞췄습니다.
+- PWA theme color, manifest 색상, service worker cache를 `2.8.1` 기준으로 갱신했습니다.
+- 검증 기준: CSS 정적 검사, Fold UI 회귀 테스트, release check를 통과해야 합니다.
 
 ## 2026-05-29 v2.5.9 대형 파일 추가 분리
 
