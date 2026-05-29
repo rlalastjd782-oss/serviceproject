@@ -50,6 +50,10 @@ def register_auth_routes(app, ctx: dict[str, object]) -> None:
     def preview_page():
         return render_template("auth/preview.html")
 
+    @app.get("/auth/theme-preview")
+    def theme_preview_page():
+        return render_template("auth/theme_preview.html")
+
     @app.post("/auth/login")
     @app.post("/login")
     def login_route():

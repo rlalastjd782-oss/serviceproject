@@ -12,6 +12,7 @@ PUBLIC_GET_ENDPOINTS = {
     "login_page",
     "signup_page",
     "preview_page",
+    "theme_preview_page",
     "legacy_login_page",
     "root_service_worker",
     "root_favicon",

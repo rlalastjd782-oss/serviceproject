@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#d9dee5">
+    <title>회색톤 UI 예시</title>
+    <style>
+      :root {
+        --page: #dfe3e8;
+        --bar: #e9edf2;
+        --panel: #f4f5f7;
+        --panel-2: #eceff3;
+        --panel-3: #e2e7ed;
+        --row: #f8f9fa;
+        --line: #c2c9d2;
+        --line-soft: #d5dae1;
+        --title: #0f1115;
+        --text: #1b1f26;
+        --soft: #343a43;
+        --muted: #5b6570;
+        --dim: #7b8490;
+        --dark: #20242b;
+        --dark-2: #303640;
+        --graph: #3f4650;
+        --track: #cbd2db;
+        --active: #20242b;
+        --active-soft: #dfe4ea;
+        --shadow: 0 8px 20px rgb(33 39 48 / 8%);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .app {
+        display: grid;
+        grid-template-rows: auto auto minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .topbar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        border-bottom: 1px solid #15191f;
+        background:
+          linear-gradient(180deg, rgb(255 255 255 / 4%), transparent),
+          linear-gradient(180deg, #2c323b, var(--dark));
+        padding: 11px 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .brand strong {
+        color: #f8fafc;
+        font-size: 17px;
+        font-weight: 900;
+        line-height: 1.1;
+        white-space: nowrap;
+      }
+
+      .brand span {
+        color: #c4cbd5;
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .muted,
+      .field-name {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .user-area {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border: 1px solid rgb(255 255 255 / 12%);
+        border-radius: 999px;
+        background: rgb(255 255 255 / 7%);
+        color: #d9dee5;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 0 9px;
+        white-space: nowrap;
+      }
+
+      .nav {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+        border-bottom: 1px solid var(--line);
+        background: #d9dee5;
+        padding: 7px 12px;
+      }
+
+      .nav button {
+        position: relative;
+        min-height: 38px;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: transparent;
+        color: #4d5662;
+        font-size: 13px;
+        font-weight: 850;
+      }
+
+      .nav button::after {
+        content: "";
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: 5px;
+        height: 2px;
+        border-radius: 999px;
+        background: transparent;
+      }
+
+      .nav .active {
+        border-color: #aeb7c2;
+        background:
+          linear-gradient(180deg, rgb(255 255 255 / 82%), transparent),
+          #dfe4ea;
+        color: var(--text);
+        box-shadow: 0 4px 10px rgb(33 39 48 / 8%);
+      }
+
+      .nav .active::after {
+        background: var(--active);
+      }
+
+      .nav .tone-record {
+        background: #e9edf2;
+      }
+
+      .nav .tone-analysis {
+        background: #e3e8ee;
+      }
+
+      .nav .tone-meal {
+        background: #eef0f2;
+      }
+
+      .nav .tone-more {
+        background: #e6e9ed;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 12px;
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        padding: 12px;
+      }
+
+      .main-column,
+      .side-column {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .strip {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+        padding: 10px 12px;
+      }
+
+      .strip-title {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        color: var(--title);
+        font-size: 19px;
+        font-weight: 900;
+        line-height: 1.15;
+      }
+
+      h2 {
+        color: var(--title);
+        font-size: 14px;
+        font-weight: 900;
+        line-height: 1.2;
+      }
+
+      .metric-line {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .metric {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 4px;
+        min-height: 28px;
+        border: 1px solid var(--line-soft);
+        border-radius: 8px;
+        background: linear-gradient(180deg, #f6f7f8, var(--panel-2));
+        padding: 0 9px;
+      }
+
+      .metric strong {
+        color: var(--title);
+        font-size: 14px;
+      }
+
+      .metric span {
+        color: var(--dim);
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .button {
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: linear-gradient(180deg, #fbfbfc, var(--panel-2));
+        color: var(--soft);
+        font-size: 12px;
+        font-weight: 850;
+        padding: 0 11px;
+      }
+
+      .button.dark {
+        border-color: var(--dark);
+        background:
+          linear-gradient(180deg, rgb(255 255 255 / 10%), transparent),
+          linear-gradient(180deg, var(--dark-2), var(--active));
+        color: #fff;
+        box-shadow:
+          inset 0 1px 0 rgb(255 255 255 / 16%),
+          0 8px 16px rgb(32 37 44 / 20%);
+      }
+
+      .button.dark:hover {
+        background:
+          linear-gradient(180deg, rgb(255 255 255 / 12%), transparent),
+          linear-gradient(180deg, #3c434d, #242a32);
+      }
+
+      .work-panel {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .panel-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+        border-bottom: 1px solid var(--line-soft);
+        background: linear-gradient(180deg, #f8f9fa, var(--panel));
+        padding: 10px 12px;
+      }
+
+      .panel-body {
+        display: grid;
+        gap: 8px;
+        padding: 10px;
+      }
+
+      .quick-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .quick-row button {
+        min-height: 32px;
+        border: 1px solid var(--line-soft);
+        border-radius: 8px;
+        background: var(--panel-2);
+        color: var(--soft);
+        font-size: 11px;
+        font-weight: 850;
+      }
+
+      .quick-row button:first-child {
+        border-color: #b7c0ca;
+        background: linear-gradient(180deg, #f1f4f7, var(--active-soft));
+        color: var(--text);
+      }
+
+      .entry-table {
+        display: grid;
+        gap: 6px;
+        border: 1px solid var(--line-soft);
+        border-radius: 9px;
+        background: var(--panel-3);
+        padding: 6px;
+      }
+
+      .entry-head,
+      .entry-row {
+        display: grid;
+        grid-template-columns: minmax(140px, 1.5fr) minmax(80px, 0.7fr) minmax(70px, 0.6fr) 36px;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .entry-head {
+        color: var(--dim);
+        font-size: 10px;
+        font-weight: 900;
+        padding: 0 6px;
+      }
+
+      input {
+        width: 100%;
+        min-width: 0;
+        min-height: 36px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--row);
+        color: var(--text);
+        padding: 0 9px;
+      }
+
+      .square {
+        min-width: 36px;
+        min-height: 36px;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        background: var(--panel-2);
+        color: var(--muted);
+        font-weight: 950;
+      }
+
+      .action-bar {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) repeat(3, minmax(84px, auto));
+        gap: 6px;
+      }
+
+      .record-section {
+        display: grid;
+        gap: 7px;
+      }
+
+      .record-row {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        border: 1px solid var(--line-soft);
+        border-radius: 9px;
+        background: var(--row);
+        padding: 9px 10px;
+      }
+
+      .date {
+        color: var(--dim);
+        font-size: 11px;
+        font-weight: 850;
+      }
+
+      .record-main {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .record-main strong {
+        font-size: 13px;
+      }
+
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      .tag {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--panel-2);
+        color: var(--muted);
+        font-size: 10px;
+        font-weight: 850;
+        padding: 2px 6px;
+      }
+
+      .tag.is-strong {
+        border-color: #aeb7c2;
+        background: var(--active-soft);
+        color: var(--soft);
+      }
+
+      .record-value {
+        display: grid;
+        justify-items: end;
+        gap: 1px;
+        color: var(--text);
+        font-size: 13px;
+        font-weight: 950;
+        white-space: nowrap;
+      }
+
+      .record-value span:last-child {
+        color: var(--dim);
+        font-size: 10px;
+        font-weight: 800;
+      }
+
+      .side-panel {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .analysis-block {
+        display: grid;
+        gap: 9px;
+        padding: 10px;
+      }
+
+      .confidence {
+        display: grid;
+        grid-template-columns: 66px minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+        border: 1px solid var(--line-soft);
+        border-radius: 9px;
+        background: var(--row);
+        padding: 10px;
+      }
+
+      .ring {
+        display: grid;
+        place-items: center;
+        width: 66px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at center, var(--row) 58%, transparent 59%),
+          conic-gradient(var(--graph) 86%, var(--track) 0);
+      }
+
+      .ring strong {
+        font-size: 15px;
+      }
+
+      .bars {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        align-items: end;
+        gap: 4px;
+        height: 58px;
+        border: 1px solid var(--line-soft);
+        border-radius: 8px;
+        background: var(--panel-2);
+        padding: 7px;
+      }
+
+      .bars i {
+        display: block;
+        height: var(--h);
+        min-height: 8px;
+        border-radius: 999px 999px 3px 3px;
+        background: #5f6874;
+      }
+
+      .insight-list {
+        display: grid;
+        gap: 6px;
+      }
+
+      .insight {
+        display: grid;
+        grid-template-columns: 3px minmax(0, 1fr);
+        gap: 8px;
+        border: 1px solid var(--line-soft);
+        border-radius: 8px;
+        background: var(--row);
+        padding: 8px;
+      }
+
+      .insight::before {
+        content: "";
+        width: 3px;
+        border-radius: 999px;
+        background: #8a949f;
+      }
+
+      .insight strong {
+        display: block;
+        margin-bottom: 2px;
+        font-size: 12px;
+      }
+
+      .meal-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .meal {
+        display: grid;
+        gap: 5px;
+        border: 1px solid var(--line-soft);
+        border-radius: 8px;
+        background: var(--row);
+        padding: 8px;
+      }
+
+      .progress {
+        overflow: hidden;
+        height: 4px;
+        border-radius: 999px;
+        background: var(--track);
+      }
+
+      .progress i {
+        display: block;
+        width: var(--w);
+        height: 100%;
+        background: var(--graph);
+      }
+
+      @media (max-width: 760px) {
+        .topbar,
+        .workspace,
+        .strip,
+        .panel-head,
+        .action-bar {
+          grid-template-columns: 1fr;
+        }
+
+        .workspace {
+          padding: 8px;
+        }
+
+        .brand {
+          display: grid;
+          gap: 2px;
+        }
+
+        .user-area {
+          justify-content: flex-start;
+        }
+
+        .nav {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .quick-row,
+        .meal-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .entry-head {
+          display: none;
+        }
+
+        .entry-row {
+          grid-template-columns: 1fr 0.62fr 0.52fr 36px;
+        }
+
+        .record-row {
+          grid-template-columns: 1fr;
+          gap: 5px;
+        }
+
+        .record-value {
+          justify-items: start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header class="topbar">
+        <div class="brand">
+          <strong>피트니스 트래커</strong>
+          <span>무채색 기록 앱 레이아웃 예시</span>
+        </div>
+        <div class="user-area">
+          <span class="chip">user01님 환영합니다</span>
+          <span class="chip">v2.8.6 preview</span>
+        </div>
+      </header>
+
+      <nav class="nav" aria-label="예시 메뉴">
+        <button class="active">오늘</button>
+        <button class="tone-record">기록</button>
+        <button class="tone-analysis">분석</button>
+        <button class="tone-meal">식단</button>
+        <button class="tone-more">더보기</button>
+      </nav>
+
+      <section class="workspace">
+        <div class="main-column">
+          <section class="strip">
+            <div class="strip-title">
+              <h1>오늘 운동</h1>
+              <p class="muted">2026-05-29 · 아파트 헬스장 · 등/이두 세션</p>
+            </div>
+            <div class="metric-line">
+                <span class="metric"><strong>74분</strong><span>진행</span></span>
+                <span class="metric"><strong>18</strong><span>누적 세트</span></span>
+                <span class="metric"><strong>8.2t</strong><span>총 볼륨</span></span>
+                <span class="metric"><strong>90초</strong><span>타이머</span></span>
+            </div>
+          </section>
+
+          <section class="work-panel">
+            <div class="panel-head">
+              <div>
+                <h2>운동 입력</h2>
+                <p class="muted">운동명과 세트를 빠르게 쌓는 작업 패널입니다.</p>
+              </div>
+              <button class="button dark" type="button">운동 완료</button>
+            </div>
+            <div class="panel-body">
+              <div class="quick-row">
+                <button type="button">최근 운동</button>
+                <button type="button">즐겨찾기</button>
+                <button type="button">루틴 불러오기</button>
+                <button type="button">장소 장비</button>
+              </div>
+              <div class="entry-table">
+                <div class="entry-head">
+                  <span>운동명</span>
+                  <span>무게</span>
+                  <span>횟수</span>
+                  <span></span>
+                </div>
+                <div class="entry-row">
+                  <input value="암풀다운" aria-label="운동명">
+                  <input value="45 kg" aria-label="무게">
+                  <input value="12회" aria-label="횟수">
+                  <button class="square" type="button">X</button>
+                </div>
+                <div class="entry-row">
+                  <input value="랫풀다운" aria-label="운동명">
+                  <input value="55 kg" aria-label="무게">
+                  <input value="10회" aria-label="횟수">
+                  <button class="square" type="button">X</button>
+                </div>
+              </div>
+              <div class="action-bar">
+                <button class="button dark" type="button">세트 저장하기</button>
+                <button class="button" type="button">복사</button>
+                <button class="button" type="button">타이머</button>
+                <button class="button" type="button">+ 3세트</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="work-panel">
+            <div class="panel-head">
+              <div>
+                <h2>최근 기록</h2>
+                  <p class="muted">날짜, 장소, 부위, 세트 정보를 한 줄에서 확인합니다.</p>
+              </div>
+              <button class="button" type="button">전체 보기</button>
+            </div>
+            <div class="panel-body record-section">
+              <div class="record-row">
+                <span class="date">05.29 금</span>
+                <div class="record-main">
+                  <strong>등/이두 · 암풀다운, 랫풀다운, 케이블 로우</strong>
+                  <div class="tags">
+                    <span class="tag is-strong">케이블</span>
+                    <span class="tag">상체</span>
+                    <span class="tag">아파트 헬스장</span>
+                  </div>
+                </div>
+                <div class="record-value"><span>18세트</span><span>74분</span></div>
+              </div>
+              <div class="record-row">
+                <span class="date">05.28 목</span>
+                <div class="record-main">
+                  <strong>하체 · 레그프레스, 레그컬, 카프레이즈</strong>
+                  <div class="tags">
+                    <span class="tag is-strong">플레이트 로디드</span>
+                    <span class="tag">하체</span>
+                  </div>
+                </div>
+                <div class="record-value"><span>22세트</span><span>81분</span></div>
+              </div>
+              <div class="record-row">
+                <span class="date">05.27 수</span>
+                <div class="record-main">
+                  <strong>식단 · 아침, 점심, 저녁 기록 완료</strong>
+                  <div class="tags">
+                    <span class="tag is-strong">2,180kcal</span>
+                    <span class="tag">단백질 충분</span>
+                  </div>
+                </div>
+                <div class="record-value"><span>3식</span><span>완료</span></div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside class="side-column">
+          <section class="side-panel">
+            <div class="panel-head">
+              <div>
+                <h2>분석</h2>
+                <p class="muted">신뢰도, 볼륨 흐름, 다음 행동을 조용하게 보여줍니다.</p>
+              </div>
+            </div>
+            <div class="analysis-block">
+              <div class="confidence">
+                <div class="ring"><strong>86%</strong></div>
+                <div>
+                  <strong>분석신뢰도 높음</strong>
+                  <p class="muted">최근 기록 밀도와 운동명 일관성이 충분합니다.</p>
+                </div>
+              </div>
+              <div class="bars" aria-label="주간 볼륨 예시">
+                <i style="--h: 34%"></i>
+                <i style="--h: 58%"></i>
+                <i style="--h: 45%"></i>
+                <i style="--h: 72%"></i>
+                <i style="--h: 66%"></i>
+                <i style="--h: 82%"></i>
+                <i style="--h: 48%"></i>
+              </div>
+              <div class="insight-list">
+                <div class="insight">
+                  <div>
+                    <strong>등 운동 볼륨 안정</strong>
+                    <p class="muted">최근 7일 기준 목표 범위입니다.</p>
+                  </div>
+                </div>
+                <div class="insight">
+                  <div>
+                    <strong>하체 간격 확인</strong>
+                    <p class="muted">다음 세션에 하체를 우선 배치하는 편이 좋습니다.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="side-panel">
+            <div class="panel-head">
+              <div>
+                <h2>오늘 식단</h2>
+                <p class="muted">칼로리 기록을 운동 기록과 같은 밀도로 맞춥니다.</p>
+              </div>
+            </div>
+            <div class="analysis-block">
+              <div class="meal-grid">
+                <div class="meal">
+                  <span class="field-name">아침</span>
+                  <strong>520kcal</strong>
+                  <div class="progress"><i style="--w: 32%"></i></div>
+                </div>
+                <div class="meal">
+                  <span class="field-name">점심</span>
+                  <strong>780kcal</strong>
+                  <div class="progress"><i style="--w: 48%"></i></div>
+                </div>
+                <div class="meal">
+                  <span class="field-name">저녁</span>
+                  <strong>880kcal</strong>
+                  <div class="progress"><i style="--w: 54%"></i></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
