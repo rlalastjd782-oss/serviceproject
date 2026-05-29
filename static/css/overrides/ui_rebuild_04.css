@@ -511,8 +511,8 @@ span {
   --strong: #0f1115;
   --muted: #5b6570;
   --dim: #7b8490;
-  --blue: #20242b;
-  --blue-strong: #111418;
+  --blue: #343b45;
+  --blue-strong: #242a32;
   --shadow: 0 8px 20px rgb(33 39 48 / 8%);
   --shadow-soft: 0 5px 14px rgb(33 39 48 / 6%);
 }
@@ -529,10 +529,10 @@ body {
 }
 
 .header {
-  border-color: #15191f !important;
+  border-color: #252b33 !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 5%), transparent 44%),
-    linear-gradient(180deg, #2c323b, #20242b) !important;
+    linear-gradient(180deg, rgb(255 255 255 / 7%), transparent 44%),
+    linear-gradient(180deg, #3a414b, #2c333c) !important;
   color: #f8fafc !important;
   box-shadow: 0 8px 20px rgb(17 20 24 / 16%) !important;
 }
@@ -580,11 +580,11 @@ body {
 
 .section-header {
   margin: -10px -10px 10px !important;
-  border-bottom: 1px solid #15191f !important;
+  border-bottom: 1px solid #2a3038 !important;
   border-radius: 8px 8px 0 0 !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 6%), transparent),
-    linear-gradient(180deg, #333943, #242a32) !important;
+    linear-gradient(180deg, rgb(255 255 255 / 8%), transparent),
+    linear-gradient(180deg, #454c56, #333a44) !important;
   color: #f8fafc !important;
   padding: 10px 12px !important;
 }
@@ -615,14 +615,75 @@ body {
 .body-part-filter-chip.is-active,
 .workout-form .btn-primary,
 .meal-form .btn-primary {
-  border-color: #20242b !important;
+  border-color: #343b45 !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 12%), transparent 45%),
-    linear-gradient(180deg, #303640, #20242b) !important;
+    linear-gradient(180deg, rgb(255 255 255 / 13%), transparent 45%),
+    linear-gradient(180deg, #4a515c, #343b45) !important;
   color: #ffffff !important;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 15%),
     0 7px 14px rgb(32 37 44 / 18%) !important;
+}
+
+.field,
+label,
+.set-count-control,
+.weight-unit-field {
+  color: #343a43 !important;
+}
+
+input,
+select,
+textarea,
+.weight-unit-control,
+.compact-field-grid input,
+.compact-field-grid select,
+.set-entry-row input,
+.set-entry-row select,
+.meal-entry-row input,
+.meal-entry-row select,
+.record-search-form input,
+.record-search-form select,
+.body-metric-form input,
+.body-metric-form select {
+  border-color: #aeb7c2 !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f3f5f7 100%) !important;
+  color: #111827 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 80%),
+    0 1px 0 rgb(33 39 48 / 4%) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #5b6570 !important;
+}
+
+.section:not(.meal-record-card) .muted,
+.section:not(.meal-record-card) .muted-text,
+.section:not(.meal-record-card) .field-help,
+.section:not(.meal-record-card) .summary-label,
+.section:not(.meal-record-card) small,
+.section:not(.meal-record-card) .detail-row span,
+.section:not(.meal-record-card) .record-summary span,
+.section:not(.meal-record-card) .progress-metrics span,
+.section:not(.meal-record-card) .meal-entry-row span,
+.section:not(.meal-record-card) .set-entry-row span {
+  color: #343a43 !important;
+}
+
+.section,
+[class*="card"],
+[class*="panel"],
+.table-wrap,
+.quick-pane,
+.quick-tab-list,
+.set-builder-toolbar,
+.meal-builder-toolbar {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 42%), transparent),
+    var(--panel) !important;
 }
 
 .record-card,
