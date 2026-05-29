@@ -281,8 +281,17 @@ class UiNavigationFlowTest(FlowTestBase):
             "/app": 50,
             "/app?mode=workout": 78,
             "/app?mode=meal": 45,
+            "/records/search": 12,
+            "/more": 30,
+            "/locations": 30,
+            "/summaries/daily": 45,
             "/summaries/weekly": 30,
             "/summaries/monthly": 50,
+            "/summaries/pr": 35,
+            "/summaries/equipment": 35,
+            "/summaries/exercises": 35,
+            "/meals/weekly": 35,
+            "/meals/monthly": 45,
         }
         for path, limit in limits.items():
             with self.subTest(path=path):
