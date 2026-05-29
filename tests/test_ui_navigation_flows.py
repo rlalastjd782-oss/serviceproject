@@ -84,10 +84,21 @@ class UiNavigationFlowTest(FlowTestBase):
             with self.subTest(page=page):
                 html = self.client.get(page).data.decode("utf-8")
                 self.assertIn("/static/css/styles.css", html)
+                self.assertIn("/static/js/set_builder.js", html)
                 self.assertIn("/static/icon.svg", html)
                 self.assertIn("/favicon.ico", html)
                 for asset in legacy_assets:
                     self.assertNotIn(asset, html)
+
+    def test_mobile_fold_css_contracts_stay_intact(self) -> None:
+        styles = "\n".join(path.read_text(encoding="utf-8") for path in sorted(Path("static/css").rglob("*.css")))
+        self.assertIn("@media (max-width: 430px)", styles)
+        self.assertIn(".tabs {\n    display: grid;", styles)
+        self.assertIn("grid-template-columns: repeat(3, minmax(0, 1fr));", styles)
+        self.assertIn(".mobile-action-dock {\n    position: static;", styles)
+        self.assertIn(".workout-mode .today-mode-actions", styles)
+        self.assertIn(".weight-unit-control {\n    grid-template-columns: minmax(0, 1fr) 76px;", styles)
+        self.assertIn(".set-row-actions {\n    grid-template-columns: minmax(0, 1fr) 44px;", styles)
 
     def test_fold_ui_regression_markers_render(self) -> None:
         overview_html = self.client.get("/app").data.decode("utf-8")
@@ -176,8 +187,8 @@ class UiNavigationFlowTest(FlowTestBase):
         record_check_html = self.client.get("/records/check").data.decode("utf-8")
         self.assertIn("기록 점검", record_check_html)
         self.assertIn("record-gap-list", record_check_html)
-        self.assertIn("정리 후보", record_check_html)
         self.assertIn("data-cleanup-grid", record_check_html)
+        self.assertIn("cleanup-priority-grid", record_check_html)
 
         qa_html = self.client.get("/qa/report").data.decode("utf-8")
         self.assertIn("2.0 준비 상태", qa_html)
