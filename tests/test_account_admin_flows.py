@@ -300,6 +300,20 @@ class AccountAdminFlowTest(FlowTestBase):
         response = self.client.get("/app")
         self.assertIn("/admin", response.headers.get("Location", ""))
 
+    def test_login_allows_stale_public_csrf_after_server_restart(self) -> None:
+        self.client.get("/auth/login?mode=user")
+        raw_response = self.raw_post(
+            "/auth/login",
+            data={
+                "login_mode": "user",
+                "username": "tester",
+                "password": "1234",
+                "csrf_token": "stale-token-from-before-restart",
+            },
+        )
+        self.assertEqual(raw_response.status_code, 302)
+        self.assertIn("/app", raw_response.headers.get("Location", ""))
+
     def test_account_seen_touch_is_throttled(self) -> None:
         self.client.get("/app")
         with self.client.session_transaction() as sess:

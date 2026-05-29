@@ -54,7 +54,11 @@ def configure_lifecycle_hooks(
             json_payload = request.get_json(silent=True) if request.is_json else None
             json_token = json_payload.get("csrf_token") if isinstance(json_payload, dict) else None
             if not validate_csrf_token(request.form.get("csrf_token") or request.headers.get("X-CSRF-Token") or json_token):
-                abort(400)
+                if endpoint in PUBLIC_POST_ENDPOINTS:
+                    session.pop("csrf_token", None)
+                    ensure_csrf_token()
+                else:
+                    abort(400)
         account = current_account()
         if session.get("account_id") and not account:
             session.pop("account_id", None)
