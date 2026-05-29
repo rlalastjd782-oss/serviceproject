@@ -191,7 +191,7 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn("cleanup-priority-grid", record_check_html)
 
         qa_html = self.client.get("/qa/report").data.decode("utf-8")
-        self.assertIn("2.0 준비 상태", qa_html)
+        self.assertIn("2.7 릴리스 준비 상태", qa_html)
         self.assertIn("readiness-grid", qa_html)
 
         meal_templates_html = self.client.get("/meals/templates").data.decode("utf-8")
