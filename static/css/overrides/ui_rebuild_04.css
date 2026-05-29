@@ -431,6 +431,427 @@ textarea:focus {
     #d7e0ea !important;
 }
 
+/* v2.8.11: page-level polish for navigation, records, meals, plans, and analysis. */
+.tabs {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(82px, 1fr)) !important;
+  gap: 7px !important;
+  padding: 8px !important;
+  margin: 10px auto 0 !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 46%), rgb(210 218 228 / 46%)),
+    #d5dce5 !important;
+}
+
+.tab-logout-form {
+  display: contents !important;
+}
+
+.tab-btn,
+.tab-logout-form .tab-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 40px !important;
+  border-radius: 9px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 64%), rgb(223 230 238 / 62%)),
+    #e0e6ee !important;
+  color: #2f3a45 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.15 !important;
+  text-align: center !important;
+  box-shadow: var(--inner-light), 0 2px 7px rgb(28 36 46 / 5%) !important;
+}
+
+.tab-btn.active {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 14%), rgb(255 255 255 / 3%)),
+    linear-gradient(180deg, #535d69, #38414c) !important;
+  color: #f8fafc !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 16%), 0 6px 13px rgb(28 36 46 / 16%) !important;
+}
+
+.section-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 48px !important;
+}
+
+.section-header > div {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+.section-title {
+  font-size: 15px !important;
+  line-height: 1.24 !important;
+  letter-spacing: 0 !important;
+}
+
+.section-subtitle {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.overview-only .section-header,
+.today-task-section .section-header,
+.workout-clock-section .section-header {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 12%), transparent),
+    linear-gradient(180deg, #5e6873, #424b56) !important;
+}
+
+.record-card,
+.daily-record-card,
+.workout-summary-card,
+.meal-record-card {
+  display: grid !important;
+  gap: 10px !important;
+  padding: 13px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(238 243 248 / 42%) 45%, rgb(214 222 232 / 28%)),
+    #e8edf3 !important;
+  color: #26313b !important;
+  box-shadow: var(--inner-light), 0 7px 16px rgb(28 36 46 / 7%) !important;
+}
+
+.record-date {
+  justify-self: start !important;
+  margin: 0 !important;
+  padding: 5px 10px !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(216 225 235 / 66%)),
+    #dce4ed !important;
+  color: #33404c !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  line-height: 1.2 !important;
+}
+
+.record-summary {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 7px !important;
+  align-items: center !important;
+}
+
+.record-summary .badge,
+.record-result-meta span,
+.weekly-meal-day-head span,
+.meal-week-head span {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 25px !important;
+  padding: 4px 9px !important;
+  color: #3b4854 !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+}
+
+.daily-record-head,
+.workout-record-head,
+.weekly-meal-day-head,
+.meal-week-head,
+.goal-head,
+.goal-meta,
+.yearly-month-head,
+.yearly-month-meta {
+  border: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+}
+
+.daily-record-head strong,
+.weekly-meal-day-head strong,
+.meal-week-head strong,
+.yearly-month-head strong,
+.goal-head strong {
+  color: #24303a !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+  overflow-wrap: anywhere !important;
+}
+
+.daily-metric-grid,
+.yearly-metric-grid,
+.analysis-metric-grid,
+.record-search-metric-grid {
+  gap: 10px !important;
+}
+
+.daily-metric,
+.yearly-metric-card,
+.analysis-action-card,
+.goal-card,
+.record-search-metric,
+.trend-snapshot-row,
+.trend-card,
+.pr-dashboard-card,
+.meal-week-card,
+.weekly-meal-day,
+.plan-day-card {
+  border: 0 !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 70%), rgb(235 241 247 / 52%) 46%, rgb(213 222 232 / 30%)),
+    #e7edf4 !important;
+  color: #26313b !important;
+  box-shadow: var(--inner-light), 0 5px 13px rgb(28 36 46 / 6%) !important;
+}
+
+.daily-metric {
+  min-height: 68px !important;
+  padding: 10px !important;
+}
+
+.daily-metric strong,
+.yearly-metric-card span,
+.analysis-action-card span,
+.goal-meta,
+.trend-snapshot-row span {
+  color: #4a5865 !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  line-height: 1.25 !important;
+}
+
+.daily-metric span,
+.yearly-metric-card small,
+.analysis-action-card strong,
+.goal-card,
+.trend-snapshot-row strong {
+  color: #26313b !important;
+  line-height: 1.35 !important;
+}
+
+.cardio-metric.has-value,
+.goal-card.is-complete,
+.yearly-metric-card.is-primary,
+.trend-card.is-up,
+.equipment-summary-card.is-selected,
+.pr-rank-card.is-selected {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(223 233 242 / 58%) 52%, rgb(204 216 228 / 36%)),
+    #dfe8f1 !important;
+}
+
+.week-control-row,
+.week-date-form,
+.period-picker,
+.month-picker-form-wide,
+.goal-form,
+.goal-form-compact,
+.plan-board-actions,
+.settings-action-row,
+.record-list-toolbar,
+.period-filter-form,
+.filter-form,
+.inline-add-form,
+.record-search-form {
+  border: 0 !important;
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 56%), rgb(225 233 241 / 58%)),
+    #dfe6ee !important;
+  box-shadow: var(--inner-light), 0 4px 11px rgb(28 36 46 / 5%) !important;
+  padding: 9px !important;
+  gap: 8px !important;
+}
+
+.week-control-row,
+.period-picker,
+.month-picker-form-wide {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto !important;
+  align-items: center !important;
+}
+
+.week-date-form,
+.goal-form,
+.goal-form-compact,
+.record-list-toolbar,
+.period-filter-form,
+.filter-form,
+.inline-add-form {
+  align-items: end !important;
+}
+
+.arrow-btn,
+.week-date-form .btn-small,
+.period-filter-form .btn-small,
+.period-filter-form .btn-primary,
+.record-list-toolbar .btn-small,
+.goal-form .btn-small {
+  min-height: 40px !important;
+  line-height: 1.15 !important;
+}
+
+.weekly-meal-list,
+.meal-month-chart,
+.plan-board-grid,
+.routine-step-list,
+.analysis-action-plan,
+.detail-list,
+.record-list {
+  gap: 12px !important;
+}
+
+.weekly-meal-day,
+.meal-week-card,
+.plan-day-card {
+  padding: 13px !important;
+}
+
+.weekly-meal-items,
+.compact-detail-list,
+.next-plan-list {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.weekly-meal-item,
+.next-plan-list div,
+.routine-step-card,
+.plan-day-card .detail-row,
+.analysis-action-card,
+.detail-row,
+.record-result-card {
+  border: 0 !important;
+  border-radius: 10px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 62%), rgb(226 234 242 / 60%)),
+    #e2e9f1 !important;
+  box-shadow: var(--inner-light) !important;
+}
+
+.weekly-meal-item {
+  padding: 9px !important;
+}
+
+.weekly-meal-main {
+  gap: 4px !important;
+}
+
+.weekly-meal-main strong {
+  color: #24303a !important;
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+}
+
+.weekly-meal-main span {
+  color: #465461 !important;
+  font-size: 11px !important;
+  line-height: 1.35 !important;
+}
+
+.analysis-dashboard-section {
+  gap: 14px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 60%), rgb(230 237 245 / 36%) 46%, rgb(207 217 228 / 26%)),
+    #e8edf3 !important;
+}
+
+.yearly-dashboard-head {
+  gap: 8px !important;
+}
+
+.yearly-dashboard-head h1 {
+  color: #202b35 !important;
+  font-size: 22px !important;
+  line-height: 1.18 !important;
+  letter-spacing: 0 !important;
+}
+
+.yearly-dashboard-head p,
+.yearly-kicker {
+  color: #43515e !important;
+  line-height: 1.45 !important;
+}
+
+.analysis-action-grid,
+.yearly-action-grid {
+  gap: 8px !important;
+}
+
+.analysis-action-grid .btn-small,
+.yearly-action-grid .btn-small,
+.plan-board-section .btn-small,
+.plan-board-section .btn-primary {
+  justify-content: center !important;
+  min-height: 40px !important;
+}
+
+.goal-bar,
+.plan-progress-bar,
+.heat-track {
+  border: 0 !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 48%), rgb(204 214 225 / 58%)),
+    #d2dae4 !important;
+  box-shadow: inset 0 1px 2px rgb(28 36 46 / 8%) !important;
+}
+
+.goal-bar span,
+.plan-progress-bar span,
+.heat-track span {
+  background: linear-gradient(90deg, #59626e, #303945) !important;
+}
+
+.library-result-head {
+  display: grid !important;
+  gap: 4px !important;
+  margin: 14px 0 10px !important;
+  color: #465461 !important;
+}
+
+.library-result-head strong {
+  color: #222d37 !important;
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+}
+
+.library-result-head span {
+  color: #52616e !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+}
+
+.plan-day-card .library-card-head {
+  align-items: center !important;
+}
+
+.plan-day-card .library-card-head strong {
+  color: #24303a !important;
+  font-size: 14px !important;
+}
+
+.record-result-card {
+  padding: 12px !important;
+}
+
+.record-result-value {
+  min-width: 96px !important;
+  justify-items: center !important;
+  text-align: center !important;
+}
+
+.record-result-value strong {
+  color: #25303a !important;
+}
+
 @media (max-width: 430px) {
   .content {
     padding-inline: 8px;
@@ -460,7 +881,7 @@ textarea:focus {
   .tab-logout-form .tab-btn {
     width: 100%;
     min-width: 0;
-    min-height: 36px;
+    min-height: 38px;
     padding: 8px 4px;
     font-size: 12px;
   }
@@ -507,5 +928,31 @@ textarea:focus {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 7px;
+  }
+
+  .section-header {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+
+  .week-control-row,
+  .period-picker,
+  .month-picker-form-wide {
+    grid-template-columns: 1fr !important;
+  }
+
+  .daily-metric-grid,
+  .yearly-metric-grid,
+  .analysis-metric-grid,
+  .record-search-metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .weekly-meal-day-head,
+  .meal-week-head,
+  .daily-record-head {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
   }
 }
