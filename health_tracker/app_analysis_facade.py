@@ -21,6 +21,7 @@ from health_tracker.services.location_insights import (
     list_location_quick_exercises_from_db,
     list_location_training_insights_from_db,
 )
+from health_tracker.services.personalization import build_next_workout_plan_from_db
 from health_tracker.services.records import allowed_sort
 
 
@@ -318,5 +319,6 @@ def build_action_insights(date_text: str | None = None) -> dict[str, object]:
         "alerts": alerts[:6],
         "nutrition_link": nutrition_link,
         "location_insights": list_location_training_insights(limit=4),
+        "next_workout_plan": build_next_workout_plan_from_db(get_db(), date_value),
     }
 

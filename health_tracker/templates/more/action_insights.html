@@ -21,6 +21,42 @@
   <section class="section more-tool-section">
     <div class="section-header">
       <div>
+        <div class="section-title">개인화 다음 운동</div>
+        <div class="section-subtitle">{{ action_insights.next_workout_plan.summary }}</div>
+      </div>
+      <span class="badge">{{ action_insights.next_workout_plan.target_sets }}세트</span>
+    </div>
+    <div class="focus-suggestion-list next-workout-plan-list">
+      <article class="focus-suggestion-card next-workout-plan-card">
+        <div>
+          <span class="cat-badge {{ body_part_class(action_insights.next_workout_plan.focus.body_part) }}">{{ action_insights.next_workout_plan.focus.body_part }}</span>
+          <strong>오늘 초점</strong>
+          <small>{{ action_insights.next_workout_plan.recovery_note }}</small>
+        </div>
+        {% if action_insights.next_workout_plan.location %}
+          <a class="btn-small" href="{{ url_for('index', date=selected_date, mode='workout', location_id=action_insights.next_workout_plan.location.id) }}">해당 장소</a>
+        {% else %}
+          <a class="btn-small" href="{{ url_for('index', date=selected_date, mode='workout') }}">입력</a>
+        {% endif %}
+      </article>
+      {% for item in action_insights.next_workout_plan.exercise_candidates %}
+        <article class="focus-suggestion-card next-workout-exercise-card">
+          <div>
+            <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+            <strong>{{ item.exercise_name }}</strong>
+            <small>{% if item.equipment %}{{ item.equipment }} · {% endif %}최근 {{ item.last_date }} · {{ item.set_count }}세트</small>
+          </div>
+          <a class="btn-small" href="{{ url_for('index', date=selected_date, mode='workout') }}">기록</a>
+        </article>
+      {% else %}
+        <div class="empty compact-empty">운동 기록을 쌓으면 개인화 후보가 표시됩니다.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
         <div class="section-title">이번 주 요약</div>
         <div class="section-subtitle">분석 신뢰도 {{ action_insights.quality.score }}%</div>
       </div>

@@ -622,6 +622,46 @@ class WorkoutMealFlowTest(FlowTestBase):
             self.assertEqual(reminders["workout"]["enabled"], 1)
             self.assertEqual(reminders["workout"]["message"], "test workout reminder")
 
+    def test_action_insights_include_personal_next_workout_plan(self) -> None:
+        workout_date = "2026-05-29"
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-20",
+                "mode": "workout",
+                "body_part": "등",
+                "exercise_name": "__TEST__ Row Plan",
+                "equipment": "케이블",
+                "set_weight": ["50", "55", "55"],
+                "set_reps": ["10", "9", "8"],
+                "set_type": ["본세트", "본세트", "본세트"],
+            },
+        )
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-27",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ Press Plan",
+                "set_weight": ["70"],
+                "set_reps": ["8"],
+                "set_type": ["본세트"],
+            },
+        )
+
+        with self.app.app_context():
+            insights = app_module.build_action_insights(workout_date)
+            plan = insights["next_workout_plan"]
+            self.assertEqual(plan["focus"]["body_part"], "등")
+            self.assertGreaterEqual(plan["target_sets"], 6)
+            self.assertTrue(any(item["exercise_name"] == "__TEST__ Row Plan" for item in plan["exercise_candidates"]))
+
+        html = self.client.get("/insights/actions", query_string={"date": workout_date}).data.decode("utf-8")
+        self.assertIn("개인화 다음 운동", html)
+        self.assertIn("next-workout-plan-card", html)
+        self.assertIn("__TEST__ Row Plan", html)
+
     def test_dangerous_delete_requires_confirmation(self) -> None:
         with self.app.app_context():
             app_module.init_db()
