@@ -1,0 +1,159 @@
+    {% if active_page == "monthly" and monthly_report %}
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">월 선택</div>
+            <div class="section-subtitle">선택한 월 기준으로 리포트와 주간 그래프를 다시 계산합니다.</div>
+          </div>
+        </div>
+        {{ period_picker(url_for('monthly_summary_page'), url_for('monthly_summary_page', month=prev_month), url_for('monthly_summary_page', month=next_month), "month", selected_month, "month", "기준 월", "이전 월", "다음 월") }}
+      </section>
+
+      <section class="section analysis-dashboard-section">
+        <div class="yearly-dashboard-head">
+          <div class="yearly-kicker">월간 분석</div>
+          <h1>{{ monthly_report.workout_days }}일 운동 · {{ monthly_report.pr_count }}개 PR</h1>
+          <p>{{ monthly_report.period }} 기준으로 볼륨, 부위 균형, 체성분 변화를 연간 화면과 같은 흐름으로 정리했습니다.</p>
+        </div>
+        <div class="yearly-action-grid analysis-action-grid">
+          <a class="btn-small" href="{{ url_for('yearly_summary_page', year=selected_month[:4]) }}">연간</a>
+          <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
+          <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
+          <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
+        </div>
+        <div class="yearly-metric-grid analysis-metric-grid">
+          <article class="yearly-metric-card is-primary">
+            <span>운동일</span>
+            <strong>{{ monthly_report.workout_days }}</strong>
+            <small>월간 훈련 빈도</small>
+          </article>
+          <article class="yearly-metric-card">
+            <span>세트</span>
+            <strong>{{ monthly_report.set_count }}</strong>
+            <small>누적 세트</small>
+          </article>
+          <article class="yearly-metric-card">
+            <span>운동 시간</span>
+            <strong>{{ format_duration(monthly_report.duration_seconds) }}</strong>
+            <small>총 소요 시간</small>
+          </article>
+          <article class="yearly-metric-card">
+            <span>웨이트</span>
+            <strong>{{ "%.0f"|format(monthly_report.volume) }}</strong>
+            <small>kg 누적 볼륨</small>
+          </article>
+          <article class="yearly-metric-card">
+            <span>부위 균형</span>
+            <strong>{{ monthly_report.balance_score }}%</strong>
+            <small>주요 부위 분산</small>
+          </article>
+          <article class="yearly-metric-card">
+            <span>신기록</span>
+            <strong>{{ monthly_report.pr_count }}</strong>
+            <small>PR 이벤트</small>
+          </article>
+        </div>
+        {% if monthly_goals %}
+          {{ goal_cards(monthly_goals, ["monthly_volume", "monthly_workout_days", "monthly_cardio_minutes"], {"monthly_volume": "kg", "monthly_workout_days": "일", "monthly_cardio_minutes": "분"}) }}
+          <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
+            <input type="hidden" name="scope" value="monthly">
+            <input type="hidden" name="target_date" value="{{ selected_month }}-01">
+            <input name="monthly_volume" type="number" min="0" step="100" value="{{ monthly_goals.monthly_volume.target }}" placeholder="월간 볼륨">
+            <input name="monthly_workout_days" type="number" min="0" step="1" value="{{ monthly_goals.monthly_workout_days.target }}" placeholder="월간 운동일">
+            <input name="monthly_cardio_minutes" type="number" min="0" step="10" value="{{ monthly_goals.monthly_cardio_minutes.target }}" placeholder="월간 유산소 분">
+            <button class="btn-small" type="submit">월간 목표 저장</button>
+          </form>
+        {% endif %}
+        {% if body_monthly_report and body_monthly_report.has_data %}
+          <div class="summary-grid">
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.1f"|format(body_monthly_report.body_weight or 0) }}</div>
+              <div class="summary-label">체중 kg · {{ "%+.1f"|format(body_monthly_report.weight_delta) }}</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.1f"|format(body_monthly_report.muscle_mass or 0) }}</div>
+              <div class="summary-label">골격근 kg · {{ "%+.1f"|format(body_monthly_report.muscle_delta) }}</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-value">{{ "%.1f"|format(body_monthly_report.body_fat or 0) }}</div>
+              <div class="summary-label">체지방 % · {{ "%+.1f"|format(body_monthly_report.fat_delta) }}</div>
+            </article>
+          </div>
+          {% if body_metric_trend %}
+            <div class="detail-list">
+              <div class="detail-list-head">
+                <strong>체성분 추이</strong>
+                <span>{{ body_monthly_report.first_date }} ~ {{ body_monthly_report.last_date }}</span>
+              </div>
+              {% for item in body_metric_trend %}
+                <div class="progress-line">
+                  <span class="line-label">{{ item.period }}</span>
+                  <span class="line-track"><i class="duration-bar" style="width: {{ item.weight_width }}%"></i></span>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endif %}
+        <div class="analysis-action-plan" aria-label="월간 다음 행동">
+          {% for insight in report_insights[:2] %}
+            <article class="analysis-action-card">
+              <span>인사이트</span>
+              <strong>{{ insight }}</strong>
+            </article>
+          {% endfor %}
+          {% if monthly_report.missing %}
+            <article class="analysis-action-card is-warning">
+              <span>누락 기록</span>
+              <strong>{{ monthly_report.missing[:3]|join(', ') }}</strong>
+            </article>
+          {% endif %}
+          {% for insight in monthly_goal_insights[:1] %}
+            <article class="analysis-action-card is-goal">
+              <span>목표</span>
+              <strong>{{ insight }}</strong>
+            </article>
+          {% endfor %}
+        </div>
+
+        <div class="detail-list">
+          {% for item in period_highlights %}
+            <div class="detail-row highlight-row">
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.value }}{% if item.note %} · {{ item.note }}{% endif %}</span>
+            </div>
+          {% endfor %}
+          <div class="detail-row">
+            <strong>가장 많이 한 운동</strong>
+            <span>{{ monthly_report.top_exercise }}{% if monthly_report.top_exercise_sets %} · {{ monthly_report.top_exercise_sets }}세트{% endif %}</span>
+          </div>
+          {% for insight in report_insights %}
+            <div class="detail-row">
+              <strong>리포트</strong>
+              <span>{{ insight }}</span>
+            </div>
+          {% endfor %}
+          {% if nutrition_training_link %}
+            <div class="detail-row">
+              <strong>영양 연결</strong>
+              <span>{{ nutrition_training_link.message }} · 운동일 평균 {{ nutrition_training_link.workout_calorie_avg }}kcal</span>
+            </div>
+          {% endif %}
+          <div class="detail-row">
+            <strong>체중 변화</strong>
+            <span>{{ "%+.1f"|format(monthly_report.weight_delta) }}kg</span>
+          </div>
+          {% if monthly_report.missing %}
+            <div class="detail-row">
+              <strong>부족 부위</strong>
+              <span>{{ monthly_report.missing[:4]|join(", ") }}</span>
+            </div>
+          {% endif %}
+          {% for insight in monthly_goal_insights %}
+            <div class="detail-row">
+              <strong>목표 체크</strong>
+              <span>{{ insight }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}

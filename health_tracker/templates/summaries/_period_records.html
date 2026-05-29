@@ -1,0 +1,105 @@
+    {% if chart_items %}
+      <section class="section trend-snapshot-section">
+        <div class="section-header">
+          <div>
+            <div class="section-title">기간 요약</div>
+            <div class="section-subtitle">그래프에 들어가는 데이터를 먼저 숫자로 확인합니다.</div>
+          </div>
+        </div>
+        <div class="trend-snapshot-list">
+          {% for item in chart_items %}
+            <article class="trend-snapshot-row">
+              <strong>{{ item.period }}</strong>
+              <span>세트 {{ item.set_count }}</span>
+              <span>운동 {{ format_duration(item.duration_seconds) }}</span>
+              <span>웨이트 {{ "%.0f"|format(item.volume) }}kg</span>
+              {% if item.cardio_minutes %}<span>유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+              <span>식단 {{ item.meal_count }}</span>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">📈 {{ chart_title }}</div>
+      </div>
+      {% if chart_items %}
+        <div class="progress-chart" role="img" aria-label="{{ chart_title }}">
+          {% for item in chart_items %}
+            <article class="progress-card">
+              <div class="progress-head">
+                <strong>{{ item.period }}</strong>
+                <span>{{ item.workout_days }}일 · {{ item.meal_count }}식</span>
+              </div>
+              <div class="progress-metrics">
+                <span>운동 {{ format_duration(item.duration_seconds) }}</span>
+                <span>웨이트 {{ "%.0f"|format(item.volume) }}kg</span>
+                {% if item.cardio_minutes %}<span>유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+                <span>세트 {{ item.set_count }}</span>
+              </div>
+              <div class="progress-bars">
+                <div class="progress-line">
+                  <span class="line-label">시간</span>
+                  <span class="line-track"><i class="duration-bar" style="width: {{ item.duration_width }}%"></i></span>
+                </div>
+                <div class="progress-line">
+                  <span class="line-label">웨이트</span>
+                  <span class="line-track"><i class="volume-bar" style="width: {{ item.volume_width }}%"></i></span>
+                </div>
+                <div class="progress-line">
+                  <span class="line-label">세트</span>
+                  <span class="line-track"><i class="set-bar" style="width: {{ item.set_width }}%"></i></span>
+                </div>
+                <div class="progress-line">
+                  <span class="line-label">식단량</span>
+                  <span class="line-track"><i class="calorie-bar" style="width: {{ item.grams_width }}%"></i></span>
+                </div>
+                {% if item.exercise_calories %}
+                  <div class="progress-line">
+                    <span class="line-label">유산소</span>
+                    <span class="line-track"><i class="burn-bar" style="width: {{ item.exercise_calorie_width }}%"></i></span>
+                  </div>
+                {% endif %}
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty">그래프에 표시할 기록 없음</div>
+      {% endif %}
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <div class="section-title">{% if active_page == "weekly" %}📋 주별 기록{% else %}📋 월별 기록{% endif %}</div>
+      </div>
+      <form method="get" action="{{ request.path }}" class="filter-form">
+        {% if selected_week %}<input type="hidden" name="week" value="{{ selected_week }}">{% endif %}
+        {% if selected_month %}<input type="hidden" name="month" value="{{ selected_month }}">{% endif %}
+        {{ result_toolbar(period_pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("volume", "운동량순")], period_sort, request.path) }}
+        <button class="btn-small" type="submit">적용</button>
+      </form>
+      <div class="record-list">
+        {% for item in period_rows %}
+          <article class="record-card">
+            <div class="record-date">{{ item.period }}</div>
+            <div class="record-summary">
+              {% if item.duration_seconds %}<span class="badge">⏱ {{ format_duration(item.duration_seconds) }}</span>{% endif %}
+              {% if item.workout_days %}<span class="badge">운동 {{ item.workout_days }}일</span>{% endif %}
+              {% if item.set_count %}<span class="badge">🏃 {{ item.set_count }}세트</span>{% endif %}
+              {% if item.rep_count %}<span class="badge">💪 {{ item.rep_count }}회</span>{% endif %}
+              {% if item.volume %}<span class="badge">🏋 웨이트 {{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
+              {% if item.cardio_minutes %}<span class="badge">🚶 유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+              {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
+              {% if item.meal_count %}<span class="badge">🍱 {{ item.meal_count }}식</span>{% endif %}
+              {% if item.calories %}<span class="badge">🔥 입력 {{ "%.0f"|format(item.calories) }}kcal</span>{% endif %}
+            </div>
+          </article>
+        {% else %}
+          <div class="empty">기록 없음</div>
+        {% endfor %}
+      </div>
+      {{ pagination_nav(period_pagination) }}
+    </section>

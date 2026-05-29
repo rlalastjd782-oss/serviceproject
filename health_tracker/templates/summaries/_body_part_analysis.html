@@ -1,0 +1,90 @@
+  {% if body_part_summary is defined and (body_part_summary or (table_kind == "daily" and body_parts)) %}
+    <section id="body-part-analysis" class="section record-body-part-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">💪 부위별 분석</div>
+          {% if table_kind == "daily" %}
+            <div class="section-subtitle">선택한 부위의 날짜별 기록만 좁혀서 봅니다.</div>
+          {% endif %}
+      </div>
+      </div>
+      {% if table_kind == "daily" and body_parts %}
+        <div class="body-part-filter-list" aria-label="부위별 분석 필터">
+          <a class="body-part-filter-chip {% if not selected_body_part %}is-active{% endif %}" href="{{ query_url(part=None, page=None) }}#body-part-analysis">전체</a>
+          {% for part in body_parts %}
+            <a class="body-part-filter-chip {{ body_part_class(part) }} {% if selected_body_part == part %}is-active{% endif %}" href="{{ query_url(part=part, page=None) }}#body-part-analysis">{{ part }}</a>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div class="cat-stat-grid">
+        {% for item in body_part_summary %}
+          {% set detail_rows = body_part_details.get(item.period ~ "::" ~ item.body_part, []) if active_page == "weekly" else [] %}
+          {% set detail_id = "body-part-detail-" ~ loop.index %}
+          <article class="cat-stat-card active heat-card {{ body_part_class(item.body_part) }}" data-body-part-summary="{{ item.body_part }}" style="--heat: {{ [100, item.set_count * 12]|min }}%">
+            <div class="cat-stat-name">{{ item.body_part }}</div>
+            <div class="cat-stat-count">{{ item.set_count }}</div>
+            <div class="heat-track"><span style="width: {{ [100, item.set_count * 12]|min }}%"></span></div>
+            <div class="cat-stat-unit cat-stat-period">{{ item.period }}</div>
+            <div class="cat-stat-unit cat-stat-detail">
+              {% if item.body_part == "유산소" %}
+                {{ "%.0f"|format(item.cardio_minutes) }}분{% if item.exercise_calories %} · {{ "%.0f"|format(item.exercise_calories) }}kcal{% endif %}
+              {% else %}
+                {{ item.rep_count }}회 · {{ "%.0f"|format(item.volume) }}kg
+              {% endif %}
+            </div>
+            {% if active_page == "weekly" and item.pr_count %}
+              <div class="cat-stat-pr">
+                PR {{ item.pr_count }}개
+                {% if item.best_pr_weight %} · 최고 {{ "%.1f"|format(item.best_pr_weight) }}kg
+                {% elif item.best_pr_reps %} · 최고 {{ "%.0f"|format(item.best_pr_reps) }}회
+                {% elif item.best_pr_volume %} · 최고 {{ "%.0f"|format(item.best_pr_volume) }}kg{% endif %}
+              </div>
+            {% endif %}
+            {% if active_page == "weekly" and detail_rows %}
+              <button type="button" class="btn-small detail-inline-btn" data-toggle-detail data-detail-target="{{ detail_id }}" aria-expanded="false">상세</button>
+            {% endif %}
+          </article>
+          {% if active_page == "weekly" and detail_rows %}
+            <div id="{{ detail_id }}" class="detail-list full-detail-list is-collapsed" aria-hidden="true">
+              <div class="detail-list-head">
+                <strong>{{ item.period }} · {{ item.body_part }}</strong>
+                <span>운동 상세</span>
+              </div>
+              {% for detail in detail_rows %}
+                <div class="detail-row">
+                  <strong>{{ detail.exercise_name }}</strong>
+                  <span>
+                    {% if item.body_part == "유산소" %}
+                      {{ detail.set_count }}세트
+                      {% if detail.avg_cardio_incline is not none %}· 평균 인클라인 {{ "%.1f"|format(detail.avg_cardio_incline) }}{% endif %}
+                      {% if detail.avg_cardio_speed is not none %}· 평균 속도 {{ "%.1f"|format(detail.avg_cardio_speed) }}{% endif %}
+                      {% if detail.cardio_minutes is not none and detail.cardio_minutes > 0 %}· {{ "%.0f"|format(detail.cardio_minutes) }}분{% endif %}
+                      {% if detail.exercise_calories %}· 예상 {{ "%.0f"|format(detail.exercise_calories) }}kcal{% endif %}
+                    {% else %}
+                      {% if detail.min_weight is not none and detail.max_weight is not none %}
+                        {% if detail.min_weight == detail.max_weight %}
+                          {{ "%.1f"|format(detail.max_weight) }}kg
+                        {% else %}
+                          {{ "%.1f"|format(detail.min_weight) }}~{{ "%.1f"|format(detail.max_weight) }}kg
+                        {% endif %}
+                      {% else %}-kg{% endif %}
+                      · {{ detail.set_count }}세트
+                      · {{ detail.rep_count }}회
+                      {% if detail.pr_count %}
+                        · PR {{ detail.pr_count }}개
+                        {% if detail.best_pr_weight %}· 최고 {{ "%.1f"|format(detail.best_pr_weight) }}kg
+                        {% elif detail.best_pr_reps %}· 최고 {{ "%.0f"|format(detail.best_pr_reps) }}회
+                        {% elif detail.best_pr_volume %}· 최고 {{ "%.0f"|format(detail.best_pr_volume) }}kg{% endif %}
+                      {% endif %}
+                    {% endif %}
+                  </span>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="empty">선택한 부위의 분석 기록이 없습니다.</div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
