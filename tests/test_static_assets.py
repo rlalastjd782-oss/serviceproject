@@ -57,3 +57,45 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".record-list > .meal-record-card", ui_source)
         self.assertNotIn(".tab-btn,\n  .mode-button", ui_source)
         self.assertIn(".tabs .tab-btn", ui_source)
+
+    def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
+        dark_surface_tokens = [
+            "#101827",
+            "#101b2e",
+            "#121a29",
+            "#0b1220",
+            "#0d1420",
+            "#0c111a",
+            "#111823",
+            "#102018",
+            "#1f1115",
+            "#0f1724",
+            "#16131a",
+            "#201a0c",
+            "#271111",
+            "rgb(15 23 42",
+            "rgb(17 24 39",
+            "rgb(8 13 22",
+            "rgb(31 41 55",
+            "rgb(127 29 29",
+        ]
+        legacy_light_text_tokens = [
+            "#cbd5e1",
+            "#d8e7ff",
+            "#e5f0ff",
+            "#bae6fd",
+            "#fbbf24",
+            "#4ade80",
+            "#f87171",
+        ]
+        allowed_shadow_tokens = ("--shadow", "box-shadow")
+
+        for path in sorted(Path("static/css").rglob("*.css")):
+            source = path.read_text(encoding="utf-8-sig")
+            for line_number, line in enumerate(source.splitlines(), start=1):
+                stripped = line.strip()
+                if any(token in stripped for token in dark_surface_tokens):
+                    if not any(token in stripped for token in allowed_shadow_tokens):
+                        self.fail(f"{path}:{line_number} has legacy dark surface token: {stripped}")
+                for token in legacy_light_text_tokens:
+                    self.assertNotIn(token, stripped, f"{path}:{line_number} has legacy light text token")

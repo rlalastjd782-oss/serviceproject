@@ -135,14 +135,14 @@
 .workout-mode .workout-plan-section,
 .workout-mode .routine-library-section,
 .workout-mode .workout-secondary-section {
-  background: rgb(17 24 39 / 55%);
-  border-color: rgb(75 85 99 / 55%);
+  background: #ffffff;
+  border-color: var(--line);
 }
 
 .meal-mode .meal-helper-section,
 .meal-mode .meal-goal-section {
-  background: rgb(17 24 39 / 55%);
-  border-color: rgb(75 85 99 / 55%);
+  background: #ffffff;
+  border-color: var(--line);
 }
 
 .workout-mode .workout-plan-section .section-header,
@@ -214,7 +214,7 @@
   margin-bottom: 10px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: rgb(15 15 20 / 92%);
+  background: #ffffff;
   padding: 7px;
   backdrop-filter: blur(10px);
 }
