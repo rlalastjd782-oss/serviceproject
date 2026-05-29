@@ -94,6 +94,10 @@
   gap: 8px;
 }
 
+.cleanup-priority-grid {
+  margin-top: 12px;
+}
+
 .cleanup-row {
   min-width: 0;
   border-top: 1px solid var(--line);

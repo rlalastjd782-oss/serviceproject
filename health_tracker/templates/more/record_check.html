@@ -46,6 +46,40 @@
         </article>
       {% endfor %}
     </div>
+
+    <div class="data-cleanup-grid cleanup-priority-grid">
+      <article class="cleanup-panel">
+        <div class="cleanup-panel-head">
+          <strong>정리 우선순위</strong>
+          <span class="badge">{{ duplicate_exercises|length + outlier_sets|length + record_gaps|length }}건</span>
+        </div>
+        <div class="detail-list compact-detail-list">
+          <div class="detail-row">
+            <strong>운동명 중복</strong>
+            <span>{{ duplicate_exercises|length }}건 · 운동명 병합/수정 후보</span>
+          </div>
+          <div class="detail-row">
+            <strong>이상 입력</strong>
+            <span>{{ outlier_sets|length }}건 · 무게, 횟수, 유산소 시간 확인 필요</span>
+          </div>
+          <div class="detail-row">
+            <strong>누락일</strong>
+            <span>{{ record_gaps|length }}건 · 운동 또는 식단 입력 필요</span>
+          </div>
+        </div>
+      </article>
+      <article class="cleanup-panel">
+        <div class="cleanup-panel-head">
+          <strong>빠른 처리</strong>
+          <span class="badge">Action</span>
+        </div>
+        <div class="settings-action-row">
+          <a class="btn-small" href="{{ url_for('exercise_library_page') }}">운동명 관리</a>
+          <a class="btn-small" href="{{ url_for('record_search_page') }}">기록 검색</a>
+          <a class="btn-small" href="{{ url_for('data_center_page', date=selected_date) }}">데이터 센터</a>
+        </div>
+      </article>
+    </div>
   </section>
 
   <section class="section more-tool-section">
@@ -76,7 +110,7 @@
         </div>
       </article>
       <article class="cleanup-panel">
-        <div class="cleanup-panel-header">
+        <div class="cleanup-panel-head">
           <strong>이상 입력 후보</strong>
           <span class="badge">{{ outlier_sets|length }}건</span>
         </div>
