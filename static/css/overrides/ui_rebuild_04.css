@@ -499,3 +499,164 @@ span {
   color: #374151;
 }
 
+/* v2.8.7 main tone trial: charcoal headers with calm gray surfaces. */
+:root {
+  --bg: #dfe3e8;
+  --panel: #f4f5f7;
+  --panel-2: #eceff3;
+  --panel-soft: #e2e7ed;
+  --line: #c2c9d2;
+  --line-strong: #aab3bf;
+  --text: #1b1f26;
+  --strong: #0f1115;
+  --muted: #5b6570;
+  --dim: #7b8490;
+  --blue: #20242b;
+  --blue-strong: #111418;
+  --shadow: 0 8px 20px rgb(33 39 48 / 8%);
+  --shadow-soft: 0 5px 14px rgb(33 39 48 / 6%);
+}
+
+html,
+body {
+  background: #dfe3e8 !important;
+}
+
+body {
+  background:
+    linear-gradient(180deg, #e9edf2 0, #dfe3e8 42%, #d7dce3 100%) !important;
+  color: var(--text) !important;
+}
+
+.header {
+  border-color: #15191f !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 5%), transparent 44%),
+    linear-gradient(180deg, #2c323b, #20242b) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 8px 20px rgb(17 20 24 / 16%) !important;
+}
+
+.header *,
+.header-title,
+.account-greeting,
+.app-version {
+  color: #f8fafc !important;
+}
+
+.account-greeting,
+.app-version {
+  border-color: rgb(255 255 255 / 13%) !important;
+  background: rgb(255 255 255 / 7%) !important;
+}
+
+.tabs {
+  border-color: var(--line) !important;
+  background: #d9dee5 !important;
+  box-shadow: none !important;
+}
+
+.tab-btn,
+.tab-logout-form .tab-btn {
+  border-color: transparent !important;
+  background: transparent !important;
+  color: #4d5662 !important;
+}
+
+.tab-btn.active {
+  border-color: #aab3bf !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 78%), transparent),
+    #dfe4ea !important;
+  color: var(--strong) !important;
+  box-shadow: 0 4px 10px rgb(33 39 48 / 8%) !important;
+}
+
+.section {
+  border-color: var(--line) !important;
+  background: var(--panel) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.section-header {
+  margin: -10px -10px 10px !important;
+  border-bottom: 1px solid #15191f !important;
+  border-radius: 8px 8px 0 0 !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 6%), transparent),
+    linear-gradient(180deg, #333943, #242a32) !important;
+  color: #f8fafc !important;
+  padding: 10px 12px !important;
+}
+
+.section-header *,
+.section-header .section-title,
+.section-header .section-subtitle {
+  color: #f8fafc !important;
+}
+
+.section-header .section-subtitle,
+.section-header small,
+.section-header span {
+  color: #c9d0d8 !important;
+}
+
+.section-header .btn-small,
+.section-header .btn-primary,
+.section-header a[class*="btn"] {
+  border-color: rgb(255 255 255 / 16%) !important;
+  background: rgb(255 255 255 / 8%) !important;
+  color: #f8fafc !important;
+}
+
+.btn-primary,
+.mode-button.btn-primary,
+.quick-tab-button.is-active,
+.body-part-filter-chip.is-active,
+.workout-form .btn-primary,
+.meal-form .btn-primary {
+  border-color: #20242b !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 12%), transparent 45%),
+    linear-gradient(180deg, #303640, #20242b) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 15%),
+    0 7px 14px rgb(32 37 44 / 18%) !important;
+}
+
+.record-card,
+.daily-record-card,
+.meal-record-card,
+.record-result-card,
+.meal,
+.meal-card,
+.detail-row,
+.set-entry-row,
+.meal-entry-row {
+  border-color: var(--line-soft, #d5dae1) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 68%), transparent),
+    #eef2f6 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%) !important;
+}
+
+.record-date,
+.date,
+.meal-record-type,
+.weekly-meal-date {
+  border-color: var(--line) !important;
+  background: #dde3ea !important;
+  color: #343a43 !important;
+}
+
+.badge,
+.mini-badge,
+.cat-badge,
+.tag,
+.body-part-badge {
+  border-color: var(--line) !important;
+  background: #e8ecf1 !important;
+  color: var(--muted) !important;
+}
+
