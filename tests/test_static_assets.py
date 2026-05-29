@@ -99,3 +99,18 @@ class StaticAssetIntegrityTest(unittest.TestCase):
                         self.fail(f"{path}:{line_number} has legacy dark surface token: {stripped}")
                 for token in legacy_light_text_tokens:
                     self.assertNotIn(token, stripped, f"{path}:{line_number} has legacy light text token")
+
+    def test_final_gray_theme_layer_avoids_black_text_and_border_stacking(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_04.css").read_text(encoding="utf-8-sig").lower()
+        disallowed_tokens = [
+            "#000",
+            "#111827",
+            "black",
+            "border-color:",
+            "background: #fff",
+            "background: #ffffff",
+            "background: #f9fafb",
+            "background: #f8fafc",
+        ]
+        for token in disallowed_tokens:
+            self.assertNotIn(token, source)

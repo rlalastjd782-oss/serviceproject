@@ -1,4 +1,436 @@
-﻿
+/* v2.8.10 final surface layer: gray gradient UI without noisy border stacking. */
+:root {
+  --bg: #d9dee5;
+  --bg-top: #edf0f4;
+  --bg-bottom: #cfd6df;
+  --surface: #f1f4f7;
+  --surface-high: #f8fafc;
+  --surface-mid: #e6ebf1;
+  --surface-low: #d8dfe7;
+  --surface-chip: #dfe5ec;
+  --text: #25303a;
+  --strong: #1d2732;
+  --muted: #42505d;
+  --dim: #5f6c78;
+  --charcoal: #343c46;
+  --charcoal-strong: #252c35;
+  --charcoal-soft: #4a525d;
+  --danger: #b42323;
+  --danger-bg: #f7dddd;
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: 0 10px 22px rgb(28 36 46 / 10%);
+  --shadow-soft: 0 5px 14px rgb(28 36 46 / 7%);
+  --inner-light: inset 0 1px 0 rgb(255 255 255 / 74%);
+}
+
+html,
+body {
+  background:
+    radial-gradient(circle at 50% 0, rgb(255 255 255 / 42%), transparent 34rem),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg) 46%, var(--bg-bottom) 100%) !important;
+  color: var(--text) !important;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  color: var(--text) !important;
+}
+
+.content,
+.today-shell,
+main {
+  color: var(--text) !important;
+}
+
+.header {
+  border: 0 !important;
+  border-radius: 0 0 14px 14px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 10%), transparent 48%),
+    linear-gradient(180deg, #4a525d 0%, #343c46 58%, #2d343e 100%) !important;
+  color: #f8fafc !important;
+  box-shadow: 0 10px 22px rgb(24 30 38 / 18%) !important;
+}
+
+.header *,
+.header-title,
+.account-greeting,
+.app-version {
+  color: #f8fafc !important;
+}
+
+.account-greeting,
+.app-version {
+  border: 0 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 15%), rgb(255 255 255 / 6%)) !important;
+}
+
+.tabs,
+.subnav,
+.workout-action-dock,
+.mobile-action-dock {
+  border: 0 !important;
+  border-radius: var(--radius) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 52%), rgb(255 255 255 / 12%)),
+    var(--surface-low) !important;
+  box-shadow: var(--inner-light), var(--shadow-soft) !important;
+  overflow: hidden;
+}
+
+.tab-btn,
+.tab-logout-form .tab-btn,
+.subnav a {
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--muted) !important;
+  box-shadow: none !important;
+}
+
+.tab-btn.active,
+.subnav a.is-active {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 78%), rgb(238 242 247 / 70%)),
+    var(--surface-high) !important;
+  color: var(--strong) !important;
+  box-shadow: 0 4px 12px rgb(28 36 46 / 9%) !important;
+}
+
+.section,
+.login-panel,
+.auth-secondary-action,
+.settings-panel,
+.admin-operation-section,
+.record-body-part-section,
+.today-hero-section,
+.analysis-dashboard-section,
+.yearly-dashboard-section,
+.record-search-dashboard,
+.equipment-dashboard-section,
+.pr-hero-section {
+  border: 0 !important;
+  border-radius: var(--radius) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 54%) 0%, rgb(255 255 255 / 18%) 42%, rgb(214 222 232 / 24%) 100%),
+    var(--surface) !important;
+  color: var(--text) !important;
+  box-shadow: var(--inner-light), var(--shadow-soft) !important;
+  overflow: hidden;
+}
+
+.section-header {
+  margin: 0 0 12px !important;
+  border: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 11%), transparent 46%),
+    linear-gradient(180deg, #59626e 0%, #424b56 54%, #353d47 100%) !important;
+  color: #f8fafc !important;
+  padding: 11px 12px !important;
+  box-shadow: 0 6px 14px rgb(28 36 46 / 12%) !important;
+  overflow: hidden;
+}
+
+.section-header *,
+.section-header .section-title,
+.section-header .section-subtitle,
+.section-header span,
+.section-header small {
+  color: #f8fafc !important;
+}
+
+.section-title,
+.summary-value,
+.record-toggle strong,
+.daily-record-head strong,
+.record-result-card strong,
+.more-link-card strong,
+.data-center-card strong,
+.focus-suggestion-card strong,
+.location-title-row strong,
+.detail-row strong {
+  color: var(--strong) !important;
+}
+
+.section-subtitle,
+.summary-label,
+.muted,
+.muted-text,
+.field-help,
+.record-toggle span,
+.record-summary span,
+.detail-row span,
+.progress-metrics span,
+.empty,
+.compact-empty,
+small {
+  color: var(--muted) !important;
+}
+
+.summary-card,
+.today-task-card,
+.record-card,
+.daily-record-card,
+.equipment-summary-card,
+.workout-summary-card,
+.meal-record-card,
+.record-result-card,
+.more-link-card,
+.data-center-card,
+.focus-suggestion-card,
+.chart-card,
+.admin-user-card,
+.admin-contact-card,
+.settings-action-card,
+.health-card,
+.goal-card,
+.location-card,
+.location-create-panel,
+.location-manage-details,
+.location-equipment-panel,
+.location-equipment-item,
+.location-insight-card,
+.meal-favorite-row,
+.recent-meal-template-row,
+.meal-template-card,
+.routine-load-row,
+.routine-form,
+.filter-form,
+.period-filter-form,
+.record-list-toolbar,
+.tool-form,
+.inline-add-form,
+.quick-panel,
+.quick-pane,
+.optional-workout-panel,
+.exercise-goal-card,
+.pr-share-card,
+.readiness-card,
+.rule-card,
+.admin-operation-card,
+.data-quality-copy,
+.analysis-action-card,
+.body-part-exercise-card,
+.record-gap-card,
+.export-link-card,
+.data-warning-card,
+.table-wrap,
+.calendar-day,
+.progress-chart,
+.trend-chart {
+  border: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 66%) 0%, rgb(244 247 250 / 34%) 44%, rgb(216 224 233 / 28%) 100%),
+    var(--surface-mid) !important;
+  color: var(--text) !important;
+  box-shadow: var(--inner-light), 0 4px 12px rgb(28 36 46 / 6%) !important;
+  overflow: hidden;
+}
+
+.record-list,
+.detail-list,
+.meal-entry-list,
+.set-entry-list,
+.admin-user-grid,
+.settings-action-grid,
+.summary-grid,
+.focus-grid,
+.today-task-grid,
+.next-action-grid,
+.routine-recommend-grid,
+.pr-card-grid,
+.goal-grid,
+.location-overview-grid {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.detail-row,
+.editable-list-item,
+.set-entry-row,
+.meal-entry-row,
+.mini-list-row,
+.daily-metric,
+.record-result-meta span,
+.compact-set-preview button,
+.workout-tool-grid,
+.quick-tab-list,
+.set-builder-toolbar,
+.meal-builder-toolbar,
+.mode-actions,
+.timer-actions,
+.set-preset-list,
+.set-builder-actions,
+.program-chip-list,
+.exercise-quick-list,
+.location-equipment-chip-row,
+.location-equipment-chip-list span,
+.location-equipment-chip-list em,
+.record-filter-details,
+.record-search-form,
+.record-search-metric,
+.list-toolbar,
+.more-overview-strip article {
+  border: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%) 0%, rgb(232 238 245 / 58%) 100%),
+    var(--surface-chip) !important;
+  color: var(--text) !important;
+  box-shadow: var(--inner-light) !important;
+  overflow: hidden;
+}
+
+.record-result-value {
+  border-left: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 42%), rgb(217 225 234 / 38%)),
+    #dfe6ee !important;
+  padding: 8px 10px !important;
+}
+
+.record-date,
+.date,
+.meal-record-type,
+.weekly-meal-date,
+.badge,
+.mini-badge,
+.cat-badge,
+.tag,
+.body-part-badge,
+.app-version {
+  border: 0 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 56%), rgb(219 226 235 / 72%)),
+    #dde4ec !important;
+  color: var(--muted) !important;
+  box-shadow: var(--inner-light) !important;
+}
+
+button,
+.btn-primary,
+.btn-small,
+.btn-ghost,
+.btn-add,
+.tab-btn,
+.mode-button,
+.quick-tab-button,
+.exercise-quick-button,
+.row-copy-button,
+.row-remove-button,
+.rest-start-button,
+.body-part-filter-chip,
+.pagination-nav a,
+.auth-secondary-action a,
+a[class*="btn"],
+a[class*="card"] {
+  border: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 62%), rgb(225 232 240 / 72%)),
+    #e2e8f0 !important;
+  color: var(--text) !important;
+  box-shadow: var(--inner-light), 0 3px 8px rgb(28 36 46 / 6%) !important;
+}
+
+.btn-primary,
+.btn-add,
+.record-search-submit,
+.rest-start-button,
+button[data-rest-start],
+button[name="action"][value="save"],
+.mode-button.btn-primary,
+.quick-tab-button.is-active,
+.body-part-filter-chip.is-active,
+.exercise-quick-button:hover,
+.workout-form .btn-primary,
+.meal-form .btn-primary,
+.record-list-toolbar .btn-primary,
+.today-mode-actions .btn-primary,
+.pagination-nav a:not(.is-disabled) {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 15%) 0%, rgb(255 255 255 / 3%) 45%),
+    linear-gradient(180deg, var(--charcoal-soft) 0%, var(--charcoal) 55%, var(--charcoal-strong) 100%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 16%),
+    0 7px 15px rgb(28 36 46 / 17%) !important;
+}
+
+.btn-danger,
+.row-remove-button {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 42%), rgb(244 204 204 / 54%)),
+    var(--danger-bg) !important;
+  color: var(--danger) !important;
+  box-shadow: var(--inner-light) !important;
+}
+
+input,
+select,
+textarea,
+.weight-unit-control,
+.compact-field-grid input,
+.compact-field-grid select,
+.set-entry-row input,
+.set-entry-row select,
+.meal-entry-row input,
+.meal-entry-row select,
+.record-search-form input,
+.record-search-form select,
+.body-metric-form input,
+.body-metric-form select {
+  border: 0 !important;
+  border-radius: var(--radius-sm) !important;
+  background:
+    linear-gradient(180deg, #fdfefe 0%, #edf2f7 100%) !important;
+  color: var(--strong) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 86%),
+    inset 0 -1px 0 rgb(28 36 46 / 5%) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--dim) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid rgb(74 82 93 / 22%) !important;
+  outline-offset: 2px;
+}
+
+.table-wrap table {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+.progress-fill,
+.heat-fill,
+.trend-fill,
+.record-progress-fill {
+  background: linear-gradient(90deg, #6b7480, #343c46) !important;
+}
+
+.equipment-summary-card.is-selected,
+.pr-rank-card.is-selected {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 66%), rgb(205 216 229 / 56%)),
+    #d7e0ea !important;
+}
+
 @media (max-width: 430px) {
   .content {
     padding-inline: 8px;
@@ -20,7 +452,7 @@
   .tabs {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    overflow: visible;
+    overflow: hidden;
     padding: 4px 6px 6px;
   }
 
@@ -77,764 +509,3 @@
     gap: 7px;
   }
 }
-
-body,
-.section,
-.record-card,
-.summary-card,
-.today-task-card,
-.meal-record-card,
-.workout-summary-card,
-.daily-record-card,
-.equipment-summary-card,
-.location-card,
-.admin-user-card,
-.more-link-card,
-.data-center-card,
-.focus-suggestion-card,
-.chart-card,
-.table-wrap,
-.detail-row,
-.editable-list-item,
-.set-entry-row,
-.meal-entry-row {
-  color: var(--text);
-}
-
-.section,
-.record-card,
-.summary-card,
-.today-task-card,
-.meal-record-card,
-.workout-summary-card,
-.daily-record-card,
-.equipment-summary-card,
-.location-card,
-.admin-user-card,
-.more-link-card,
-.data-center-card,
-.focus-suggestion-card,
-.chart-card,
-.table-wrap,
-.detail-row,
-.editable-list-item {
-  border-color: var(--line);
-  background: var(--panel);
-  box-shadow: var(--shadow-soft);
-}
-
-.header,
-.tabs,
-.subnav,
-.workout-action-dock,
-.mobile-action-dock {
-  border-color: var(--line);
-  background: rgb(255 255 255 / 92%);
-  box-shadow: 0 8px 22px rgb(15 23 42 / 8%);
-}
-
-.tab-btn,
-.btn-small,
-.btn-ghost,
-.mode-button,
-.quick-tab-button,
-.exercise-quick-button,
-.body-part-filter-chip {
-  border-color: var(--line);
-  background: var(--panel-2);
-  color: var(--text);
-}
-
-.tab-btn.active,
-.btn-primary,
-.quick-tab-button.is-active,
-.mode-button.btn-primary,
-.body-part-filter-chip.is-active,
-.exercise-quick-button:hover {
-  border-color: rgb(37 99 235 / 45%);
-  background: rgb(37 99 235 / 12%);
-  color: var(--blue);
-}
-
-input,
-select,
-textarea {
-  border-color: var(--line-strong);
-  background: #ffffff;
-  color: var(--text);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: var(--dim);
-}
-
-.badge,
-.mini-badge,
-.cat-badge {
-  border-color: var(--line);
-  background: var(--panel-soft);
-  color: var(--muted);
-}
-
-.empty,
-.compact-empty,
-.section-subtitle,
-.summary-label,
-small {
-  color: var(--muted);
-}
-
-@media (max-width: 430px) {
-  body {
-    background: #f3f4f6;
-  }
-
-  .header,
-  .tabs {
-    background: rgb(248 250 252 / 96%);
-  }
-}
-
-body,
-button,
-input,
-select,
-textarea,
-a,
-strong,
-.header-title,
-.section-title,
-.summary-value,
-.record-toggle strong,
-.detail-row strong,
-.location-title-row strong,
-.more-link-card strong,
-.data-center-card strong,
-.focus-suggestion-card strong {
-  color: var(--strong);
-}
-
-.section,
-.record-card,
-.summary-card,
-.today-task-card,
-.meal-record-card,
-.meal-favorite-row,
-.workout-summary-card,
-.daily-record-card,
-.equipment-summary-card,
-.location-card,
-.location-create-panel,
-.location-manage-details,
-.location-equipment-panel,
-.location-equipment-item,
-.location-insight-card,
-.more-link-card,
-.more-overview-strip article,
-.data-center-card,
-.data-warning-card,
-.export-link-card,
-.record-gap-card,
-.meal-template-card,
-.recent-meal-template-row,
-.focus-suggestion-card,
-.chart-card,
-.table-wrap,
-.detail-row,
-.editable-list-item,
-.set-entry-row,
-.meal-entry-row,
-.inline-add-form,
-.routine-load-row,
-.routine-form,
-.filter-form,
-.record-list-toolbar,
-.login-panel,
-.auth-secondary-action,
-.quick-panel,
-.optional-workout-panel,
-.exercise-goal-card,
-.pr-share-card,
-.readiness-card,
-.rule-card,
-.admin-operation-card,
-.admin-user-card {
-  border-color: var(--line);
-  background: var(--panel);
-  color: var(--text);
-  box-shadow: var(--shadow-soft);
-}
-
-.set-entry-row,
-.meal-entry-row,
-.compact-set-preview button,
-.mini-list-row,
-.location-equipment-chip-list span,
-.location-equipment-chip-list em,
-.subnav a,
-.quick-pane,
-.quick-tab-list,
-.set-builder-toolbar,
-.meal-builder-toolbar,
-.workout-tool-grid,
-.data-quality-copy,
-.pr-rank-card,
-.analysis-action-card,
-.body-part-exercise-card,
-.calendar-day,
-.table-wrap table,
-.progress-chart,
-.trend-chart {
-  border-color: var(--line);
-  background: var(--panel-2);
-  color: var(--text);
-}
-
-.btn-primary,
-.btn-small,
-.btn-ghost,
-.btn-add,
-.tab-btn,
-.mode-button,
-.quick-tab-button,
-.exercise-quick-button,
-.row-copy-button,
-.row-remove-button,
-.rest-start-button,
-.body-part-filter-chip,
-.pagination-nav a,
-.auth-secondary-action a {
-  border-color: var(--line-strong);
-  background: #f8fafc;
-  color: var(--strong);
-  box-shadow: none;
-}
-
-.btn-primary,
-.tab-btn.active,
-.mode-button.btn-primary,
-.quick-tab-button.is-active,
-.body-part-filter-chip.is-active,
-.exercise-quick-button:hover,
-.pr-rank-card.is-selected {
-  border-color: rgb(37 99 235 / 42%);
-  background: #dbeafe;
-  color: #111827;
-}
-
-.btn-danger,
-.row-remove-button {
-  border-color: rgb(220 38 38 / 32%);
-  background: #fee2e2;
-  color: #111827;
-}
-
-.badge,
-.mini-badge,
-.cat-badge,
-.app-version,
-.account-greeting,
-.summary-label,
-.section-subtitle,
-.field-help,
-.record-toggle span,
-.detail-row span,
-.more-link-card span,
-.data-center-card span,
-.focus-suggestion-card small,
-.location-title-block > span,
-.empty,
-.compact-empty,
-small {
-  color: #374151;
-}
-
-.badge,
-.mini-badge,
-.cat-badge,
-.app-version {
-  border-color: var(--line);
-  background: #e5e7eb;
-}
-
-input,
-select,
-textarea,
-.weight-unit-control {
-  border-color: var(--line-strong);
-  background: #ffffff;
-  color: #111827;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: #2563eb;
-  outline: 2px solid rgb(37 99 235 / 18%);
-}
-
-.login-tab-row {
-  border-color: var(--line);
-  background: #e5e7eb;
-}
-
-.login-tab-row a {
-  border-color: var(--line);
-  background: #f8fafc;
-  color: #111827;
-}
-
-.login-tab-row a.is-active {
-  border-color: rgb(37 99 235 / 42%);
-  background: #dbeafe;
-  color: #111827;
-  box-shadow: none;
-}
-
-body,
-#app,
-.content,
-.today-shell,
-.section,
-[class*="card"],
-[class*="panel"],
-[class*="row"],
-[class*="list"],
-[class*="grid"],
-details,
-summary,
-form,
-nav,
-header {
-  color: #111827 !important;
-}
-
-.section,
-[class*="card"],
-[class*="panel"],
-[class*="row"],
-[class*="list"],
-details,
-form,
-.table-wrap,
-.quick-pane,
-.quick-tab-list,
-.set-builder-toolbar,
-.meal-builder-toolbar,
-.workout-action-dock,
-.tabs,
-.header {
-  border-color: #d1d5db !important;
-  background: #ffffff !important;
-}
-
-[class*="strip"],
-[class*="toolbar"],
-[class*="chip"],
-[class*="badge"],
-[class*="empty"],
-[class*="quick"],
-.subnav a,
-.compact-set-preview button,
-.mini-list-row,
-.detail-row,
-.editable-list-item,
-.set-entry-row,
-.meal-entry-row {
-  border-color: #d1d5db !important;
-  background: #f9fafb !important;
-  color: #111827 !important;
-}
-
-button,
-.btn-primary,
-.btn-small,
-.btn-ghost,
-.btn-add,
-.tab-btn,
-.mode-button,
-.quick-tab-button,
-.exercise-quick-button,
-a[class*="btn"],
-a[class*="card"] {
-  border-color: #aeb6c2 !important;
-  background: #f8fafc !important;
-  color: #111827 !important;
-  box-shadow: none !important;
-}
-
-.btn-primary,
-.tab-btn.active,
-.mode-button.btn-primary,
-.quick-tab-button.is-active,
-.body-part-filter-chip.is-active {
-  border-color: #93c5fd !important;
-  background: #dbeafe !important;
-  color: #111827 !important;
-}
-
-.btn-danger,
-.row-remove-button {
-  border-color: #fca5a5 !important;
-  background: #fee2e2 !important;
-  color: #111827 !important;
-}
-
-input,
-select,
-textarea {
-  border-color: #aeb6c2 !important;
-  background: #ffffff !important;
-  color: #111827 !important;
-}
-
-.section-subtitle,
-.summary-label,
-.muted,
-.muted-text,
-.field-help,
-small,
-span {
-  color: #374151;
-}
-
-/* v2.8.7 main tone trial: charcoal headers with calm gray surfaces. */
-:root {
-  --bg: #dfe3e8;
-  --panel: #f4f5f7;
-  --panel-2: #eceff3;
-  --panel-soft: #e2e7ed;
-  --line: #c2c9d2;
-  --line-strong: #aab3bf;
-  --text: #1b1f26;
-  --strong: #0f1115;
-  --muted: #5b6570;
-  --dim: #7b8490;
-  --blue: #343b45;
-  --blue-strong: #242a32;
-  --shadow: 0 8px 20px rgb(33 39 48 / 8%);
-  --shadow-soft: 0 5px 14px rgb(33 39 48 / 6%);
-}
-
-html,
-body {
-  background: #dfe3e8 !important;
-}
-
-body {
-  background:
-    linear-gradient(180deg, #e9edf2 0, #dfe3e8 42%, #d7dce3 100%) !important;
-  color: var(--text) !important;
-}
-
-.header {
-  border-color: #252b33 !important;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 7%), transparent 44%),
-    linear-gradient(180deg, #3a414b, #2c333c) !important;
-  color: #f8fafc !important;
-  box-shadow: 0 8px 20px rgb(17 20 24 / 16%) !important;
-}
-
-.header *,
-.header-title,
-.account-greeting,
-.app-version {
-  color: #f8fafc !important;
-}
-
-.account-greeting,
-.app-version {
-  border-color: rgb(255 255 255 / 13%) !important;
-  background: rgb(255 255 255 / 7%) !important;
-}
-
-.tabs {
-  border-color: var(--line) !important;
-  background: #d9dee5 !important;
-  box-shadow: none !important;
-}
-
-.tab-btn,
-.tab-logout-form .tab-btn {
-  border-color: transparent !important;
-  background: transparent !important;
-  color: #4d5662 !important;
-}
-
-.tab-btn.active {
-  border-color: #aab3bf !important;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 78%), transparent),
-    #dfe4ea !important;
-  color: var(--strong) !important;
-  box-shadow: 0 4px 10px rgb(33 39 48 / 8%) !important;
-}
-
-.section {
-  border-color: var(--line) !important;
-  background: var(--panel) !important;
-  box-shadow: var(--shadow-soft) !important;
-}
-
-.section-header {
-  margin: -10px -10px 10px !important;
-  border-bottom: 1px solid #2a3038 !important;
-  border-radius: 8px 8px 0 0 !important;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 8%), transparent),
-    linear-gradient(180deg, #454c56, #333a44) !important;
-  color: #f8fafc !important;
-  padding: 10px 12px !important;
-}
-
-.section-header *,
-.section-header .section-title,
-.section-header .section-subtitle {
-  color: #f8fafc !important;
-}
-
-.section-header .section-subtitle,
-.section-header small,
-.section-header span {
-  color: #c9d0d8 !important;
-}
-
-.section-header .btn-small,
-.section-header .btn-primary,
-.section-header a[class*="btn"] {
-  border-color: rgb(255 255 255 / 16%) !important;
-  background: rgb(255 255 255 / 8%) !important;
-  color: #f8fafc !important;
-}
-
-.btn-primary,
-.mode-button.btn-primary,
-.quick-tab-button.is-active,
-.body-part-filter-chip.is-active,
-.workout-form .btn-primary,
-.meal-form .btn-primary {
-  border-color: #343b45 !important;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 13%), transparent 45%),
-    linear-gradient(180deg, #4a515c, #343b45) !important;
-  color: #ffffff !important;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 15%),
-    0 7px 14px rgb(32 37 44 / 18%) !important;
-}
-
-.field,
-label,
-.set-count-control,
-.weight-unit-field {
-  color: #343a43 !important;
-}
-
-input,
-select,
-textarea,
-.weight-unit-control,
-.compact-field-grid input,
-.compact-field-grid select,
-.set-entry-row input,
-.set-entry-row select,
-.meal-entry-row input,
-.meal-entry-row select,
-.record-search-form input,
-.record-search-form select,
-.body-metric-form input,
-.body-metric-form select {
-  border-color: #aeb7c2 !important;
-  background:
-    linear-gradient(180deg, #ffffff 0%, #f3f5f7 100%) !important;
-  color: #111827 !important;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 80%),
-    0 1px 0 rgb(33 39 48 / 4%) !important;
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: #5b6570 !important;
-}
-
-.section:not(.meal-record-card) .muted,
-.section:not(.meal-record-card) .muted-text,
-.section:not(.meal-record-card) .field-help,
-.section:not(.meal-record-card) .summary-label,
-.section:not(.meal-record-card) small,
-.section:not(.meal-record-card) .detail-row span,
-.section:not(.meal-record-card) .record-summary span,
-.section:not(.meal-record-card) .progress-metrics span,
-.section:not(.meal-record-card) .meal-entry-row span,
-.section:not(.meal-record-card) .set-entry-row span {
-  color: #343a43 !important;
-}
-
-.section,
-[class*="card"],
-[class*="panel"],
-.table-wrap,
-.quick-pane,
-.quick-tab-list,
-.set-builder-toolbar,
-.meal-builder-toolbar {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 42%), transparent),
-    var(--panel) !important;
-}
-
-.record-card,
-.daily-record-card,
-.meal-record-card,
-.record-result-card,
-.meal,
-.meal-card,
-.detail-row,
-.set-entry-row,
-.meal-entry-row {
-  border-color: var(--line-soft, #d5dae1) !important;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 68%), transparent),
-    #eef2f6 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%) !important;
-}
-
-.record-date,
-.date,
-.meal-record-type,
-.weekly-meal-date {
-  border-color: var(--line) !important;
-  background: #dde3ea !important;
-  color: #343a43 !important;
-}
-
-.badge,
-.mini-badge,
-.cat-badge,
-.tag,
-.body-part-badge {
-  border-color: var(--line) !important;
-  background: #e8ecf1 !important;
-  color: var(--muted) !important;
-}
-
-/* v2.8.9: soften charcoal while giving inner boxes a consistent premium gradient. */
-.section > article,
-.section > div:not(.section-header),
-.section > form,
-.section > details,
-.summary-card,
-.today-task-card,
-.record-card,
-.daily-record-card,
-.equipment-summary-card,
-.workout-summary-card,
-.meal-record-card,
-.record-result-card,
-.more-link-card,
-.data-center-card,
-.focus-suggestion-card,
-.chart-card,
-.admin-user-card,
-.settings-action-card,
-.location-card,
-.location-create-panel,
-.location-manage-details,
-.location-equipment-panel,
-.location-equipment-item,
-.location-insight-card,
-.meal-favorite-row,
-.recent-meal-template-row,
-.meal-template-card,
-.routine-load-row,
-.routine-form,
-.filter-form,
-.record-list-toolbar,
-.quick-panel,
-.quick-pane,
-.optional-workout-panel,
-.exercise-goal-card,
-.pr-share-card,
-.readiness-card,
-.rule-card,
-.admin-operation-card,
-.detail-row,
-.editable-list-item,
-.set-entry-row,
-.meal-entry-row,
-.mini-list-row,
-.compact-set-preview button,
-.workout-tool-grid,
-.data-quality-copy,
-.pr-rank-card,
-.analysis-action-card,
-.body-part-exercise-card,
-.calendar-day,
-.progress-chart,
-.trend-chart,
-.table-wrap {
-  border-color: #c4cbd4 !important;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 72%) 0%, rgb(255 255 255 / 24%) 46%, rgb(224 230 237 / 34%) 100%),
-    #eef2f6 !important;
-  color: #111827 !important;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 72%),
-    0 4px 12px rgb(33 39 48 / 5%) !important;
-}
-
-.section > div:not(.section-header):not(.tabs):not(.subnav):not(.mobile-action-dock),
-.quick-tab-list,
-.set-builder-toolbar,
-.meal-builder-toolbar,
-.mode-actions,
-.timer-actions,
-.set-preset-list,
-.set-builder-actions,
-.program-chip-list,
-.exercise-quick-list,
-.location-equipment-chip-row,
-.location-equipment-chip-list span,
-.location-equipment-chip-list em,
-.subnav a,
-.badge,
-.mini-badge,
-.cat-badge,
-.tag,
-.body-part-badge {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 66%) 0%, rgb(236 240 245 / 60%) 100%),
-    #e7ecf2 !important;
-  color: #1f2933 !important;
-}
-
-.btn-add,
-.row-copy-button,
-.rest-start-button,
-button[data-rest-start],
-button[name="action"][value="save"],
-.workout-form .btn-primary,
-.meal-form .btn-primary,
-.record-list-toolbar .btn-primary,
-.today-mode-actions .btn-primary {
-  border-color: #252b33 !important;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 14%) 0%, rgb(255 255 255 / 3%) 44%),
-    linear-gradient(180deg, #414852 0%, #2f3640 100%) !important;
-  color: #ffffff !important;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 16%),
-    0 7px 14px rgb(32 37 44 / 18%) !important;
-}
-
-.section :is(.muted, .muted-text, .field-help, .summary-label, .section-subtitle, small),
-.section :is(.detail-row span, .record-summary span, .progress-metrics span, .meal-entry-row span, .set-entry-row span),
-.record-card :is(span, small),
-.meal-record-card :is(span, small),
-.today-task-card :is(span, small) {
-  color: #2f3742 !important;
-}
-
