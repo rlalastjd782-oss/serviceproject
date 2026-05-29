@@ -37,6 +37,10 @@ def _setting(db: sqlite3.Connection, key: str) -> str:
     return str(row["value"]) if row and row["value"] is not None else ""
 
 
+def _setting_from_values(values: Mapping[str, str], key: str) -> str:
+    return str(values.get(key) or "")
+
+
 def _save(db: sqlite3.Connection, key: str, value: object) -> None:
     stored = json.dumps(value, ensure_ascii=False) if isinstance(value, list) else str(value)
     db.execute(
@@ -49,24 +53,24 @@ def _save(db: sqlite3.Connection, key: str, value: object) -> None:
     )
 
 
-def _int_setting(db: sqlite3.Connection, key: str, default: int, minimum: int, maximum: int) -> int:
+def _int_setting(values: Mapping[str, str], key: str, default: int, minimum: int, maximum: int) -> int:
     try:
-        value = int(_setting(db, key) or default)
+        value = int(_setting_from_values(values, key) or default)
     except ValueError:
         value = default
     return min(maximum, max(minimum, value))
 
 
-def _float_setting(db: sqlite3.Connection, key: str, default: float, minimum: float, maximum: float) -> float:
+def _float_setting(values: Mapping[str, str], key: str, default: float, minimum: float, maximum: float) -> float:
     try:
-        value = float(_setting(db, key) or default)
+        value = float(_setting_from_values(values, key) or default)
     except ValueError:
         value = default
     return min(maximum, max(minimum, value))
 
 
-def _int_list_setting(db: sqlite3.Connection, key: str, default: list[int], minimum: int, maximum: int) -> list[int]:
-    raw = _setting(db, key)
+def _int_list_setting(values: Mapping[str, str], key: str, default: list[int], minimum: int, maximum: int) -> list[int]:
+    raw = _setting_from_values(values, key)
     values: list[int] = []
     if raw:
         try:
@@ -83,8 +87,8 @@ def _int_list_setting(db: sqlite3.Connection, key: str, default: list[int], mini
     return values or list(default)
 
 
-def _string_list_setting(db: sqlite3.Connection, key: str, default: list[str], limit: int = 12) -> list[str]:
-    raw = _setting(db, key)
+def _string_list_setting(values: Mapping[str, str], key: str, default: list[str], limit: int = 12) -> list[str]:
+    raw = _setting_from_values(values, key)
     values: list[str] = []
     if raw:
         try:
@@ -99,23 +103,33 @@ def _string_list_setting(db: sqlite3.Connection, key: str, default: list[str], l
 
 
 def app_preferences(db: sqlite3.Connection) -> dict[str, object]:
-    default_per_page = _int_setting(db, "default_per_page", DEFAULT_PER_PAGE, 1, 100)
+    keys = tuple(DEFAULT_APP_PREFERENCES)
+    rows = db.execute(
+        f"""
+        SELECT key, value
+        FROM app_settings
+        WHERE key IN ({", ".join("?" for _ in keys)})
+        """,
+        keys,
+    ).fetchall()
+    values = {row["key"]: str(row["value"] or "") for row in rows}
+    default_per_page = _int_setting(values, "default_per_page", DEFAULT_PER_PAGE, 1, 100)
     if default_per_page not in PER_PAGE_OPTIONS:
         default_per_page = DEFAULT_PER_PAGE
     return {
-        "default_rest_seconds": _int_setting(db, "default_rest_seconds", DEFAULT_REST_SECONDS, 15, 600),
-        "rest_timer_presets": _int_list_setting(db, "rest_timer_presets", REST_TIMER_PRESETS, 15, 600)[:6],
-        "default_set_count": _int_setting(db, "default_set_count", DEFAULT_SET_COUNT, 1, 20),
+        "default_rest_seconds": _int_setting(values, "default_rest_seconds", DEFAULT_REST_SECONDS, 15, 600),
+        "rest_timer_presets": _int_list_setting(values, "rest_timer_presets", REST_TIMER_PRESETS, 15, 600)[:6],
+        "default_set_count": _int_setting(values, "default_set_count", DEFAULT_SET_COUNT, 1, 20),
         "default_weight_placeholder": _float_setting(
-            db, "default_weight_placeholder", DEFAULT_WEIGHT_PLACEHOLDER, 0, 500
+            values, "default_weight_placeholder", DEFAULT_WEIGHT_PLACEHOLDER, 0, 500
         ),
-        "default_reps_placeholder": _int_setting(db, "default_reps_placeholder", DEFAULT_REPS_PLACEHOLDER, 0, 200),
-        "default_daily_calories": _int_setting(db, "default_daily_calories", DEFAULT_DAILY_CALORIES, 0, 10000),
-        "default_body_weight_kg": _float_setting(db, "default_body_weight_kg", DEFAULT_BODY_WEIGHT_KG, 20, 300),
+        "default_reps_placeholder": _int_setting(values, "default_reps_placeholder", DEFAULT_REPS_PLACEHOLDER, 0, 200),
+        "default_daily_calories": _int_setting(values, "default_daily_calories", DEFAULT_DAILY_CALORIES, 0, 10000),
+        "default_body_weight_kg": _float_setting(values, "default_body_weight_kg", DEFAULT_BODY_WEIGHT_KG, 20, 300),
         "default_per_page": default_per_page,
         "per_page_options": list(PER_PAGE_OPTIONS),
-        "summary_day_options": _int_list_setting(db, "summary_day_options", SUMMARY_DAY_OPTIONS, 1, 365)[:8],
-        "set_type_options": _string_list_setting(db, "set_type_options", SET_TYPE_OPTIONS),
+        "summary_day_options": _int_list_setting(values, "summary_day_options", SUMMARY_DAY_OPTIONS, 1, 365)[:8],
+        "set_type_options": _string_list_setting(values, "set_type_options", SET_TYPE_OPTIONS),
     }
 
 

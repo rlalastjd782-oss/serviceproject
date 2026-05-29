@@ -265,6 +265,21 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn("리마인더", admin_html)
         self.assertIn("전체 데이터 삭제", admin_html)
 
+    def test_core_page_query_counts_stay_bounded(self) -> None:
+        limits = {
+            "/app": 50,
+            "/app?mode=workout": 95,
+            "/app?mode=meal": 45,
+            "/summaries/weekly": 40,
+            "/summaries/monthly": 60,
+        }
+        for path, limit in limits.items():
+            with self.subTest(path=path):
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                query_count = int(response.headers.get("X-DB-Query-Count") or 0)
+                self.assertLessEqual(query_count, limit)
+
     def test_record_and_analysis_submenus_are_separated(self) -> None:
         daily_html = self.client.get("/summaries/daily").data.decode("utf-8")
         self.assertIn("record-subnav", daily_html)
