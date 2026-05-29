@@ -15,6 +15,7 @@
             <div class="inline-add-panel">
               <button type="button" class="btn-add" data-toggle-add>+ 음식 추가</button>
               <form method="post" action="{{ url_for('create_meal') }}" class="inline-add-form meal-add-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
                 <input type="hidden" name="mode" value="meal">
                 <input type="hidden" name="meal_type" value="{{ group.meal_type }}">

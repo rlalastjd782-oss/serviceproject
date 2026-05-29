@@ -201,6 +201,8 @@ class WorkoutMealFlowTest(FlowTestBase):
 
         response = self.client.get(f"/app?date={workout_date}&mode=meal")
         meal_html = response.data.decode("utf-8")
+        self.assertIn('class="record-form meal-form', meal_html)
+        self.assertIn('name="csrf_token"', meal_html)
         self.assertIn("meal-record-card", meal_html)
         self.assertIn("meal-record-item", meal_html)
         self.assertIn("최근 입력 음식", meal_html)

@@ -392,3 +392,110 @@ textarea:focus {
   box-shadow: none;
 }
 
+body,
+#app,
+.content,
+.today-shell,
+.section,
+[class*="card"],
+[class*="panel"],
+[class*="row"],
+[class*="list"],
+[class*="grid"],
+details,
+summary,
+form,
+nav,
+header {
+  color: #111827 !important;
+}
+
+.section,
+[class*="card"],
+[class*="panel"],
+[class*="row"],
+[class*="list"],
+details,
+form,
+.table-wrap,
+.quick-pane,
+.quick-tab-list,
+.set-builder-toolbar,
+.meal-builder-toolbar,
+.workout-action-dock,
+.tabs,
+.header {
+  border-color: #d1d5db !important;
+  background: #ffffff !important;
+}
+
+[class*="strip"],
+[class*="toolbar"],
+[class*="chip"],
+[class*="badge"],
+[class*="empty"],
+[class*="quick"],
+.subnav a,
+.compact-set-preview button,
+.mini-list-row,
+.detail-row,
+.editable-list-item,
+.set-entry-row,
+.meal-entry-row {
+  border-color: #d1d5db !important;
+  background: #f9fafb !important;
+  color: #111827 !important;
+}
+
+button,
+.btn-primary,
+.btn-small,
+.btn-ghost,
+.btn-add,
+.tab-btn,
+.mode-button,
+.quick-tab-button,
+.exercise-quick-button,
+a[class*="btn"],
+a[class*="card"] {
+  border-color: #aeb6c2 !important;
+  background: #f8fafc !important;
+  color: #111827 !important;
+  box-shadow: none !important;
+}
+
+.btn-primary,
+.tab-btn.active,
+.mode-button.btn-primary,
+.quick-tab-button.is-active,
+.body-part-filter-chip.is-active {
+  border-color: #93c5fd !important;
+  background: #dbeafe !important;
+  color: #111827 !important;
+}
+
+.btn-danger,
+.row-remove-button {
+  border-color: #fca5a5 !important;
+  background: #fee2e2 !important;
+  color: #111827 !important;
+}
+
+input,
+select,
+textarea {
+  border-color: #aeb6c2 !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+}
+
+.section-subtitle,
+.summary-label,
+.muted,
+.muted-text,
+.field-help,
+small,
+span {
+  color: #374151;
+}
+

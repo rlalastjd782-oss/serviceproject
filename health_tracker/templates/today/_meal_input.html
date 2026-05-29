@@ -27,6 +27,7 @@
       <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
     </div>
     <form method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
       <input type="hidden" name="mode" value="meal">
       <select name="meal_type" class="meal-type-select" data-meal-type-select aria-label="식단 구분">
@@ -49,6 +50,7 @@
               <span class="meal-favorite-row">
                 <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name }}</button>
                 <form method="post" action="{{ url_for('delete_food_favorite_route', food_name=food.food_name) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
                   <button class="btn-danger row-remove-button" type="submit" aria-label="고정 음식 해제">×</button>
                 </form>
@@ -115,6 +117,7 @@
         <div class="quick-panel-title">지난 식단 복사</div>
         {% for day in meal_copy_sources %}
           <form method="post" action="{{ url_for('copy_meal_day_route') }}" class="routine-load-row">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
             <input type="hidden" name="mode" value="meal">
             <input type="hidden" name="source_date" value="{{ day.meal_date }}">
@@ -124,6 +127,7 @@
         {% endfor %}
       {% endif %}
       <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
         <input type="hidden" name="mode" value="meal">
         <input name="template_name" placeholder="오늘 식단을 조합으로 저장">
@@ -131,6 +135,7 @@
       </form>
       {% for template in meal_templates %}
         <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
+         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
          <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
           <input type="hidden" name="mode" value="meal">
           <span>식단 조합 · {{ template.name }} · {{ template.item_count }}개</span>
@@ -138,6 +143,7 @@
         </form>
       {% endfor %}
       <form method="post" action="{{ url_for('save_food_favorite_route') }}" class="routine-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
         <input name="food_name" placeholder="즐겨찾기 음식">
         <div class="compact-field-grid meal-compact-grid">

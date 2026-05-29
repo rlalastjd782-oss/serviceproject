@@ -8,6 +8,7 @@
     </div>
   </div>
   <form method="post" action="{{ url_for('update_meal', meal_id=item.id) }}" class="inline-edit-form meal-edit-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="mode" value="meal">
     <input name="food_name" value="{{ item.food_name }}" required>
     <input name="quantity" type="number" min="0" step="1" inputmode="numeric" value="{% if item.quantity is not none %}{{ "%.0f"|format(item.quantity) }}{% endif %}" placeholder="개">
@@ -18,6 +19,7 @@
   <div class="item-actions">
     <button type="button" class="btn-small" data-toggle-edit>수정</button>
     <form method="post" action="{{ url_for('delete_meal', meal_id=item.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="mode" value="meal">
       <button type="submit" class="btn-danger" aria-label="식단 삭제">×</button>
     </form>
