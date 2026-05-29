@@ -102,7 +102,15 @@
                 <strong>{{ item.variants|join(" / ") }}</strong>
                 <span>{{ item.set_count }}세트 · 최근 {{ item.last_date }}</span>
               </div>
-              <a class="btn-small" href="{{ url_for('exercise_library_page', q=item.variants[0]) }}">확인</a>
+              <form method="post" action="{{ url_for('merge_exercises_route') }}" class="settings-action-row" data-confirm-submit="선택한 운동명을 첫 번째 운동명으로 병합할까요? PR, 루틴, 계획, 설정도 함께 이동합니다.">
+                <input type="hidden" name="next" value="{{ url_for('record_check_page', date=selected_date, days=selected_days) }}">
+                <input type="hidden" name="target_name" value="{{ item.variants[0] }}">
+                {% for variant in item.variants[1:] %}
+                  <input type="hidden" name="source_names" value="{{ variant }}">
+                {% endfor %}
+                <a class="btn-small" href="{{ url_for('exercise_library_page', q=item.variants[0]) }}">확인</a>
+                <button class="btn-small" type="submit">첫 이름으로 병합</button>
+              </form>
             </div>
           {% else %}
             <div class="empty compact-empty">중복으로 보이는 운동명이 없습니다.</div>

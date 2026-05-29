@@ -15,6 +15,7 @@ from health_tracker.services.data import (
 from health_tracker.services.data_cleanup import (
     list_duplicate_exercise_candidates as list_duplicate_exercise_candidates_from_db,
     list_outlier_set_candidates as list_outlier_set_candidates_from_db,
+    merge_exercise_names as merge_exercise_names_in_db,
 )
 from health_tracker.services.data_maintenance import (
     delete_all_data as delete_all_data_from_db,
@@ -151,6 +152,10 @@ def list_duplicate_exercise_candidates(limit: int = 10) -> list[dict[str, object
 
 def list_outlier_set_candidates(limit: int = 10) -> list[dict[str, object]]:
     return list_outlier_set_candidates_from_db(_db(), limit)
+
+
+def merge_exercise_names(source_names: list[str], target_name: str) -> dict[str, int | str]:
+    return merge_exercise_names_in_db(_db(), source_names, target_name)
 
 
 def build_v2_readiness() -> dict[str, object]:

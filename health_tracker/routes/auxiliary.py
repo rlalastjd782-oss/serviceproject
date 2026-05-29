@@ -66,6 +66,16 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             data_counts=get_data_counts(),
         )
 
+    @app.post("/exercises/merge")
+    def merge_exercises_route():
+        source_names = request.form.getlist("source_names")
+        if not source_names:
+            source_names = [item.strip() for item in request.form.get("source_name", "").splitlines()]
+        target_name = request.form.get("target_name", "").strip()
+        merge_exercise_names(source_names, target_name)
+        next_url = request.form.get("next") or url_for("record_check_page")
+        return redirect(next_url)
+
     @app.get("/meals/templates")
     def meal_templates_page():
         selected_date = normalize_date(request.args.get("date"))

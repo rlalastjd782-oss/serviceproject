@@ -435,6 +435,93 @@ class WorkoutMealFlowTest(FlowTestBase):
             copied_setting = app_module.list_exercise_settings()["__TEST__ 암풀다운"]
             self.assertEqual(copied_setting["equipment"], "케이블")
 
+    def test_merge_exercise_names_updates_history_and_plans(self) -> None:
+        workout_date = "2026-05-23"
+        body_part = app_module.body_part_options()[0]
+        source_name = "__TEST__ merge source"
+        target_name = "__TEST__ merge target"
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": workout_date,
+                "mode": "workout",
+                "body_part": body_part,
+                "exercise_name": source_name,
+                "set_weight": ["50"],
+                "set_reps": ["8"],
+                "set_type": ["main"],
+            },
+        )
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": workout_date,
+                "mode": "workout",
+                "body_part": body_part,
+                "exercise_name": target_name,
+                "set_weight": ["60"],
+                "set_reps": ["6"],
+                "set_type": ["main"],
+            },
+        )
+        with self.app.app_context():
+            db = app_module.get_db()
+            source_id = db.execute("SELECT id FROM exercises WHERE name = ?", (source_name,)).fetchone()["id"]
+            set_id = db.execute(
+                """
+                SELECT ws.id
+                FROM workout_sets ws
+                JOIN exercises e ON e.id = ws.exercise_id
+                WHERE e.name = ?
+                """,
+                (source_name,),
+            ).fetchone()["id"]
+            db.execute(
+                """
+                INSERT INTO pr_events (workout_date, set_id, exercise_id, exercise_name, record_type, record_value)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (workout_date, set_id, source_id, source_name, "test", 50),
+            )
+            db.execute("INSERT INTO routine_templates (name) VALUES (?)", ("__TEST__ merge routine",))
+            routine_id = db.execute("SELECT id FROM routine_templates WHERE name = ?", ("__TEST__ merge routine",)).fetchone()["id"]
+            db.execute(
+                "INSERT INTO routine_items (routine_id, exercise_name, body_part, sort_order) VALUES (?, ?, ?, ?)",
+                (routine_id, source_name, body_part, 1),
+            )
+            db.execute(
+                "INSERT INTO workout_plan_items (workout_date, body_part, exercise_name, target_sets, sort_order) VALUES (?, ?, ?, ?, ?)",
+                (workout_date, body_part, source_name, 3, 1),
+            )
+            db.execute("INSERT INTO exercise_notes (exercise_name, note) VALUES (?, ?)", (source_name, "merge note"))
+            db.commit()
+
+        response = self.client.post(
+            "/exercises/merge",
+            data={"source_names": [source_name], "target_name": target_name, "next": "/records/check"},
+        )
+        self.assertEqual(response.status_code, 302)
+        with self.app.app_context():
+            db = app_module.get_db()
+            self.assertIsNone(db.execute("SELECT id FROM exercises WHERE name = ?", (source_name,)).fetchone())
+            set_rows = db.execute(
+                """
+                SELECT e.name, COUNT(ws.id) AS set_count
+                FROM workout_sets ws
+                JOIN exercises e ON e.id = ws.exercise_id
+                GROUP BY e.name
+                """
+            ).fetchall()
+            self.assertEqual({row["name"]: row["set_count"] for row in set_rows}[target_name], 2)
+            pr_name = db.execute("SELECT exercise_name FROM pr_events WHERE set_id = ?", (set_id,)).fetchone()["exercise_name"]
+            self.assertEqual(pr_name, target_name)
+            routine_name = db.execute("SELECT exercise_name FROM routine_items WHERE routine_id = ?", (routine_id,)).fetchone()["exercise_name"]
+            self.assertEqual(routine_name, target_name)
+            plan_name = db.execute("SELECT exercise_name FROM workout_plan_items WHERE workout_date = ?", (workout_date,)).fetchone()["exercise_name"]
+            self.assertEqual(plan_name, target_name)
+            note = db.execute("SELECT note FROM exercise_notes WHERE exercise_name = ?", (target_name,)).fetchone()["note"]
+            self.assertEqual(note, "merge note")
+
     def test_adaptive_recommendations_library_plan_and_reminders(self) -> None:
         workout_date = "2026-05-22"
         self.client.post(

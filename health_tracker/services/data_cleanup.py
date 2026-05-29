@@ -84,3 +84,94 @@ def list_outlier_set_candidates(db: sqlite3.Connection, limit: int = 10) -> list
         }
         for row in rows
     ]
+
+
+def merge_exercise_names(db: sqlite3.Connection, source_names: list[str], target_name: str) -> dict[str, int | str]:
+    clean_target = target_name.strip()
+    clean_sources = [name.strip() for name in source_names if name.strip()]
+    clean_sources = [name for name in dict.fromkeys(clean_sources) if name != clean_target]
+    if not clean_target or not clean_sources:
+        return {"target": clean_target, "sources": 0, "sets": 0, "prs": 0, "plans": 0, "routines": 0}
+
+    db.execute("INSERT OR IGNORE INTO exercises (name) VALUES (?)", (clean_target,))
+    target_id = db.execute("SELECT id FROM exercises WHERE name = ?", (clean_target,)).fetchone()["id"]
+    source_rows = db.execute(
+        f"SELECT id, name FROM exercises WHERE name IN ({', '.join('?' for _ in clean_sources)})",
+        tuple(clean_sources),
+    ).fetchall()
+    source_ids = [int(row["id"]) for row in source_rows if int(row["id"]) != int(target_id)]
+    if not source_ids:
+        return {"target": clean_target, "sources": 0, "sets": 0, "prs": 0, "plans": 0, "routines": 0}
+
+    id_placeholders = ", ".join("?" for _ in source_ids)
+    name_placeholders = ", ".join("?" for _ in clean_sources)
+    set_count = db.execute(
+        f"SELECT COUNT(*) FROM workout_sets WHERE exercise_id IN ({id_placeholders})",
+        tuple(source_ids),
+    ).fetchone()[0]
+    pr_count = db.execute(
+        f"SELECT COUNT(*) FROM pr_events WHERE exercise_id IN ({id_placeholders}) OR exercise_name IN ({name_placeholders})",
+        (*source_ids, *clean_sources),
+    ).fetchone()[0]
+    routine_count = db.execute(
+        f"SELECT COUNT(*) FROM routine_items WHERE exercise_name IN ({name_placeholders})",
+        tuple(clean_sources),
+    ).fetchone()[0]
+    plan_count = db.execute(
+        f"SELECT COUNT(*) FROM workout_plan_items WHERE exercise_name IN ({name_placeholders})",
+        tuple(clean_sources),
+    ).fetchone()[0]
+
+    db.execute(f"UPDATE workout_sets SET exercise_id = ? WHERE exercise_id IN ({id_placeholders})", (target_id, *source_ids))
+    db.execute(
+        f"UPDATE pr_events SET exercise_id = ?, exercise_name = ? WHERE exercise_id IN ({id_placeholders}) OR exercise_name IN ({name_placeholders})",
+        (target_id, clean_target, *source_ids, *clean_sources),
+    )
+    db.execute(
+        f"UPDATE routine_items SET exercise_name = ? WHERE exercise_name IN ({name_placeholders})",
+        (clean_target, *clean_sources),
+    )
+    db.execute(
+        f"UPDATE workout_plan_items SET exercise_name = ? WHERE exercise_name IN ({name_placeholders})",
+        (clean_target, *clean_sources),
+    )
+    db.execute(
+        f"""
+        INSERT INTO exercise_settings (
+            exercise_name, location_id, rest_seconds, is_favorite, equipment,
+            target_weight, target_reps, target_sets, updated_at
+        )
+        SELECT ?, location_id, rest_seconds, is_favorite, equipment,
+            target_weight, target_reps, target_sets, CURRENT_TIMESTAMP
+        FROM exercise_settings
+        WHERE exercise_name IN ({name_placeholders})
+          AND NOT EXISTS (SELECT 1 FROM exercise_settings WHERE exercise_name = ?)
+        ORDER BY updated_at DESC
+        LIMIT 1
+        """,
+        (clean_target, *clean_sources, clean_target),
+    )
+    db.execute(
+        f"""
+        INSERT INTO exercise_notes (exercise_name, note, updated_at)
+        SELECT ?, note, CURRENT_TIMESTAMP
+        FROM exercise_notes
+        WHERE exercise_name IN ({name_placeholders})
+          AND NOT EXISTS (SELECT 1 FROM exercise_notes WHERE exercise_name = ?)
+        ORDER BY updated_at DESC
+        LIMIT 1
+        """,
+        (clean_target, *clean_sources, clean_target),
+    )
+    db.execute(f"DELETE FROM exercise_settings WHERE exercise_name IN ({name_placeholders})", tuple(clean_sources))
+    db.execute(f"DELETE FROM exercise_notes WHERE exercise_name IN ({name_placeholders})", tuple(clean_sources))
+    db.execute(f"DELETE FROM exercises WHERE id IN ({id_placeholders})", tuple(source_ids))
+    db.commit()
+    return {
+        "target": clean_target,
+        "sources": len(source_ids),
+        "sets": int(set_count or 0),
+        "prs": int(pr_count or 0),
+        "plans": int(plan_count or 0),
+        "routines": int(routine_count or 0),
+    }

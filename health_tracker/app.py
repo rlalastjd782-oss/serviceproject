@@ -88,6 +88,7 @@ from health_tracker.app_data import (
     import_all_data,
     list_duplicate_exercise_candidates,
     list_outlier_set_candidates,
+    merge_exercise_names,
 )
 from health_tracker.services.accounts import (
     init_accounts_db,
