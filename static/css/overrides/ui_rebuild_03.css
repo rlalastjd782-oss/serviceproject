@@ -27,6 +27,46 @@
   padding: 13px;
 }
 
+.admin-operation-nav {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+  padding: 10px;
+  border: 1px solid rgb(71 85 105 / 68%);
+  border-radius: 8px;
+  background: rgb(15 23 42 / 94%);
+  backdrop-filter: blur(12px);
+}
+
+.admin-operation-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid rgb(96 165 250 / 34%);
+  border-radius: 8px;
+  background: rgb(37 99 235 / 14%);
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.admin-operation-section {
+  scroll-margin-top: 84px;
+}
+
+.admin-operation-section .health-card,
+.admin-operation-section .summary-card,
+.admin-operation-section .settings-action-card {
+  box-shadow: 0 10px 24px rgb(0 0 0 / 14%);
+}
+
 .settings-action-card .settings-action-row,
 .settings-action-row {
   display: flex;
@@ -129,6 +169,10 @@
   .import-form {
     grid-template-columns: 1fr;
   }
+
+  .admin-operation-nav {
+    position: static;
+  }
 }
 
 @media (max-width: 560px) {
@@ -174,6 +218,15 @@
 
   .library-result-head {
     align-items: stretch;
+  }
+
+  .admin-operation-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-operation-nav a {
+    width: 100%;
   }
 }
 

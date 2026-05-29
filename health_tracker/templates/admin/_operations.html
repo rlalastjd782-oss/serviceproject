@@ -1,4 +1,13 @@
-<section class="section settings-panel data-safety-section">
+<nav class="admin-operation-nav" aria-label="관리자 운영 바로가기">
+  <a href="#admin-safety">안전 상태</a>
+  <a href="#admin-defaults">앱 기본값</a>
+  <a href="#admin-data">데이터 관리</a>
+  <a href="#admin-qa">QA 데이터</a>
+  <a href="#admin-reminders">리마인더</a>
+  <a href="#admin-danger">위험 작업</a>
+</nav>
+
+<section id="admin-safety" class="section settings-panel data-safety-section admin-operation-section">
   <div class="section-header">
     <div>
       <div class="section-title">사용 안전 상태</div>
@@ -17,7 +26,7 @@
 </section>
 
 {% if admin_tools.has_settings_password %}
-  <section class="section settings-panel">
+  <section class="section settings-panel admin-operation-section">
     <div class="section-header">
       <div>
         <div class="section-title">설정 잠금 관리</div>
@@ -32,7 +41,7 @@
   </section>
 {% endif %}
 
-<section class="section settings-panel">
+<section id="admin-defaults" class="section settings-panel admin-operation-section">
   <div class="section-header">
     <div>
       <div class="section-title">앱 기본값</div>
@@ -79,7 +88,7 @@
   </form>
 </section>
 
-<section class="section settings-overview-section">
+<section class="section settings-overview-section admin-operation-section">
   <div class="section-header">
     <div>
       <div class="section-title">앱 관리</div>
@@ -100,7 +109,7 @@
   </div>
 </section>
 
-<section class="section settings-panel">
+<section class="section settings-panel admin-operation-section">
   <div class="section-header">
     <div>
       <div class="section-title">상태 점검</div>
@@ -118,7 +127,7 @@
   </div>
 </section>
 
-<section class="section settings-panel">
+<section id="admin-data" class="section settings-panel admin-operation-section">
   <div class="section-header">
     <div>
       <div class="section-title">데이터 관리</div>
@@ -171,7 +180,7 @@
   </div>
 </section>
 
-<section class="section settings-panel">
+<section id="admin-qa" class="section settings-panel admin-operation-section">
   <div class="section-header">
     <div>
       <div class="section-title">QA 더미데이터</div>
@@ -197,7 +206,7 @@
   </div>
 </section>
 
-<section class="section settings-panel" data-reminder-settings='{{ admin_tools.reminder_settings|tojson }}'>
+<section id="admin-reminders" class="section settings-panel admin-operation-section" data-reminder-settings='{{ admin_tools.reminder_settings|tojson }}'>
   <div class="section-header">
     <div>
       <div class="section-title">리마인더</div>
@@ -227,7 +236,7 @@
   </form>
 </section>
 
-<section class="section danger-zone settings-panel">
+<section id="admin-danger" class="section danger-zone settings-panel admin-operation-section">
   <div class="section-header">
     <div>
       <div class="section-title">전체 데이터 삭제</div>
