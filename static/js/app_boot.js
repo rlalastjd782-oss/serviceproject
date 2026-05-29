@@ -114,6 +114,7 @@ document.addEventListener("click", (event) => {
   const copySavedSetButton = event.target.closest("[data-copy-saved-set]");
   const setCountPresetButton = event.target.closest("[data-set-count-preset]");
   const fillWeightButton = event.target.closest("[data-fill-weight]");
+  const cloneFirstSetButton = event.target.closest("[data-clone-first-set]");
   const rampWeightButton = event.target.closest("[data-ramp-weight]");
   const foodQuickButton = event.target.closest("[data-food-entry]");
   const restButton = event.target.closest("[data-rest-seconds]");
@@ -241,6 +242,11 @@ document.addEventListener("click", (event) => {
 
   if (fillWeightButton && setList) {
     fillSetWeightsFromFirst(setList);
+    return;
+  }
+
+  if (cloneFirstSetButton && setList) {
+    cloneFirstSetToCount(setList);
     return;
   }
 

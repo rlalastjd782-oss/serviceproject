@@ -76,6 +76,33 @@ function fillSetWeightsFromFirst(setList) {
   updateSetWeightPreviews();
 }
 
+function cloneFirstSetToCount(setList) {
+  const rows = getSetRows(setList);
+  if (!rows.length) {
+    return;
+  }
+  const countInput = document.querySelector("[data-set-count-input]");
+  const targetCount = Math.min(20, Math.max(1, Number(countInput?.value || rows.length || 1)));
+  while (getSetRows(setList).length < targetCount) {
+    copySetRow(rows[0], setList);
+  }
+  getSetRows(setList)
+    .slice(1, targetCount)
+    .forEach((row) => {
+      copyFieldValue(rows[0], row, 'input[name="set_weight"]');
+      copyFieldValue(rows[0], row, 'select[name="set_weight_unit"]');
+      copyFieldValue(rows[0], row, 'input[name="set_reps"]');
+      copyFieldValue(rows[0], row, 'select[name="set_type"]');
+      copyFieldValue(rows[0], row, 'input[name="cardio_incline"]');
+      copyFieldValue(rows[0], row, 'input[name="cardio_speed"]');
+      copyFieldValue(rows[0], row, 'input[name="cardio_minutes"]');
+      copyFieldValue(rows[0], row, 'input[name="set_rpe"]');
+      copyFieldValue(rows[0], row, 'input[name="set_memo"]');
+    });
+  updateSetCountInput();
+  updateSetWeightPreviews();
+}
+
 function rampSetWeights(setList, step) {
   const rows = getSetRows(setList);
   const first = Number(rows[0]?.querySelector('input[name="set_weight"]')?.value || 0);

@@ -63,6 +63,18 @@
   padding: 8px;
 }
 
+.inline-repeat-control {
+  display: grid;
+  gap: 4px;
+  min-width: 88px;
+}
+
+.inline-repeat-control span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .trend-chart {
   display: grid;
   grid-auto-columns: minmax(72px, 1fr);

@@ -103,6 +103,10 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
         if not set_rows:
             return redirect(url_for("index", date=session["workout_date"], mode=mode or None, location_id=session["location_id"]))
 
+        repeat_count = parse_int(request.form.get("set_repeat_count")) or 1
+        if len(set_rows) == 1 and repeat_count > 1:
+            set_rows = set_rows * min(repeat_count, 10)
+
         db = get_db()
         exercise_id = get_or_create_exercise(exercise_name)
         if equipment:
@@ -391,4 +395,3 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
         if source_date and meal_type:
             copy_meal_type_from_day(source_date, meal_date, meal_type)
         return redirect(url_for("index", date=meal_date, mode="meal"))
-

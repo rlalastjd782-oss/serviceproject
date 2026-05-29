@@ -11,6 +11,7 @@ class WorkoutMealFlowTest(FlowTestBase):
         html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn("data-set-count-input", html)
         self.assertIn("data-set-count-preset=\"5\"", html)
+        self.assertIn("data-clone-first-set", html)
         self.assertIn("name=\"set_weight_unit\"", html)
         self.assertIn("data-weight-preview", html)
         self.assertIn("set-row-number", html)
@@ -45,6 +46,37 @@ class WorkoutMealFlowTest(FlowTestBase):
             self.assertAlmostEqual(rows[0]["weight"], 61.23, places=2)
             self.assertAlmostEqual(rows[1]["weight"], 70.31, places=2)
             self.assertEqual(rows[2]["reps"], 8)
+
+    def test_inline_set_repeat_count_saves_multiple_sets(self) -> None:
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-29",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ Repeat Press",
+                "set_weight": "70",
+                "set_reps": "9",
+                "set_type": "본세트",
+                "set_repeat_count": "4",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+        with self.app.app_context():
+            rows = app_module.get_db().execute(
+                """
+                SELECT ws.weight, ws.reps
+                FROM workout_sets ws
+                JOIN exercises e ON e.id = ws.exercise_id
+                WHERE e.name = ?
+                ORDER BY ws.sort_order
+                """,
+                ("__TEST__ Repeat Press",),
+            ).fetchall()
+            self.assertEqual(len(rows), 4)
+            self.assertTrue(all(row["weight"] == 70 for row in rows))
+            self.assertTrue(all(row["reps"] == 9 for row in rows))
 
     def test_workout_cardio_meal_flow(self) -> None:
         default_workout_html = self.client.get("/app?mode=workout").data.decode("utf-8")

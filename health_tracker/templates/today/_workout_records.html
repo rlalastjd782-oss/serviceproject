@@ -96,6 +96,10 @@
                 <input type="hidden" name="mode" value="workout">
                 <input type="hidden" name="body_part" value="{{ group.body_part }}">
                 <input type="hidden" name="exercise_name" value="{{ group.exercise_name }}">
+                <label class="inline-repeat-control">
+                  <span>추가 세트</span>
+                  <input name="set_repeat_count" type="number" min="1" max="10" step="1" inputmode="numeric" value="1">
+                </label>
                 {% if group.body_part == "유산소" %}
                   <input name="cardio_incline" type="number" min="0" step="0.1" inputmode="decimal" value="{% if last_set.cardio_incline is not none %}{{ "%.1f"|format(last_set.cardio_incline) }}{% endif %}" placeholder="인클라인">
                   <input name="cardio_speed" type="number" min="0" step="0.1" inputmode="decimal" value="{% if last_set.cardio_speed is not none %}{{ "%.1f"|format(last_set.cardio_speed) }}{% endif %}" placeholder="속도">
