@@ -122,8 +122,48 @@ def build_next_set_suggestions(
     limit: int = 8,
 ) -> dict[str, dict[str, object]]:
     suggestions: dict[str, dict[str, object]] = {}
-    for name in exercise_names[:limit]:
-        rows = recent_performance_rows(db, name, limit=5)
+    names = exercise_names[:limit]
+    if not names:
+        return suggestions
+    placeholders = ", ".join("?" for _ in names)
+    rows = db.execute(
+        f"""
+        WITH recent AS (
+            SELECT
+                e.name AS exercise_name,
+                s.workout_date,
+                COALESCE(NULLIF(MAX(ws.body_part), ''), '기타') AS body_part,
+                MAX(COALESCE(ws.weight, 0)) AS max_weight,
+                MAX(COALESCE(ws.reps, 0)) AS max_reps,
+                COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
+                MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+                AVG(ws.rpe) AS avg_rpe,
+                COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
+            FROM workout_sets ws
+            JOIN workout_sessions s ON s.id = ws.session_id
+            JOIN exercises e ON e.id = ws.exercise_id
+            WHERE e.name IN ({placeholders})
+            GROUP BY e.name, s.workout_date
+        ),
+        ranked AS (
+            SELECT recent.*, ROW_NUMBER() OVER (
+                PARTITION BY exercise_name
+                ORDER BY workout_date DESC
+            ) AS row_number
+            FROM recent
+        )
+        SELECT *
+        FROM ranked
+        WHERE row_number <= 5
+        ORDER BY exercise_name, workout_date DESC
+        """,
+        tuple(names),
+    ).fetchall()
+    rows_by_name: dict[str, list[sqlite3.Row]] = {name: [] for name in names}
+    for row in rows:
+        rows_by_name[str(row["exercise_name"])].append(row)
+    for name in names:
+        rows = rows_by_name.get(name, [])
         body_part = rows[0]["body_part"] if rows else "기타"
         suggestions[name] = next_set_advice_from_recent(name, body_part, rows, readiness_percent)
     return suggestions

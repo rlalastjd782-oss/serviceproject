@@ -268,7 +268,7 @@ class UiNavigationFlowTest(FlowTestBase):
     def test_core_page_query_counts_stay_bounded(self) -> None:
         limits = {
             "/app": 50,
-            "/app?mode=workout": 85,
+            "/app?mode=workout": 78,
             "/app?mode=meal": 45,
             "/summaries/weekly": 30,
             "/summaries/monthly": 50,
