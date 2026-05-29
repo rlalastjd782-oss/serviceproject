@@ -721,3 +721,120 @@ textarea::placeholder {
   color: var(--muted) !important;
 }
 
+/* v2.8.9: soften charcoal while giving inner boxes a consistent premium gradient. */
+.section > article,
+.section > div:not(.section-header),
+.section > form,
+.section > details,
+.summary-card,
+.today-task-card,
+.record-card,
+.daily-record-card,
+.equipment-summary-card,
+.workout-summary-card,
+.meal-record-card,
+.record-result-card,
+.more-link-card,
+.data-center-card,
+.focus-suggestion-card,
+.chart-card,
+.admin-user-card,
+.settings-action-card,
+.location-card,
+.location-create-panel,
+.location-manage-details,
+.location-equipment-panel,
+.location-equipment-item,
+.location-insight-card,
+.meal-favorite-row,
+.recent-meal-template-row,
+.meal-template-card,
+.routine-load-row,
+.routine-form,
+.filter-form,
+.record-list-toolbar,
+.quick-panel,
+.quick-pane,
+.optional-workout-panel,
+.exercise-goal-card,
+.pr-share-card,
+.readiness-card,
+.rule-card,
+.admin-operation-card,
+.detail-row,
+.editable-list-item,
+.set-entry-row,
+.meal-entry-row,
+.mini-list-row,
+.compact-set-preview button,
+.workout-tool-grid,
+.data-quality-copy,
+.pr-rank-card,
+.analysis-action-card,
+.body-part-exercise-card,
+.calendar-day,
+.progress-chart,
+.trend-chart,
+.table-wrap {
+  border-color: #c4cbd4 !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 72%) 0%, rgb(255 255 255 / 24%) 46%, rgb(224 230 237 / 34%) 100%),
+    #eef2f6 !important;
+  color: #111827 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 72%),
+    0 4px 12px rgb(33 39 48 / 5%) !important;
+}
+
+.section > div:not(.section-header):not(.tabs):not(.subnav):not(.mobile-action-dock),
+.quick-tab-list,
+.set-builder-toolbar,
+.meal-builder-toolbar,
+.mode-actions,
+.timer-actions,
+.set-preset-list,
+.set-builder-actions,
+.program-chip-list,
+.exercise-quick-list,
+.location-equipment-chip-row,
+.location-equipment-chip-list span,
+.location-equipment-chip-list em,
+.subnav a,
+.badge,
+.mini-badge,
+.cat-badge,
+.tag,
+.body-part-badge {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 66%) 0%, rgb(236 240 245 / 60%) 100%),
+    #e7ecf2 !important;
+  color: #1f2933 !important;
+}
+
+.btn-add,
+.row-copy-button,
+.rest-start-button,
+button[data-rest-start],
+button[name="action"][value="save"],
+.workout-form .btn-primary,
+.meal-form .btn-primary,
+.record-list-toolbar .btn-primary,
+.today-mode-actions .btn-primary {
+  border-color: #252b33 !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 14%) 0%, rgb(255 255 255 / 3%) 44%),
+    linear-gradient(180deg, #414852 0%, #2f3640 100%) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 16%),
+    0 7px 14px rgb(32 37 44 / 18%) !important;
+}
+
+.section :is(.muted, .muted-text, .field-help, .summary-label, .section-subtitle, small),
+.section :is(.detail-row span, .record-summary span, .progress-metrics span, .meal-entry-row span, .set-entry-row span),
+.record-card :is(span, small),
+.meal-record-card :is(span, small),
+.today-task-card :is(span, small) {
+  color: #2f3742 !important;
+}
+
