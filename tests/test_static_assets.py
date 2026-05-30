@@ -213,6 +213,25 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".daily-metric,\n.record-result-value,\n.today-shell .detail-row", source)
         self.assertIn(".record-subnav a.active,\n.record-subnav a.is-active,\n.analysis-subnav a.active", source)
 
+    def test_meal_tab_dimensional_ui_pass_is_final_and_updates_cache_version(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        weekly_template = Path("health_tracker/templates/meals/weekly.html").read_text(encoding="utf-8-sig")
+        version = Path("VERSION").read_text(encoding="utf-8-sig").strip()
+        sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
+        manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
+
+        self.assertEqual(version, "2.8.31")
+        self.assertIn('CACHE_NAME = "workout-pwa-v2.8.31"', sw_source)
+        self.assertIn('"version": "2.8.31"', manifest_source)
+        self.assertIn('"background_color": "#edf3f8"', manifest_source)
+        self.assertIn('class="meal-weekly-shell"', weekly_template)
+
+        self.assertLess(source.index("v2.8.30 records-style dimensional UI pass"), source.index("v2.8.31 meal-tab dimensional UI pass"))
+        self.assertIn(".meal-weekly-shell > .section,\n.today-shell .date-row", source)
+        self.assertIn(".meal-weekly-shell .summary-card,\n.meal-weekly-shell .goal-card,\n.meal-weekly-shell .weekly-meal-day", source)
+        self.assertIn(".meal-weekly-shell .week-control-row,\n.meal-weekly-shell .week-date-form", source)
+        self.assertIn(".settings-panel,\n.settings-overview-section", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
