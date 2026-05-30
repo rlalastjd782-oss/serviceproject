@@ -128,6 +128,13 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn("0 5px 14px rgb(28 36 46 / 7%)", source)
         self.assertIn("0 4px 10px rgb(28 36 46 / 6%)", source)
 
+    def test_workout_focus_action_is_visible_below_three_tabs(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.23 restore workout focus action", source)
+        self.assertIn(".today-shell.workout-mode .today-mode-actions .focus-mode-button", source)
+        self.assertIn("grid-column: 1 / -1 !important;", source)
+        self.assertIn("display: inline-flex !important;", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
