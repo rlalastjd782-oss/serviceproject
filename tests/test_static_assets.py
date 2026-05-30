@@ -135,6 +135,15 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn("grid-column: 1 / -1 !important;", source)
         self.assertIn("display: inline-flex !important;", source)
 
+    def test_today_depth_polish_uses_stronger_layered_surfaces(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.24 today depth polish", source)
+        self.assertIn("0 10px 24px rgb(36 46 58 / 10%)", source)
+        self.assertIn("0 7px 16px rgb(36 46 58 / 9%)", source)
+        self.assertIn(".today-shell .today-focus-card:hover", source)
+        self.assertIn("transform: translateY(-1px) !important;", source)
+        self.assertIn(".today-shell input,\n.today-shell select,\n.today-shell textarea", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

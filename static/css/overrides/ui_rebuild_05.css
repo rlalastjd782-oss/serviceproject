@@ -1484,3 +1484,142 @@ a[class*="btn"] {
     inset 0 1px 0 rgb(255 255 255 / 82%),
     0 2px 6px rgb(28 36 46 / 5%) !important;
 }
+
+/* v2.8.24 today depth polish: stronger hierarchy without changing the records layout. */
+.today-shell {
+  gap: 14px !important;
+}
+
+.today-shell .date-row,
+.today-shell .today-mode-actions,
+.today-shell .workout-action-dock,
+.today-shell .summary-grid.overview-only,
+.today-shell .section {
+  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 86%) 0%, rgb(244 247 250 / 70%) 46%, rgb(229 235 242 / 58%) 100%),
+    #eef2f6 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 92%),
+    inset 0 -1px 0 rgb(132 148 166 / 10%),
+    0 10px 24px rgb(36 46 58 / 10%),
+    0 2px 6px rgb(36 46 58 / 7%) !important;
+}
+
+.today-shell .today-hero-section,
+.today-shell .data-quality-section,
+.today-shell .optional-section,
+.today-shell .meal-goal-section,
+.today-shell .meal-input-section,
+.today-shell .today-meal-section,
+.today-shell .workout-only {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 88%) 0%, rgb(244 247 250 / 74%) 52%, rgb(229 235 242 / 56%) 100%),
+    #eef2f6 !important;
+}
+
+.today-shell .today-focus-card,
+.today-shell .summary-card,
+.today-shell .quality-metric,
+.today-shell .record-card,
+.today-shell .daily-metric,
+.today-shell .detail-row,
+.today-shell .goal-card,
+.today-shell .meal-entry-row,
+.today-shell .set-entry-row,
+.today-shell .today-task-card,
+.today-shell .focus-grid article,
+.today-shell .data-quality-card,
+.today-shell .data-quality-copy,
+.today-shell .exercise-quick-panel,
+.today-shell .workout-form,
+.today-shell .meal-form {
+  border-radius: 12px !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f9fafb 56%, #f1f4f7 100%),
+    #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 94%),
+    inset 0 -1px 0 rgb(132 148 166 / 8%),
+    0 7px 16px rgb(36 46 58 / 9%),
+    0 1px 3px rgb(36 46 58 / 7%) !important;
+}
+
+.today-shell .today-focus-card:hover,
+.today-shell .record-card:hover,
+.today-shell .summary-card:hover {
+  transform: translateY(-1px) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 95%),
+    inset 0 -1px 0 rgb(132 148 166 / 8%),
+    0 10px 20px rgb(36 46 58 / 11%),
+    0 2px 5px rgb(36 46 58 / 7%) !important;
+}
+
+.today-shell .today-mode-actions .mode-button,
+.today-shell .workout-action-dock a,
+.today-shell .workout-action-dock button,
+.today-shell .record-summary .badge,
+.today-shell .badge,
+.today-shell .cat-badge,
+.today-shell .missing-day-chip,
+.today-shell .quality-action-list .btn-small {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f3f5f7 100%),
+    #f8f9fb !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 92%),
+    0 2px 5px rgb(36 46 58 / 6%) !important;
+}
+
+.today-shell .today-mode-actions .mode-button.btn-primary {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #edf2f7 100%),
+    #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 96%),
+    0 0 0 1px rgb(132 148 166 / 18%),
+    0 5px 12px rgb(36 46 58 / 9%) !important;
+}
+
+.today-shell input,
+.today-shell select,
+.today-shell textarea {
+  background:
+    linear-gradient(180deg, #eef2f6 0%, #f7f9fb 100%),
+    #f3f5f7 !important;
+  box-shadow:
+    inset 0 1px 2px rgb(36 46 58 / 7%),
+    inset 0 1px 0 rgb(255 255 255 / 72%) !important;
+}
+
+.today-shell .today-focus-panel,
+.today-shell .summary-grid,
+.today-shell .compact-summary-grid,
+.today-shell .quality-metric-list,
+.today-shell .record-list,
+.today-shell .detail-list,
+.today-shell .missing-day-list,
+.today-shell .finish-summary-grid,
+.today-shell .goal-card-grid,
+.today-shell .meal-goal-grid,
+.today-shell .meal-entry-list,
+.today-shell .set-entry-list,
+.today-shell .focus-grid,
+.today-shell .today-task-grid {
+  gap: 12px !important;
+}
+
+@media (max-width: 560px) {
+  .today-shell {
+    gap: 12px !important;
+  }
+
+  .today-shell .date-row,
+  .today-shell .today-mode-actions,
+  .today-shell .workout-action-dock,
+  .today-shell .summary-grid.overview-only,
+  .today-shell .section {
+    padding: 11px !important;
+  }
+}
