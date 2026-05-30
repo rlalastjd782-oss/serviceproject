@@ -32,10 +32,13 @@
 - 기본 브랜치: `main`
 - 커밋 메시지는 한국어로 작성합니다.
 - 작업 완료 후 `NOTES.md`, `CHANGELOG.md`, `VERSION`, manifest, service worker cache를 함께 갱신합니다.
+- 앞으로 업데이트, 수정, 정리, 릴리스 준비 등 프로젝트 상태가 바뀌는 작업을 할 때는 작업 내용과 검증 결과를 먼저 `NOTES.md`와 `CHANGELOG.md`에 기록합니다.
+- 사용자가 `CHANGED.MD`라고 말하면 현재 저장소의 실제 변경 기록 파일인 `CHANGELOG.md`를 의미하는 것으로 처리합니다.
 - 브라우저는 사용자가 요청할 때만 엽니다.
 
 ## 최근 작업
 
+- v2.8.14 작업 이후 문서 운영 규칙을 명확히 했습니다. 앞으로 모든 변경 작업은 `NOTES.md`와 `CHANGELOG.md`에 기록을 남깁니다.
 - v2.8.14에서 초기 `ui_rebuild_01~03.css` override import와 파일을 제거해 CSS 로딩 경로를 `ui_rebuild_04.css`, `ui_rebuild_05.css` 중심으로 단순화했습니다.
 - v2.8.14에서 기록/식단 기록 카드의 핵심 selector 계약을 최종 override 레이어로 옮기고 서비스워커 캐시 목록을 정리했습니다.
 - v2.8.13에서 전역 폼/툴바 override의 강도를 낮추고 페이지별 scope로 필터 패널을 재정리했습니다.
@@ -66,3 +69,4 @@
 
 - CSS 색상 변경은 마지막 override만 추가하지 말고 실제 원본 CSS의 직접값까지 같이 정리해야 합니다.
 - 서비스워커 캐시가 남아 있으면 배포 후 예전 CSS가 보일 수 있으므로 버전과 cache name을 반드시 함께 올립니다.
+- 문서 기록 없이 코드만 수정하지 않습니다. 최소한 `NOTES.md`에는 작업 맥락과 검증 결과를, `CHANGELOG.md`에는 사용자에게 의미 있는 변경 사항을 남깁니다.

@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- 앞으로 프로젝트 변경 작업을 진행할 때 `NOTES.md`와 `CHANGELOG.md`에 작업 내용과 검증 결과를 함께 남기도록 문서 운영 규칙을 명시했습니다.
+- 사용자가 `CHANGED.MD`를 언급하면 현재 저장소의 실제 변경 기록 파일인 `CHANGELOG.md`로 처리하기로 정리했습니다.
+
 ## v2.8.14 - 2026-05-30
 
 - 더 이상 최종 UI에 필요하지 않은 초기 `ui_rebuild_01~03.css` override import를 제거하고 파일을 정리했습니다.
