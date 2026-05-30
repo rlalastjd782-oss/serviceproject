@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-30 v2.8.21
+
+- 오늘 페이지 전체가 기록 페이지와 간격/카드 체계가 맞지 않는 문제를 다시 확인했습니다.
+- `today-shell` 전체 gap, 날짜/모드 바, overview summary grid, 오늘 운동/식단/기록 섹션, 내부 card/row/badge/input 간격을 기록 페이지의 `record-list`/`daily-record-card` 밀도에 맞추는 override를 추가했습니다.
+- 앱 버전, manifest, service worker cache를 `2.8.21`로 갱신했습니다.
+
 ## 2026-05-30 v2.8.20
 
 - 오늘 요약 화면의 색 변경이 실제 overview 화면에 적용되지 않은 문제를 확인했습니다.

@@ -110,6 +110,15 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .summary-card", source)
         self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .record-card", source)
 
+    def test_today_page_uses_records_layout_spacing(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.21 today records-layout parity", source)
+        self.assertIn(".today-shell {\n  display: grid !important;", source)
+        self.assertIn(".today-shell > .date-row", source)
+        self.assertIn(".today-shell .record-list {\n  grid-template-columns: 1fr !important;", source)
+        self.assertIn(".today-shell .today-focus-panel", source)
+        self.assertIn(".today-shell .summary-card", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
