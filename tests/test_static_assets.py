@@ -72,6 +72,15 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn("ui_rebuild_04.css", rebuild_source)
         self.assertIn("ui_rebuild_05.css", rebuild_source)
 
+    def test_final_ui_layer_flattens_nested_card_controls(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.15 anti-nesting pass", source)
+        self.assertIn(".summary-card .summary-card", source)
+        self.assertIn(".section .section", source)
+        self.assertIn(".record-summary .badge", source)
+        self.assertIn("box-shadow: none !important;", source)
+        self.assertIn("--qa-flat", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
