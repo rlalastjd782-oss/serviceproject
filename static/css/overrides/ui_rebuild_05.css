@@ -1198,3 +1198,65 @@ a[class*="btn"] {
   color: #263442 !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
 }
+
+/* v2.8.20 today overview neutral pass: make summary surfaces match record cards. */
+.today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions {
+  background: #f6f7f9 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions .mode-button {
+  background: transparent !important;
+  color: #3f4b56 !important;
+  box-shadow: none !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions .mode-button.btn-primary {
+  background: #ffffff !important;
+  color: #263442 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 78%), 0 0 0 1px rgb(132 148 166 / 18%) !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section,
+.today-shell:not(.workout-mode):not(.meal-mode) .section.overview-only,
+.today-shell:not(.workout-mode):not(.meal-mode) .summary-grid.overview-only {
+  background: #f6f7f9 !important;
+  color: var(--qa-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-head,
+.today-shell:not(.workout-mode):not(.meal-mode) .section-header,
+.today-shell:not(.workout-mode):not(.meal-mode) .record-date {
+  background: transparent !important;
+  color: var(--qa-text) !important;
+  box-shadow: none !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-focus-card,
+.today-shell:not(.workout-mode):not(.meal-mode) .summary-card,
+.today-shell:not(.workout-mode):not(.meal-mode) .compact-summary-grid .summary-card,
+.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-card,
+.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-copy,
+.today-shell:not(.workout-mode):not(.meal-mode) .quality-metric,
+.today-shell:not(.workout-mode):not(.meal-mode) .record-card {
+  background: #ffffff !important;
+  color: var(--qa-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .detail-row,
+.today-shell:not(.workout-mode):not(.meal-mode) .missing-day-chip,
+.today-shell:not(.workout-mode):not(.meal-mode) .record-summary .badge,
+.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section .badge,
+.today-shell:not(.workout-mode):not(.meal-mode) .quality-action-list .btn-small {
+  background: #f8f9fb !important;
+  color: #303b45 !important;
+  box-shadow: none !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-head .btn-primary {
+  background: #eef2f6 !important;
+  color: #263442 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+}

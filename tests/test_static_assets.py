@@ -101,6 +101,15 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".workout-mode .set-entry-row", source)
         self.assertIn("background: #f6f7f9 !important;", source)
 
+    def test_today_overview_summary_ui_uses_record_neutral_surfaces(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.20 today overview neutral pass", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .summary-grid.overview-only", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .today-focus-card", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .summary-card", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .record-card", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

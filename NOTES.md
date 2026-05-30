@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-30 v2.8.20
+
+- 오늘 요약 화면의 색 변경이 실제 overview 화면에 적용되지 않은 문제를 확인했습니다.
+- `workout-mode` 전용이 아니라 오늘 요약 기본 화면의 `today-hero-section`, `summary-grid overview-only`, `today-focus-card`, `summary-card`, `record-card`에 직접 적용되는 중립 흰색/회색 표면 override를 추가했습니다.
+- 서비스워커 캐시와 앱 버전을 `2.8.20`으로 올려 브라우저가 새 CSS를 받도록 했습니다.
+
 ## 2026-05-30 작업 기록
 
 - 전체 UI 회색톤 적용 후 깨져 보이던 화면들을 순차 점검했습니다.
