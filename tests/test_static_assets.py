@@ -181,6 +181,27 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".today-shell > .section,\n.today-shell > .summary-grid", source)
         self.assertIn("margin-bottom: 0 !important;", source)
 
+    def test_today_visual_reset_returns_to_white_section_cards(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.28 today visual reset", source)
+        self.assertIn("--today-surface: #ffffff;", source)
+        self.assertIn(".today-shell .date-row,\n.today-shell .today-mode-actions,\n.today-shell .section", source)
+        self.assertIn("background: var(--today-surface) !important;", source)
+        self.assertIn(".today-shell .today-focus-card,\n.today-shell .summary-card,\n.today-shell .quality-metric", source)
+        self.assertIn("background: var(--today-surface-soft) !important;", source)
+        self.assertIn(".today-shell.workout-mode .overview-only:not(.workout-only)", source)
+        self.assertIn(".today-shell .workout-action-dock {\n  position: static !important;", source)
+        self.assertIn(".today-shell.workout-mode > .summary-grid.overview-only", source)
+        self.assertIn(".today-shell > a,\n.today-shell > strong,\n.today-shell > small", source)
+
+    def test_meal_mode_keeps_recording_flow_ahead_of_optional_panels(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.29 meal mode order pass", source)
+        self.assertIn(".today-shell.meal-mode .meal-goal-section {\n  order: 10 !important;", source)
+        self.assertIn(".today-shell.meal-mode .meal-input-section {\n  order: 20 !important;", source)
+        self.assertIn(".today-shell.meal-mode .today-meal-section {\n  order: 30 !important;", source)
+        self.assertIn(".today-shell.meal-mode .optional-section {\n  order: 50 !important;", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

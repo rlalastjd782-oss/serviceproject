@@ -34,6 +34,12 @@ renderReadinessCoach();
 processOfflineQueue();
 initNotificationTools();
 
+function setMealFormToggleLabels(label) {
+  document.querySelectorAll("[data-toggle-meal-form]").forEach((button) => {
+    button.textContent = label;
+  });
+}
+
 document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   applyBodyPartSelectColor(select);
   if (select.closest("[data-workout-form]")) {
@@ -157,7 +163,7 @@ document.addEventListener("click", (event) => {
 
   if (mealFormToggleButton && mealForm) {
     const isCollapsed = mealForm.classList.toggle("is-collapsed");
-    mealFormToggleButton.textContent = isCollapsed ? "입력 열기" : "입력 닫기";
+    setMealFormToggleLabels(isCollapsed ? "입력 열기" : "입력 닫기");
     if (!isCollapsed) {
       mealForm.querySelector("input:not([type='hidden']), select")?.focus();
     }
@@ -166,10 +172,7 @@ document.addEventListener("click", (event) => {
 
   if (mealFormCancelButton && mealForm && mealList) {
     resetMealForm(mealForm, mealList);
-    const toggleButton = document.querySelector("[data-toggle-meal-form]");
-    if (toggleButton) {
-      toggleButton.textContent = "입력 열기";
-    }
+    setMealFormToggleLabels("입력 열기");
     return;
   }
 
@@ -258,10 +261,7 @@ document.addEventListener("click", (event) => {
   if (foodQuickButton && mealList) {
     if (mealForm?.classList.contains("is-collapsed")) {
       mealForm.classList.remove("is-collapsed");
-      const toggleButton = document.querySelector("[data-toggle-meal-form]");
-      if (toggleButton) {
-        toggleButton.textContent = "입력 닫기";
-      }
+      setMealFormToggleLabels("입력 닫기");
     }
     loadFoodEntry(foodQuickButton, mealList);
     return;

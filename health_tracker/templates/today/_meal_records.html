@@ -30,7 +30,10 @@
           </article>
         {% endfor %}
       {% else %}
-        <div class="empty">식단 기록 없음</div>
+        <div class="empty compact-empty">
+          <span>식단 기록 없음</span>
+          <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
+        </div>
       {% endif %}
     </div>
   </section>

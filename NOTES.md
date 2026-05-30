@@ -1,5 +1,13 @@
 # Codex Handoff Notes
 
+## 2026-05-30 v2.8.28
+
+- User reported that switching the whole today UI to gray made the design progressively worse.
+- Changed direction from all-gray sections to clean white section cards, with light gray-blue only for inner rows, inputs, and controls.
+- Kept the v2.8.27 workout ordering and overview-only hide guards.
+- Added `v2.8.28 today visual reset` and a static asset regression test for white today section cards.
+- Updated `UI_QA.md`, version, manifest, and service worker cache for `2.8.28`.
+
 ## 2026-05-30 v2.8.27
 
 - User reported that the prior PDF review was not sufficient and several requested today UI fixes were still not reflected.

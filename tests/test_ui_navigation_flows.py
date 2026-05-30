@@ -156,6 +156,11 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn(".workout-action-dock,\n  .mobile-action-dock {\n    top: 122px;", styles)
         self.assertIn("scroll-margin-top: 174px;", styles)
 
+        meal_html = self.client.get("/app?mode=meal").data.decode("utf-8")
+        self.assertIn('id="meal-input"', meal_html)
+        self.assertIn("식단 기록 없음", meal_html)
+        self.assertIn("data-toggle-meal-form", meal_html)
+
         search_html = self.client.get("/records/search").data.decode("utf-8")
         self.assertIn("record-filter-details", search_html)
         self.assertIn("<summary>상세 필터</summary>", search_html)

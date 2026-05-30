@@ -71,3 +71,10 @@
 - A final post-fix PDF was generated at `artifacts/ui_screenshots_20260530_07/ui_screenshots.pdf`.
 - A final long capture set was generated at `artifacts/ui_screenshots_20260530_06_long/png/`.
 - The final viewport checks confirmed that workout-mode overview summary cards no longer appear above the workout timer, and the data-quality card stacks the ring and text on mobile so the message is not clipped.
+
+## Rework - v2.8.28
+
+- User reported that the full gray surface direction made the UI worse compared with the earlier version.
+- v2.8.28 changes direction: the today page returns to white section cards with only the page background and inner rows using light gray-blue.
+- The workout order and hidden overview-only regression guards from v2.8.27 are kept.
+- The goal is no longer to make every surface gray, but to restore contrast and readability while keeping nested inner controls quieter.

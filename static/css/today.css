@@ -66,20 +66,24 @@
   order: 90;
 }
 
-.meal-mode .meal-input-section {
+.meal-mode .meal-goal-section {
   order: 10;
 }
 
-.meal-mode .today-meal-section {
+.meal-mode .meal-input-section {
   order: 20;
 }
 
-.meal-mode .meal-goal-section {
+.meal-mode .today-meal-section {
   order: 30;
 }
 
 .meal-mode .meal-helper-section {
   order: 40;
+}
+
+.meal-mode .optional-section {
+  order: 50;
 }
 
 .date-row {

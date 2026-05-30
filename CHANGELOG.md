@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.8.28 - 2026-05-30
+
+- Reversed the all-gray today UI direction after it made the screen feel heavier and less polished.
+- Restored today section cards to clean white surfaces while keeping inner rows, chips, inputs, and secondary controls in light gray-blue.
+- Preserved the workout flow ordering and overview-only visibility fixes from v2.8.27.
+- Updated QA notes, release version, manifest, service worker cache, and static asset tests.
+
 ## v2.8.27 - 2026-05-30
 
 - Rechecked the today UI with long mobile captures after the prior QA pass missed the full workout scroll order.
