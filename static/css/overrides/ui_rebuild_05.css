@@ -1623,3 +1623,102 @@ a[class*="btn"] {
     padding: 11px !important;
   }
 }
+
+/* v2.8.25 today full surface pass: cover equipment, timers, status, and overview cards. */
+.today-shell .workout-location-section,
+.today-shell .workout-clock-section,
+.today-shell #rest-timer,
+.today-shell .workout-finish-section,
+.today-shell .today-hero-section,
+.today-shell .data-quality-section,
+.today-shell .section.overview-only,
+.today-shell .summary-grid.overview-only {
+  background:
+    linear-gradient(180deg, #f9fbfd 0%, #eef3f7 54%, #e3eaf1 100%),
+    #edf2f6 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 94%),
+    inset 0 -1px 0 rgb(128 145 162 / 12%),
+    0 12px 28px rgb(36 46 58 / 11%),
+    0 3px 8px rgb(36 46 58 / 8%) !important;
+}
+
+.today-shell .location-select-form,
+.today-shell .location-equipment-strip,
+.today-shell .location-quick-panel,
+.today-shell .timer-actions,
+.today-shell .workout-save-status,
+.today-shell .duration-manual-edit,
+.today-shell .completion-card,
+.today-shell .finish-review-card,
+.today-shell .finish-review-panel,
+.today-shell .data-quality-card,
+.today-shell .data-quality-copy,
+.today-shell:not(.workout-mode):not(.meal-mode) .today-focus-card,
+.today-shell:not(.workout-mode):not(.meal-mode) .summary-card,
+.today-shell:not(.workout-mode):not(.meal-mode) .record-card {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f7f9fb 52%, #eef3f7 100%),
+    #ffffff !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 95%),
+    inset 0 -1px 0 rgb(128 145 162 / 8%),
+    0 8px 18px rgb(36 46 58 / 9%),
+    0 2px 5px rgb(36 46 58 / 6%) !important;
+}
+
+.today-shell .location-equipment-chip-row,
+.today-shell .location-quick-exercise-list,
+.today-shell .finish-summary-grid,
+.today-shell .finish-review-metrics,
+.today-shell .finish-part-list,
+.today-shell:not(.workout-mode):not(.meal-mode) .today-focus-panel,
+.today-shell:not(.workout-mode):not(.meal-mode) .summary-grid,
+.today-shell:not(.workout-mode):not(.meal-mode) .quality-metric-list,
+.today-shell:not(.workout-mode):not(.meal-mode) .record-summary {
+  background: transparent !important;
+  box-shadow: none !important;
+  gap: 12px !important;
+}
+
+.today-shell .location-equipment-chip-row .badge,
+.today-shell .workout-location-section .badge,
+.today-shell .location-quick-exercise,
+.today-shell .finish-summary-grid article,
+.today-shell .finish-review-metrics article,
+.today-shell .timer-actions button,
+.today-shell:not(.workout-mode):not(.meal-mode) .record-summary .badge,
+.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section .badge {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f4f7fa 100%),
+    #f8fafc !important;
+  color: #263442 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 94%),
+    0 3px 8px rgb(36 46 58 / 7%) !important;
+}
+
+.today-shell .workout-clock-display,
+.today-shell .timer-display,
+.today-shell .data-quality-ring {
+  background:
+    radial-gradient(circle at 50% 35%, rgb(255 255 255 / 92%), rgb(238 243 248 / 86%) 62%, rgb(222 231 240 / 78%) 100%),
+    #eef3f7 !important;
+  color: #263442 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 96%),
+    inset 0 -2px 4px rgb(128 145 162 / 14%),
+    0 8px 16px rgb(36 46 58 / 10%) !important;
+}
+
+.today-shell .completion-card:not(.is-complete) {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f5f8fb 50%, #e9eff5 100%),
+    #f7f9fb !important;
+}
+
+.today-shell .today-hero-head,
+.today-shell .section-header {
+  background: transparent !important;
+  box-shadow: none !important;
+}

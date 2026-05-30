@@ -144,6 +144,16 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn("transform: translateY(-1px) !important;", source)
         self.assertIn(".today-shell input,\n.today-shell select,\n.today-shell textarea", source)
 
+    def test_today_full_surface_pass_covers_remaining_panels(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.25 today full surface pass", source)
+        self.assertIn(".today-shell .location-equipment-strip", source)
+        self.assertIn(".today-shell .workout-clock-section", source)
+        self.assertIn(".today-shell #rest-timer", source)
+        self.assertIn(".today-shell .completion-card", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .today-focus-card", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .summary-card", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

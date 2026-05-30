@@ -1,5 +1,11 @@
 # Codex Handoff Notes
 
+## 2026-05-30 v2.8.25
+
+- 장비 목록 badge, 운동시간, 휴식 타이머, 오늘 상태 완료 전 카드, 오늘 요약 overview 카드에 이전 배경/평면 스타일이 남은 문제를 확인했습니다.
+- `location-equipment-strip`, `workout-clock-section`, `#rest-timer`, `completion-card`, overview 전용 `today-focus-card`/`summary-card`/`record-card`를 직접 덮는 최종 surface pass를 추가했습니다.
+- 앱 버전, manifest, service worker cache를 `2.8.25`로 갱신했습니다.
+
 ## 2026-05-30 v2.8.24
 
 - 오늘 UI가 다른 탭보다 너무 연약하고 평면적으로 보이는 문제를 확인했습니다.
