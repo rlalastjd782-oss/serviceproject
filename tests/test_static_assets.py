@@ -202,6 +202,17 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".today-shell.meal-mode .today-meal-section {\n  order: 30 !important;", source)
         self.assertIn(".today-shell.meal-mode .optional-section {\n  order: 50 !important;", source)
 
+    def test_records_style_dimensional_ui_uses_shared_surface_tokens(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.30 records-style dimensional UI pass", source)
+        self.assertIn("--surface-page: #edf3f8;", source)
+        self.assertIn("--surface-card: #ffffff;", source)
+        self.assertIn(".record-subnav ~ .section,\n.record-search-dashboard", source)
+        self.assertIn(".record-search-dashboard,\n.record-result-section,\n.analysis-dashboard-section", source)
+        self.assertIn(".daily-record-card,\n.record-result-card,\n.today-shell .today-focus-card", source)
+        self.assertIn(".daily-metric,\n.record-result-value,\n.today-shell .detail-row", source)
+        self.assertIn(".record-subnav a.active,\n.record-subnav a.is-active,\n.analysis-subnav a.active", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

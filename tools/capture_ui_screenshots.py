@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import html
 import http.cookiejar
+import os
 import re
 import subprocess
 import time
@@ -152,6 +153,12 @@ def build_gallery(output_dir: Path, captures: list[tuple[str, str, Path]]) -> Pa
 
 
 def main() -> None:
+    if os.environ.get("ALLOW_PNG_CAPTURE") != "1":
+        raise SystemExit(
+            "PNG screenshot capture is disabled for this project. "
+            "Use DOM/HTML/CSS checks instead. Set ALLOW_PNG_CAPTURE=1 only for a manual one-off run."
+        )
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--chrome", required=True)
     parser.add_argument("--output", required=True)
