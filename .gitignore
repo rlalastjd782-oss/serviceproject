@@ -12,7 +12,5 @@ instance/
 local-server*.log
 server*.log
 artifacts/**
-!artifacts/**/
-!artifacts/**/ui_screenshots.pdf
 .DS_Store
 Thumbs.db

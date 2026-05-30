@@ -60,3 +60,14 @@
 - `python -m ruff check health_tracker tests tools`
 - `python -m compileall health_tracker tests tools`
 - `python -m unittest discover -v`
+
+## Recheck - v2.8.27
+
+- The v2.8.26 review was incomplete: it checked the key today viewport captures, but it did not verify the full workout scroll flow carefully enough.
+- Long captures were generated at `artifacts/ui_screenshots_20260530_04_long/png/` for today overview, workout, meal, and the records reference.
+- The long workout capture showed the real ordering problem: sections without explicit flex order were appearing before the clock/input sequence.
+- v2.8.27 explicitly orders workout sections so the clock, rest timer, action dock, workout input, current workout list, current location, next actions, and rule cards follow a predictable flow.
+- v2.8.27 also reduces the nested-card look by keeping depth on outer sections and flattening inner cards, chips, timer controls, recommendation cards, and location panels.
+- A final post-fix PDF was generated at `artifacts/ui_screenshots_20260530_07/ui_screenshots.pdf`.
+- A final long capture set was generated at `artifacts/ui_screenshots_20260530_06_long/png/`.
+- The final viewport checks confirmed that workout-mode overview summary cards no longer appear above the workout timer, and the data-quality card stacks the ring and text on mobile so the message is not clipped.

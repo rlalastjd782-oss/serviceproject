@@ -1980,3 +1980,369 @@ a[class*="btn"] {
     border-radius: 12px !important;
   }
 }
+
+/* v2.8.27 today layout correction pass: flat inner rows and explicit workout order. */
+.today-shell {
+  --today-outer: #e2eaf2;
+  --today-outer-strong: #d7e2ec;
+  --today-inner: #eef3f7;
+  --today-inner-strong: #e5edf4;
+  --today-control: #dce7f0;
+  --today-border: rgb(105 124 144 / 20%);
+}
+
+.today-shell.workout-mode,
+.today-shell.meal-mode {
+  gap: 10px !important;
+}
+
+.today-shell.workout-mode .overview-only:not(.workout-only),
+.today-shell.meal-mode .overview-only {
+  display: none !important;
+}
+
+.workout-mode .date-row,
+.workout-mode .today-mode-actions {
+  order: 0 !important;
+}
+
+.workout-mode .workout-clock-section {
+  order: 10 !important;
+}
+
+.workout-mode #rest-timer {
+  order: 11 !important;
+}
+
+.workout-mode .workout-action-dock {
+  order: 12 !important;
+}
+
+.workout-mode #workout-input {
+  order: 13 !important;
+}
+
+.workout-mode #today-workout {
+  order: 14 !important;
+}
+
+.workout-mode .workout-location-section {
+  order: 15 !important;
+}
+
+.workout-mode .next-action-section {
+  order: 16 !important;
+}
+
+.workout-mode .rule-card-section {
+  order: 17 !important;
+}
+
+.workout-mode .workout-focus-section {
+  order: 18 !important;
+}
+
+.workout-mode .workout-finish-section {
+  order: 19 !important;
+}
+
+.workout-mode .workout-recovery-section {
+  order: 20 !important;
+}
+
+.workout-mode .readiness-section {
+  order: 21 !important;
+}
+
+.workout-mode .workout-plan-section,
+.workout-mode .routine-library-section,
+.workout-mode .workout-secondary-section {
+  order: 30 !important;
+}
+
+.today-shell .date-row,
+.today-shell .today-mode-actions,
+.today-shell .section,
+.today-shell .summary-grid.overview-only,
+.today-shell .workout-action-dock {
+  background:
+    linear-gradient(180deg, #edf3f8 0%, var(--today-outer) 58%, var(--today-outer-strong) 100%),
+    var(--today-outer) !important;
+  border: 1px solid var(--today-border) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 58%),
+    0 7px 18px rgb(42 52 64 / 9%) !important;
+}
+
+.today-shell .section {
+  padding: 12px !important;
+}
+
+.today-shell > .section,
+.today-shell > .summary-grid,
+.today-shell > details.section,
+.today-shell .date-row,
+.today-shell .today-mode-actions,
+.today-shell .workout-action-dock {
+  margin-bottom: 0 !important;
+}
+
+.today-shell .section-header {
+  margin-bottom: 10px !important;
+  padding: 0 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-focus-panel {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-focus-card.is-analysis {
+  grid-column: 1 / -1 !important;
+}
+
+.today-shell .today-focus-card,
+.today-shell .summary-card,
+.today-shell .quality-metric,
+.today-shell .record-card,
+.today-shell .detail-row,
+.today-shell .missing-day-chip,
+.today-shell .completion-card,
+.today-shell .finish-review-card,
+.today-shell .finish-review-panel,
+.today-shell .location-select-form,
+.today-shell .location-equipment-strip,
+.today-shell .location-quick-panel,
+.today-shell .location-quick-exercise,
+.today-shell .next-action-card,
+.today-shell .rule-card,
+.today-shell .today-task-card,
+.today-shell .focus-suggestion-card,
+.today-shell .adaptive-recommendation-card,
+.today-shell .optional-workout-panel,
+.today-shell .workout-form,
+.today-shell .meal-form,
+.today-shell .set-builder-toolbar,
+.today-shell .set-entry-row,
+.today-shell .timer-actions,
+.today-shell .workout-save-status,
+.today-shell .duration-manual-edit,
+.today-shell .goal-card,
+.today-shell .daily-metric {
+  background:
+    linear-gradient(180deg, #f0f5f9 0%, var(--today-inner) 100%),
+    var(--today-inner) !important;
+  border: 1px solid rgb(105 124 144 / 14%) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+.today-shell .today-focus-card,
+.today-shell .summary-card,
+.today-shell .quality-metric,
+.today-shell .next-action-card,
+.today-shell .rule-card,
+.today-shell .today-task-card,
+.today-shell .focus-suggestion-card,
+.today-shell .location-quick-exercise {
+  padding: 10px !important;
+}
+
+.today-shell .summary-grid.overview-only,
+.today-shell .compact-summary-grid,
+.today-shell .quality-metric-list,
+.today-shell .record-list,
+.today-shell .today-task-grid,
+.today-shell .next-action-grid,
+.today-shell .rule-card-grid,
+.today-shell .focus-suggestion-list {
+  gap: 10px !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .summary-grid.overview-only,
+.today-shell .compact-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .summary-grid.overview-only .summary-card:nth-child(3),
+.today-shell .compact-summary-grid .summary-card:nth-child(3) {
+  grid-column: 1 / -1 !important;
+}
+
+.today-shell .data-quality-card {
+  display: grid !important;
+  grid-template-columns: 86px minmax(0, 1fr) !important;
+  gap: 12px !important;
+  align-items: center !important;
+  background:
+    linear-gradient(180deg, #eef4f8 0%, #e2ebf3 100%),
+    var(--today-inner-strong) !important;
+  border: 1px solid var(--today-border) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+}
+
+.today-shell .data-quality-copy {
+  min-width: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.today-shell .data-quality-copy strong,
+.today-shell .data-quality-copy span {
+  overflow-wrap: anywhere !important;
+}
+
+.today-shell .data-quality-ring {
+  min-width: 78px !important;
+  min-height: 78px !important;
+  background:
+    radial-gradient(circle at center, #edf3f8 0 50%, transparent 51%),
+    conic-gradient(from 180deg, #5f7f70 var(--score), #b7c4d0 var(--score), #d8e2eb 0),
+    #d8e2eb !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 56%),
+    0 4px 10px rgb(42 52 64 / 8%) !important;
+}
+
+.today-shell .quality-action-list {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.today-shell .today-mode-actions .mode-button,
+.today-shell .today-mode-actions .focus-mode-button,
+.today-shell .workout-action-dock a,
+.today-shell .workout-action-dock button,
+.today-shell .quality-action-list .btn-small,
+.today-shell .today-hero-head .btn-primary,
+.today-shell .timer-actions button,
+.today-shell .form-action-row button,
+.today-shell .set-builder-actions button,
+.today-shell .set-preset-list button {
+  background:
+    linear-gradient(180deg, #e9f0f6 0%, var(--today-control) 100%),
+    var(--today-control) !important;
+  border: 1px solid rgb(105 124 144 / 18%) !important;
+  border-radius: 9px !important;
+  color: #243241 !important;
+  box-shadow: none !important;
+}
+
+.today-shell .today-mode-actions .mode-button.btn-primary,
+.today-shell .workout-action-dock button[data-workout-clock-start],
+.today-shell .workout-form .btn-primary,
+.today-shell .timer-actions .btn-primary,
+.today-shell .form-action-row .btn-primary {
+  background:
+    linear-gradient(180deg, #5d7184 0%, #3f5062 100%),
+    #4d6073 !important;
+  border-color: rgb(55 70 85 / 22%) !important;
+  color: #f5f8fb !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 18%),
+    0 5px 12px rgb(42 52 64 / 13%) !important;
+}
+
+.today-shell .workout-clock-section .section-header,
+.today-shell #rest-timer .section-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.today-shell .workout-clock-display,
+.today-shell .timer-display {
+  min-width: 96px !important;
+  background:
+    linear-gradient(180deg, #e6eef5 0%, #d6e1eb 100%),
+    var(--today-control) !important;
+  border: 1px solid rgb(105 124 144 / 18%) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+.today-shell .workout-clock-section .timer-actions,
+.today-shell #rest-timer .timer-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  padding: 8px !important;
+}
+
+.today-shell .location-select-form {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  gap: 8px !important;
+}
+
+.today-shell .location-equipment-strip .muted,
+.today-shell .empty,
+.today-shell .compact-empty {
+  display: block !important;
+  background:
+    linear-gradient(180deg, #e8eff5 0%, #dfe8f1 100%),
+    var(--today-inner-strong) !important;
+  border: 1px solid rgb(105 124 144 / 12%) !important;
+  border-radius: 9px !important;
+  padding: 9px 10px !important;
+}
+
+.today-shell .location-quick-panel {
+  overflow: hidden !important;
+}
+
+.today-shell .location-quick-panel > summary,
+.today-shell .optional-workout-panel > summary {
+  background:
+    linear-gradient(180deg, #e6eef5 0%, #d8e3ec 100%),
+    var(--today-control) !important;
+  border: 0 !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+}
+
+.today-shell .location-quick-exercise-list,
+.today-shell .adaptive-recommendation-list {
+  padding-top: 8px !important;
+}
+
+.today-shell input,
+.today-shell select,
+.today-shell textarea {
+  background:
+    linear-gradient(180deg, #e6eef5 0%, #f0f5f9 100%),
+    #eaf1f6 !important;
+  border: 1px solid rgb(105 124 144 / 18%) !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 560px) {
+  .today-shell .section {
+    padding: 10px !important;
+  }
+
+  .today-shell .data-quality-card {
+    grid-template-columns: 1fr !important;
+    justify-items: center !important;
+    text-align: left !important;
+  }
+
+  .today-shell .data-quality-copy {
+    width: 100% !important;
+  }
+
+  .today-shell .quality-action-list {
+    grid-template-columns: 1fr !important;
+  }
+
+  .today-shell .workout-clock-section .timer-actions,
+  .today-shell #rest-timer .timer-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}

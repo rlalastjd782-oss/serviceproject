@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.8.27 - 2026-05-30
+
+- Rechecked the today UI with long mobile captures after the prior QA pass missed the full workout scroll order.
+- Fixed the workout page flow by explicitly ordering clock, rest timer, action dock, workout input, records, location, next actions, and rule sections.
+- Flattened today inner cards, buttons, timer controls, location panels, and recommendation cards so only the outer sections carry depth.
+- Hid overview-only summary panels again in workout/meal modes after final CSS display rules had accidentally exposed them.
+- Generated the final post-fix PDF at `artifacts/ui_screenshots_20260530_07/ui_screenshots.pdf`.
+- Updated `UI_QA.md`, tests, release version, manifest, and service worker cache to `2.8.27`.
+
 ## v2.8.26 - 2026-05-30
 
 - Added `UI_QA.md` with PDF-based today page findings and the correction plan.

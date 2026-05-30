@@ -1,5 +1,16 @@
 # Codex Handoff Notes
 
+## 2026-05-30 v2.8.27
+
+- User reported that the prior PDF review was not sufficient and several requested today UI fixes were still not reflected.
+- Rechecked today pages with long mobile captures under `artifacts/ui_screenshots_20260530_04_long/png/`.
+- Found the main workout flow bug: only some flex children had `order`, so unordered sections such as next actions and rule cards could appear before the workout clock/input flow.
+- Added `v2.8.27 today layout correction pass` to explicitly order workout sections and flatten inner today cards/rows so the page stops looking like nested white boxes.
+- Updated `UI_QA.md`, tests, release version, manifest, and service worker cache for `2.8.27`.
+- Generated final post-fix PDF `artifacts/ui_screenshots_20260530_07/ui_screenshots.pdf`.
+- Added a regression guard for workout-mode overview-only panels being hidden after final override display rules.
+- Verification passed: static asset tests, release check, selected UI navigation tests, ruff, compileall, and full unittest discovery.
+
 ## 2026-05-30 v2.8.26
 
 - Baseline PDF `artifacts/ui_screenshots_20260530_02/ui_screenshots.pdf` and today screenshots were reviewed before editing.

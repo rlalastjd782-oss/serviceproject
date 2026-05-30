@@ -165,6 +165,22 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".today-shell .optional-workout-panel,\n.today-shell .optional-workout-panel[open]", source)
         self.assertIn(".today-shell .workout-clock-display,\n.today-shell .timer-display", source)
 
+    def test_today_layout_correction_pass_flattens_inner_cards_and_orders_workout(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.27 today layout correction pass", source)
+        self.assertIn(".workout-mode .next-action-section {\n  order: 16 !important;", source)
+        self.assertIn(".workout-mode .rule-card-section {\n  order: 17 !important;", source)
+        self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .today-focus-card.is-analysis", source)
+        self.assertIn(".today-shell .data-quality-card {\n  display: grid !important;", source)
+        self.assertIn(".today-shell .today-focus-card,\n.today-shell .summary-card,\n.today-shell .quality-metric", source)
+        self.assertIn("box-shadow: none !important;", source)
+        self.assertIn(".today-shell .workout-clock-section .timer-actions", source)
+        self.assertIn(".today-shell.workout-mode .overview-only:not(.workout-only)", source)
+        self.assertIn(".today-shell.meal-mode .overview-only", source)
+        self.assertIn("grid-template-columns: 1fr !important;\n    justify-items: center !important;", source)
+        self.assertIn(".today-shell > .section,\n.today-shell > .summary-grid", source)
+        self.assertIn("margin-bottom: 0 !important;", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
