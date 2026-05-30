@@ -32,7 +32,7 @@
       </header>
       <nav class="tabs" aria-label="관리자 메뉴">
         <a class="tab-btn {% if active_page == 'admin' %}active{% endif %}" href="{{ url_for('admin_dashboard_page') }}">사용자 현황</a>
-        <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form">
+        <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form" data-confirm-submit="로그아웃하시겠습니까?">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="tab-btn" type="submit">로그아웃</button>
         </form>

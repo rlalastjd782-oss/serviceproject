@@ -5,6 +5,10 @@
 
 {% block content %}
   {{ analysis_subnav(active_page) }}
+  <div class="analysis-period-strip" aria-label="현재 분석 범위">
+    <span>현재 분석</span>
+    <strong>PR · {{ selected_part or "전체 부위" }}</strong>
+  </div>
   <section class="section pr-hero-section analysis-dashboard-section">
     <div class="yearly-dashboard-head">
       <div class="yearly-kicker">PR 분석</div>

@@ -1,4 +1,4 @@
-const CACHE_NAME = "workout-pwa-v2.8.11";
+const CACHE_NAME = "workout-pwa-v2.8.13";
 const ASSETS = [
   "/static/css/styles.css",
   "/static/css/core/styles_01.css",
@@ -27,6 +27,7 @@ const ASSETS = [
   "/static/css/overrides/ui_rebuild_02.css",
   "/static/css/overrides/ui_rebuild_03.css",
   "/static/css/overrides/ui_rebuild_04.css",
+  "/static/css/overrides/ui_rebuild_05.css",
   "/static/js/dom_data.js",
   "/static/js/pwa.js",
   "/static/js/select_theme.js",

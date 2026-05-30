@@ -5,4 +5,18 @@
   </nav>
 {% else %}
   {{ analysis_subnav(active_page) }}
+  <div class="analysis-period-strip" aria-label="현재 분석 범위">
+    <span>현재 분석</span>
+    {% if active_page == "weekly" %}
+      <strong>주간 · {{ weekly_report.period if weekly_report else selected_week }}</strong>
+    {% elif active_page == "monthly" %}
+      <strong>월간 · {{ monthly_report.period if monthly_report else selected_month }}</strong>
+    {% elif active_page == "exercises" %}
+      <strong>운동별 · 선택 운동 기준</strong>
+    {% elif active_page == "equipment" %}
+      <strong>장비별 · {{ selected_scope or "all" }}</strong>
+    {% else %}
+      <strong>분석</strong>
+    {% endif %}
+  </div>
 {% endif %}

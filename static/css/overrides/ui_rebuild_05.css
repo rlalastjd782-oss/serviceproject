@@ -1,0 +1,774 @@
+/* v2.8.13 final UI QA pass: normalize card depth, menu density, and mobile sizing. */
+:root {
+  --qa-panel: #e6ecf3;
+  --qa-chip: #dfe7ef;
+  --qa-line: #c8d1dc;
+  --qa-text: #25303a;
+  --qa-strong: #24303a;
+  --qa-muted: #42505d;
+  --qa-dark-a: #56616d;
+  --qa-dark-b: #3f4955;
+  --qa-radius: 12px;
+  --qa-radius-sm: 9px;
+  --qa-shadow: 0 4px 12px rgb(28 36 46 / 6%);
+  --qa-shadow-soft: 0 3px 8px rgb(28 36 46 / 5%);
+  --qa-inset: inset 0 1px 0 rgb(255 255 255 / 62%);
+}
+
+body {
+  color: var(--qa-text) !important;
+}
+
+.header {
+  padding-bottom: 14px !important;
+}
+
+.header .account-greeting,
+.header .app-version {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 10%), transparent 48%),
+    linear-gradient(180deg, #4a525d 0%, #343c46 58%, #2d343e 100%) !important;
+  color: #f8fafc !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 4px 10px rgb(24 30 38 / 12%) !important;
+}
+
+.tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  margin-top: 22px !important;
+  gap: 8px !important;
+  padding: 8px !important;
+}
+
+.tab-btn,
+.tab-logout-form .tab-btn {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.tab-logout-form {
+  display: contents !important;
+}
+
+.content {
+  display: grid !important;
+  gap: 14px !important;
+}
+
+.section {
+  margin-block: 0 !important;
+}
+
+.section,
+.summary-card,
+.today-task-card,
+.record-card,
+.daily-record-card,
+.workout-summary-card,
+.meal-record-card,
+.record-result-card,
+.more-link-card,
+.data-center-card,
+.quality-metric,
+.cleanup-panel,
+.calendar-cell,
+.exercise-hero-card,
+.overload-card,
+.muscle-balance-card,
+.ex-rank-item,
+.pr-rank-card,
+.pr-best-card,
+.progress-card,
+.equipment-summary-card,
+.weekly-meal-day,
+.meal-week-card,
+.focus-suggestion-card,
+.next-action-card,
+.data-warning-card,
+.location-card,
+.location-overview-card,
+.location-equipment-item,
+.meal-template-card,
+.recent-meal-template-row {
+  border: 0 !important;
+  border-radius: var(--qa-radius) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 66%) 0%, rgb(237 242 247 / 48%) 48%, rgb(216 225 234 / 30%) 100%),
+    var(--qa-panel) !important;
+  color: var(--qa-text) !important;
+  box-shadow: var(--qa-inset), var(--qa-shadow) !important;
+  overflow: hidden !important;
+}
+
+.summary-card,
+.today-task-card,
+.record-card,
+.daily-record-card,
+.workout-summary-card,
+.meal-record-card,
+.record-result-card,
+.more-link-card,
+.data-center-card,
+.quality-metric,
+.cleanup-panel,
+.calendar-cell,
+.exercise-hero-card,
+.overload-card,
+.muscle-balance-card,
+.ex-rank-item,
+.pr-rank-card,
+.pr-best-card,
+.progress-card,
+.equipment-summary-card,
+.weekly-meal-day,
+.meal-week-card,
+.focus-suggestion-card,
+.next-action-card,
+.data-warning-card {
+  padding: 10px !important;
+}
+
+.section-header,
+.daily-record-head,
+.workout-record-head,
+.weekly-meal-day-head,
+.meal-week-head,
+.exercise-hero-head,
+.overload-card-head,
+.pr-rank-head,
+.ex-rank-main,
+.detail-list-head,
+.cleanup-panel-head,
+.record-gap-actions,
+.body-part-toggle-panel .quick-panel-title {
+  border: 0 !important;
+  border-radius: var(--qa-radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    #e1e8f0 !important;
+  color: var(--qa-text) !important;
+  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
+  padding: 8px !important;
+}
+
+.section-header {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+.section-header *,
+.section-header .section-title,
+.section-header .section-subtitle {
+  color: var(--qa-text) !important;
+}
+
+.section-title,
+.summary-value,
+.daily-record-head strong,
+.workout-record-head strong,
+.exercise-hero-head strong,
+.overload-card-head strong,
+.pr-rank-head strong,
+.ex-rank-main strong,
+.record-result-card strong,
+.more-link-card strong,
+.data-center-card strong {
+  color: var(--qa-strong) !important;
+}
+
+.section-subtitle,
+.summary-label,
+.daily-record-head span,
+.workout-record-head span,
+.exercise-hero-head small,
+.overload-card p,
+.record-summary span,
+.detail-row span,
+.progress-metrics span,
+.empty,
+.muted,
+small {
+  color: var(--qa-muted) !important;
+}
+
+.tool-form,
+.filter-form,
+.record-list-toolbar,
+.list-toolbar,
+.list-tools,
+.compact-select,
+.pagination-nav,
+.week-control-row,
+.week-date-form,
+.period-picker,
+.month-picker-form,
+.month-picker-form-wide,
+.analysis-action-grid,
+.yearly-action-grid,
+.quick-tab-list,
+.mode-actions,
+.timer-actions,
+.set-preset-list,
+.set-builder-actions,
+.program-chip-list,
+.exercise-quick-list,
+.body-part-toggle-list {
+  display: grid !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  border: 0 !important;
+  border-radius: var(--qa-radius) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    #e1e8f0 !important;
+  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
+  padding: 8px !important;
+}
+
+.tool-form,
+.filter-form {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.section-header > *,
+.tool-form > *,
+.filter-form > *,
+.record-list-toolbar > *,
+.list-toolbar > *,
+.week-control-row > *,
+.period-picker > *,
+.month-picker-form-wide > * {
+  min-width: 0 !important;
+}
+
+.analysis-action-grid,
+.yearly-action-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.tool-form > *,
+.filter-form > *,
+.record-list-toolbar > *,
+.analysis-action-grid > *,
+.yearly-action-grid > *,
+.body-part-toggle-list > * {
+  min-height: 38px !important;
+  width: 100% !important;
+}
+
+button,
+.btn-primary,
+.btn-small,
+.btn-ghost,
+.btn-add,
+.tab-btn,
+.mode-button,
+.quick-tab-button,
+.exercise-quick-button,
+.row-copy-button,
+.row-remove-button,
+.rest-start-button,
+.body-part-filter-chip,
+.body-part-toggle,
+.pagination-nav a,
+a[class*="btn"] {
+  min-height: 38px !important;
+  border: 0 !important;
+  border-radius: var(--qa-radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 62%), rgb(225 232 240 / 72%)),
+    #e2e8f0 !important;
+  color: var(--qa-text) !important;
+  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
+  padding: 8px 10px !important;
+  line-height: 1.15 !important;
+}
+
+.btn-primary,
+.tab-btn.active,
+.mode-button.btn-primary,
+.quick-tab-button.is-active,
+.body-part-filter-chip.is-active,
+.body-part-toggle.is-active,
+.analysis-subnav a.active,
+button[name="action"][value="save"],
+.workout-form .btn-primary,
+.meal-form .btn-primary,
+.record-list-toolbar .btn-primary {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 15%), rgb(255 255 255 / 3%)),
+    linear-gradient(180deg, var(--qa-dark-a), var(--qa-dark-b)) !important;
+  color: #f8fafc !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 16%), 0 6px 14px rgb(28 36 46 / 14%) !important;
+}
+
+input,
+select,
+textarea,
+.month-picker input,
+.week-date-form input,
+.period-picker input,
+.compact-select select {
+  min-height: 38px !important;
+  border: 1px solid var(--qa-line) !important;
+  border-radius: var(--qa-radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 54%), rgb(224 232 240 / 78%)),
+    #e1e8f0 !important;
+  color: var(--qa-text) !important;
+  box-shadow: var(--qa-inset), inset 0 -1px 0 rgb(28 36 46 / 5%) !important;
+}
+
+.badge,
+.mini-badge,
+.tag,
+.body-part-badge,
+.record-summary .badge,
+.exercise-hero-stats span,
+.next-plan-list div,
+.overload-metrics span,
+.pr-rank-metrics span,
+.pr-rank-card > .record-summary .badge,
+.trend-snapshot-row span,
+.missing-day-chip {
+  min-height: 26px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 44%), rgb(222 230 239 / 62%)),
+    var(--qa-chip) !important;
+  color: #3b4854 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 58%) !important;
+  padding: 5px 9px !important;
+  line-height: 1.15 !important;
+}
+
+.cat-badge {
+  min-height: 26px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 58%) !important;
+  padding: 5px 9px !important;
+}
+
+.record-summary,
+.exercise-hero-stats,
+.overload-metrics,
+.pr-rank-card > .record-summary,
+.ex-rank-main .record-summary,
+.next-plan-list,
+.focus-suggestion-list,
+.data-warning-list,
+.record-list,
+.detail-list,
+.meal-entry-list,
+.set-entry-list,
+.summary-grid,
+.today-task-grid,
+.daily-metric-grid,
+.analysis-metric-grid,
+.record-search-metric-grid,
+.data-center-grid,
+.overload-card-grid,
+.muscle-balance-grid,
+.pr-rank-grid,
+.pr-best-grid {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  gap: 9px !important;
+}
+
+.exercise-hero-head {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.exercise-hero-head b,
+.rank-num,
+.overload-card-head b,
+.analysis-period-strip span,
+.trend-snapshot-row strong {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 32px !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 15%), rgb(255 255 255 / 3%)),
+    linear-gradient(180deg, var(--qa-dark-a), var(--qa-dark-b)) !important;
+  color: #f8fafc !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 16%), 0 3px 8px rgb(28 36 46 / 10%) !important;
+  padding: 5px 10px !important;
+}
+
+.ex-rank-item {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: stretch !important;
+  gap: 9px !important;
+  text-decoration: none !important;
+}
+
+.ex-rank-item.is-selected,
+.pr-rank-card.is-selected,
+.equipment-summary-card.is-selected {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 70%) 0%, rgb(229 237 246 / 58%) 52%, rgb(207 219 232 / 34%) 100%),
+    #e0e8f1 !important;
+}
+
+.pr-rank-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 7px !important;
+}
+
+.pr-rank-metrics span {
+  display: grid !important;
+  justify-items: center !important;
+  text-align: center !important;
+  border-radius: var(--qa-radius-sm) !important;
+}
+
+.pr-rank-metrics b {
+  color: var(--qa-strong) !important;
+}
+
+.progress-chart,
+.exercise-progress-chart,
+.pr-growth-chart {
+  border: 0 !important;
+  border-radius: var(--qa-radius) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 42%), rgb(224 232 240 / 40%)),
+    #e1e8f0 !important;
+  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
+  padding: 10px !important;
+}
+
+.progress-line {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.line-track,
+.quality-bar,
+.goal-bar,
+.plan-progress-bar {
+  border: 0 !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 44%), rgb(205 215 226 / 50%)),
+    #d5dee8 !important;
+  overflow: hidden !important;
+}
+
+.quality-bar span,
+.goal-bar span,
+.plan-progress-bar span,
+.progress-fill,
+.heat-fill,
+.trend-fill,
+.record-progress-fill {
+  background: linear-gradient(90deg, #22c55e, #60a5fa) !important;
+}
+
+.calendar-grid {
+  grid-template-columns: repeat(7, minmax(44px, 1fr)) !important;
+  gap: 7px !important;
+  background: transparent !important;
+}
+
+.calendar-weekday {
+  border: 0 !important;
+  border-radius: var(--qa-radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    #e1e8f0 !important;
+  color: var(--qa-muted) !important;
+  box-shadow: var(--qa-inset) !important;
+  padding: 7px 4px !important;
+}
+
+.calendar-cell {
+  min-height: 66px !important;
+}
+
+.more-link-card,
+.settings-action-card,
+.data-center-card {
+  text-decoration: none !important;
+}
+
+@media (max-width: 430px) {
+  .content {
+    padding-inline: 8px !important;
+    gap: 14px !important;
+  }
+
+  .tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    margin-top: 22px !important;
+  }
+
+  .tab-btn,
+  .tab-logout-form .tab-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    font-size: 12px !important;
+  }
+
+  .tool-form,
+  .filter-form,
+  .analysis-action-grid,
+  .yearly-action-grid,
+  .week-control-row,
+  .week-date-form,
+  .period-picker,
+  .month-picker-form,
+  .month-picker-form-wide,
+  .exercise-hero-head,
+  .ex-rank-item {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analysis-subnav {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  .pr-rank-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .section-header,
+  .daily-record-head,
+  .workout-record-head,
+  .weekly-meal-day-head,
+  .meal-week-head {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+}
+
+/* v2.8.13 scoped stabilization: reduce broad override pressure. */
+.tool-form,
+.filter-form,
+.record-list-toolbar,
+.list-toolbar,
+.list-tools,
+.compact-select,
+.month-picker-form-wide,
+.period-picker {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: end !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.tool-form > *,
+.filter-form > *,
+.record-list-toolbar > *,
+.list-toolbar > *,
+.list-tools > *,
+.compact-select > *,
+.month-picker-form-wide > *,
+.period-picker > * {
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+.compact-select {
+  display: grid !important;
+  grid-template-columns: auto minmax(88px, 1fr) !important;
+  align-items: center !important;
+}
+
+.compact-select span {
+  white-space: nowrap !important;
+}
+
+.record-search-dashboard .filter-form,
+.analysis-dashboard-section .tool-form,
+.analysis-dashboard-section .filter-form,
+.yearly-dashboard-section .period-filter-form,
+.yearly-dashboard-section .filter-form,
+.equipment-dashboard-section .period-filter-form,
+.equipment-dashboard-section .filter-form,
+.pr-hero-section .tool-form,
+.pr-hero-section .filter-form,
+.more-tool-section .more-tool-filter,
+.library-section .library-filter-form,
+.settings-panel .settings-action-row,
+.admin-operation-section .settings-action-row,
+.admin-filter-form {
+  border-radius: var(--qa-radius) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    #e1e8f0 !important;
+  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
+  padding: 8px !important;
+}
+
+.record-search-dashboard .filter-form,
+.analysis-dashboard-section .tool-form,
+.analysis-dashboard-section .filter-form,
+.equipment-dashboard-section .filter-form,
+.pr-hero-section .tool-form,
+.pr-hero-section .filter-form,
+.more-tool-section .more-tool-filter,
+.library-section .library-filter-form,
+.admin-filter-form {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)) !important;
+}
+
+.record-list-toolbar,
+.list-toolbar {
+  justify-content: space-between !important;
+}
+
+.list-tools {
+  flex: 1 1 240px !important;
+  justify-content: flex-end !important;
+}
+
+.month-picker-form-wide,
+.period-picker,
+.week-control-row {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto auto !important;
+  align-items: center !important;
+  border-radius: var(--qa-radius) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    #e1e8f0 !important;
+  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
+  padding: 8px !important;
+}
+
+.analysis-action-grid,
+.yearly-action-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.detail-row,
+.record-summary .badge,
+.progress-metrics span,
+.pr-rank-metrics span,
+.trend-snapshot-row span {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 48%) !important;
+}
+
+.record-summary,
+.progress-metrics,
+.pr-rank-metrics,
+.trend-snapshot-row {
+  align-items: center !important;
+}
+
+.empty,
+.compact-empty {
+  display: grid !important;
+  align-content: center !important;
+  min-height: 44px !important;
+  border-radius: var(--qa-radius-sm) !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 44%), rgb(224 232 240 / 44%)),
+    var(--qa-chip) !important;
+  box-shadow: var(--qa-inset) !important;
+  padding: 10px !important;
+}
+
+.tabs {
+  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr)) !important;
+  align-items: stretch !important;
+}
+
+.tabs .tab-btn,
+.tab-logout-form .tab-btn {
+  min-height: 40px !important;
+  white-space: nowrap !important;
+}
+
+.tab-btn.active {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 14%), rgb(255 255 255 / 3%)),
+    linear-gradient(180deg, var(--qa-dark-a), var(--qa-dark-b)) !important;
+  color: #f8fafc !important;
+}
+
+.btn-primary:not(.tab-btn),
+button[name="action"][value="save"],
+.workout-form .btn-primary,
+.meal-form .btn-primary {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 18%), rgb(255 255 255 / 4%)),
+    linear-gradient(180deg, #4f6b86, #38546f) !important;
+  color: #f8fafc !important;
+}
+
+@media (max-width: 560px) {
+  .header {
+    grid-template-columns: 1fr !important;
+  }
+
+  .header-meta {
+    justify-self: stretch !important;
+    width: 100% !important;
+  }
+
+  .tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .tabs .tab-btn,
+  .tab-logout-form .tab-btn {
+    padding-inline: 4px !important;
+    font-size: 12px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .record-search-dashboard .filter-form,
+  .analysis-dashboard-section .tool-form,
+  .analysis-dashboard-section .filter-form,
+  .equipment-dashboard-section .filter-form,
+  .pr-hero-section .tool-form,
+  .pr-hero-section .filter-form,
+  .more-tool-section .more-tool-filter,
+  .library-section .library-filter-form,
+  .admin-filter-form,
+  .month-picker-form-wide,
+  .period-picker,
+  .week-control-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .record-list-toolbar,
+  .list-toolbar,
+  .list-tools {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+}

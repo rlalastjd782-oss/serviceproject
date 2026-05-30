@@ -36,9 +36,9 @@
         <a class="tab-btn {% if active_page in ['daily', 'search'] %}active{% endif %}" href="{{ url_for('daily_summary_page') }}">기록</a>
         <a class="tab-btn {% if active_page in ['weekly', 'monthly', 'yearly', 'exercises', 'pr', 'equipment'] %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">분석</a>
         <a class="tab-btn {% if active_page == 'meals' %}active{% endif %}" href="{{ url_for('meal_weekly_page') }}">식단</a>
-        <a class="tab-btn {% if active_page in ['more', 'library', 'plans', 'calendar'] %}active{% endif %}" href="{{ url_for('more_page') }}">더보기</a>
+        <a class="tab-btn {% if active_page in ['more', 'library', 'plans', 'calendar', 'locations', 'location_insights', 'action_insights', 'data_center', 'record_check', 'meal_templates', 'plate_calculator'] %}active{% endif %}" href="{{ url_for('more_page') }}">더보기</a>
         <a class="tab-btn {% if active_page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}">설정</a>
-        <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form">
+        <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form" data-confirm-submit="로그아웃하시겠습니까?">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="tab-btn" type="submit">로그아웃</button>
         </form>

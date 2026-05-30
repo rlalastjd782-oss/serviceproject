@@ -315,6 +315,23 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertNotIn("record-subnav", pr_html)
         self.assertIn('href="/summaries/equipment"', pr_html)
 
+    def test_analysis_pages_show_current_scope_marker(self) -> None:
+        pages = {
+            "/summaries/weekly": "주간",
+            "/summaries/monthly": "월간",
+            "/summaries/yearly": "연간",
+            "/summaries/exercises": "운동별",
+            "/summaries/pr": "PR",
+            "/summaries/equipment": "장비별",
+        }
+        for path, label in pages.items():
+            with self.subTest(path=path):
+                html = self.client.get(path).data.decode("utf-8")
+                self.assertIn("analysis-subnav", html)
+                self.assertIn("analysis-period-strip", html)
+                self.assertIn("현재 분석", html)
+                self.assertIn(label, html)
+
     def test_more_page_does_not_duplicate_record_or_analysis_menu(self) -> None:
         html = self.client.get("/more").data.decode("utf-8")
         self.assertIn("운동 관리", html)

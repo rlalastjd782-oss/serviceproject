@@ -5,6 +5,10 @@
 
 {% block content %}
   {{ analysis_subnav(active_page) }}
+  <div class="analysis-period-strip" aria-label="현재 분석 범위">
+    <span>현재 분석</span>
+    <strong>연간 · {{ selected_year }}</strong>
+  </div>
 
   <section class="section yearly-hero-section">
     <div class="section-header">
