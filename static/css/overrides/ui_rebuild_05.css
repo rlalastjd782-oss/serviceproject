@@ -1429,3 +1429,46 @@ a[class*="btn"] {
     gap: 8px !important;
   }
 }
+
+/* v2.8.22 today menu consistency and subtle depth pass. */
+.today-shell .today-mode-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.today-shell .today-mode-actions .focus-mode-button {
+  display: none !important;
+}
+
+.today-shell .date-row,
+.today-shell .today-mode-actions,
+.today-shell .workout-action-dock,
+.today-shell .summary-grid.overview-only,
+.today-shell .section {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 82%),
+    0 5px 14px rgb(28 36 46 / 7%) !important;
+}
+
+.today-shell .today-focus-card,
+.today-shell .summary-card,
+.today-shell .quality-metric,
+.today-shell .record-card,
+.today-shell .daily-metric,
+.today-shell .detail-row,
+.today-shell .goal-card,
+.today-shell .meal-entry-row,
+.today-shell .set-entry-row,
+.today-shell .today-task-card,
+.today-shell .focus-grid article {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 86%),
+    0 4px 10px rgb(28 36 46 / 6%) !important;
+}
+
+.today-shell .record-summary .badge,
+.today-shell .badge,
+.today-shell .cat-badge,
+.today-shell .missing-day-chip,
+.today-shell .quality-action-list .btn-small {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 1px 3px rgb(28 36 46 / 4%) !important;
+}

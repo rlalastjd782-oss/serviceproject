@@ -119,6 +119,15 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".today-shell .today-focus-panel", source)
         self.assertIn(".today-shell .summary-card", source)
 
+    def test_today_menu_stays_three_tabs_and_has_subtle_depth(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.22 today menu consistency and subtle depth pass", source)
+        self.assertIn(".today-shell .today-mode-actions {\n  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;", source)
+        self.assertIn(".today-shell .today-mode-actions .focus-mode-button", source)
+        self.assertIn("display: none !important;", source)
+        self.assertIn("0 5px 14px rgb(28 36 46 / 7%)", source)
+        self.assertIn("0 4px 10px rgb(28 36 46 / 6%)", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
