@@ -81,6 +81,14 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn("box-shadow: none !important;", source)
         self.assertIn("--qa-flat", source)
 
+    def test_today_quality_ui_uses_light_selection_colors(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.17 lighter today summary", source)
+        self.assertIn(".today-mode-actions .mode-button.btn-primary", source)
+        self.assertIn(".overview-only.data-quality-section", source)
+        self.assertIn("#edf3f8", source)
+        self.assertNotIn(".today-mode-actions .mode-button.btn-primary {\n  background:\n    linear-gradient(180deg, rgb(255 255 255 / 18%)", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
