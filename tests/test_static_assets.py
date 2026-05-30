@@ -154,6 +154,17 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .today-focus-card", source)
         self.assertIn(".today-shell:not(.workout-mode):not(.meal-mode) .summary-card", source)
 
+    def test_today_css_audit_pass_addresses_remaining_surfaces(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.26 today css audit pass", source)
+        self.assertIn("--today-panel: #e9eef4;", source)
+        self.assertIn(".today-shell .data-quality-ring", source)
+        self.assertIn("conic-gradient(from 180deg", source)
+        self.assertIn(".workout-mode #workout-input {\n  order: 13 !important;", source)
+        self.assertIn(".today-shell .location-quick-panel > summary", source)
+        self.assertIn(".today-shell .optional-workout-panel,\n.today-shell .optional-workout-panel[open]", source)
+        self.assertIn(".today-shell .workout-clock-display,\n.today-shell .timer-display", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

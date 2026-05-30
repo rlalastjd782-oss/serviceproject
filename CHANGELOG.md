@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.8.26 - 2026-05-30
+
+- Added `UI_QA.md` with PDF-based today page findings and the correction plan.
+- Reworked the today tab final CSS layer so summary buttons, data-quality cards, current location, equipment, recent workouts, timers, workout actions, and optional recommendations no longer fall back to bright white surfaces.
+- Restored the data-quality percent ring contrast and moved workout input closer to the workout clock/rest timer flow.
+- Generated a post-fix UI capture PDF at `artifacts/ui_screenshots_20260530_03/ui_screenshots.pdf` and recorded verification results.
+- Updated release version, manifest, and service worker cache to `2.8.26`.
+
 ## v2.8.25 - 2026-05-30
 
 - 오늘 화면의 장비 목록, 운동시간, 휴식 타이머, 오늘 상태, 오늘 요약 카드에 남아 있던 평면/진회색 배경을 최종 override로 정리했습니다.

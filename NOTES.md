@@ -1,5 +1,16 @@
 # Codex Handoff Notes
 
+## 2026-05-30 v2.8.26
+
+- Baseline PDF `artifacts/ui_screenshots_20260530_02/ui_screenshots.pdf` and today screenshots were reviewed before editing.
+- Today overview still had too many white nested surfaces: summary button state, data-quality card interiors, record-add actions, and quality metrics.
+- Today workout still had white remnants in current location, equipment, recent workout, clock/timer controls, save status, and additional recommendations.
+- Added `UI_QA.md` with the PDF review findings and the v2.8.26 correction plan.
+- Added the final `v2.8.26 today css audit pass` in `ui_rebuild_05.css`, restored the data-quality conic ring, neutralized white surfaces, and moved workout input closer to timer controls.
+- Bumped `VERSION`, manifest, and service worker cache to `2.8.26`.
+- Generated post-fix PDF `artifacts/ui_screenshots_20260530_03/ui_screenshots.pdf` and reviewed the today overview/workout/meal plus records reference captures.
+- Verification passed: static asset tests, release check, selected UI navigation tests, ruff, compileall, and full unittest discovery.
+
 ## 2026-05-30 v2.8.25
 
 - 장비 목록 badge, 운동시간, 휴식 타이머, 오늘 상태 완료 전 카드, 오늘 요약 overview 카드에 이전 배경/평면 스타일이 남은 문제를 확인했습니다.

@@ -1722,3 +1722,261 @@ a[class*="btn"] {
   background: transparent !important;
   box-shadow: none !important;
 }
+
+/* v2.8.26 today css audit pass: remove white remnants and tighten workout flow. */
+.today-shell {
+  --today-panel: #e9eef4;
+  --today-panel-strong: #dfe7ef;
+  --today-card: #f0f4f8;
+  --today-card-strong: #e7edf4;
+  --today-line: rgb(120 138 156 / 18%);
+  --today-shadow-panel:
+    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 -1px 0 rgb(120 138 156 / 12%),
+    0 10px 22px rgb(42 52 64 / 10%),
+    0 2px 6px rgb(42 52 64 / 7%);
+  --today-shadow-card:
+    inset 0 1px 0 rgb(255 255 255 / 70%),
+    0 5px 12px rgb(42 52 64 / 7%);
+}
+
+.today-shell .date-row,
+.today-shell .today-mode-actions,
+.today-shell .today-hero-section,
+.today-shell .data-quality-section,
+.today-shell .workout-location-section,
+.today-shell .workout-clock-section,
+.today-shell #rest-timer,
+.today-shell .workout-finish-section,
+.today-shell .summary-grid.overview-only,
+.today-shell .section.overview-only {
+  background:
+    linear-gradient(180deg, #f4f7fa 0%, #e9eef4 52%, #dde6ee 100%),
+    var(--today-panel) !important;
+  border: 1px solid var(--today-line) !important;
+  box-shadow: var(--today-shadow-panel) !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  padding: 8px !important;
+  background:
+    linear-gradient(180deg, #eef3f7 0%, #e1e9f1 100%),
+    var(--today-panel-strong) !important;
+}
+
+.today-shell .today-mode-actions .mode-button,
+.today-shell .today-mode-actions .focus-mode-button,
+.today-shell .workout-action-dock a,
+.today-shell .workout-action-dock button,
+.today-shell .quality-action-list .btn-small,
+.today-shell .today-hero-head .btn-primary,
+.today-shell .optional-workout-panel > summary {
+  min-height: 38px !important;
+  border-radius: 10px !important;
+  background:
+    linear-gradient(180deg, #f3f6f9 0%, #e6edf4 100%),
+    var(--today-card) !important;
+  border: 1px solid rgb(120 138 156 / 16%) !important;
+  color: #263442 !important;
+  box-shadow: var(--today-shadow-card) !important;
+}
+
+.today-shell .today-mode-actions .mode-button.btn-primary,
+.today-shell .today-mode-actions .mode-button[aria-current="page"],
+.today-shell .today-mode-actions .mode-button.is-active {
+  background:
+    linear-gradient(180deg, #e5edf5 0%, #cfdbe7 100%),
+    #d9e3ec !important;
+  border-color: rgb(102 124 146 / 22%) !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 64%),
+    0 6px 14px rgb(42 52 64 / 13%) !important;
+}
+
+.workout-mode .workout-clock-section {
+  order: 10 !important;
+}
+
+.workout-mode #rest-timer {
+  order: 11 !important;
+}
+
+.workout-mode .workout-action-dock {
+  order: 12 !important;
+}
+
+.workout-mode #workout-input {
+  order: 13 !important;
+}
+
+.workout-mode .workout-location-section {
+  order: 14 !important;
+}
+
+.workout-mode .workout-focus-section {
+  order: 15 !important;
+}
+
+.today-shell .workout-action-dock {
+  gap: 8px !important;
+  padding: 8px !important;
+  background:
+    linear-gradient(180deg, #edf2f7 0%, #dde6ef 100%),
+    var(--today-panel-strong) !important;
+}
+
+.today-shell .data-quality-card,
+.today-shell .data-quality-copy,
+.today-shell .quality-metric,
+.today-shell .today-focus-card,
+.today-shell .summary-card,
+.today-shell .record-card,
+.today-shell .completion-card,
+.today-shell .finish-review-card,
+.today-shell .finish-review-panel,
+.today-shell .location-select-form,
+.today-shell .location-equipment-strip,
+.today-shell .location-quick-panel,
+.today-shell .optional-workout-panel,
+.today-shell .exercise-quick-panel,
+.today-shell .workout-form,
+.today-shell .meal-form,
+.today-shell .workout-save-status,
+.today-shell .duration-manual-edit,
+.today-shell .timer-actions {
+  background:
+    linear-gradient(180deg, #f5f8fb 0%, #eef3f7 58%, #e4ecf3 100%),
+    var(--today-card) !important;
+  border: 1px solid rgb(120 138 156 / 15%) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--today-shadow-card) !important;
+}
+
+.today-shell .data-quality-card,
+.today-shell .data-quality-copy {
+  align-self: stretch !important;
+}
+
+.today-shell .data-quality-ring {
+  min-width: 92px !important;
+  min-height: 92px !important;
+  border-radius: 50% !important;
+  background:
+    radial-gradient(circle at center, #f6f9fc 0 52%, transparent 53%),
+    conic-gradient(from 180deg, #6f8f7c var(--score), #c4ced9 var(--score), #e4eaf0 0),
+    #e4eaf0 !important;
+  color: #253341 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 -2px 5px rgb(112 130 148 / 16%),
+    0 7px 16px rgb(42 52 64 / 11%) !important;
+}
+
+.today-shell .data-quality-ring strong,
+.today-shell .data-quality-ring span {
+  color: #253341 !important;
+}
+
+.today-shell .location-equipment-chip-row,
+.today-shell .location-quick-exercise-list,
+.today-shell .quality-metric-list,
+.today-shell .record-summary,
+.today-shell .today-focus-panel,
+.today-shell .summary-grid,
+.today-shell .record-list,
+.today-shell .timer-actions {
+  gap: 10px !important;
+}
+
+.today-shell .location-equipment-chip-row .badge,
+.today-shell .workout-location-section .badge,
+.today-shell .location-quick-exercise,
+.today-shell .timer-actions button,
+.today-shell .finish-summary-grid article,
+.today-shell .finish-review-metrics article,
+.today-shell .record-summary .badge,
+.today-shell .data-quality-section .badge,
+.today-shell .missing-day-chip,
+.today-shell .cat-badge {
+  background:
+    linear-gradient(180deg, #eef3f7 0%, #e2eaf2 100%),
+    var(--today-card-strong) !important;
+  border: 1px solid rgb(120 138 156 / 14%) !important;
+  color: #263442 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 64%),
+    0 2px 6px rgb(42 52 64 / 6%) !important;
+}
+
+.today-shell .location-quick-panel {
+  overflow: hidden !important;
+}
+
+.today-shell .location-quick-panel > summary,
+.today-shell .optional-workout-panel > summary {
+  margin: -1px !important;
+  border-radius: 12px 12px 10px 10px !important;
+}
+
+.today-shell .location-quick-exercise {
+  border-radius: 11px !important;
+  padding: 9px 10px !important;
+}
+
+.today-shell .workout-clock-display,
+.today-shell .timer-display {
+  background:
+    radial-gradient(circle at 50% 28%, #f5f8fb 0%, #e6edf4 58%, #d9e3ec 100%),
+    var(--today-panel-strong) !important;
+  color: #263442 !important;
+  border: 1px solid rgb(120 138 156 / 16%) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 74%),
+    inset 0 -2px 5px rgb(112 130 148 / 14%),
+    0 8px 18px rgb(42 52 64 / 10%) !important;
+}
+
+.today-shell input,
+.today-shell select,
+.today-shell textarea {
+  background:
+    linear-gradient(180deg, #e8eef5 0%, #f2f6f9 100%),
+    #edf2f7 !important;
+  border-color: rgb(120 138 156 / 18%) !important;
+  color: #263442 !important;
+}
+
+.today-shell .optional-workout-panel,
+.today-shell .optional-workout-panel[open],
+.today-shell .adaptive-recommendation-list,
+.today-shell .adaptive-recommendation-card {
+  background:
+    linear-gradient(180deg, #f2f6f9 0%, #e8eef5 100%),
+    var(--today-card) !important;
+  border-color: rgb(120 138 156 / 15%) !important;
+}
+
+.today-shell .today-hero-head,
+.today-shell .section-header {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 560px) {
+  .today-shell .date-row,
+  .today-shell .today-mode-actions,
+  .today-shell .workout-action-dock,
+  .today-shell .section {
+    border-radius: 12px !important;
+    padding: 10px !important;
+  }
+
+  .today-shell .workout-clock-display,
+  .today-shell .timer-display {
+    border-radius: 12px !important;
+  }
+}
