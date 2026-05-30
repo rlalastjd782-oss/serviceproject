@@ -103,7 +103,9 @@ class UiNavigationFlowTest(FlowTestBase):
     def test_fold_ui_regression_markers_render(self) -> None:
         overview_html = self.client.get("/app").data.decode("utf-8")
         self.assertIn("data-quality-card", overview_html)
-        self.assertIn("분석 신뢰도", overview_html)
+        self.assertIn("기록 품질", overview_html)
+        self.assertIn(">요약</a>", overview_html)
+        self.assertNotIn("분석 신뢰도", overview_html)
         self.assertIn("quality-metric-list", overview_html)
         self.assertIn("today-hero-section", overview_html)
         self.assertIn("today-mode-actions", overview_html)

@@ -1,9 +1,9 @@
   <section class="section overview-only today-hero-section">
     <div class="today-hero-head">
       <div>
-        <span>오늘 대시보드</span>
+        <span>오늘 요약</span>
         <h1>{{ session.workout_date }}</h1>
-        <p>운동, 식단, 분석 신뢰도를 한 번에 확인하고 바로 기록합니다.</p>
+        <p>오늘 기록과 최근 기록 품질을 한 화면에서 확인합니다.</p>
       </div>
       <a class="btn-primary" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동 입력</a>
     </div>
@@ -18,7 +18,7 @@
       </a>
       <a class="today-focus-card is-analysis" href="{{ url_for('weekly_summary_page') }}">
         <strong>분석 보기</strong>
-        <span>신뢰도 {{ data_quality_profile.score }}% · {{ data_quality_profile.label }}</span>
+        <span>기록 품질 {{ data_quality_profile.score }}% · {{ data_quality_profile.label }}</span>
       </a>
     </div>
   </section>
@@ -26,7 +26,7 @@
   <section class="section overview-only data-quality-section">
     <div class="section-header">
       <div>
-        <div class="section-title">분석 신뢰도</div>
+        <div class="section-title">기록 품질</div>
         <div class="section-subtitle">{{ data_quality_profile.period }}</div>
       </div>
       <span class="badge">{{ data_quality_profile.label }}</span>
@@ -35,7 +35,7 @@
       <div
         class="data-quality-ring"
         style="--score: {{ data_quality_profile.score }}%;"
-        aria-label="분석 신뢰도 {{ data_quality_profile.score }}점"
+        aria-label="기록 품질 {{ data_quality_profile.score }}점"
       >
         <strong>{{ data_quality_profile.score }}</strong>
         <span>%</span>

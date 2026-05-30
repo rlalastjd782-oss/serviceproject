@@ -22,7 +22,7 @@
   <div class="mode-actions today-mode-actions">
     <a class="{% if workout_mode %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동</a>
     <a class="{% if meal_mode %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date, mode='meal') }}">식단</a>
-    <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">전체</a>
+    <a class="{% if today_mode == 'overview' %}btn-primary{% else %}btn-small{% endif %} mode-button" href="{{ url_for('index', date=session.workout_date) }}">요약</a>
 
     {% if workout_mode %}
       {% if focus_mode %}
