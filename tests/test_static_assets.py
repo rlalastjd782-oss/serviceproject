@@ -58,6 +58,20 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertNotIn(".tab-btn,\n  .mode-button", ui_source)
         self.assertIn(".tabs .tab-btn", ui_source)
 
+    def test_ui_rebuild_uses_only_current_override_layers(self) -> None:
+        rebuild_source = Path("static/css/ui_rebuild.css").read_text(encoding="utf-8-sig")
+        sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
+        retired_layers = [
+            "ui_rebuild_01.css",
+            "ui_rebuild_02.css",
+            "ui_rebuild_03.css",
+        ]
+        for layer in retired_layers:
+            self.assertNotIn(layer, rebuild_source)
+            self.assertNotIn(layer, sw_source)
+        self.assertIn("ui_rebuild_04.css", rebuild_source)
+        self.assertIn("ui_rebuild_05.css", rebuild_source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

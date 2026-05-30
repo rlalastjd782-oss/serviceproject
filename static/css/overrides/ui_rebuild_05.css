@@ -717,6 +717,21 @@ textarea,
   color: #f8fafc !important;
 }
 
+.record-list > .record-card:not(.daily-record-card):not(.workout-summary-card):not(.equipment-summary-card):not(.meal-record-card) {
+  display: grid !important;
+  grid-template-columns: minmax(112px, 0.24fr) minmax(0, 1fr) !important;
+  align-items: start !important;
+  gap: 10px !important;
+}
+
+.record-list > .meal-record-card,
+.today-meal-section .record-list > .meal-record-card {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+}
+
 .btn-primary:not(.tab-btn),
 button[name="action"][value="save"],
 .workout-form .btn-primary,
@@ -767,7 +782,8 @@ button[name="action"][value="save"],
 
   .record-list-toolbar,
   .list-toolbar,
-  .list-tools {
+  .list-tools,
+  .record-list > .record-card:not(.daily-record-card):not(.workout-summary-card):not(.equipment-summary-card):not(.meal-record-card) {
     display: grid !important;
     grid-template-columns: 1fr !important;
   }

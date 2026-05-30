@@ -28,7 +28,7 @@
 
 ## 현재 상태
 
-- 현재 버전: `2.8.13`
+- 현재 버전: `2.8.14`
 - 기본 브랜치: `main`
 - 커밋 메시지는 한국어로 작성합니다.
 - 작업 완료 후 `NOTES.md`, `CHANGELOG.md`, `VERSION`, manifest, service worker cache를 함께 갱신합니다.
@@ -36,6 +36,8 @@
 
 ## 최근 작업
 
+- v2.8.14에서 초기 `ui_rebuild_01~03.css` override import와 파일을 제거해 CSS 로딩 경로를 `ui_rebuild_04.css`, `ui_rebuild_05.css` 중심으로 단순화했습니다.
+- v2.8.14에서 기록/식단 기록 카드의 핵심 selector 계약을 최종 override 레이어로 옮기고 서비스워커 캐시 목록을 정리했습니다.
 - v2.8.13에서 전역 폼/툴바 override의 강도를 낮추고 페이지별 scope로 필터 패널을 재정리했습니다.
 - v2.8.13에서 모바일 상단 탭, 기간 선택, 결과 툴바, 빈 상태, 내부 badge/pill의 레이아웃과 그림자 계층을 보정했습니다.
 - v2.8.13에서 `ui_rebuild_05.css`를 서비스워커 캐시에 포함하고 `VERSION`, manifest, cache name을 함께 갱신했습니다.
