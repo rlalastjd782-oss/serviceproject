@@ -1090,3 +1090,111 @@ a[class*="btn"] {
 .quality-bar span {
   background: linear-gradient(90deg, #9ab7a4, #c9d1d9) !important;
 }
+
+/* v2.8.19 workout neutral pass: align today workout surfaces with record cards. */
+.workout-mode .today-mode-actions .mode-button.btn-primary {
+  background: #ffffff !important;
+  color: #263442 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 78%),
+    0 0 0 1px rgb(132 148 166 / 18%) !important;
+}
+
+.workout-mode .section.workout-only,
+.workout-mode .routine-library-section,
+.workout-mode #workout-input,
+.workout-mode #today-workout,
+.workout-mode .workout-clock-section,
+.workout-mode #rest-timer,
+.workout-mode .workout-focus-section,
+.workout-mode .workout-secondary-section,
+.workout-mode .workout-location-section {
+  background: #f6f7f9 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+}
+
+.workout-mode .workout-summary-card,
+.workout-mode .record-card.workout-summary-card,
+.workout-mode .record-card-detail,
+.workout-mode .workout-form,
+.workout-mode .exercise-quick-panel,
+.workout-mode .quick-pane,
+.workout-mode .set-builder-toolbar,
+.workout-mode .set-entry-row,
+.workout-mode .optional-workout-panel,
+.workout-mode .workout-tool-grid,
+.workout-mode .routine-load-row,
+.workout-mode .routine-form,
+.workout-mode .exercise-goal-card,
+.workout-mode .readiness-coach-card,
+.workout-mode .recovery-chip,
+.workout-mode .routine-step-card,
+.workout-mode .routine-recommend-card,
+.workout-mode .pr-share-card {
+  background: #ffffff !important;
+  color: var(--qa-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+}
+
+.workout-mode .compact-set-preview button,
+.workout-mode .quick-tab-list,
+.workout-mode .exercise-quick-list,
+.workout-mode .exercise-quick-button,
+.workout-mode .quick-note,
+.workout-mode .set-preset-list,
+.workout-mode .set-builder-actions,
+.workout-mode .set-advanced-options,
+.workout-mode .set-advanced-grid,
+.workout-mode .inline-add-form,
+.workout-mode .exercise-rename-form,
+.workout-mode .note-form,
+.workout-mode .routine-manage-form,
+.workout-mode .detail-row,
+.workout-mode .record-summary .badge,
+.workout-mode .cat-badge,
+.workout-mode .badge {
+  background: #f8f9fb !important;
+  color: #303b45 !important;
+  box-shadow: none !important;
+}
+
+.workout-mode .workout-record-head,
+.workout-mode .record-date.workout-record-head,
+.workout-mode .quick-panel-head,
+.workout-mode .quick-panel-title,
+.workout-mode .set-builder-header,
+.workout-mode .tool-card-head {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--qa-text) !important;
+}
+
+.workout-mode input,
+.workout-mode select,
+.workout-mode textarea,
+.workout-mode .weight-unit-control,
+.workout-mode .set-count-control input {
+  background: #f3f5f7 !important;
+  color: var(--qa-text) !important;
+  box-shadow: none !important;
+}
+
+.workout-mode .workout-action-dock {
+  background: #f6f7f9 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+}
+
+.workout-mode .workout-action-dock a,
+.workout-mode .workout-action-dock button {
+  background: #ffffff !important;
+  color: #303b45 !important;
+  box-shadow: none !important;
+}
+
+.workout-mode .workout-action-dock button[data-workout-clock-start],
+.workout-mode .workout-form .btn-primary,
+.workout-mode button[name="action"][value="save"] {
+  background: #eef2f6 !important;
+  color: #263442 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+}

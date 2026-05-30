@@ -92,6 +92,15 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertNotIn("background:\n    linear-gradient(180deg, rgb(255 255 255 / 68%), rgb(235 241 247 / 36%)),\n    #edf2f7 !important;", source)
         self.assertNotIn(".today-mode-actions .mode-button.btn-primary {\n  background:\n    linear-gradient(180deg, rgb(255 255 255 / 18%)", source)
 
+    def test_today_workout_ui_uses_record_neutral_surfaces(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        self.assertIn("v2.8.19 workout neutral pass", source)
+        self.assertIn(".workout-mode .section.workout-only", source)
+        self.assertIn(".workout-mode .workout-summary-card", source)
+        self.assertIn(".workout-mode .exercise-quick-panel", source)
+        self.assertIn(".workout-mode .set-entry-row", source)
+        self.assertIn("background: #f6f7f9 !important;", source)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
