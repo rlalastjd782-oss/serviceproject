@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-31 v3.0.0
+
+- v3.0 전체 UI 감사 및 화면 구조 재정립 최종검수를 조건부 승인으로 정리했습니다.
+- 확인 범위: 스펙/디자인/QA 문서, 핵심 DOM/CSS selector 계약, `VERSION`, manifest, service worker cache `workout-pwa-v3.0.0`.
+- 검증 통과: `.\.venv\Scripts\python.exe -m unittest tests.test_static_assets -v`, `.\.venv\Scripts\python.exe -m unittest discover -v`, `.\.venv\Scripts\python.exe -m compileall app.py health_tracker tests`, `.\.venv\Scripts\python.exe tools\check_release.py`, `git diff --check`, `Invoke-WebRequest http://127.0.0.1:5000/ -UseBasicParsing -TimeoutSec 5 -MaximumRedirection 0`.
+- 운영 전 실제 브라우저에서 390px, 430px, 560px, desktop 기준 Level 0~4 depth, active 상태, 한글 라벨 겹침, PWA 캐시 교체를 수동 확인해야 합니다.
+
 ## 2026-05-31 v2.8.32
 
 - 식단탭 기준 전역 UI 시스템 강제 적용 최종검수를 조건부 승인으로 정리했습니다.

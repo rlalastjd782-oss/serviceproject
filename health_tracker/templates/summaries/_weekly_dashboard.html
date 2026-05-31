@@ -21,6 +21,24 @@
           <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
           <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
         </div>
+        <div class="analysis-conclusion-card" aria-label="주간 핵심 결론">
+          <span>핵심 결론</span>
+          <strong>{{ report_insights[0] if report_insights else "이번 주 기록을 쌓으면 분석 정확도가 올라갑니다." }}</strong>
+          <div class="analysis-conclusion-grid">
+            <div>
+              <b>잘한 점</b>
+              <small>{{ period_highlights[0].label if period_highlights else "운동과 식단 기록을 한 화면에서 확인할 수 있습니다." }}</small>
+            </div>
+            <div>
+              <b>부족한 점</b>
+              <small>{{ balance_warnings[0] if balance_warnings else "누락된 운동, 식단, 체성분 기록을 점검하세요." }}</small>
+            </div>
+            <div>
+              <b>다음 행동</b>
+              <small>{{ weekly_goal_insights[0] if weekly_goal_insights else "오늘 기록을 먼저 입력하고 주간 목표를 조정하세요." }}</small>
+            </div>
+          </div>
+        </div>
         <div class="yearly-metric-grid analysis-metric-grid">
           <article class="yearly-metric-card is-primary">
             <span>운동일</span>

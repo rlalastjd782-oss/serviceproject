@@ -14,6 +14,375 @@
   --qa-shadow-soft: 0 3px 8px rgb(28 36 46 / 5%);
   --qa-inset: inset 0 1px 0 rgb(255 255 255 / 62%);
 }
+
+/* v3.0 whole-app UI restructure pass: navigation split, task-first home, and shared depth contract. */
+.app-navigation-shell {
+  display: grid !important;
+  gap: 8px !important;
+  margin-top: 16px !important;
+}
+
+.app-navigation-shell .tabs {
+  margin-top: 0 !important;
+}
+
+.account-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  min-width: 0 !important;
+}
+
+.account-actions .tab-logout-form {
+  display: block !important;
+}
+
+.account-action-btn,
+.settings-inline-form .btn-small,
+.danger-zone .btn-danger,
+.settings-panel .btn-danger {
+  min-height: 38px !important;
+  border: 1px solid rgb(160 82 82 / 28%) !important;
+  border-radius: 9px !important;
+  background: #fff7f7 !important;
+  box-shadow: none !important;
+  color: #8a2f2f !important;
+  padding: 8px 10px !important;
+}
+
+.tabs .tab-logout-form,
+.tabs .account-action-btn {
+  display: none !important;
+}
+
+.today-hero-section,
+.today-action-section,
+.quick-record-section,
+.recent-record-section,
+.data-quality-section {
+  scroll-margin-top: 16px !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section {
+  order: 10 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-action-section {
+  order: 20 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .quick-record-section {
+  order: 30 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .recent-record-section {
+  order: 40 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section {
+  order: 50 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) > .summary-grid.overview-only {
+  order: 60 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .optional-section {
+  order: 70 !important;
+}
+
+.today-action-grid,
+.analysis-conclusion-grid,
+.more-link-grid {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+.today-action-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+}
+
+.recent-record-section {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+.record-filter-panel {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  align-items: stretch !important;
+}
+
+.period-option-row {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.record-filter-panel .record-list-toolbar,
+.record-search-form .record-filter-details {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.record-search-form .record-filter-apply {
+  width: 100% !important;
+}
+
+.analysis-conclusion-card {
+  display: grid !important;
+  gap: 10px !important;
+  background: var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  color: var(--surface-text) !important;
+  padding: 12px !important;
+}
+
+.analysis-conclusion-card > span,
+.more-link-card b {
+  color: var(--surface-muted) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+.analysis-conclusion-card > strong {
+  color: var(--surface-text) !important;
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+}
+
+.analysis-conclusion-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+}
+
+.analysis-conclusion-grid > div {
+  display: grid !important;
+  gap: 4px !important;
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  padding: 9px !important;
+}
+
+.analysis-conclusion-grid b {
+  color: var(--surface-text) !important;
+}
+
+.analysis-conclusion-grid small {
+  color: var(--surface-muted) !important;
+  overflow-wrap: anywhere !important;
+}
+
+.settings-account-panel,
+.settings-body-panel,
+.settings-management-panel,
+.danger-zone {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.settings-action-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.settings-action-row > div {
+  display: grid !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+
+.settings-action-row small,
+.settings-action-row span,
+.settings-action-row strong,
+.today-focus-card strong,
+.today-focus-card span,
+.next-action-card strong,
+.next-action-card span,
+.more-link-card strong,
+.more-link-card span {
+  overflow-wrap: anywhere !important;
+}
+
+.danger-zone {
+  border-color: rgb(160 82 82 / 26%) !important;
+}
+
+.danger-zone .settings-action-row {
+  grid-template-columns: minmax(0, 1fr) minmax(96px, 140px) auto !important;
+  background: #fff7f7 !important;
+}
+
+@media (max-width: 560px) {
+  .app-navigation-shell {
+    gap: 6px !important;
+  }
+
+  .account-actions {
+    justify-content: stretch !important;
+  }
+
+  .account-actions .tab-logout-form,
+  .account-action-btn {
+    width: 100% !important;
+  }
+
+  .settings-action-row,
+  .danger-zone .settings-action-row {
+    grid-template-columns: 1fr !important;
+    align-items: stretch !important;
+  }
+}
+
+/* v3.0 final enforcement: keep the restructure rules last in the cascade. */
+.app-navigation-shell {
+  display: grid !important;
+  gap: 8px !important;
+  margin-top: 16px !important;
+}
+
+.app-navigation-shell .tabs {
+  margin-top: 0 !important;
+}
+
+.account-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+}
+
+.account-actions .tab-logout-form {
+  display: block !important;
+}
+
+.account-action-btn,
+.settings-inline-form .btn-small,
+.danger-zone .btn-danger,
+.settings-panel .btn-danger {
+  min-height: 38px !important;
+  border: 1px solid rgb(160 82 82 / 28%) !important;
+  border-radius: 9px !important;
+  background: #fff7f7 !important;
+  box-shadow: none !important;
+  color: #8a2f2f !important;
+  padding: 8px 10px !important;
+}
+
+.tabs .tab-logout-form,
+.tabs .account-action-btn {
+  display: none !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section {
+  order: 10 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-action-section {
+  order: 20 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .quick-record-section {
+  order: 30 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .recent-record-section {
+  order: 40 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section {
+  order: 50 !important;
+}
+
+.today-action-grid,
+.analysis-conclusion-grid,
+.more-link-grid {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+.today-action-grid,
+.analysis-conclusion-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+}
+
+.recent-record-section,
+.record-filter-panel,
+.record-search-form .record-filter-details,
+.analysis-conclusion-card,
+.settings-account-panel,
+.settings-body-panel,
+.settings-management-panel,
+.danger-zone {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.period-option-row {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.analysis-conclusion-card {
+  background: var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  padding: 12px !important;
+}
+
+.analysis-conclusion-grid > div,
+.settings-action-row {
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  padding: 9px !important;
+}
+
+.settings-action-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.danger-zone {
+  border-color: rgb(160 82 82 / 26%) !important;
+}
+
+.danger-zone .settings-action-row {
+  grid-template-columns: minmax(0, 1fr) minmax(96px, 140px) auto !important;
+  background: #fff7f7 !important;
+}
+
+.analysis-conclusion-card *,
+.settings-action-row *,
+.today-focus-card *,
+.next-action-card *,
+.more-link-card * {
+  overflow-wrap: anywhere !important;
+}
+
+@media (max-width: 560px) {
+  .account-actions {
+    justify-content: stretch !important;
+  }
+
+  .account-actions .tab-logout-form,
+  .account-action-btn {
+    width: 100% !important;
+  }
+
+  .settings-action-row,
+  .danger-zone .settings-action-row {
+    grid-template-columns: 1fr !important;
+  }
+}
 body {
   color: var(--qa-text) !important;
 }
@@ -3730,4 +4099,88 @@ body,
   .tool-input-row {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* v3.0 cascade anchor: repeated at EOF so app frame and page order win over older passes. */
+.app-navigation-shell {
+  display: grid !important;
+  gap: 8px !important;
+  margin-top: 16px !important;
+}
+
+.app-navigation-shell .tabs {
+  margin-top: 0 !important;
+}
+
+.account-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.account-actions .tab-logout-form {
+  display: block !important;
+}
+
+.account-action-btn {
+  min-height: 38px !important;
+  border: 1px solid rgb(160 82 82 / 28%) !important;
+  border-radius: 9px !important;
+  background: #fff7f7 !important;
+  box-shadow: none !important;
+  color: #8a2f2f !important;
+  padding: 8px 10px !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section {
+  order: 10 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .today-action-section {
+  order: 20 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .quick-record-section {
+  order: 30 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .recent-record-section {
+  order: 40 !important;
+}
+
+.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section {
+  order: 50 !important;
+}
+
+.analysis-conclusion-card {
+  display: grid !important;
+  gap: 10px !important;
+  background: var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  padding: 12px !important;
+}
+
+.analysis-conclusion-grid,
+.today-action-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+  gap: 9px !important;
+}
+
+.settings-action-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  padding: 9px !important;
+}
+
+.danger-zone .settings-action-row {
+  grid-template-columns: minmax(0, 1fr) minmax(96px, 140px) auto !important;
+  background: #fff7f7 !important;
 }

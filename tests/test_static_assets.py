@@ -220,9 +220,9 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
         manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
 
-        self.assertEqual(version, "2.8.32")
-        self.assertIn('CACHE_NAME = "workout-pwa-v2.8.32"', sw_source)
-        self.assertIn('"version": "2.8.32"', manifest_source)
+        self.assertEqual(version, "3.0.0")
+        self.assertIn('CACHE_NAME = "workout-pwa-v3.0.0"', sw_source)
+        self.assertIn('"version": "3.0.0"', manifest_source)
         self.assertIn('"background_color": "#edf3f8"', manifest_source)
         self.assertIn('class="meal-weekly-shell"', weekly_template)
 
@@ -238,9 +238,9 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
         manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
 
-        self.assertEqual(version, "2.8.32")
-        self.assertIn('CACHE_NAME = "workout-pwa-v2.8.32"', sw_source)
-        self.assertIn('"version": "2.8.32"', manifest_source)
+        self.assertEqual(version, "3.0.0")
+        self.assertIn('CACHE_NAME = "workout-pwa-v3.0.0"', sw_source)
+        self.assertIn('"version": "3.0.0"', manifest_source)
         self.assertLess(source.index("v2.8.31 meal-tab dimensional UI pass"), source.index("v2.8.32 global surface enforcement pass"))
 
         required_tokens = [
@@ -283,6 +283,32 @@ class StaticAssetIntegrityTest(unittest.TestCase):
             ".settings-panel .btn-primary",
         ]
         for selector in active_selectors:
+            self.assertIn(selector, source)
+
+    def test_v3_ui_restructure_contract_is_present(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        base_template = Path("health_tracker/templates/layouts/base.html").read_text(encoding="utf-8-sig")
+        overview_template = Path("health_tracker/templates/today/_overview_panels.html").read_text(encoding="utf-8-sig")
+        weekly_template = Path("health_tracker/templates/summaries/_weekly_dashboard.html").read_text(encoding="utf-8-sig")
+        more_template = Path("health_tracker/templates/more/index.html").read_text(encoding="utf-8-sig")
+        settings_template = Path("health_tracker/templates/settings/index.html").read_text(encoding="utf-8-sig")
+
+        self.assertIn("v3.0 final enforcement", source)
+        self.assertIn('class="app-navigation-shell"', base_template)
+        self.assertIn('class="account-actions"', base_template)
+        self.assertNotIn("tab-logout-form", base_template[base_template.index('<nav class="tabs"') : base_template.index("</nav>")])
+
+        for token in ["today-action-section", "quick-record-section", "recent-record-section"]:
+            self.assertIn(token, overview_template)
+            self.assertIn(token, source)
+        self.assertIn("record-quality", overview_template)
+
+        self.assertIn("analysis-conclusion-card", weekly_template)
+        self.assertIn("analysis-conclusion-card", source)
+        for label in ["기록 도구", "식단 도구", "운동/장소 도구", "관리 도구"]:
+            self.assertIn(label, more_template)
+        for selector in ["settings-account-panel", "settings-body-panel", "settings-management-panel", "danger-zone"]:
+            self.assertIn(selector, settings_template)
             self.assertIn(selector, source)
 
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:

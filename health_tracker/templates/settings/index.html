@@ -3,17 +3,36 @@
 {% block title %}설정{% endblock %}
 
 {% block content %}
-  <section class="section settings-panel">
+  <section class="section settings-panel settings-account-panel">
     <div class="section-header">
       <div>
-        <div class="section-title">비밀번호 변경</div>
-        <div class="section-subtitle">내 설정 진입 비밀번호만 변경합니다. 데이터, QA, 앱 운영 기능은 관리자 페이지에서 관리합니다.</div>
+        <div class="section-title">계정/잠금 상태</div>
+        <div class="section-subtitle">현재 사용자와 설정 잠금 상태를 확인합니다.</div>
       </div>
       {% if has_settings_password %}
         <form method="post" action="{{ url_for('lock_settings_route') }}">
           <button class="btn-small" type="submit">잠그기</button>
         </form>
       {% endif %}
+    </div>
+    <div class="settings-action-row">
+      <div>
+        <strong>{{ current_account.display_name or current_account.username if current_account else "사용자" }}</strong>
+        <small>{% if has_settings_password %}설정 비밀번호 사용 중{% else %}설정 비밀번호 미설정{% endif %}</small>
+      </div>
+      <form method="post" action="{{ url_for('logout_route') }}" class="settings-inline-form" data-confirm-submit="로그아웃하시겠습니까?">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn-small" type="submit">로그아웃</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="section settings-panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">비밀번호 변경</div>
+        <div class="section-subtitle">내 설정 진입 비밀번호만 변경합니다. 데이터, QA, 앱 운영 기능은 관리자 페이지에서 관리합니다.</div>
+      </div>
     </div>
     {% if error == "password" %}
       <div class="empty compact-empty">비밀번호는 4자 이상이고 확인값과 같아야 합니다.</div>
@@ -22,6 +41,62 @@
       <input name="password" type="password" autocomplete="new-password" placeholder="새 비밀번호">
       <input name="password_confirm" type="password" autocomplete="new-password" placeholder="새 비밀번호 확인">
       <button class="btn-primary" type="submit">{% if has_settings_password %}비밀번호 변경{% else %}비밀번호 설정{% endif %}</button>
+    </form>
+  </section>
+
+  <section class="section settings-panel settings-body-panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">체성분 입력</div>
+        <div class="section-subtitle">체중, 골격근, 체지방 기록은 오늘 화면 입력 패널에서 저장합니다.</div>
+      </div>
+    </div>
+    <div class="settings-action-row">
+      <div>
+        <strong>오늘 체성분 기록</strong>
+        <small>운동·식단 기록과 같은 날짜 기준으로 관리됩니다.</small>
+      </div>
+      <a class="btn-primary" href="{{ url_for('index') }}#body-metrics">체성분 입력</a>
+    </div>
+  </section>
+
+  <section class="section settings-panel settings-management-panel">
+    <div class="section-header">
+      <div>
+        <div class="section-title">사진/기록 관리</div>
+        <div class="section-subtitle">백업 상태, 데이터 건수, 누락 기록을 확인 화면으로 연결합니다.</div>
+      </div>
+    </div>
+    <div class="settings-action-row">
+      <div>
+        <strong>데이터 센터</strong>
+        <small>운동 {{ data_counts.workouts }}일 · 식단 {{ data_counts.meals }}개 · 백업 {{ backup_status.count }}개</small>
+      </div>
+      <a class="btn-small" href="{{ url_for('data_center_page') }}">데이터 센터</a>
+    </div>
+    <div class="settings-action-row">
+      <div>
+        <strong>기록 점검</strong>
+        <small>{% for item in data_safety_status %}{{ item.label }} {{ item.value }}{% if not loop.last %} · {% endif %}{% endfor %}</small>
+      </div>
+      <a class="btn-small" href="{{ url_for('record_check_page') }}">누락 확인</a>
+    </div>
+  </section>
+
+  <section class="section settings-panel danger-zone">
+    <div class="section-header">
+      <div>
+        <div class="section-title">위험 액션</div>
+        <div class="section-subtitle">되돌리기 어려운 조작은 기본 저장 버튼과 다른 위계로 분리합니다.</div>
+      </div>
+    </div>
+    <form method="post" action="{{ url_for('reset_settings_password_route') }}" class="settings-action-row">
+      <div>
+        <strong>설정 비밀번호 초기화</strong>
+        <small>확인 입력값이 `RESET`일 때만 실행됩니다.</small>
+      </div>
+      <input name="confirm_reset" placeholder="RESET">
+      <button class="btn-danger" type="submit">초기화</button>
     </form>
   </section>
 {% endblock %}
