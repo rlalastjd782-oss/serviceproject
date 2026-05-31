@@ -1,4 +1,12 @@
-# Codex Handoff Notes
+﻿# Codex Handoff Notes
+
+## 2026-05-31 v3.0.0 후속 UI 구조 보정
+
+- v3.0.0 이후 실제 화면 기준 UI 구조 보정 최종검수를 조건부 승인으로 정리했습니다.
+- 확인 범위: 기간 선택, 주간 분석 정보 구조, 분석 quick action, 운동별 기록 필터, 식단 템플릿 row, 장소 관리 action row, 버튼 위계 CSS 계약.
+- 검증 통과: `.\.venv\Scripts\python.exe -m unittest tests.test_static_assets -v`, `.\.venv\Scripts\python.exe -m unittest discover -v`, `.\.venv\Scripts\python.exe -m compileall app.py health_tracker tests`, `.\.venv\Scripts\python.exe tools\check_release.py`, `git diff --check`, `Invoke-WebRequest http://127.0.0.1:5000/ -UseBasicParsing -TimeoutSec 5`.
+- 운영 전 실제 브라우저에서 390px, 430px, 560px, desktop 기준 한글 라벨 겹침, active 상태, 버튼 위계, PWA 캐시 교체를 수동 확인해야 합니다.
+- 작업 전부터 존재한 `.gitignore` 변경은 커밋 포함 전 의도 확인이 필요합니다.
 
 ## 2026-05-31 v3.0.0
 

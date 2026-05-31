@@ -311,6 +311,40 @@ class StaticAssetIntegrityTest(unittest.TestCase):
             self.assertIn(selector, settings_template)
             self.assertIn(selector, source)
 
+    def test_v3_post_release_ui_correction_contract_is_present(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        macro_template = Path("health_tracker/templates/macros/ui.html").read_text(encoding="utf-8-sig")
+        weekly_meal_template = Path("health_tracker/templates/meals/weekly.html").read_text(encoding="utf-8-sig")
+        weekly_analysis_template = Path("health_tracker/templates/summaries/_weekly_dashboard.html").read_text(encoding="utf-8-sig")
+        exercise_template = Path("health_tracker/templates/summaries/_exercise_summary.html").read_text(encoding="utf-8-sig")
+        meal_template = Path("health_tracker/templates/more/meal_templates.html").read_text(encoding="utf-8-sig")
+        locations_template = Path("health_tracker/templates/more/locations.html").read_text(encoding="utf-8-sig")
+
+        self.assertIn("v3.0.0 post-release EOF enforcement", source)
+        self.assertIn("period-control-panel", macro_template)
+        self.assertIn("period-control-panel", weekly_meal_template)
+        self.assertLess(macro_template.index('aria-label="{{ next_label }}"'), macro_template.index("period-view-btn"))
+        self.assertLess(weekly_meal_template.index('aria-label="다음 주"'), weekly_meal_template.index("period-view-btn"))
+
+        for token in [
+            "secondary-segmented-control",
+            "analysis-primary-metrics",
+            "analysis-secondary-metrics",
+            "insight-group-list",
+            "insight-group-card",
+        ]:
+            self.assertIn(token, weekly_analysis_template)
+            self.assertIn(token, source)
+        for label in ["균형 경고", "다음 행동"]:
+            self.assertIn(label, weekly_analysis_template)
+
+        self.assertLess(exercise_template.index("filter-action-panel"), exercise_template.index("exercise-pr-preview-list"))
+        self.assertLess(exercise_template.index("filter-action-panel"), exercise_template.index('class="record-list"'))
+        self.assertIn("recent-meal-template-info", meal_template)
+        self.assertIn("recent-meal-template-actions", meal_template)
+        self.assertIn("location-card-actions info-action-row", locations_template)
+        self.assertIn("장소 수정 · 장비 카테고리", locations_template)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",

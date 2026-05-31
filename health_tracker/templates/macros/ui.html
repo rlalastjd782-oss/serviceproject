@@ -15,14 +15,14 @@
 {% endmacro %}
 
 {% macro period_picker(action, prev_href, next_href, name, value, input_type, label, prev_label, next_label) %}
-  <form method="get" action="{{ action }}" class="month-picker-form month-picker-form-wide">
+  <form method="get" action="{{ action }}" class="month-picker-form month-picker-form-wide period-control-panel">
     <a class="arrow-btn" href="{{ prev_href }}" aria-label="{{ prev_label }}">‹</a>
     <label class="month-picker">
       <span>{{ label }}</span>
       <input name="{{ name }}" type="{{ input_type }}" value="{{ value }}" aria-label="{{ label }}">
     </label>
-    <button class="btn-primary" type="submit">보기</button>
     <a class="arrow-btn" href="{{ next_href }}" aria-label="{{ next_label }}">›</a>
+    <button class="btn-small period-view-btn" type="submit">보기</button>
   </form>
 {% endmacro %}
 

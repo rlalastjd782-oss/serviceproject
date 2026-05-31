@@ -13,13 +13,13 @@
       </div>
       <a class="btn-small" href="{{ url_for('meal_monthly_page', month=week_start[:7]) }}">월간 보기</a>
     </div>
-    <div class="week-control-row">
+    <div class="week-control-row period-control-panel">
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=prev_week) }}" aria-label="이전 주">‹</a>
-      <form method="get" action="{{ url_for('meal_weekly_page') }}" class="week-date-form">
+      <form id="meal-week-date-form" method="get" action="{{ url_for('meal_weekly_page') }}" class="week-date-form">
         <input name="week" type="date" value="{{ selected_date }}" aria-label="주 선택 날짜">
-        <button type="submit" class="btn-small">보기</button>
       </form>
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=next_week) }}" aria-label="다음 주">›</a>
+      <button type="submit" class="btn-small period-view-btn" form="meal-week-date-form">보기</button>
     </div>
   </section>
 

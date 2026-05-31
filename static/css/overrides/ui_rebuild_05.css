@@ -217,27 +217,6 @@
   background: #fff7f7 !important;
 }
 
-@media (max-width: 560px) {
-  .app-navigation-shell {
-    gap: 6px !important;
-  }
-
-  .account-actions {
-    justify-content: stretch !important;
-  }
-
-  .account-actions .tab-logout-form,
-  .account-action-btn {
-    width: 100% !important;
-  }
-
-  .settings-action-row,
-  .danger-zone .settings-action-row {
-    grid-template-columns: 1fr !important;
-    align-items: stretch !important;
-  }
-}
-
 /* v3.0 final enforcement: keep the restructure rules last in the cascade. */
 .app-navigation-shell {
   display: grid !important;
@@ -4183,4 +4162,192 @@ body,
 .danger-zone .settings-action-row {
   grid-template-columns: minmax(0, 1fr) minmax(96px, 140px) auto !important;
   background: #fff7f7 !important;
+}
+
+/* v3.0.0 post-release EOF enforcement: keep correction selectors after legacy anchors. */
+.period-control-panel,
+.month-picker-form-wide.period-control-panel,
+.meal-weekly-shell .week-control-row.period-control-panel,
+.more-tool-filter {
+  display: grid !important;
+  grid-template-columns: minmax(40px, auto) minmax(0, 1fr) minmax(40px, auto) minmax(74px, auto) !important;
+  align-items: stretch !important;
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  gap: 8px !important;
+  padding: 8px !important;
+}
+
+.period-control-panel .month-picker,
+.period-control-panel .week-date-form {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  padding: 0 !important;
+}
+
+.period-control-panel .arrow-btn,
+.period-control-panel .period-view-btn {
+  min-height: 40px !important;
+  background: var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+}
+
+.secondary-segmented-control,
+.analysis-subnav {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(76px, 1fr)) !important;
+  gap: 6px !important;
+  padding: 6px !important;
+}
+
+.secondary-segmented-control .btn-small,
+.analysis-action-grid .btn-small,
+.yearly-action-grid .btn-small,
+.analysis-subnav a {
+  min-height: 36px !important;
+  padding: 7px 8px !important;
+  box-shadow: none !important;
+}
+
+.analysis-dashboard-section .analysis-primary-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.analysis-dashboard-section .analysis-secondary-metrics {
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)) !important;
+}
+
+.analysis-dashboard-section .analysis-secondary-metrics .yearly-metric-card,
+.exercise-hero-head b,
+.next-plan-list div {
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+}
+
+.insight-group-list,
+.next-plan-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.insight-group-card {
+  display: grid !important;
+  align-content: start !important;
+  gap: 8px !important;
+  background: var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  padding: 10px !important;
+}
+
+.insight-group-card.is-warning,
+.analysis-action-card.is-warning {
+  background: #fff8eb !important;
+  border-color: rgb(168 111 35 / 24%) !important;
+}
+
+.info-action-row,
+.insight-group-card .detail-row,
+.recent-meal-template-row,
+.location-card-actions,
+.location-manage-details summary {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  padding: 8px !important;
+}
+
+.filter-action-panel,
+.analysis-dashboard-section .filter-form {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(74px, auto) !important;
+  align-items: stretch !important;
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  padding: 8px !important;
+}
+
+.filter-action-panel .btn-small,
+.analysis-dashboard-section .filter-form > .btn-small {
+  min-height: 40px !important;
+  background:
+    linear-gradient(180deg, #53697d 0%, var(--surface-active-strong) 100%),
+    var(--surface-active) !important;
+  color: #ffffff !important;
+}
+
+.recent-meal-template-row {
+  grid-template-columns: minmax(0, 1fr) minmax(130px, auto) !important;
+}
+
+.recent-meal-template-info,
+.recent-meal-template-actions {
+  display: grid !important;
+  min-width: 0 !important;
+  gap: 4px !important;
+}
+
+.recent-meal-template-info label {
+  display: grid !important;
+  gap: 3px !important;
+}
+
+.recent-meal-template-actions {
+  justify-items: end !important;
+  align-content: center !important;
+}
+
+.location-manage-details {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.location-manage-details summary {
+  cursor: pointer !important;
+}
+
+.period-control-panel *,
+.insight-group-card *,
+.recent-meal-template-row *,
+.location-card-main *,
+.location-manage-details summary * {
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+
+@media (max-width: 560px) {
+  .period-control-panel,
+  .month-picker-form-wide.period-control-panel,
+  .meal-weekly-shell .week-control-row.period-control-panel,
+  .more-tool-filter,
+  .filter-action-panel,
+  .analysis-dashboard-section .filter-form,
+  .recent-meal-template-row,
+  .location-card-main,
+  .location-card-actions,
+  .location-manage-details summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .analysis-dashboard-section .analysis-primary-metrics {
+    grid-template-columns: 1fr !important;
+  }
 }

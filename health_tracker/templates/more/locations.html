@@ -86,7 +86,7 @@
                 장비 {{ location.equipment_count }}개 · 기록 {{ location.session_count }}일
               </span>
             </div>
-            <div class="location-card-actions">
+            <div class="location-card-actions info-action-row">
               {% if not location.is_default %}
                 <form method="post" action="{{ url_for('set_default_location_route', location_id=location.id) }}">
                   <button class="btn-small" type="submit">기본</button>
@@ -123,7 +123,10 @@
           </div>
 
           <details class="location-manage-details">
-            <summary>관리</summary>
+            <summary>
+              <span>관리</span>
+              <small>장소 수정 · 장비 카테고리</small>
+            </summary>
             <div class="location-manage-grid">
               <form method="post" action="{{ url_for('save_location_route') }}" class="location-edit-form">
                 <input type="hidden" name="location_id" value="{{ location.id }}">
