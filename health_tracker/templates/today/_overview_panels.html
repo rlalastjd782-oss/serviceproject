@@ -2,8 +2,8 @@
     <div class="today-hero-head">
       <div>
         <span>오늘 상태</span>
-        <h1>{{ session.workout_date }}</h1>
-        <p>오늘 기록 완성도와 바로 처리할 항목을 먼저 확인합니다.</p>
+        <h1>오늘 상태</h1>
+        <p>{{ session.workout_date }} 기록 완성도와 바로 처리할 항목을 먼저 확인합니다.</p>
       </div>
       <a class="btn-primary" href="#today-overview-actions">오늘 할 일</a>
     </div>
@@ -137,7 +137,7 @@
     {% endif %}
   </section>
 
-  <section class="section overview-only">
+  <section class="section overview-only nutrition-link-section">
     <div class="section-header">
       <div>
         <div class="section-title">영양-운동 연결</div>
@@ -173,7 +173,7 @@
   </section>
 
   {% if record_gaps %}
-    <section class="section overview-only">
+    <section class="section overview-only record-gap-section">
       <div class="section-header">
         <div>
           <div class="section-title">최근 7일 누락</div>

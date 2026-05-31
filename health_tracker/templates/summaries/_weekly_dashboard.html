@@ -1,25 +1,9 @@
     {% if active_page == "weekly" and weekly_report %}
-      <section class="section">
-        <div class="section-header">
-          <div>
-            <div class="section-title">주 선택</div>
-            <div class="section-subtitle">선택한 주 기준으로 리포트와 일별 그래프를 다시 계산합니다.</div>
-          </div>
-        </div>
-        {{ period_picker(url_for('weekly_summary_page'), url_for('weekly_summary_page', week=prev_week), url_for('weekly_summary_page', week=next_week), "week", selected_week, "date", "기준 주", "이전 주", "다음 주") }}
-      </section>
-
       <section class="section analysis-dashboard-section">
         <div class="yearly-dashboard-head">
           <div class="yearly-kicker">주간 분석</div>
           <h1>{{ weekly_report.workout_days }}일 운동 · {{ weekly_report.meal_days }}일 식단</h1>
           <p>{{ weekly_report.period }} 기준으로 운동량, 유산소, 식단 기록, 목표 상태를 한 번에 비교합니다.</p>
-        </div>
-        <div class="yearly-action-grid analysis-action-grid secondary-segmented-control">
-          <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
-          <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
-          <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
-          <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
         </div>
         <div class="analysis-conclusion-card" aria-label="주간 핵심 결론">
           <span>핵심 결론</span>
@@ -34,11 +18,36 @@
               <small>{{ balance_warnings[0] if balance_warnings else "누락된 운동, 식단, 체성분 기록을 점검하세요." }}</small>
             </div>
             <div>
+              <b>경고</b>
+              <small>{{ balance_warnings[1] if balance_warnings|length > 1 else "낮은 위험 상태입니다. 기록 균형을 계속 확인하세요." }}</small>
+            </div>
+            <div>
               <b>다음 행동</b>
               <small>{{ weekly_goal_insights[0] if weekly_goal_insights else "오늘 기록을 먼저 입력하고 주간 목표를 조정하세요." }}</small>
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="section analysis-dashboard-section analysis-control-section" data-ui-role="date-control">
+        <div class="yearly-action-grid analysis-action-grid secondary-segmented-control">
+          <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
+          <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
+          <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
+          <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
+        </div>
+        <section class="analysis-period-panel" aria-label="주 선택">
+          <div class="section-header">
+            <div>
+              <div class="section-title">주 선택</div>
+              <div class="section-subtitle">선택한 주 기준으로 리포트와 일별 그래프를 다시 계산합니다.</div>
+            </div>
+          </div>
+          {{ period_picker(url_for('weekly_summary_page'), url_for('weekly_summary_page', week=prev_week), url_for('weekly_summary_page', week=next_week), "week", selected_week, "date", "기준 주", "이전 주", "다음 주") }}
+        </section>
+      </section>
+
+      <section class="section analysis-dashboard-section analysis-detail-section" data-ui-role="metric">
         <div class="yearly-metric-grid analysis-metric-grid analysis-primary-metrics" aria-label="대표 지표">
           <article class="yearly-metric-card is-primary">
             <span>운동일</span>
@@ -170,7 +179,9 @@
             {% endfor %}
           </article>
         </div>
+      </section>
         {% if weekly_goals %}
+      <section class="section analysis-dashboard-section analysis-goal-section" data-ui-role="form">
           {{ goal_cards(weekly_goals, ["weekly_workout_days", "weekly_meal_days", "weekly_calories"], {"weekly_workout_days": "일", "weekly_meal_days": "일", "weekly_calories": "kcal"}) }}
           <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
             <input type="hidden" name="scope" value="weekly">
@@ -180,8 +191,8 @@
             <input name="weekly_calories" type="number" min="0" step="100" value="{{ weekly_goals.weekly_calories.target }}" placeholder="주간 kcal">
             <button class="btn-small" type="submit">주간 목표 저장</button>
           </form>
-        {% endif %}
       </section>
+        {% endif %}
     {% endif %}
 
     {% include "summaries/_rule_report.html" %}

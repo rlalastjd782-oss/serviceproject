@@ -38,6 +38,15 @@
         <small>{{ pagination.pages }}페이지 중</small>
       </article>
     </div>
+  </section>
+
+  <section class="section record-search-quick-section" data-ui-role="form">
+    <div class="section-header">
+      <div>
+        <div class="section-title">빠른 검색</div>
+        <div class="section-subtitle">검색어를 먼저 적용하고 필요할 때 상세 필터를 엽니다.</div>
+      </div>
+    </div>
     <form method="get" action="{{ url_for('record_search_page') }}" class="record-search-form">
       <input class="record-search-query" name="q" value="{{ search_query }}" placeholder="운동명 또는 메모">
       <button class="btn-primary record-search-submit" type="submit">검색</button>

@@ -1,5 +1,25 @@
 ﻿# Changelog
 
+## v3.0.0 UI 최종 마감 보정 - 2026-06-01
+
+- `/app` overview의 첫 화면 순서를 `오늘 상태`, `오늘 할 일`, `빠른 기록`, `최근 기록`, `기록 품질`, 날짜 control 중심으로 재정렬했습니다.
+- 기록 검색, 주간/월간 분석, 식단, 더보기, 캘린더, 데이터 센터, 장소, 플레이트 계산기, 설정 화면의 role별 surface와 compact control 기준을 보강했습니다.
+- 자동 테스트 66개, 정적 자산 테스트 29개, navigation/static 조합 테스트 39개, 컴파일, 릴리스 검사, 공백 검사, 로컬 HTTP `200` 확인을 통과했습니다.
+- 최신 visual QA 재실행은 Chromium `spawn EPERM`으로 실패해, 운영 전 실제 브라우저에서 `/app` 첫 viewport와 hero tint를 수동 확인하는 조건을 남겼습니다.
+
+## v3.0.0 UI 브랜드 컬러 리부트 재기획 - 2026-05-31
+
+- 확정 팔레트와 대표 화면 selector 계약을 최종 CSS cascade와 정적 테스트로 고정했습니다.
+- 공통 헤더/탭, 오늘 hero, 분석 결론 카드와 4분할, 식단 hero/badge, 더보기 tool group tint, 플레이트 result panel 기준을 재검증했습니다.
+- 릴리스 검사, 공백 검사, 자동 테스트 64개, 컴파일, 로컬 HTTP `200` 응답 확인을 통과했습니다.
+- 실제 브라우저의 390px, 430px, 560px, desktop 기준 한글 라벨 겹침과 computed style 확인은 운영 전 수동 조건으로 남겼습니다.
+
+## v3.0.0 전체 UI 전면 재정비 - 2026-05-31
+
+- 오늘, 기록, 분석, 식단, 더보기, 설정과 하위 도구 전체에 `v3.0.0 global UI final overhaul` CSS 레이어를 추가해 Level 0~4 surface/depth 계약을 통일했습니다.
+- 날짜/주/월 선택, 필터, form/input, 버튼 위계, 위험 action, 식단 badge, 플레이트 계산 결과를 전역 UI 시스템으로 정리했습니다.
+- 정적 UI 계약 테스트 25개, 전체 자동 테스트 62개, 컴파일, 릴리스 검사, `git diff --check`, 로컬 HTTP `302 /auth/login` 확인을 통과했습니다.
+- 최종검수 환경에서 in-app browser가 제공되지 않아 실제 390px, 430px, 560px, desktop 브라우저 육안 확인은 운영 전 수동 조건으로 남겼습니다.
 
 ## v3.0.0 UI 21개 항목 재보정 - 2026-05-31
 

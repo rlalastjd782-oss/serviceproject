@@ -4,7 +4,7 @@
 {% block title %}월간 달력{% endblock %}
 
 {% block content %}
-  <section class="section">
+  <section class="section calendar-hero-section" data-ui-role="hero">
     <div class="section-header">
       <div>
         <div class="section-title">월간 캘린더</div>
@@ -14,7 +14,7 @@
     {{ period_picker(url_for('calendar_page'), url_for('calendar_page', month=prev_month), url_for('calendar_page', month=next_month), "month", month, "month", "기준 월", "이전 달", "다음 달") }}
   </section>
 
-  <section class="section">
+  <section class="section calendar-grid-section" data-ui-role="result">
     <div class="calendar-grid">
       {% for label in ["월", "화", "수", "목", "금", "토", "일"] %}
         <div class="calendar-weekday">{{ label }}</div>
@@ -45,7 +45,7 @@
     </div>
   </section>
 
-  <section class="section">
+  <section class="section calendar-goal-section" data-ui-role="metric">
     <div class="section-header">
       <div class="section-title">목표 요약</div>
       <a class="btn-small" href="{{ url_for('export_json') }}">백업</a>
@@ -53,7 +53,7 @@
     {{ goal_cards(goals) }}
   </section>
 
-  <section class="section">
+  <section class="section calendar-body-section" data-ui-role="record">
     <div class="section-header">
       <div class="section-title">체성분 기록</div>
     </div>

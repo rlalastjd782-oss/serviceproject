@@ -5,13 +5,27 @@
 
 {% block content %}
 <div class="meal-weekly-shell">
-  <section class="section">
+  <section class="section meal-weekly-hero">
     <div class="section-header">
       <div>
-        <div class="section-title">🍱 주간 식단</div>
+        <div class="section-title">주간 식단</div>
         <div class="section-subtitle">{{ week_label }} · {{ week_start }} ~ {{ week_end }}</div>
       </div>
-      <a class="btn-small" href="{{ url_for('meal_monthly_page', month=week_start[:7]) }}">월간 보기</a>
+      <a class="btn-primary" href="{{ url_for('index', date=selected_date, mode='meal') }}">식단 입력</a>
+    </div>
+    <div class="meal-hero-metrics" aria-label="주간 식단 요약">
+      <article>
+        <span>식단 수</span>
+        <strong>{{ meal_summary.meal_count }}</strong>
+      </article>
+      <article>
+        <span>총 kcal</span>
+        <strong>{{ "%.0f"|format(meal_summary.calories) }}</strong>
+      </article>
+      <article>
+        <span>평균 kcal</span>
+        <strong>{{ meal_summary.avg_calories }}</strong>
+      </article>
     </div>
     <div class="week-control-row period-control-panel">
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=prev_week) }}" aria-label="이전 주">‹</a>
@@ -20,6 +34,7 @@
       </form>
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=next_week) }}" aria-label="다음 주">›</a>
       <button type="submit" class="btn-small period-view-btn" form="meal-week-date-form">보기</button>
+      <a class="btn-small" href="{{ url_for('meal_monthly_page', month=week_start[:7]) }}">월간 보기</a>
     </div>
   </section>
 

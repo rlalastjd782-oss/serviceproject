@@ -12,7 +12,7 @@
       </div>
       <a class="btn-small" href="{{ url_for('meal_weekly_page') }}">주간 보기</a>
     </div>
-    <div class="week-control-row">
+    <div class="week-control-row period-control-panel">
       <a class="arrow-btn" href="{{ url_for('meal_monthly_page', month=prev_month) }}" aria-label="이전 달">‹</a>
       <form method="get" action="{{ url_for('meal_monthly_page') }}" class="week-date-form">
         <input name="month" type="month" value="{{ selected_month }}" aria-label="월 선택">

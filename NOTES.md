@@ -1,5 +1,28 @@
 ﻿# Codex Handoff Notes
 
+## 2026-06-01 v3.0.0 UI 최종 마감 보정
+
+- 최종검수는 조건부 승인으로 정리했습니다. 자동 테스트와 릴리스 계약 기준 배포 차단 이슈는 없고, 운영 전 실제 브라우저에서 `/app` 390px, 430px, 560px, desktop 첫 viewport를 수동 확인해야 합니다.
+- 확인 범위: `오늘 상태`와 `오늘 할 일` 첫 viewport 노출, hero Brand teal tint, compact date control 위치, 한글 텍스트 겹침, 기존 axe 위반 중 `label`/`color-contrast`/`aria-prohibited-attr` 후속 여부.
+- 검증 통과: `python -m unittest tests.test_static_assets`, `python -m unittest tests.test_ui_navigation_flows tests.test_static_assets`, `python -m unittest discover`, `python -m compileall app.py health_tracker tests`, `python tools\check_release.py`, `git diff --check`, `Invoke-WebRequest http://127.0.0.1:5000/ -UseBasicParsing -TimeoutSec 5`.
+- `npm run visual-qa`는 최종검수에서도 Chromium `spawn EPERM`으로 실패했습니다. 권한 문제가 해소되면 `.codex-agents/playwright-tools`에서 다시 실행해 최신 산출물을 생성해야 합니다.
+- 작업 전부터 존재한 `.gitignore` 변경은 커밋 포함 전 의도 확인이 필요합니다.
+
+## 2026-05-31 v3.0.0 UI 브랜드 컬러 리부트 재기획
+
+- 최종검수는 조건부 승인으로 정리했습니다. 자동 테스트와 릴리스 계약 기준 배포 차단 이슈는 없고, 운영 전 실제 브라우저에서 390px, 430px, 560px, desktop 기준 대표 화면을 수동 확인해야 합니다.
+- 확인 범위: 헤더 제목 대비, active tab, 오늘 hero/date order, 분석 결론 카드와 4분할, 식단 badge, 더보기 group tint, 플레이트 result panel, 한글 텍스트 겹침 여부.
+- 검증 통과: `.\.venv\Scripts\python.exe tools\check_release.py`, `git diff --check`, 정적 계약 테스트, `tests.test_static_assets tests.test_ui_navigation_flows`, 전체 `unittest discover`, `compileall`, 로컬 HTTP `200` 확인.
+- QA PNG 캡처는 headless Chrome 비정상 종료로 완료되지 않았으므로, 브라우저 수동 확인 결과를 Git 자동화 또는 운영 전 확인 메모에 남겨야 합니다.
+- 작업 전부터 존재한 `.gitignore` 변경은 커밋 포함 전 의도 확인이 필요합니다.
+
+## 2026-05-31 v3.0.0 전체 UI 전면 재정비
+
+- 최종검수는 조건부 승인으로 정리했습니다. 배포 차단 이슈는 없고, 운영 전 실제 브라우저에서 390px, 430px, 560px, desktop 기준 핵심 화면의 한글 라벨 겹침과 버튼 위계를 수동 확인해야 합니다.
+- 확인 범위: 전체 앱 surface/depth token, date-control family, card/list/form/button 위계, account/danger action 분리, 식사 시간 badge, 플레이트 결과, 반응형 CSS 계약.
+- 검증 통과: `.\.venv\Scripts\python.exe -m unittest tests.test_static_assets -v`, `.\.venv\Scripts\python.exe -m unittest discover -v`, `.\.venv\Scripts\python.exe -m compileall app.py health_tracker tests`, `.\.venv\Scripts\python.exe tools\check_release.py`, `git diff --check`, 로컬 HTTP `302 /auth/login` 확인.
+- 최종검수 환경에서 in-app browser가 제공되지 않아 viewport별 브라우저 확인은 수동 운영 확인 항목으로 남겼습니다.
+- 작업 전부터 존재한 `.gitignore` 변경은 커밋 포함 전 의도 확인이 필요합니다.
 
 ## 2026-05-31 v3.0.0 UI 21개 항목 재보정
 

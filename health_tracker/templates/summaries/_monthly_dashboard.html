@@ -1,26 +1,53 @@
     {% if active_page == "monthly" and monthly_report %}
-      <section class="section">
-        <div class="section-header">
-          <div>
-            <div class="section-title">월 선택</div>
-            <div class="section-subtitle">선택한 월 기준으로 리포트와 주간 그래프를 다시 계산합니다.</div>
-          </div>
-        </div>
-        {{ period_picker(url_for('monthly_summary_page'), url_for('monthly_summary_page', month=prev_month), url_for('monthly_summary_page', month=next_month), "month", selected_month, "month", "기준 월", "이전 월", "다음 월") }}
-      </section>
-
       <section class="section analysis-dashboard-section">
         <div class="yearly-dashboard-head">
           <div class="yearly-kicker">월간 분석</div>
           <h1>{{ monthly_report.workout_days }}일 운동 · {{ monthly_report.pr_count }}개 PR</h1>
           <p>{{ monthly_report.period }} 기준으로 볼륨, 부위 균형, 체성분 변화를 연간 화면과 같은 흐름으로 정리했습니다.</p>
         </div>
+        <div class="analysis-conclusion-card monthly-conclusion-card" aria-label="월간 핵심 결론">
+          <span>핵심 결론</span>
+          <strong>{{ report_insights[0] if report_insights else "이번 달 기록을 쌓으면 월간 분석 정확도가 올라갑니다." }}</strong>
+          <div class="analysis-conclusion-grid">
+            <div>
+              <b>성과</b>
+              <small>{{ period_highlights[0].label if period_highlights else "운동 빈도와 누적 볼륨을 먼저 확인하세요." }}</small>
+            </div>
+            <div>
+              <b>부족</b>
+              <small>{% if monthly_report.missing %}{{ monthly_report.missing[:3]|join(', ') }}{% else %}부족 부위와 누락 기록을 함께 점검하세요.{% endif %}</small>
+            </div>
+            <div>
+              <b>경고</b>
+              <small>{% if monthly_report.missing %}누락 기록이 분석 신뢰도를 낮출 수 있습니다.{% else %}현재 큰 누락 경고는 없습니다.{% endif %}</small>
+            </div>
+            <div>
+              <b>다음 행동</b>
+              <small>{{ monthly_goal_insights[0] if monthly_goal_insights else "오늘 기록을 추가하고 월간 목표를 조정하세요." }}</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section analysis-dashboard-section analysis-control-section" data-ui-role="date-control">
+        <section class="analysis-period-panel" aria-label="월 선택">
+          <div class="section-header">
+            <div>
+              <div class="section-title">월 선택</div>
+              <div class="section-subtitle">선택한 월 기준으로 리포트와 주간 그래프를 다시 계산합니다.</div>
+            </div>
+          </div>
+          {{ period_picker(url_for('monthly_summary_page'), url_for('monthly_summary_page', month=prev_month), url_for('monthly_summary_page', month=next_month), "month", selected_month, "month", "기준 월", "이전 월", "다음 월") }}
+        </section>
         <div class="yearly-action-grid analysis-action-grid">
           <a class="btn-small" href="{{ url_for('yearly_summary_page', year=selected_month[:4]) }}">연간</a>
           <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
           <a class="btn-small" href="{{ url_for('exercise_summary_page') }}">운동별</a>
           <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비별</a>
         </div>
+      </section>
+
+      <section class="section analysis-dashboard-section analysis-detail-section" data-ui-role="metric">
         <div class="yearly-metric-grid analysis-metric-grid">
           <article class="yearly-metric-card is-primary">
             <span>운동일</span>
@@ -53,7 +80,9 @@
             <small>PR 이벤트</small>
           </article>
         </div>
+      </section>
         {% if monthly_goals %}
+      <section class="section analysis-dashboard-section analysis-goal-section" data-ui-role="form">
           {{ goal_cards(monthly_goals, ["monthly_volume", "monthly_workout_days", "monthly_cardio_minutes"], {"monthly_volume": "kg", "monthly_workout_days": "일", "monthly_cardio_minutes": "분"}) }}
           <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
             <input type="hidden" name="scope" value="monthly">
@@ -63,7 +92,9 @@
             <input name="monthly_cardio_minutes" type="number" min="0" step="10" value="{{ monthly_goals.monthly_cardio_minutes.target }}" placeholder="월간 유산소 분">
             <button class="btn-small" type="submit">월간 목표 저장</button>
           </form>
+      </section>
         {% endif %}
+      <section class="section analysis-dashboard-section analysis-detail-section" data-ui-role="result">
         {% if body_monthly_report and body_monthly_report.has_data %}
           <div class="summary-grid">
             <article class="summary-card">
