@@ -4351,3 +4351,519 @@ body,
     grid-template-columns: 1fr !important;
   }
 }
+
+/* v3.0.0 21 point correction: shared depth, controls, chips, and result rows. */
+:root {
+  --surface-page: #edf3f8;
+  --surface-page-layer: radial-gradient(circle at 12% 0%, rgb(255 255 255 / 82%) 0 220px, rgb(255 255 255 / 0%) 360px),
+    linear-gradient(180deg, #f6f9fc 0%, #edf3f8 46%, #e8eff6 100%);
+  --surface-card: #ffffff;
+  --surface-card-soft: #f8fafc;
+  --surface-control: #eef4f9;
+  --surface-control-strong: #e5edf5;
+  --surface-active: #3d5267;
+  --surface-active-strong: #2f4254;
+  --surface-border: rgb(82 102 121 / 16%);
+  --surface-border-strong: rgb(64 82 101 / 24%);
+  --surface-text: #283744;
+  --surface-muted: #5c6f80;
+  --surface-shadow-soft: 0 5px 14px rgb(37 51 66 / 7%);
+  --surface-shadow-card: 0 9px 24px rgb(37 51 66 / 9%);
+  --surface-shadow-active: 0 8px 18px rgb(47 66 84 / 16%);
+  --accent-workout: #496d92;
+  --accent-cardio: #237ba6;
+  --accent-meal: #34795b;
+  --accent-body: #71658a;
+  --accent-warning: #ad6d22;
+  --accent-danger: #a34747;
+}
+
+body,
+.content {
+  background: var(--surface-page-layer), var(--surface-page) !important;
+  color: var(--surface-text) !important;
+}
+
+.content {
+  gap: 12px !important;
+}
+
+.section,
+.analysis-dashboard-section,
+.more-tool-section,
+.location-page-section,
+.settings-panel {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(248 251 253 / 96%)),
+    var(--surface-card) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--surface-shadow-card) !important;
+  padding: 12px !important;
+}
+
+.summary-card,
+.record-card,
+.daily-record-card,
+.record-result-card,
+.goal-card,
+.quality-metric,
+.more-link-card,
+.weekly-meal-day,
+.meal-template-card,
+.data-center-card,
+.progress-card,
+.overload-card,
+.tool-card-large,
+.calendar-cell {
+  background:
+    linear-gradient(180deg, #ffffff 0%, var(--surface-card-soft) 100%),
+    var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+}
+
+.today-shell > .date-row,
+.today-shell .date-row,
+.date-picker-form,
+.period-control-panel,
+.month-picker-form-wide.period-control-panel,
+.meal-weekly-shell .week-control-row.period-control-panel,
+.more-tool-filter,
+.filter-action-panel,
+.body-metric-form,
+.body-photo-form,
+.tool-input-row {
+  display: grid !important;
+  align-items: stretch !important;
+  gap: 8px !important;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(228 237 246 / 48%)),
+    var(--surface-control) !important;
+  border: 1px solid var(--surface-border-strong) !important;
+  border-radius: 9px !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 4px 11px rgb(37 51 66 / 5%) !important;
+  padding: 8px !important;
+}
+
+.today-shell > .date-row,
+.today-shell .date-row,
+.date-picker-form,
+.period-control-panel,
+.month-picker-form-wide.period-control-panel,
+.meal-weekly-shell .week-control-row.period-control-panel,
+.more-tool-filter {
+  grid-template-columns: minmax(40px, auto) minmax(0, 1fr) minmax(40px, auto) minmax(76px, auto) !important;
+}
+
+.period-control-panel input,
+.period-control-panel select,
+.date-picker-form input,
+.date-picker-form select,
+.more-tool-filter input,
+.more-tool-filter select,
+.body-metric-form input,
+.body-photo-form input[type="file"],
+.tool-input-row input,
+.tool-input-row select {
+  min-height: 40px !important;
+  background: rgb(255 255 255 / 72%) !important;
+  border: 1px solid rgb(82 102 121 / 12%) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+  padding: 8px 10px !important;
+}
+
+.period-control-panel .arrow-btn,
+.period-control-panel .period-view-btn,
+.date-picker-form .btn-small,
+.more-tool-filter .btn-small,
+.tool-form .btn-small:not(.btn-primary) {
+  min-height: 40px !important;
+  background: #f9fbfd !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+}
+
+.btn-primary,
+.today-shell .body-metric-form .btn-small,
+.today-shell .body-photo-form .btn-small,
+.meal-template-card .btn-primary,
+.settings-panel .btn-primary {
+  background:
+    linear-gradient(180deg, #526b82 0%, var(--surface-active-strong) 100%),
+    var(--surface-active) !important;
+  border-color: rgb(47 66 84 / 32%) !important;
+  box-shadow: var(--surface-shadow-active) !important;
+  color: #ffffff !important;
+}
+
+.account-actions {
+  justify-content: flex-start !important;
+}
+
+.header {
+  align-items: start !important;
+  gap: 8px !important;
+}
+
+.header-meta {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: flex-start !important;
+  gap: 5px 7px !important;
+  min-width: 0 !important;
+}
+
+.account-greeting,
+.app-version {
+  max-width: 100% !important;
+  min-height: 24px !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  overflow-wrap: anywhere !important;
+}
+
+.app-version {
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  color: var(--surface-muted) !important;
+}
+
+.account-action-btn {
+  background: #fff6f6 !important;
+  border-color: rgb(163 71 71 / 24%) !important;
+  box-shadow: none !important;
+  color: var(--accent-danger) !important;
+}
+
+.body-metric-form {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(82px, auto) !important;
+}
+
+.body-photo-form {
+  grid-template-columns: minmax(0, 1fr) minmax(104px, auto) !important;
+}
+
+.body-photo-form input[type="file"] {
+  width: 100% !important;
+  cursor: pointer !important;
+}
+
+.body-photo-form input[type="file"]::file-selector-button {
+  min-height: 28px !important;
+  margin-right: 10px !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 8px !important;
+  background: var(--surface-card-soft) !important;
+  color: var(--surface-text) !important;
+  font: inherit !important;
+}
+
+.cat-badge,
+.body-part-filter-chip,
+.body-part-toggle {
+  border: 1px solid rgb(82 102 121 / 16%) !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+}
+
+.cat-badge.body-part-legs,
+.body-part-filter-chip.body-part-legs,
+.body-part-toggle.body-part-legs {
+  background: #eef4e7 !important;
+  border-color: rgb(92 124 64 / 24%) !important;
+}
+
+.cat-badge.body-part-chest,
+.body-part-filter-chip.body-part-chest,
+.body-part-toggle.body-part-chest {
+  background: #f5ecef !important;
+  border-color: rgb(146 82 101 / 22%) !important;
+}
+
+.cat-badge.body-part-arms,
+.body-part-filter-chip.body-part-arms,
+.body-part-toggle.body-part-arms {
+  background: #edf0f8 !important;
+  border-color: rgb(83 97 151 / 22%) !important;
+}
+
+.cat-badge.body-part-back,
+.body-part-filter-chip.body-part-back,
+.body-part-toggle.body-part-back {
+  background: #eaf3f4 !important;
+  border-color: rgb(63 125 133 / 22%) !important;
+}
+
+.cat-badge.body-part-shoulders,
+.body-part-filter-chip.body-part-shoulders,
+.body-part-toggle.body-part-shoulders {
+  background: #f3efe8 !important;
+  border-color: rgb(136 102 56 / 22%) !important;
+}
+
+.cat-badge.body-part-cardio,
+.body-part-filter-chip.body-part-cardio,
+.body-part-toggle.body-part-cardio {
+  background: #e8f3f8 !important;
+  border-color: rgb(35 123 166 / 24%) !important;
+}
+
+.cat-badge.body-part-other,
+.body-part-filter-chip.body-part-other,
+.body-part-toggle.body-part-other {
+  background: #f0f2f5 !important;
+  border-color: rgb(82 102 121 / 18%) !important;
+}
+
+.body-part-filter-chip.is-active,
+.body-part-toggle.is-active {
+  border-color: rgb(47 66 84 / 38%) !important;
+  box-shadow: var(--surface-shadow-active) !important;
+  color: #ffffff !important;
+  background: var(--surface-active) !important;
+}
+
+.weekly-meal-item .badge.meal-type-breakfast,
+.today-meal-section .badge.meal-type-breakfast {
+  background: #fff4ce !important;
+  border-color: rgb(173 109 34 / 24%) !important;
+  color: #74511a !important;
+}
+
+.weekly-meal-item .badge.meal-type-lunch,
+.today-meal-section .badge.meal-type-lunch {
+  background: #e6f4ea !important;
+  border-color: rgb(52 121 91 / 24%) !important;
+  color: #2f684f !important;
+}
+
+.weekly-meal-item .badge.meal-type-dinner,
+.today-meal-section .badge.meal-type-dinner {
+  background: #e5f0fb !important;
+  border-color: rgb(73 109 146 / 24%) !important;
+  color: #385b7a !important;
+}
+
+.weekly-meal-item .badge.meal-type-snack,
+.today-meal-section .badge.meal-type-snack {
+  background: #f0eaf8 !important;
+  border-color: rgb(113 101 138 / 24%) !important;
+  color: #5b4f75 !important;
+}
+
+.daily-record-card,
+.detail-row,
+.ex-rank-item,
+.pr-rank-card,
+.more-link-card,
+.recent-meal-template-row,
+.location-manage-details summary,
+.weekly-meal-item {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f7fafc 100%),
+    var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  color: var(--surface-text) !important;
+}
+
+a.ex-rank-item:hover,
+a.more-link-card:hover,
+.recent-meal-template-row:focus-within,
+.location-manage-details summary:hover {
+  border-color: var(--surface-border-strong) !important;
+  box-shadow: 0 7px 17px rgb(37 51 66 / 10%) !important;
+  transform: translateY(-1px) !important;
+}
+
+.ex-rank-item .rank-num {
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  box-shadow: none !important;
+  color: var(--surface-muted) !important;
+}
+
+.plate-tool-page .tool-card-large {
+  display: grid !important;
+  gap: 10px !important;
+}
+
+.plate-tool-page .tool-card-head span {
+  background: transparent !important;
+  border: 0 !important;
+  color: var(--surface-muted) !important;
+  box-shadow: none !important;
+}
+
+.plate-result,
+.warmup-result {
+  display: grid !important;
+  gap: 6px !important;
+  min-height: 48px !important;
+  align-content: center !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #edf5fb 100%),
+    #edf5fb !important;
+  border: 1px solid rgb(35 123 166 / 18%) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  color: #2d5368 !important;
+  cursor: default !important;
+  padding: 12px !important;
+}
+
+.plate-result span,
+.warmup-result span {
+  background: rgb(255 255 255 / 66%) !important;
+  border: 1px solid rgb(35 123 166 / 12%) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  color: #2d5368 !important;
+  padding: 7px 8px !important;
+}
+
+.exercise-hero-card,
+.overload-dashboard-section {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%),
+    var(--surface-card) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--surface-shadow-card) !important;
+}
+
+.exercise-hero-head b {
+  min-width: 88px !important;
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  color: var(--surface-active-strong) !important;
+}
+
+.next-plan-list div {
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f3f7fb 100%),
+    var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  color: var(--surface-text) !important;
+}
+
+.progress-card .duration-bar {
+  background: linear-gradient(90deg, #6bb6d5, var(--accent-cardio)) !important;
+}
+
+.progress-card .set-bar {
+  background: linear-gradient(90deg, #7fc69b, var(--accent-meal)) !important;
+}
+
+.progress-card .burn-bar {
+  background: linear-gradient(90deg, #e4bd74, var(--accent-warning)) !important;
+}
+
+.progress-card .volume-bar {
+  background: linear-gradient(90deg, #7b96b3, var(--accent-workout)) !important;
+}
+
+.overload-card {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+.overload-card.state-상승 {
+  background: linear-gradient(180deg, #ffffff 0%, #eaf6ef 100%) !important;
+  border-color: rgb(52 121 91 / 24%) !important;
+}
+
+.overload-card.state-정체 {
+  background: linear-gradient(180deg, #ffffff 0%, #eef4fa 100%) !important;
+  border-color: rgb(73 109 146 / 22%) !important;
+}
+
+.overload-card.state-회복-필요,
+.overload-card.state-회복필요,
+.overload-card.state-주의 {
+  background: linear-gradient(180deg, #ffffff 0%, #fff4e6 100%) !important;
+  border-color: rgb(173 109 34 / 28%) !important;
+}
+
+.overload-card-head b {
+  background: rgb(255 255 255 / 68%) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+}
+
+.data-warning-card,
+.analysis-action-card.is-warning,
+.insight-group-card.is-warning {
+  background: linear-gradient(180deg, #ffffff 0%, #fff7ea 100%) !important;
+  border-color: rgb(173 109 34 / 24%) !important;
+  color: #644715 !important;
+}
+
+.more-overview-strip,
+.analysis-primary-metrics,
+.analysis-secondary-metrics,
+.more-link-grid,
+.meal-template-grid,
+.workout-tool-grid {
+  gap: 10px !important;
+}
+
+@media (max-width: 560px) {
+  .header {
+    grid-template-columns: 1fr !important;
+  }
+
+  .header-meta,
+  .account-actions {
+    justify-content: flex-start !important;
+    width: 100% !important;
+  }
+
+  .today-shell > .date-row,
+  .today-shell .date-row,
+  .date-picker-form,
+  .period-control-panel,
+  .month-picker-form-wide.period-control-panel,
+  .meal-weekly-shell .week-control-row.period-control-panel,
+  .more-tool-filter,
+  .filter-action-panel,
+  .body-metric-form,
+  .body-photo-form,
+  .tool-input-row,
+  .recent-meal-template-row,
+  .location-card-main,
+  .location-card-actions,
+  .location-manage-details summary {
+    grid-template-columns: 1fr !important;
+  }
+
+  .body-photo-form .btn-small,
+  .body-metric-form .btn-small,
+  .period-control-panel .period-view-btn,
+  .more-tool-filter .btn-small {
+    width: 100% !important;
+  }
+}
+
+@media (min-width: 561px) and (max-width: 760px) {
+  .body-metric-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .body-metric-form .btn-small {
+    grid-column: 1 / -1 !important;
+  }
+}

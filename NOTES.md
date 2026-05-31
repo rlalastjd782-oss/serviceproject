@@ -1,5 +1,12 @@
 ﻿# Codex Handoff Notes
 
+
+## 2026-05-31 v3.0.0 UI 21개 항목 재보정
+
+- 최종검수는 조건부 승인으로 정리했습니다. 배포 차단 이슈는 없고, 운영 전 실제 브라우저에서 390px, 430px, 560px, desktop 기준 핵심 화면의 한글 라벨 겹침과 버튼 위계를 수동 확인해야 합니다.
+- 확인 범위: 전역 surface/depth token, date/control panel, file-control-row, 식사 시간 badge, list-card, result-row, 과부하 state card, 정적 UI 계약 테스트.
+- 검증 통과: `.\.venv\Scripts\python.exe -m unittest tests.test_static_assets -v`, `.\.venv\Scripts\python.exe -m unittest discover -v`, `.\.venv\Scripts\python.exe -m compileall app.py health_tracker tests`, `.\.venv\Scripts\python.exe tools\check_release.py`, `git diff --check`, 로컬 HTTP `302 /auth/login` 확인.
+- 작업 전부터 존재한 `.gitignore` 변경은 커밋 포함 전 의도 확인이 필요합니다.
 ## 2026-05-31 v3.0.0 후속 UI 구조 보정
 
 - v3.0.0 이후 실제 화면 기준 UI 구조 보정 최종검수를 조건부 승인으로 정리했습니다.
@@ -168,3 +175,4 @@
 - 서비스워커 캐시가 남아 있으면 배포 후 예전 CSS가 보일 수 있으므로 버전과 cache name을 반드시 함께 올립니다.
 - 문서 기록 없이 코드만 수정하지 않습니다. 최소한 `NOTES.md`에는 작업 맥락과 검증 결과를, `CHANGELOG.md`에는 사용자에게 의미 있는 변경 사항을 남깁니다.
 - UI를 수정할 때 카드 안에 카드가 반복되는 구조를 만들지 않습니다. 내부 요소는 그림자 없는 flat row/pill로 처리하고, shadow/gradient는 바깥 카드나 최상위 panel에만 제한합니다.
+

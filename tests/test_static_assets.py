@@ -345,6 +345,43 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn("location-card-actions info-action-row", locations_template)
         self.assertIn("장소 수정 · 장비 카테고리", locations_template)
 
+    def test_v3_ui_21_point_correction_contract_is_present(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        today_template = Path("health_tracker/templates/today/_body_metrics.html").read_text(encoding="utf-8-sig")
+        meal_template = Path("health_tracker/templates/meals/weekly.html").read_text(encoding="utf-8-sig")
+        plate_template = Path("health_tracker/templates/more/plate_calculator.html").read_text(encoding="utf-8-sig")
+        exercise_template = Path("health_tracker/templates/summaries/_exercise_summary.html").read_text(encoding="utf-8-sig")
+
+        self.assertIn("v3.0.0 21 point correction", source)
+        self.assertIn("--surface-page-layer:", source)
+        self.assertIn("--surface-shadow-card:", source)
+        self.assertIn("--accent-cardio:", source)
+        self.assertIn("--accent-warning:", source)
+
+        required_selectors = [
+            ".today-shell > .date-row",
+            ".body-photo-form input[type=\"file\"]::file-selector-button",
+            ".weekly-meal-item .badge.meal-type-breakfast",
+            ".weekly-meal-item .badge.meal-type-lunch",
+            ".weekly-meal-item .badge.meal-type-dinner",
+            ".weekly-meal-item .badge.meal-type-snack",
+            ".plate-result,\n.warmup-result",
+            ".exercise-hero-head b",
+            ".progress-card .duration-bar",
+            ".progress-card .set-bar",
+            ".progress-card .burn-bar",
+            ".overload-card.state-회복-필요",
+        ]
+        for selector in required_selectors:
+            self.assertIn(selector, source)
+
+        self.assertIn('class="body-photo-form"', today_template)
+        self.assertIn('class="badge {{ meal_type_class(meal.meal_type) }}"', meal_template)
+        self.assertIn('class="plate-result plate-result-large"', plate_template)
+        self.assertIn('class="plate-result warmup-result"', plate_template)
+        self.assertIn("exercise-hero-head", exercise_template)
+        self.assertIn("overload-card state-", exercise_template)
+
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [
             "#101827",
