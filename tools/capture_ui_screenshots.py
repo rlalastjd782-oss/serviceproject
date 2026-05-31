@@ -161,7 +161,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--chrome", required=True)
-    parser.add_argument("--output", required=True)
+    parser.add_argument("--output", default=".codex-agents/screenshots/latest")
     args = parser.parse_args()
 
     chrome_path = Path(args.chrome)
@@ -192,15 +192,15 @@ def main() -> None:
         captures.append((title, path, image_file))
 
     gallery_file = build_gallery(output_dir, captures)
-    pdf_file = output_dir / "ui_screenshots.pdf"
-    run_chrome(chrome_path, [f"--print-to-pdf={pdf_file.resolve()}", gallery_file.resolve().as_uri()])
     (output_dir / "README.txt").write_text(
         f"Generated {len(captures)} screenshots at {time.strftime('%Y-%m-%d %H:%M:%S')}.\n"
-        f"PNG folder: {png_dir}\nPDF: {pdf_file}\n",
+        f"PNG folder: {png_dir}\n"
+        f"Gallery: {gallery_file}\n"
+        "This is a temporary QA artifact. Final review must delete it after approval.\n",
         encoding="utf-8",
     )
     print(output_dir)
-    print(pdf_file)
+    print(gallery_file)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-/* v2.8.13 final UI QA pass: normalize card depth, menu density, and mobile sizing. */
+﻿/* v2.8.13 final UI QA pass: normalize card depth, menu density, and mobile sizing. */
 :root {
   --qa-panel: #e6ecf3;
   --qa-chip: #dfe7ef;
@@ -14,7 +14,6 @@
   --qa-shadow-soft: 0 3px 8px rgb(28 36 46 / 5%);
   --qa-inset: inset 0 1px 0 rgb(255 255 255 / 62%);
 }
-
 body {
   color: var(--qa-text) !important;
 }
@@ -556,7 +555,6 @@ textarea,
     align-items: stretch !important;
   }
 }
-
 /* v2.8.13 scoped stabilization: reduce broad override pressure. */
 .tool-form,
 .filter-form,
@@ -3378,5 +3376,358 @@ body,
   .tab-logout-form .tab-btn {
     min-width: 0 !important;
     overflow-wrap: anywhere !important;
+  }
+}
+
+/* v2.8.32 global surface enforcement pass: keep all primary app screens on the meal-tab depth system. */
+:root {
+  --surface-page: #edf3f8;
+  --surface-card: #ffffff;
+  --surface-card-soft: #f8fafc;
+  --surface-control: #eef4f9;
+  --surface-control-strong: #e2edf6;
+  --surface-border: rgb(92 112 133 / 16%);
+  --surface-border-strong: rgb(92 112 133 / 27%);
+  --surface-text: #142235;
+  --surface-muted: #516476;
+  --surface-active: #3d5267;
+  --surface-active-strong: #2e4052;
+  --surface-shadow: 0 8px 18px rgb(36 46 58 / 7%), 0 1px 2px rgb(36 46 58 / 4%);
+  --surface-shadow-soft: 0 3px 8px rgb(36 46 58 / 4%);
+  --surface-shadow-active: inset 0 1px 0 rgb(255 255 255 / 16%), 0 6px 14px rgb(36 46 58 / 14%);
+}
+
+body,
+.content,
+.today-shell,
+.meal-weekly-shell {
+  background: var(--surface-page) !important;
+  color: var(--surface-text) !important;
+}
+
+.meal-weekly-shell > .section,
+.today-shell > .date-row,
+.today-shell > .today-mode-actions,
+.today-shell > .section,
+.today-shell > .summary-grid.overview-only,
+.today-shell .workout-action-dock,
+.record-subnav,
+.analysis-subnav,
+.record-subnav ~ .section,
+.record-search-dashboard,
+.record-result-section,
+.analysis-dashboard-section,
+.yearly-dashboard-section,
+.yearly-body-section,
+.equipment-dashboard-section,
+.equipment-summary-section,
+.pr-hero-section,
+.overload-dashboard-section,
+.record-body-part-section,
+.more-section,
+.more-group-section,
+.more-tool-section,
+.settings-panel,
+.settings-overview-section {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--surface-shadow) !important;
+  color: var(--surface-text) !important;
+}
+
+.meal-weekly-shell > .section,
+.today-shell > .date-row,
+.today-shell > .today-mode-actions,
+.today-shell > .section,
+.today-shell > .summary-grid.overview-only,
+.today-shell .workout-action-dock,
+.record-subnav,
+.analysis-subnav,
+.record-subnav ~ .section,
+.record-search-dashboard,
+.record-result-section,
+.analysis-dashboard-section,
+.yearly-dashboard-section,
+.yearly-body-section,
+.equipment-dashboard-section,
+.equipment-summary-section,
+.pr-hero-section,
+.overload-dashboard-section,
+.record-body-part-section,
+.more-section,
+.more-group-section,
+.more-tool-section,
+.settings-panel,
+.settings-overview-section {
+  padding: 12px !important;
+}
+
+.meal-weekly-shell .summary-card,
+.meal-weekly-shell .goal-card,
+.meal-weekly-shell .weekly-meal-day,
+.today-shell .summary-card,
+.today-shell .record-card,
+.today-shell .meal-record-card,
+.today-shell .workout-summary-card,
+.today-shell .workout-form,
+.today-shell .meal-form,
+.today-shell .goal-card,
+.today-shell .today-focus-card,
+.today-shell .quality-metric,
+.today-shell .today-task-card,
+.today-shell .rule-card,
+.today-shell .next-action-card,
+.daily-record-card,
+.record-result-card,
+.yearly-metric-card,
+.metric-card,
+.month-card,
+.yearly-month-card,
+.rank-card,
+.analysis-action-card,
+.pr-rank-card,
+.pr-best-card,
+.equipment-summary-card,
+.cat-stat-card,
+.more-link-card,
+.more-overview-strip article,
+.tool-card,
+.settings-action-card {
+  background: var(--surface-card-soft) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+  color: var(--surface-text) !important;
+}
+
+.meal-weekly-shell .week-control-row,
+.meal-weekly-shell .week-date-form,
+.meal-weekly-shell .goal-form,
+.meal-weekly-shell .weekly-meal-day-head,
+.meal-weekly-shell .weekly-meal-item,
+.today-shell .set-entry-row,
+.today-shell .meal-entry-row,
+.today-shell .detail-row,
+.today-shell .timer-actions,
+.today-shell .set-builder-toolbar,
+.today-shell .body-metric-form,
+.today-shell .body-photo-form,
+.daily-metric,
+.record-result-value,
+.record-filter-details,
+.record-search-form,
+.record-list-toolbar,
+.period-filter-form,
+.analysis-action-grid,
+.yearly-action-grid,
+.body-part-filter-list,
+.body-part-toggle-panel,
+.body-part-toggle-list,
+.more-tool-filter,
+.tool-input-row,
+.plate-result,
+.settings-action-row,
+.settings-password-form,
+.empty,
+.compact-empty,
+.empty-state {
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+}
+
+.meal-weekly-shell .week-control-row,
+.meal-weekly-shell .week-date-form,
+.meal-weekly-shell .goal-form,
+.today-shell > .date-row,
+.today-shell > .today-mode-actions,
+.today-shell .workout-action-dock,
+.today-shell .body-metric-form,
+.today-shell .body-photo-form,
+.record-search-form,
+.record-list-toolbar,
+.period-filter-form,
+.analysis-action-grid,
+.yearly-action-grid,
+.body-part-filter-list,
+.body-part-toggle-panel,
+.more-tool-filter,
+.tool-input-row,
+.settings-action-row,
+.settings-password-form {
+  gap: 8px !important;
+  padding: 8px !important;
+}
+
+.meal-weekly-shell input,
+.meal-weekly-shell select,
+.meal-weekly-shell textarea,
+.today-shell input,
+.today-shell select,
+.today-shell textarea,
+.record-search-dashboard input,
+.record-search-dashboard select,
+.record-search-dashboard textarea,
+.analysis-dashboard-section input,
+.analysis-dashboard-section select,
+.analysis-dashboard-section textarea,
+.yearly-dashboard-section input,
+.yearly-dashboard-section select,
+.yearly-dashboard-section textarea,
+.equipment-dashboard-section input,
+.equipment-dashboard-section select,
+.equipment-dashboard-section textarea,
+.more-tool-section input,
+.more-tool-section select,
+.more-tool-section textarea,
+.settings-panel input,
+.settings-panel select,
+.settings-panel textarea {
+  background: #ffffff !important;
+  border: 1px solid var(--surface-border-strong) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+  min-height: 38px !important;
+}
+
+.meal-weekly-shell .btn-small,
+.meal-weekly-shell .arrow-btn,
+.tabs .tab-btn,
+.tab-logout-form .tab-btn,
+.record-subnav a,
+.analysis-subnav a,
+.today-shell .today-mode-actions .mode-button,
+.today-shell .today-mode-actions .focus-mode-button,
+.today-shell .workout-action-dock a,
+.today-shell .workout-action-dock button,
+.period-filter-form .btn-small,
+.record-list-toolbar .btn-small,
+.analysis-action-grid .btn-small,
+.yearly-action-grid .btn-small,
+.record-search-dashboard .btn-small,
+.more-tool-section .btn-small,
+.settings-panel .btn-small,
+.body-part-filter-chip,
+.body-part-toggle {
+  background: var(--surface-control) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 9px !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+  min-height: 38px !important;
+}
+
+.tab-btn.active,
+.tabs .tab-btn.active,
+.record-subnav a.active,
+.record-subnav a.is-active,
+.analysis-subnav a.active,
+.analysis-subnav a.is-active,
+.body-part-filter-chip.is-active,
+.body-part-toggle.is-active,
+.pr-rank-card.is-selected,
+.equipment-summary-card.is-selected,
+.btn-primary,
+.meal-weekly-shell .btn-primary,
+.today-shell .today-mode-actions .mode-button.btn-primary,
+.today-shell .today-mode-actions .focus-mode-button.btn-primary,
+.today-shell .workout-action-dock button[data-workout-clock-start],
+.today-shell .workout-form .btn-primary,
+.today-shell .meal-form .btn-primary,
+.today-shell .timer-actions .btn-primary,
+.today-shell .form-action-row .btn-primary,
+.today-shell .body-metric-form .btn-small,
+.period-filter-form .btn-primary,
+.record-list-toolbar .btn-primary,
+.record-search-dashboard .btn-primary,
+.more-tool-section .btn-primary,
+.settings-panel .btn-primary {
+  background:
+    linear-gradient(180deg, #53697d 0%, var(--surface-active-strong) 100%),
+    var(--surface-active) !important;
+  border-color: rgb(45 64 82 / 30%) !important;
+  box-shadow: var(--surface-shadow-active) !important;
+  color: #ffffff !important;
+}
+
+.meal-weekly-shell .section-header,
+.today-shell .section-header,
+.record-subnav ~ .section .section-header,
+.record-search-dashboard .section-header,
+.analysis-dashboard-section .section-header,
+.yearly-dashboard-section .section-header,
+.more-group-section .section-header,
+.more-tool-section .section-header,
+.settings-panel .section-header {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  color: var(--surface-text) !important;
+  padding: 0 !important;
+}
+
+.summary-value,
+.section-title,
+.meal-weekly-shell .section-title,
+.today-shell .section-title,
+.daily-record-head strong,
+.record-result-card strong,
+.more-link-card strong,
+.tool-card strong,
+.settings-panel strong {
+  color: var(--surface-text) !important;
+}
+
+.section-subtitle,
+.summary-label,
+.record-result-meta,
+.more-link-card span,
+.tool-card span,
+.daily-metric span,
+.record-result-value span,
+.settings-panel small {
+  color: var(--surface-muted) !important;
+}
+
+@media (max-width: 560px) {
+  .meal-weekly-shell > .section,
+  .today-shell > .date-row,
+  .today-shell > .today-mode-actions,
+  .today-shell > .section,
+  .today-shell > .summary-grid.overview-only,
+  .today-shell .workout-action-dock,
+  .record-search-dashboard,
+  .record-result-section,
+  .analysis-dashboard-section,
+  .yearly-dashboard-section,
+  .yearly-body-section,
+  .equipment-dashboard-section,
+  .pr-hero-section,
+  .overload-dashboard-section,
+  .record-body-part-section,
+  .more-section,
+  .more-group-section,
+  .more-tool-section,
+  .settings-panel {
+    padding: 10px !important;
+  }
+
+  .meal-weekly-shell .week-control-row,
+  .meal-weekly-shell .week-date-form,
+  .meal-weekly-shell .goal-form.goal-form-compact,
+  .meal-weekly-shell .weekly-meal-day-head,
+  .meal-weekly-shell .weekly-meal-item,
+  .today-shell .body-metric-form,
+  .today-shell .body-photo-form,
+  .record-search-form,
+  .period-filter-form,
+  .settings-action-row,
+  .settings-password-form,
+  .tool-input-row {
+    grid-template-columns: 1fr !important;
   }
 }

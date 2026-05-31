@@ -213,16 +213,16 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".daily-metric,\n.record-result-value,\n.today-shell .detail-row", source)
         self.assertIn(".record-subnav a.active,\n.record-subnav a.is-active,\n.analysis-subnav a.active", source)
 
-    def test_meal_tab_dimensional_ui_pass_is_final_and_updates_cache_version(self) -> None:
+    def test_meal_tab_dimensional_ui_pass_updates_cache_version(self) -> None:
         source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
         weekly_template = Path("health_tracker/templates/meals/weekly.html").read_text(encoding="utf-8-sig")
         version = Path("VERSION").read_text(encoding="utf-8-sig").strip()
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
         manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
 
-        self.assertEqual(version, "2.8.31")
-        self.assertIn('CACHE_NAME = "workout-pwa-v2.8.31"', sw_source)
-        self.assertIn('"version": "2.8.31"', manifest_source)
+        self.assertEqual(version, "2.8.32")
+        self.assertIn('CACHE_NAME = "workout-pwa-v2.8.32"', sw_source)
+        self.assertIn('"version": "2.8.32"', manifest_source)
         self.assertIn('"background_color": "#edf3f8"', manifest_source)
         self.assertIn('class="meal-weekly-shell"', weekly_template)
 
@@ -231,6 +231,59 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         self.assertIn(".meal-weekly-shell .summary-card,\n.meal-weekly-shell .goal-card,\n.meal-weekly-shell .weekly-meal-day", source)
         self.assertIn(".meal-weekly-shell .week-control-row,\n.meal-weekly-shell .week-date-form", source)
         self.assertIn(".settings-panel,\n.settings-overview-section", source)
+
+    def test_global_surface_enforcement_pass_covers_required_screens(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        version = Path("VERSION").read_text(encoding="utf-8-sig").strip()
+        sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
+        manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
+
+        self.assertEqual(version, "2.8.32")
+        self.assertIn('CACHE_NAME = "workout-pwa-v2.8.32"', sw_source)
+        self.assertIn('"version": "2.8.32"', manifest_source)
+        self.assertLess(source.index("v2.8.31 meal-tab dimensional UI pass"), source.index("v2.8.32 global surface enforcement pass"))
+
+        required_tokens = [
+            "--surface-page: #edf3f8;",
+            "--surface-card: #ffffff;",
+            "--surface-card-soft: #f8fafc;",
+            "--surface-control: #eef4f9;",
+            "--surface-shadow-active:",
+        ]
+        for token in required_tokens:
+            self.assertIn(token, source)
+
+        required_selectors = [
+            ".meal-weekly-shell > .section",
+            ".today-shell > .date-row",
+            ".today-shell .workout-action-dock",
+            ".today-shell .body-metric-form",
+            ".today-shell .meal-entry-row",
+            ".record-search-dashboard",
+            ".record-result-section",
+            ".analysis-dashboard-section",
+            ".yearly-body-section",
+            ".equipment-dashboard-section",
+            ".record-body-part-section",
+            ".more-group-section",
+            ".more-tool-section",
+            ".tool-card",
+            ".settings-panel",
+            ".settings-password-form",
+        ]
+        for selector in required_selectors:
+            self.assertIn(selector, source)
+
+        active_selectors = [
+            ".body-part-filter-chip.is-active",
+            ".body-part-toggle.is-active",
+            ".pr-rank-card.is-selected",
+            ".equipment-summary-card.is-selected",
+            ".more-tool-section .btn-primary",
+            ".settings-panel .btn-primary",
+        ]
+        for selector in active_selectors:
+            self.assertIn(selector, source)
 
     def test_light_theme_has_no_legacy_dark_surface_tokens(self) -> None:
         dark_surface_tokens = [

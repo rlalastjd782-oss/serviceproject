@@ -1,5 +1,12 @@
 # Codex Handoff Notes
 
+## 2026-05-31 v2.8.32
+
+- 식단탭 기준 전역 UI 시스템 강제 적용 최종검수를 조건부 승인으로 정리했습니다.
+- `v2.8.32 global surface enforcement pass`가 오늘, 기록, 분석, 식단, 더보기, 설정의 Level 0~4 surface/depth selector 계약을 덮는지 확인했습니다.
+- 검증 통과: `.\.venv\Scripts\python.exe -m unittest tests.test_static_assets -v`, `.\.venv\Scripts\python.exe -m unittest discover -v`, `.\.venv\Scripts\python.exe -m compileall app.py health_tracker tests`, `.\.venv\Scripts\python.exe tools\check_release.py`, `git diff --check`, `Invoke-WebRequest http://127.0.0.1:5000/ -UseBasicParsing -TimeoutSec 5`.
+- 운영 전 실제 브라우저에서 390px, 430px, 560px, desktop 기준 surface depth, active 상태, 한글 라벨 겹침 여부를 수동 확인해야 합니다.
+
 ## 2026-05-30 v2.8.28
 
 - User reported that switching the whole today UI to gray made the design progressively worse.

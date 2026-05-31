@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.8.32 - 2026-05-31
+
+- 식단탭 기준 전역 UI 시스템 강제 적용 pass를 추가해 오늘, 기록, 분석, 식단, 더보기, 설정 화면의 surface/depth 체계를 공통 토큰으로 고정했습니다.
+- Level 1/2/3/4 selector 계약을 보강해 카드, 입력, 필터, 리스트 row, active 버튼이 같은 밝은 입체 UI 체계를 쓰도록 정리했습니다.
+- 앱 버전, manifest, service worker cache를 `2.8.32`로 갱신하고 정적 자산 테스트를 보강했습니다.
+- 자동 테스트 58개, 정적 자산 테스트 21개, 컴파일, 릴리스 검사, 로컬 HTTP 응답 확인을 통과했습니다.
+
 ## v2.8.28 - 2026-05-30
 
 - Reversed the all-gray today UI direction after it made the screen feel heavier and less polished.
