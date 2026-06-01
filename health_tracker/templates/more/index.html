@@ -6,15 +6,15 @@
   <section class="section more-section analysis-dashboard-section">
     <div class="yearly-dashboard-head">
       <div>
-        <div class="yearly-kicker">Tools</div>
+        <div class="yearly-kicker">More</div>
         <h1>운동 관리 도구</h1>
-        <p>자주 쓰는 기능을 운동, 식단, 분석, 데이터로 정리했습니다.</p>
+        <p>자주 쓰는 관리 기능을 운동, 식단, 데이터, 분석 단위로 정리했습니다.</p>
       </div>
     </div>
 
     <div class="more-overview-strip">
       <article>
-        <span>기록 품질</span>
+        <span>분석 신뢰도</span>
         <strong>{{ data_center.quality.score }}%</strong>
       </article>
       <article>
@@ -28,103 +28,108 @@
     </div>
   </section>
 
-  <section class="section more-group-section" data-more-group="workout">
+  <section class="section more-group-section">
     <div class="section-header">
       <div>
-        <div class="section-title">운동 도구</div>
-        <div class="section-subtitle">루틴, 장소, 장비, 운동 관리 흐름을 정리합니다.</div>
+        <div class="section-title">운동 관리</div>
+        <div class="section-subtitle">루틴, 장소, 장비, 라이브러리를 관리합니다.</div>
       </div>
     </div>
     <div class="more-link-grid">
-      <a class="more-link-card" href="{{ url_for('exercise_library_page') }}" data-tool-group="workout">
+      <a class="more-link-card" href="{{ url_for('exercise_library_page') }}">
         <b>Library</b>
         <strong>운동 라이브러리</strong>
         <span>즐겨찾기, 목표, 휴식 시간, 메모를 관리합니다.</span>
       </a>
-      <a class="more-link-card" href="{{ url_for('weekly_plan_page') }}" data-tool-group="workout">
+      <a class="more-link-card" href="{{ url_for('weekly_plan_page') }}">
         <b>Plan</b>
         <strong>주간 계획</strong>
         <span>추천 기반으로 이번 주 운동 계획을 채웁니다.</span>
       </a>
-      <a class="more-link-card" href="{{ url_for('locations_page') }}" data-tool-group="workout">
+      <a class="more-link-card" href="{{ url_for('locations_page') }}">
         <b>Locations</b>
         <strong>운동 장소</strong>
         <span>헬스장별 장비 목록과 기본 장소를 관리합니다.</span>
       </a>
-      <a class="more-link-card" href="{{ url_for('location_insights_page') }}" data-tool-group="workout">
+      <a class="more-link-card" href="{{ url_for('location_insights_page') }}">
         <b>Gym</b>
         <strong>장소 인사이트</strong>
         <span>장소별 자주 쓰는 장비와 운동 패턴을 확인합니다.</span>
       </a>
-      <a class="more-link-card" href="{{ url_for('exercise_summary_page') }}" data-tool-group="workout">
-        <b>Overload</b>
-        <strong>과부하 분석</strong>
-        <span>운동별 상승, 정체, 회복 필요 상태를 확인합니다.</span>
-      </a>
     </div>
   </section>
 
-  <section class="section more-group-section" data-more-group="meal">
+  <section class="section more-group-section">
     <div class="section-header">
       <div>
-        <div class="section-title">식단 도구</div>
-        <div class="section-subtitle">반복 입력과 운동 중 계산을 빠르게 처리합니다.</div>
+        <div class="section-title">헬스장 도구</div>
+        <div class="section-subtitle">운동 중 바로 쓰는 계산기와 분석 도구입니다.</div>
       </div>
     </div>
     <div class="more-link-grid">
-      <a class="more-link-card" href="{{ url_for('meal_templates_page') }}" data-tool-group="meal">
-        <b>Meals</b>
-        <strong>식단 템플릿</strong>
-        <span>저장한 식단 묶음을 확인하고 원하는 날짜에 적용합니다.</span>
-      </a>
-      <a class="more-link-card" href="{{ url_for('plate_calculator_page') }}" data-tool-group="meal">
+      <a class="more-link-card" href="{{ url_for('plate_calculator_page') }}">
         <b>Plates</b>
         <strong>플레이트 계산기</strong>
         <span>목표 중량 기준 한쪽 원판과 워밍업 세트를 계산합니다.</span>
       </a>
+      <a class="more-link-card" href="{{ url_for('exercise_summary_page') }}">
+        <b>Overload</b>
+        <strong>과부하 분석</strong>
+        <span>운동별 상승, 정체, 회복 필요 상태를 확인합니다.</span>
+      </a>
+      <a class="more-link-card" href="{{ url_for('exercise_summary_page') }}#muscle-balance">
+        <b>Balance</b>
+        <strong>부위 밸런스</strong>
+        <span>최근 7일 부위별 세트 분포와 부족 부위를 봅니다.</span>
+      </a>
     </div>
   </section>
 
-  <section class="section more-group-section" data-more-group="analysis">
+  <section class="section more-group-section">
     <div class="section-header">
       <div>
-        <div class="section-title">분석 도구</div>
-        <div class="section-subtitle">기록을 찾고, 누락을 확인하고, 실행 인사이트로 이어갑니다.</div>
+        <div class="section-title">분석과 기록</div>
+        <div class="section-subtitle">기록 품질, 실행 추천, 캘린더를 확인합니다.</div>
       </div>
     </div>
     <div class="more-link-grid">
-      <a class="more-link-card" href="{{ url_for('calendar_page') }}" data-tool-group="analysis">
-        <b>Calendar</b>
-        <strong>캘린더</strong>
-        <span>월간 운동, 식단, 체성분 기록을 날짜별로 봅니다.</span>
-      </a>
-      <a class="more-link-card" href="{{ url_for('record_check_page') }}" data-tool-group="analysis">
-        <b>Check</b>
-        <strong>기록 점검</strong>
-        <span>최근 운동, 식단, 회복, 체성분 누락일을 빠르게 확인합니다.</span>
-      </a>
-      <a class="more-link-card" href="{{ url_for('action_insights_page') }}" data-tool-group="analysis">
+      <a class="more-link-card" href="{{ url_for('action_insights_page') }}">
         <b>Insight</b>
         <strong>실행 인사이트</strong>
         <span>이번 주 운동, 식단, 장소 데이터를 묶어 다음 행동을 제안합니다.</span>
       </a>
+      <a class="more-link-card" href="{{ url_for('record_check_page') }}">
+        <b>Check</b>
+        <strong>기록 점검</strong>
+        <span>최근 운동, 식단, 회복, 체성분 누락일을 빠르게 확인합니다.</span>
+      </a>
+      <a class="more-link-card" href="{{ url_for('calendar_page') }}">
+        <b>Calendar</b>
+        <strong>캘린더</strong>
+        <span>월간 운동, 식단, 체성분 기록을 날짜별로 봅니다.</span>
+      </a>
     </div>
   </section>
 
-  <section class="section more-group-section" data-more-group="data">
+  <section class="section more-group-section">
     <div class="section-header">
       <div>
-        <div class="section-title">관리 도구</div>
-        <div class="section-subtitle">백업, 데이터 상태, 설정 보안을 한곳에서 처리합니다.</div>
+        <div class="section-title">식단과 데이터</div>
+        <div class="section-subtitle">반복 입력과 백업을 빠르게 처리합니다.</div>
       </div>
     </div>
     <div class="more-link-grid">
-      <a class="more-link-card" href="{{ url_for('data_center_page') }}" data-tool-group="data">
+      <a class="more-link-card" href="{{ url_for('meal_templates_page') }}">
+        <b>Meals</b>
+        <strong>식단 템플릿</strong>
+        <span>저장한 식단 묶음을 확인하고 원하는 날짜에 적용합니다.</span>
+      </a>
+      <a class="more-link-card" href="{{ url_for('data_center_page') }}">
         <b>Data</b>
         <strong>데이터 센터</strong>
         <span>백업, 내보내기, 누락 기록, 데이터 상태를 한 화면에서 봅니다.</span>
       </a>
-      <a class="more-link-card" href="{{ url_for('settings_page') }}" data-tool-group="data">
+      <a class="more-link-card" href="{{ url_for('settings_page') }}">
         <b>Secure</b>
         <strong>설정 보안</strong>
         <span>비밀번호, 복원, 샘플 데이터, 위험 작업을 관리합니다.</span>

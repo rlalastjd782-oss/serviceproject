@@ -1,4 +1,11 @@
 ﻿# Codex Handoff Notes
+## 2026-06-01 v3.0.0 UI v2.6.5 기준 실제 복구
+
+- 최종검수는 조건부 승인으로 정리했습니다. 자동 테스트, 컴파일, 릴리스 검사, `git diff --check`, 로컬 HTTP `200` 확인은 통과했습니다.
+- 확인 범위: `docs/specs/v3-ui-restore-to-v265.md`, `docs/design/v3-ui-restore-to-v265.md`, `qa/reports/v3-ui-restore-to-v265.md`, 최신 visual QA summary/json, 대표 PNG 일부.
+- 남은 필수 후속: axe 위반 `label`, `aria-prohibited-attr`, `color-contrast`, `meta-viewport`, `region`, `page-has-heading-one` 보정.
+- 남은 시각 후속: `로그아웃` control이 기본 브라우저 버튼처럼 보이지 않도록 v2.6.5 계정 action 톤으로 정리.
+- 작업 전부터 존재한 `.gitignore` 변경은 커밋 포함 전 의도 확인이 필요합니다.
 
 ## 2026-06-01 v3.0.0 UI 최종 마감 보정
 
@@ -198,4 +205,3 @@
 - 서비스워커 캐시가 남아 있으면 배포 후 예전 CSS가 보일 수 있으므로 버전과 cache name을 반드시 함께 올립니다.
 - 문서 기록 없이 코드만 수정하지 않습니다. 최소한 `NOTES.md`에는 작업 맥락과 검증 결과를, `CHANGELOG.md`에는 사용자에게 의미 있는 변경 사항을 남깁니다.
 - UI를 수정할 때 카드 안에 카드가 반복되는 구조를 만들지 않습니다. 내부 요소는 그림자 없는 flat row/pill로 처리하고, shadow/gradient는 바깥 카드나 최상위 panel에만 제한합니다.
-

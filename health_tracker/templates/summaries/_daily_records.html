@@ -5,18 +5,15 @@
       <div class="section-subtitle">최근 {{ selected_days }}일 안에 기록이 있는 날짜만 표시합니다.</div>
     </div>
   </div>
-  <form method="get" action="{{ url_for('daily_summary_page') }}" class="period-filter-form record-filter-panel">
-    <div class="period-option-row" aria-label="조회 기간">
-      {% for option in app_preferences.summary_day_options %}
-        <input type="hidden" name="days" value="{{ option }}" disabled>
-        <a class="{% if selected_days == option %}btn-primary{% else %}btn-small{% endif %}" href="{{ url_for('daily_summary_page', days=option, sort=daily_sort, per_page=daily_pagination.per_page) }}">{{ option }}일</a>
-      {% endfor %}
-    </div>
+  <form method="get" action="{{ url_for('daily_summary_page') }}" class="period-filter-form">
+    {% for option in app_preferences.summary_day_options %}
+      <button class="{% if selected_days == option %}btn-primary{% else %}btn-small{% endif %}" type="submit" name="days" value="{{ option }}">{{ option }}일</button>
+    {% endfor %}
+  </form>
+  <form method="get" action="{{ url_for('daily_summary_page') }}" class="record-list-toolbar">
     <input type="hidden" name="days" value="{{ selected_days }}">
-    <div class="record-list-toolbar">
-      {{ result_toolbar(daily_pagination, [("newest", "최신순"), ("oldest", "오래된순")], daily_sort, url_for('daily_summary_page')) }}
-      <button class="btn-primary" type="submit">적용</button>
-    </div>
+    {{ result_toolbar(daily_pagination, [("newest", "최신순"), ("oldest", "오래된순")], daily_sort, url_for('daily_summary_page')) }}
+    <button class="btn-small" type="submit">적용</button>
   </form>
 </section>
 <div class="record-list">
@@ -46,11 +43,7 @@
       </div>
     </article>
   {% else %}
-    <div class="empty-state">
-      <strong>날짜별 기록이 없습니다.</strong>
-      <span>오늘 운동이나 식단을 입력하면 회고 카드가 생성됩니다.</span>
-      <a class="btn-small" href="{{ url_for('index', mode='workout') }}">운동 입력</a>
-    </div>
+    <div class="empty">기록 없음</div>
   {% endfor %}
 </div>
 <div class="record-pagination-block">

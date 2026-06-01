@@ -1,4 +1,4 @@
-﻿  <section class="section meal-only today-meal-section">
+  <section class="section meal-only today-meal-section">
     <div class="section-header">
       <div class="section-title">🍱 오늘 식단</div>
     </div>
@@ -15,7 +15,6 @@
             <div class="inline-add-panel">
               <button type="button" class="btn-add" data-toggle-add>+ 음식 추가</button>
               <form method="post" action="{{ url_for('create_meal') }}" class="inline-add-form meal-add-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
                 <input type="hidden" name="mode" value="meal">
                 <input type="hidden" name="meal_type" value="{{ group.meal_type }}">
@@ -30,10 +29,7 @@
           </article>
         {% endfor %}
       {% else %}
-        <div class="empty compact-empty">
-          <span>식단 기록 없음</span>
-          <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
-        </div>
+        <div class="empty">식단 기록 없음</div>
       {% endif %}
     </div>
   </section>

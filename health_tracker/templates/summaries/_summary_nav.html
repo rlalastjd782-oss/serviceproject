@@ -15,6 +15,10 @@
       <strong>운동별 · 선택 운동 기준</strong>
     {% elif active_page == "equipment" %}
       <strong>장비별 · {{ selected_scope or "all" }}</strong>
+    {% elif active_page == "pr" %}
+      <strong>PR · 개인 기록 기준</strong>
+    {% elif active_page == "yearly" %}
+      <strong>연간 · {{ selected_year or "전체" }}</strong>
     {% else %}
       <strong>분석</strong>
     {% endif %}

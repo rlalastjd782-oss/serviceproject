@@ -11,7 +11,7 @@
   margin-bottom: 8px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #f8fafc;
+  background: rgb(15 23 42 / 58%);
   padding: 8px;
 }
 
@@ -61,18 +61,6 @@
   border-radius: 8px;
   background: var(--bg);
   padding: 8px;
-}
-
-.inline-repeat-control {
-  display: grid;
-  gap: 4px;
-  min-width: 88px;
-}
-
-.inline-repeat-control span {
-  color: var(--muted);
-  font-size: 0.78rem;
-  font-weight: 700;
 }
 
 .trend-chart {
@@ -155,7 +143,7 @@
   height: 9px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e5e7eb;
+  background: #111827;
 }
 
 .line-track i {
@@ -286,7 +274,7 @@ tbody tr:last-child td {
   border-radius: var(--radius);
   background:
     linear-gradient(180deg, rgb(255 255 255 / 3%), transparent),
-    #f8fafc;
+    rgb(15 23 42 / 58%);
   padding: 9px;
 }
 

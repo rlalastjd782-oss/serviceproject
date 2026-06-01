@@ -215,7 +215,7 @@
   min-height: 66px;
   border: 1px solid #263144;
   border-radius: 8px;
-  background: #ffffff;
+  background: #0d1420;
   padding: 11px;
 }
 
@@ -239,7 +239,7 @@
 .location-manage-details {
   border: 1px solid #263144;
   border-radius: 8px;
-  background: #f8fafc;
+  background: #0c111a;
 }
 
 .location-create-panel summary,
@@ -328,7 +328,7 @@
   gap: 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #ffffff;
+  background: #111721;
   padding: 13px;
 }
 
@@ -398,8 +398,8 @@
 .location-equipment-chip-list em {
   border: 1px solid #2b3a50;
   border-radius: 999px;
-  background: #ffffff;
-  color: #111827;
+  background: #0b1320;
+  color: #d8e7ff;
   font-size: 12px;
   font-style: normal;
   font-weight: 800;
@@ -412,7 +412,7 @@
 }
 
 .location-manage-details {
-  background: #f8fafc;
+  background: #0e1520;
 }
 
 .location-manage-details summary {
@@ -445,6 +445,6 @@
   gap: 8px;
   border: 1px solid #263144;
   border-radius: 8px;
-  background: #f8fafc;
+  background: #0c111a;
   padding: 10px;
 }

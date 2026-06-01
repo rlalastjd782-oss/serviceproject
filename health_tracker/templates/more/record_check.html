@@ -46,40 +46,6 @@
         </article>
       {% endfor %}
     </div>
-
-    <div class="data-cleanup-grid cleanup-priority-grid">
-      <article class="cleanup-panel">
-        <div class="cleanup-panel-head">
-          <strong>정리 우선순위</strong>
-          <span class="badge">{{ duplicate_exercises|length + outlier_sets|length + record_gaps|length }}건</span>
-        </div>
-        <div class="detail-list compact-detail-list">
-          <div class="detail-row">
-            <strong>운동명 중복</strong>
-            <span>{{ duplicate_exercises|length }}건 · 운동명 병합/수정 후보</span>
-          </div>
-          <div class="detail-row">
-            <strong>이상 입력</strong>
-            <span>{{ outlier_sets|length }}건 · 무게, 횟수, 유산소 시간 확인 필요</span>
-          </div>
-          <div class="detail-row">
-            <strong>누락일</strong>
-            <span>{{ record_gaps|length }}건 · 운동 또는 식단 입력 필요</span>
-          </div>
-        </div>
-      </article>
-      <article class="cleanup-panel">
-        <div class="cleanup-panel-head">
-          <strong>빠른 처리</strong>
-          <span class="badge">Action</span>
-        </div>
-        <div class="settings-action-row">
-          <a class="btn-small" href="{{ url_for('exercise_library_page') }}">운동명 관리</a>
-          <a class="btn-small" href="{{ url_for('record_search_page') }}">기록 검색</a>
-          <a class="btn-small" href="{{ url_for('data_center_page', date=selected_date) }}">데이터 센터</a>
-        </div>
-      </article>
-    </div>
   </section>
 
   <section class="section more-tool-section">
@@ -89,7 +55,7 @@
         <div class="section-subtitle">운동명 중복과 비정상 세트를 먼저 찾아 실제 분석 품질을 올립니다.</div>
       </div>
     </div>
-    <div class="data-cleanup-grid">
+    <div class="data-cleanup-grid cleanup-priority-grid">
       <article class="cleanup-panel">
         <div class="cleanup-panel-head">
           <strong>운동명 중복 후보</strong>
@@ -102,15 +68,7 @@
                 <strong>{{ item.variants|join(" / ") }}</strong>
                 <span>{{ item.set_count }}세트 · 최근 {{ item.last_date }}</span>
               </div>
-              <form method="post" action="{{ url_for('merge_exercises_route') }}" class="settings-action-row" data-confirm-submit="선택한 운동명을 첫 번째 운동명으로 병합할까요? PR, 루틴, 계획, 설정도 함께 이동합니다.">
-                <input type="hidden" name="next" value="{{ url_for('record_check_page', date=selected_date, days=selected_days) }}">
-                <input type="hidden" name="target_name" value="{{ item.variants[0] }}">
-                {% for variant in item.variants[1:] %}
-                  <input type="hidden" name="source_names" value="{{ variant }}">
-                {% endfor %}
-                <a class="btn-small" href="{{ url_for('exercise_library_page', q=item.variants[0]) }}">확인</a>
-                <button class="btn-small" type="submit">첫 이름으로 병합</button>
-              </form>
+              <a class="btn-small" href="{{ url_for('exercise_library_page', q=item.variants[0]) }}">확인</a>
             </div>
           {% else %}
             <div class="empty compact-empty">중복으로 보이는 운동명이 없습니다.</div>
@@ -118,7 +76,7 @@
         </div>
       </article>
       <article class="cleanup-panel">
-        <div class="cleanup-panel-head">
+        <div class="cleanup-panel-header">
           <strong>이상 입력 후보</strong>
           <span class="badge">{{ outlier_sets|length }}건</span>
         </div>

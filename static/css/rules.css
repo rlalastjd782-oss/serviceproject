@@ -52,7 +52,7 @@
 
 .rule-card.state-과다 {
   border-color: rgb(239 68 68 / 38%);
-  background: #fef2f2;
+  background: rgb(127 29 29 / 18%);
 }
 
 .rule-card.state-적정 {
@@ -92,10 +92,6 @@
 .cleanup-list {
   display: grid;
   gap: 8px;
-}
-
-.cleanup-priority-grid {
-  margin-top: 12px;
 }
 
 .cleanup-row {

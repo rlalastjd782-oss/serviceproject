@@ -1,99 +1,29 @@
-  <section class="section overview-only today-hero-section" aria-label="오늘 상태">
+  <section class="section overview-only today-hero-section">
     <div class="today-hero-head">
       <div>
-        <span>오늘 상태</span>
-        <h1>오늘 상태</h1>
-        <p>{{ session.workout_date }} 기록 완성도와 바로 처리할 항목을 먼저 확인합니다.</p>
+        <span>오늘 대시보드</span>
+        <h1>{{ session.workout_date }}</h1>
+        <p>운동, 식단, 기록 품질을 한 번에 확인하고 바로 기록합니다.</p>
       </div>
-      <a class="btn-primary" href="#today-overview-actions">오늘 할 일</a>
+      <a class="btn-primary" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동 입력</a>
     </div>
     <div class="today-focus-panel">
       <a class="today-focus-card is-workout" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">
-        <strong>{% if today_summary.set_count %}운동 완료{% else %}운동 필요{% endif %}</strong>
+        <strong>운동 기록</strong>
         <span>{{ today_summary.set_count }}세트 · {{ format_duration(today_summary.duration_seconds) }}</span>
       </a>
       <a class="today-focus-card is-meal" href="{{ url_for('index', date=session.workout_date, mode='meal') }}">
-        <strong>{% if today_summary.meal_count %}식단 기록됨{% else %}식단 필요{% endif %}</strong>
+        <strong>식단 기록</strong>
         <span>{{ today_summary.meal_count }}개 · {{ "%.0f"|format(today_summary.calories) }}kcal</span>
       </a>
-      <a class="today-focus-card is-body" href="#body-metrics">
-        <strong>{% if body_metric %}체성분 확인{% else %}체성분 필요{% endif %}</strong>
-        <span>{% if body_metric and body_metric.body_weight is not none %}{{ "%.1f"|format(body_metric.body_weight) }}kg{% else %}오늘 입력 없음{% endif %}</span>
-      </a>
-      <a class="today-focus-card is-analysis" href="#record-quality">
-        <strong>기록 품질</strong>
-        <span>기록 품질 {{ data_quality_profile.score }}% · {{ data_quality_profile.label }}</span>
+      <a class="today-focus-card is-analysis" href="{{ url_for('weekly_summary_page') }}">
+        <strong>분석 보기</strong>
+        <span>품질 {{ data_quality_profile.score }}% · {{ data_quality_profile.label }}</span>
       </a>
     </div>
   </section>
 
-  <section class="section overview-only today-action-section" id="today-overview-actions" aria-label="오늘 할 일">
-    <div class="section-header">
-      <div>
-        <div class="section-title">오늘 할 일</div>
-        <div class="section-subtitle">누락된 기록부터 입력하고, 기록이 끝나면 분석으로 넘어갑니다.</div>
-      </div>
-    </div>
-    <div class="today-action-grid">
-      <a class="next-action-card action-workout" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">
-        <span>{% if today_summary.set_count %}운동 기록 확인{% else %}운동 기록 추가{% endif %}</span>
-        <strong>{% if today_summary.set_count %}{{ today_summary.set_count }}세트 저장됨{% else %}첫 세트를 입력하세요{% endif %}</strong>
-      </a>
-      <a class="next-action-card action-meal" href="{{ url_for('index', date=session.workout_date, mode='meal') }}">
-        <span>{% if today_summary.meal_count %}식단 기록 확인{% else %}식단 기록 추가{% endif %}</span>
-        <strong>{% if today_summary.meal_count %}{{ today_summary.meal_count }}개 저장됨{% else %}오늘 식사를 입력하세요{% endif %}</strong>
-      </a>
-      <a class="next-action-card action-body" href="#body-metrics">
-        <span>{% if body_metric %}체성분 갱신{% else %}체성분 입력{% endif %}</span>
-        <strong>{% if body_metric %}오늘 상태를 보정하세요{% else %}체중·골격근·체지방을 남기세요{% endif %}</strong>
-      </a>
-    </div>
-  </section>
-
-  <section class="section overview-only quick-record-section" aria-label="빠른 기록">
-    <div class="section-header">
-      <div>
-        <div class="section-title">빠른 기록</div>
-        <div class="section-subtitle">자주 쓰는 입력 화면으로 바로 이동합니다.</div>
-      </div>
-    </div>
-    <div class="analysis-action-grid">
-      <a class="btn-small" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동 입력</a>
-      <a class="btn-small" href="{{ url_for('index', date=session.workout_date, mode='meal') }}">식단 입력</a>
-      <a class="btn-small" href="#body-metrics">체성분 입력</a>
-      <a class="btn-small" href="{{ url_for('record_search_page') }}">기록 검색</a>
-    </div>
-  </section>
-
-  <section class="section overview-only recent-record-section" aria-label="최근 기록">
-    <div class="section-header">
-      <div>
-        <div class="section-title">최근 기록</div>
-        <div class="section-subtitle">오늘과 최근 기록을 이어서 확인합니다.</div>
-      </div>
-      <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주별 보기</a>
-    </div>
-    {% for item in sessions %}
-      <article class="record-card">
-        <div class="record-date">{{ item.workout_date }}</div>
-        <div class="record-summary">
-          {% if item.duration_seconds %}<span class="badge">운동 {{ format_duration(item.duration_seconds) }}</span>{% endif %}
-          {% if item.set_count %}<span class="badge">{{ item.set_count }}세트</span>{% endif %}
-          {% if item.volume %}<span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
-          {% if item.cardio_minutes %}<span class="badge">유산소 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
-          {% if item.exercise_calories %}<span class="badge">소모 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
-        </div>
-      </article>
-    {% else %}
-      <div class="empty-state">
-        <strong>최근 기록이 없습니다.</strong>
-        <span>오늘 운동이나 식단을 먼저 입력하면 이 영역에 표시됩니다.</span>
-        <a class="btn-small" href="{{ url_for('index', date=session.workout_date, mode='workout') }}">운동 입력</a>
-      </div>
-    {% endfor %}
-  </section>
-
-  <section class="section overview-only data-quality-section" id="record-quality">
+  <section class="section overview-only data-quality-section">
     <div class="section-header">
       <div>
         <div class="section-title">기록 품질</div>
@@ -137,7 +67,7 @@
     {% endif %}
   </section>
 
-  <section class="section overview-only nutrition-link-section">
+  <section class="section overview-only">
     <div class="section-header">
       <div>
         <div class="section-title">영양-운동 연결</div>
@@ -173,7 +103,7 @@
   </section>
 
   {% if record_gaps %}
-    <section class="section overview-only record-gap-section">
+    <section class="section overview-only">
       <div class="section-header">
         <div>
           <div class="section-title">최근 7일 누락</div>

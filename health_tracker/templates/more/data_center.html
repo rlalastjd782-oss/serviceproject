@@ -3,7 +3,7 @@
 {% block title %}데이터 센터{% endblock %}
 
 {% block content %}
-  <section class="section more-tool-section data-center-hero-section" data-ui-role="hero">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">데이터 센터</div>
@@ -18,11 +18,11 @@
     </form>
   </section>
 
-  <section class="section more-tool-section data-center-metric-section" data-ui-role="metric">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">상태 요약</div>
-        <div class="section-subtitle">기록 품질 {{ data_center.quality.score }}% · {{ data_center.quality.period }}</div>
+        <div class="section-subtitle">분석 신뢰도 {{ data_center.quality.score }}% · {{ data_center.quality.period }}</div>
       </div>
       <span class="badge">{{ data_center.quality.label }}</span>
     </div>
@@ -36,7 +36,7 @@
     </div>
   </section>
 
-  <section class="section more-tool-section data-center-warning-section" data-ui-role="warning">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">점검 항목</div>
@@ -50,7 +50,7 @@
     </div>
   </section>
 
-  <section class="section more-tool-section data-center-export-section" data-ui-role="tool">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">내보내기</div>
@@ -67,7 +67,7 @@
     </div>
   </section>
 
-  <section class="section more-tool-section data-center-gap-section" data-ui-role="record">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">최근 누락일</div>

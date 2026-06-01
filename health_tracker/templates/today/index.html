@@ -454,7 +454,28 @@
     {% include "today/_meal_records.html" %}
   {% endif %}
 
+  {% if today_mode == 'overview' %}
+  <section class="section overview-only">
+    <div class="section-header">
+      <div class="section-title">📅 최근 기록</div>
+      <a class="btn-small" href="{{ url_for('weekly_summary_page') }}">주별 보기</a>
+    </div>
+    {% for item in sessions %}
+      <article class="record-card">
+        <div class="record-date">{{ item.workout_date }}</div>
+        <div class="record-summary">
+          {% if item.duration_seconds %}<span class="badge">⏱ {{ format_duration(item.duration_seconds) }}</span>{% endif %}
+          {% if item.set_count %}<span class="badge">🏃 {{ item.set_count }}세트</span>{% endif %}
+          {% if item.volume %}<span class="badge">💪 {{ "%.0f"|format(item.volume) }}kg</span>{% endif %}
+          {% if item.cardio_minutes %}<span class="badge">🚶 {{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+          {% if item.exercise_calories %}<span class="badge">🔥 유산소 {{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
+        </div>
+      </article>
+    {% else %}
+      <div class="empty">최근 기록 없음</div>
+    {% endfor %}
+  </section>
+  {% endif %}
   </div>
 {% endblock %}
-
 

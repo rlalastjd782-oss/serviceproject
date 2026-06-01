@@ -28,7 +28,7 @@ input[type="month"] {
   align-items: center;
   padding: 14px 18px 12px;
   border-bottom: 1px solid rgb(255 255 255 / 8%);
-  background: #ffffff;
+  background: rgb(11 13 18 / 94%);
   backdrop-filter: blur(12px);
 }
 
@@ -95,7 +95,7 @@ input[type="month"] {
   z-index: 9;
   display: flex;
   border-bottom: 1px solid rgb(255 255 255 / 8%);
-  background: #ffffff;
+  background: rgb(11 13 18 / 94%);
   backdrop-filter: blur(12px);
 }
 

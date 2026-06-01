@@ -40,7 +40,7 @@
 .record-result-meta span {
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #f3f4f6;
+  background: rgb(8 13 22 / 54%);
   color: var(--muted);
   font-size: 11px;
   font-weight: 800;
@@ -83,6 +83,6 @@
 
 .equipment-summary-card.is-selected {
   border-color: #60a5fa;
-  background: #dbeafe;
+  background: #101b2e;
 }
 

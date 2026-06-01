@@ -66,24 +66,20 @@
   order: 90;
 }
 
-.meal-mode .meal-goal-section {
+.meal-mode .meal-input-section {
   order: 10;
 }
 
-.meal-mode .meal-input-section {
+.meal-mode .today-meal-section {
   order: 20;
 }
 
-.meal-mode .today-meal-section {
+.meal-mode .meal-goal-section {
   order: 30;
 }
 
 .meal-mode .meal-helper-section {
   order: 40;
-}
-
-.meal-mode .optional-section {
-  order: 50;
 }
 
 .date-row {
@@ -139,14 +135,14 @@
 .workout-mode .workout-plan-section,
 .workout-mode .routine-library-section,
 .workout-mode .workout-secondary-section {
-  background: #ffffff;
-  border-color: var(--line);
+  background: rgb(17 24 39 / 55%);
+  border-color: rgb(75 85 99 / 55%);
 }
 
 .meal-mode .meal-helper-section,
 .meal-mode .meal-goal-section {
-  background: #ffffff;
-  border-color: var(--line);
+  background: rgb(17 24 39 / 55%);
+  border-color: rgb(75 85 99 / 55%);
 }
 
 .workout-mode .workout-plan-section .section-header,
@@ -218,7 +214,7 @@
   margin-bottom: 10px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #ffffff;
+  background: rgb(15 15 20 / 92%);
   padding: 7px;
   backdrop-filter: blur(10px);
 }

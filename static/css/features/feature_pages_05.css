@@ -26,7 +26,7 @@
 
 .calendar-cell.is-complete {
   border-color: #22c55e;
-  background: #ecfdf5;
+  background: #102018;
 }
 
 .calendar-cell.is-empty {
@@ -101,7 +101,7 @@
 
 .ex-rank-item.is-selected {
   border: 1px solid rgb(96 165 250 / 40%);
-  background: #f8fafc;
+  background: #101b2e;
 }
 
 .exercise-hero-card {
@@ -110,7 +110,7 @@
   margin-top: 10px;
   border: 1px solid rgb(96 165 250 / 32%);
   border-radius: 12px;
-  background: linear-gradient(180deg, #ffffff, var(--panel-2));
+  background: linear-gradient(180deg, #101b2e, var(--panel-2));
   padding: 13px;
 }
 
@@ -158,7 +158,7 @@
 .next-plan-list div {
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #f3f4f6;
+  background: #0f172a;
   color: var(--muted);
   font-size: 12px;
   font-weight: 800;
@@ -234,7 +234,7 @@
 
 .pr-rank-card.is-selected {
   border-color: rgb(96 165 250 / 65%);
-  background: #f8fafc;
+  background: #101b2d;
 }
 
 .pr-rank-head {
@@ -315,20 +315,20 @@
 
 .trend-card.is-up {
   border-color: rgb(34 197 94 / 35%);
-  background: #ecfdf5;
+  background: #0d1d17;
 }
 
 .trend-card.is-up strong {
-  color: #166534;
+  color: #4ade80;
 }
 
 .trend-card.is-down {
   border-color: rgb(248 113 113 / 35%);
-  background: #fef2f2;
+  background: #241313;
 }
 
 .trend-card.is-down strong {
-  color: #991b1b;
+  color: #f87171;
 }
 
 .exercise-recent-set-list {
@@ -442,10 +442,10 @@
 
 .health-warn {
   border-color: rgb(251 191 36 / 35%);
-  background: #fffbeb;
+  background: #201a0c;
 }
 
 .health-info {
   border-color: rgb(96 165 250 / 35%);
-  background: #f8fafc;
+  background: #101b2d;
 }

@@ -3,7 +3,7 @@
 {% block title %}식단 템플릿{% endblock %}
 
 {% block content %}
-  <section class="section more-tool-section meal-template-apply-section" data-ui-role="hero">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">식단 템플릿</div>
@@ -19,7 +19,7 @@
     </form>
   </section>
 
-  <section class="section more-tool-section meal-template-list-section" data-ui-role="record">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">저장된 템플릿</div>
@@ -52,7 +52,7 @@
     </div>
   </section>
 
-  <section class="section more-tool-section meal-template-create-section" data-ui-role="tool">
+  <section class="section more-tool-section">
     <div class="section-header">
       <div>
         <div class="section-title">최근 식단으로 만들기</div>
@@ -64,17 +64,9 @@
       {% for day in recent_meal_days %}
         <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="recent-meal-template-row">
           <input type="hidden" name="meal_date" value="{{ day.meal_date }}">
-          <div class="recent-meal-template-info">
-            <strong>{{ day.meal_date }}</strong>
-            <label>
-              <span>템플릿 이름</span>
-              <input name="template_name" value="{{ day.meal_date }} 식단" aria-label="템플릿 이름">
-            </label>
-          </div>
-          <div class="recent-meal-template-actions">
-            <span>{{ day.meal_count }}개 · {{ "%.0f"|format(day.calories or 0) }}kcal</span>
-            <button class="btn-small" type="submit">저장</button>
-          </div>
+          <input name="template_name" value="{{ day.meal_date }} 식단" aria-label="템플릿 이름">
+          <span>{{ day.meal_count }}개 · {{ "%.0f"|format(day.calories or 0) }}kcal</span>
+          <button class="btn-small" type="submit">저장</button>
         </form>
       {% else %}
         <div class="empty compact-empty">템플릿으로 만들 최근 식단 기록이 없습니다.</div>

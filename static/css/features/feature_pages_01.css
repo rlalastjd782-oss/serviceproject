@@ -16,7 +16,7 @@
   grid-column: 1 / -1;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f9fafb;
+  background: rgb(255 255 255 / 3%);
   padding: 8px;
 }
 
@@ -96,8 +96,8 @@
 .today-hero-section {
   border-color: rgb(96 165 250 / 32%);
   background:
-    linear-gradient(135deg, rgb(147 197 253 / 24%), transparent 46%),
-    linear-gradient(180deg, #ffffff, #f8fafc);
+    linear-gradient(135deg, rgb(96 165 250 / 17%), transparent 46%),
+    linear-gradient(180deg, #151a24, var(--panel));
 }
 
 .today-hero-head {
@@ -145,7 +145,7 @@
   gap: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #ffffff;
+  background: #101827;
   padding: 12px;
 }
 
@@ -169,8 +169,8 @@
   aspect-ratio: 1;
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, #ffffff 58%, transparent 59%),
-    conic-gradient(var(--ring-color) var(--score), #e5e7eb 0);
+    radial-gradient(circle at center, #101827 58%, transparent 59%),
+    conic-gradient(var(--ring-color) var(--score), rgb(31 41 55) 0);
   line-height: 1;
 }
 
@@ -231,7 +231,7 @@
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f9fafb;
+  background: rgb(255 255 255 / 3%);
   padding: 9px;
 }
 
@@ -251,7 +251,7 @@
   height: 6px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e5e7eb;
+  background: rgb(31 41 55);
 }
 
 .quality-bar span {

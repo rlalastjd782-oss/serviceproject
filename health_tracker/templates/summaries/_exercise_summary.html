@@ -250,12 +250,8 @@
       <div class="section-header">
         <div class="section-title">🏆 운동별 기록</div>
       </div>
-      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form filter-action-panel">
-        {{ result_toolbar(exercise_pagination, [("sets", "세트순"), ("volume", "볼륨순"), ("recent", "최근순"), ("name", "이름순")], exercise_sort, url_for('exercise_summary_page')) }}
-        <button class="btn-small" type="submit">적용</button>
-      </form>
       {% if recent_pr_events %}
-        <div class="detail-list compact-detail-list exercise-pr-preview-list">
+        <div class="detail-list compact-detail-list">
           {% for event in recent_pr_events[:8] %}
             <div class="detail-row">
               <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
@@ -264,6 +260,10 @@
           {% endfor %}
         </div>
       {% endif %}
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form">
+        {{ result_toolbar(exercise_pagination, [("sets", "세트순"), ("volume", "볼륨순"), ("recent", "최근순"), ("name", "이름순")], exercise_sort, url_for('exercise_summary_page')) }}
+        <button class="btn-small" type="submit">적용</button>
+      </form>
       <div class="record-list">
         {% for item in exercise_summary %}
           <a class="ex-rank-item {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">

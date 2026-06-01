@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#f3f4f6">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f0f14">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ url_for('static', filename='icon.svg') }}?v={{ app_version }}" type="image/svg+xml">
     <link rel="shortcut icon" href="{{ url_for('root_favicon') }}?v={{ app_version }}">
@@ -32,7 +32,7 @@
       </header>
       <nav class="tabs" aria-label="관리자 메뉴">
         <a class="tab-btn {% if active_page == 'admin' %}active{% endif %}" href="{{ url_for('admin_dashboard_page') }}">사용자 현황</a>
-        <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form" data-confirm-submit="로그아웃하시겠습니까?">
+        <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button class="tab-btn" type="submit">로그아웃</button>
         </form>
