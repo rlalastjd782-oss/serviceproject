@@ -100,6 +100,21 @@
   scroll-snap-align: start;
 }
 
+@media (max-width: 560px) {
+  .progress-chart,
+  .exercise-progress-chart,
+  .pr-growth-chart {
+    grid-auto-columns: min(280px, calc(100vw - 72px));
+    padding-inline-end: 28px;
+    scroll-padding-inline: 10px;
+    overscroll-behavior-inline: contain;
+  }
+
+  .progress-card {
+    min-width: 0;
+  }
+}
+
 .progress-head,
 .progress-metrics,
 .progress-line {

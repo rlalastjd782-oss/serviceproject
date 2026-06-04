@@ -23,6 +23,38 @@
     </div>
   </section>
 
+  <section class="section overview-only daily-action-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">오늘 할 일</div>
+        <div class="section-subtitle">{{ daily_action_recommendations.subtitle }}</div>
+      </div>
+      <span class="badge">{{ daily_action_recommendations.badge }}</span>
+    </div>
+    {% if daily_action_recommendations.is_complete %}
+      <div class="daily-action-empty is-complete">
+        <strong>{{ daily_action_recommendations.complete_title }}</strong>
+        <span>{{ daily_action_recommendations.complete_description }}</span>
+        <div class="daily-action-inline-actions">
+          {% for action in daily_action_recommendations.complete_actions %}
+            <a class="btn-small" href="{{ action.href }}">{{ action.label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    {% else %}
+      <div class="daily-action-list">
+        {% for item in daily_action_recommendations["items"] %}
+          <a class="daily-action-card priority-{{ 'high' if loop.first else 'normal' }} source-{{ item.source }} state-{{ item.state }}" href="{{ item.href }}">
+            <span class="daily-action-meta">{{ item.source_label or item.source }}</span>
+            <strong>{{ item.title }}</strong>
+            <small>{{ item.description }}</small>
+            <span class="daily-action-cta">{{ item.label }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
   <section class="section overview-only data-quality-section">
     <div class="section-header">
       <div>

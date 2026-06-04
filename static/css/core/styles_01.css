@@ -112,6 +112,10 @@
   font-weight: 800;
 }
 
+.compact-select span {
+  white-space: nowrap;
+}
+
 .compact-select select {
   min-height: 34px;
   padding: 6px 28px 6px 10px;

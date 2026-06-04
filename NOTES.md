@@ -1,4 +1,26 @@
-﻿# Codex Handoff Notes
+﻿## 2026-06-04 Playwright 화면 실검수 기반 UI 정리 조건부 승인
+
+- 최종검수는 조건부 승인으로 정리했습니다. 최신 visual QA summary/json과 대표 PNG, HTTP `200`, 컴파일, 지정 unittest 23개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
+- 운영상 남은 확인 사항: `color-contrast`, `meta-viewport`, `/app`의 `aria-prohibited-attr`, `label` axe 경고는 별도 접근성 개선 작업으로 분리합니다.
+- 수동 확인 권장: 기본 QA 계정에 운동별/PR 그래프가 렌더링될 데이터를 보강한 뒤 모바일 그래프 카드의 내부 가로 스크롤 표현을 재확인합니다.
+- Git 자동화 전 `git status --short`에 남은 변경 파일과 미추적 파일의 포함 범위를 확인해야 합니다.
+## 2026-06-03 오늘 할 일 자동 추천 최종검수 승인
+
+- 최신 QA 재검증과 Playwright 화면검수 산출물 기준으로 `오늘 할 일` 자동 추천을 승인했습니다.
+- 검증 통과: `python -m unittest tests.test_daily_action_recommendations tests.test_ui_navigation_flows`, `Invoke-WebRequest http://127.0.0.1:5000/ -UseBasicParsing -TimeoutSec 5`.
+- 운영상 남은 확인 사항: today 페이지의 기존 공통 axe 경고 `aria-prohibited-attr`, `color-contrast`, `label`, `meta-viewport`는 별도 접근성 개선 작업으로 분리합니다.
+
+## 2026-06-02 오늘 할 일 자동 추천 최종검수 보류
+
+- 최종검수는 보류로 정리했습니다. 작업 트리 단위 테스트는 통과했지만 준비 서버 `/app`에서 `daily-action-section`과 `오늘 할 일` 문구가 렌더링되지 않았습니다.
+- 개발 단계에서 준비 서버가 현재 작업 트리의 `health_tracker/templates/today/_overview_panels.html`, `health_tracker/services/today_context.py`, `static/css/today.css`를 실제로 반영하는지 확인해야 합니다.
+- 서버 반영 후 `/app`의 추천 카드 1~5개 제한, 완료 상태, action target, 390/430/560/1280 viewport overflow를 재QA해야 합니다.
+
+## 2026-06-02 v3.0.0 v2.6.5 공통 헤더/컨트롤 잔여 보정 최종검수 보류
+
+- 최종검수는 보류로 정리했습니다. 준비 서버 기준 `/summaries/weekly`와 `/meals/weekly`의 `보기` 버튼이 세로로 좁게 렌더링되어 명시 실패 기준에 해당합니다.
+- `/records/search`의 `적용` 버튼도 `.list-tools` 마지막 액션으로 렌더링되지 않아 개발 재확인과 재QA가 필요합니다.
+- 준비 서버 DOM과 현재 작업 트리 템플릿이 일부 일치하지 않으므로 서버 반영 상태를 맞춘 뒤 visual QA를 다시 실행해야 합니다.# Codex Handoff Notes
 ## 2026-06-01 v3.0.0 UI v2.6.5 기준 실제 복구
 
 - 최종검수는 조건부 승인으로 정리했습니다. 자동 테스트, 컴파일, 릴리스 검사, `git diff --check`, 로컬 HTTP `200` 확인은 통과했습니다.

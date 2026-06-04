@@ -1,12 +1,42 @@
 from __future__ import annotations
 
+from html.parser import HTMLParser
 from pathlib import Path
 
 
 from tests.flow_base import FlowTestBase
 
 
+class H1TextParser(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self._in_h1 = False
+        self._current: list[str] = []
+        self.texts: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag.lower() == "h1":
+            self._in_h1 = True
+            self._current = []
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag.lower() == "h1" and self._in_h1:
+            text = " ".join("".join(self._current).split())
+            self.texts.append(text)
+            self._in_h1 = False
+            self._current = []
+
+    def handle_data(self, data: str) -> None:
+        if self._in_h1:
+            self._current.append(data)
+
+
 class UiNavigationFlowTest(FlowTestBase):
+    def h1_texts(self, html: str) -> list[str]:
+        parser = H1TextParser()
+        parser.feed(html)
+        return parser.texts
+
     def test_main_pages_render(self) -> None:
         paths = [
             "/app",
@@ -21,6 +51,7 @@ class UiNavigationFlowTest(FlowTestBase):
             "/calendar",
             "/meals/weekly",
             "/meals/monthly",
+            "/tools/plate-calculator",
             "/settings",
             "/qa/report",
             "/api/sessions",
@@ -102,6 +133,10 @@ class UiNavigationFlowTest(FlowTestBase):
 
     def test_fold_ui_regression_markers_render(self) -> None:
         overview_html = self.client.get("/app").data.decode("utf-8")
+        self.assertIn("daily-action-section", overview_html)
+        self.assertIn("daily-action-card", overview_html)
+        self.assertIn("오늘 운동 기록이 없습니다.", overview_html)
+        self.assertIn('href="/app?date=', overview_html)
         self.assertIn("data-quality-card", overview_html)
         self.assertIn("기록 품질", overview_html)
         self.assertIn(">요약</a>", overview_html)
@@ -151,15 +186,21 @@ class UiNavigationFlowTest(FlowTestBase):
         styles = "\n".join(path.read_text(encoding="utf-8") for path in sorted(Path("static/css").rglob("*.css")))
         self.assertIn(".workout-mode #rest-timer {\n  order: 11;", styles)
         self.assertIn(".workout-mode .workout-action-dock {\n  order: 12;", styles)
+        self.assertIn(".meal-mode .meal-input-section {\n  order: 10;", styles)
+        self.assertIn(".meal-mode .today-meal-section {\n  order: 20;", styles)
+        self.assertIn(".meal-mode .meal-goal-section {\n  order: 30;", styles)
+        self.assertIn(".meal-mode .optional-section {\n  order: 80;", styles)
         self.assertIn(".focus-mode .workout-secondary-section", styles)
         self.assertIn(".focus-mode .workout-action-dock {\n  grid-template-columns: repeat(5", styles)
         self.assertIn(".workout-action-dock,\n  .mobile-action-dock {\n    top: 122px;", styles)
         self.assertIn("scroll-margin-top: 174px;", styles)
+        self.assertIn(".compact-select span {\n  white-space: nowrap;", styles)
 
         meal_html = self.client.get("/app?mode=meal").data.decode("utf-8")
         self.assertIn('id="meal-input"', meal_html)
         self.assertIn("식단 기록 없음", meal_html)
         self.assertIn("data-toggle-meal-form", meal_html)
+        self.assertLess(meal_html.index('id="meal-input"'), meal_html.index("today-meal-section"))
 
         search_html = self.client.get("/records/search").data.decode("utf-8")
         self.assertIn("record-filter-details", search_html)
@@ -338,6 +379,32 @@ class UiNavigationFlowTest(FlowTestBase):
                 self.assertIn("analysis-period-strip", html)
                 self.assertIn("현재 분석", html)
                 self.assertIn(label, html)
+
+    def test_screen_audit_release_blockers_stay_fixed(self) -> None:
+        response = self.client.get("/summaries/annual?year=2026")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers.get("Location"), "/summaries/yearly?year=2026")
+        response = self.client.get("/summaries/annual/?year=2026")
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers.get("Location"), "/summaries/yearly?year=2026")
+
+        pages = {
+            "/app?mode=meal": "오늘 식단",
+            "/summaries/daily": "날짜별 기록",
+            "/summaries/weekly": "주간 기록",
+            "/summaries/monthly": "월간 기록",
+            "/summaries/yearly": "연간 기록",
+            "/summaries/exercises": "운동별 기록",
+            "/summaries/pr": "PR 분석",
+            "/meals/weekly": "주간 식단",
+            "/meals/monthly": "월간 식단",
+            "/tools/plate-calculator": "원판 계산기",
+            "/settings": "설정",
+        }
+        for path, title in pages.items():
+            with self.subTest(path=path):
+                html = self.client.get(path).data.decode("utf-8")
+                self.assertEqual(self.h1_texts(html), [title])
 
     def test_more_page_does_not_duplicate_record_or_analysis_menu(self) -> None:
         html = self.client.get("/more").data.decode("utf-8")

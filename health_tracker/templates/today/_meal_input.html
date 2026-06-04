@@ -1,26 +1,4 @@
   {% if meal_mode %}
-  <section class="section meal-only meal-goal-section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">오늘 칼로리</div>
-        <div class="section-subtitle">{{ "%.0f"|format(today_summary.calories) }} / {{ daily_calorie_goal }}kcal · 남은 {{ "%.0f"|format(daily_calorie_goal - today_summary.calories) }}kcal</div>
-      </div>
-    </div>
-    <div class="goal-card {% if today_summary.calories >= daily_calorie_goal %}is-complete{% endif %}">
-      <div class="goal-head">
-        <strong>하루 목표</strong>
-        <span>{{ "%.0f"|format(today_summary.calories / daily_calorie_goal * 100 if daily_calorie_goal else 0) }}%</span>
-      </div>
-      <div class="goal-bar"><span style="width: {{ [100, (today_summary.calories / daily_calorie_goal * 100 if daily_calorie_goal else 0)]|min }}%"></span></div>
-      <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
-        <input type="hidden" name="scope" value="daily_meals">
-        <input type="hidden" name="target_date" value="{{ session.workout_date }}">
-        <input name="daily_calories" type="number" min="0" step="50" value="{{ daily_calorie_goal }}" placeholder="오늘 kcal">
-        <button class="btn-small" type="submit">목표 저장</button>
-      </form>
-    </div>
-  </section>
-
   <section class="section meal-only meal-input-section" id="meal-input">
     <div class="section-header">
       <div class="section-title">🍱 식단 입력</div>
@@ -146,6 +124,27 @@
           <input name="calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
         </div>
         <button class="btn-small" type="submit">고정</button>
+      </form>
+    </div>
+  </section>
+  <section class="section meal-only meal-goal-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">오늘 칼로리</div>
+        <div class="section-subtitle">{{ "%.0f"|format(today_summary.calories) }} / {{ daily_calorie_goal }}kcal · 남은 {{ "%.0f"|format(daily_calorie_goal - today_summary.calories) }}kcal</div>
+      </div>
+    </div>
+    <div class="goal-card {% if today_summary.calories >= daily_calorie_goal %}is-complete{% endif %}">
+      <div class="goal-head">
+        <strong>하루 목표</strong>
+        <span>{{ "%.0f"|format(today_summary.calories / daily_calorie_goal * 100 if daily_calorie_goal else 0) }}%</span>
+      </div>
+      <div class="goal-bar"><span style="width: {{ [100, (today_summary.calories / daily_calorie_goal * 100 if daily_calorie_goal else 0)]|min }}%"></span></div>
+      <form method="post" action="{{ url_for('update_goals') }}" class="inline-add-form goal-form goal-form-compact">
+        <input type="hidden" name="scope" value="daily_meals">
+        <input type="hidden" name="target_date" value="{{ session.workout_date }}">
+        <input name="daily_calories" type="number" min="0" step="50" value="{{ daily_calorie_goal }}" placeholder="오늘 kcal">
+        <button class="btn-small" type="submit">목표 저장</button>
       </form>
     </div>
   </section>

@@ -7,12 +7,12 @@
   <section class="section">
     <div class="section-header">
       <div>
-        <div class="section-title">🍱 주간 식단</div>
+        <h1 class="section-title">주간 식단</h1>
         <div class="section-subtitle">{{ week_label }} · {{ week_start }} ~ {{ week_end }}</div>
       </div>
       <a class="btn-small" href="{{ url_for('meal_monthly_page', month=week_start[:7]) }}">월간 보기</a>
     </div>
-    <div class="week-control-row">
+    <div class="week-control-row period-control-panel">
       <a class="arrow-btn" href="{{ url_for('meal_weekly_page', week=prev_week) }}" aria-label="이전 주">‹</a>
       <form method="get" action="{{ url_for('meal_weekly_page') }}" class="week-date-form">
         <input name="week" type="date" value="{{ selected_date }}" aria-label="주 선택 날짜">

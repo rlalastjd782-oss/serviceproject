@@ -1,4 +1,44 @@
 ﻿
+/* v3.0.0 v2.6.5 cleanup: keep common controls compact after rebuild overrides. */
+.week-date-form .btn-small,
+.month-picker-form-wide .btn-primary,
+.record-search-form .record-filter-apply {
+  width: auto;
+  min-width: 64px;
+  white-space: nowrap;
+}
+
+.week-date-form .btn-small,
+.month-picker-form-wide .btn-primary {
+  border: 1px solid rgb(96 165 250 / 28%);
+  background: rgb(96 165 250 / 12%);
+  color: #dbeafe;
+  box-shadow: none;
+}
+
+.week-control-row .arrow-btn,
+.month-picker-form-wide .arrow-btn {
+  width: auto;
+  min-width: 38px;
+}
+
+.week-date-form input,
+.month-picker-form-wide input,
+.record-filter-details select {
+  width: 100%;
+  min-width: 0;
+}
+
+.record-filter-details .list-tools,
+.record-filter-details .compact-select {
+  min-width: 0;
+}
+
+.record-filter-details .compact-select span {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 @media (max-width: 430px) {
   .content {
     padding-inline: 8px;
@@ -25,10 +65,12 @@
   }
 
   .tab-btn,
-  .tab-logout-form .tab-btn {
+  .tab-logout-form .tab-btn,
+  .account-action-btn {
     width: 100%;
     min-width: 0;
     min-height: 36px;
+    margin: 0;
     padding: 8px 4px;
     font-size: 12px;
   }
@@ -36,11 +78,26 @@
   .tab-logout-form {
     display: block;
     min-width: 0;
+    padding: 0;
   }
 
   .mobile-action-dock {
     position: static;
     margin-top: 4px;
+  }
+
+  .month-picker-form-wide,
+  .week-control-row {
+    grid-template-columns: 34px minmax(0, 1fr) 34px;
+  }
+
+  .month-picker-form-wide .btn-primary {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .week-date-form {
+    grid-template-columns: minmax(0, 1fr) minmax(64px, max-content);
   }
 
   .workout-mode .today-mode-actions,
@@ -77,4 +134,3 @@
     gap: 7px;
   }
 }
-

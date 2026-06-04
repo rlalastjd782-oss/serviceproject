@@ -14,8 +14,10 @@ handoff/
 qa/
 *.db
 local-server*.log
+local-app-server*.log
 server*.log
 agent-dashboard*.log
+local-browser-server*.log
 artifacts/**
 tools/agent_dashboard.py
 tools/check-agent-pipeline.ps1
@@ -24,6 +26,9 @@ tools/run-agent-pipeline.ps1
 tools/show-agent-status.ps1
 tools/show-token-usage.ps1
 tools/start-agent-dashboard.ps1
+tools/start-local-app-server.ps1
+tools/clean-qa-screenshots.ps1
+tools/reset-open-local-browser.ps1
 tools/stop-agent-pipeline.ps1
 tools/watch-agent-pipeline.ps1
 *.png

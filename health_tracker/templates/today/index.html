@@ -10,6 +10,7 @@
     data-body-part-classes='{{ body_part_class_map|tojson }}'
     data-meal-type-classes='{{ meal_type_class_map|tojson }}'
   >
+  <h1 class="sr-only">{% if workout_mode %}오늘 운동{% elif meal_mode %}오늘 식단{% else %}오늘 기록{% endif %}</h1>
   <div class="date-row">
     <a class="arrow-btn" href="{{ url_for('index', date=prev_date) }}" aria-label="이전 날짜">‹</a>
     <form method="get" action="{{ url_for('index') }}" class="date-picker-form">
@@ -198,6 +199,11 @@
         {% endfor %}
       </div>
     </section>
+  {% endif %}
+
+  {% if meal_mode %}
+    {% include "today/_meal_input.html" %}
+    {% include "today/_meal_records.html" %}
   {% endif %}
 
   {% include "today/_rule_cards.html" %}
@@ -449,11 +455,6 @@
     {% include "today/_workout_library_input.html" %}
   {% endif %}
 
-  {% if meal_mode %}
-    {% include "today/_meal_input.html" %}
-    {% include "today/_meal_records.html" %}
-  {% endif %}
-
   {% if today_mode == 'overview' %}
   <section class="section overview-only">
     <div class="section-header">
@@ -478,4 +479,3 @@
   {% endif %}
   </div>
 {% endblock %}
-

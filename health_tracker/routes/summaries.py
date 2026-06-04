@@ -7,6 +7,30 @@ from health_tracker.services.summary_context import (
 )
 
 
+TEST_EXERCISE_PREFIX = "__TEST__"
+
+
+def display_exercise_name(name: object) -> str:
+    value = str(name or "").strip()
+    if value.startswith(TEST_EXERCISE_PREFIX):
+        value = value[len(TEST_EXERCISE_PREFIX) :].strip()
+    return value or "샘플 운동"
+
+
+def display_row_names(row: object, *fields: str) -> object:
+    if not row:
+        return row
+    item = dict(row)
+    for field in fields:
+        if field in item:
+            item[field] = display_exercise_name(item[field])
+    return item
+
+
+def display_rows(rows: list[object], *fields: str) -> list[object]:
+    return [display_row_names(row, *fields) for row in rows]
+
+
 def register_summary_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
 
@@ -43,6 +67,15 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
             top_exercises=list_yearly_top_exercises(selected_year),
         )
 
+    @app.get("/summaries/annual")
+    @app.get("/summaries/annual/")
+    def annual_summary_redirect():
+        target = url_for("yearly_summary_page")
+        query_string = request.query_string.decode("utf-8")
+        if query_string:
+            target = f"{target}?{query_string}"
+        return redirect(target)
+
     @app.get("/summaries/yearly/compare")
     def yearly_compare_page():
         compare_year = normalize_year(request.args.get("compare_year"), current_local_date())
@@ -66,8 +99,9 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
         exercise_sort = request.args.get("sort", "sets")
         exercise_id = parse_int(request.args.get("exercise_id"))
         search_query = request.args.get("q", "").strip()
-        exercise_choices = list_exercises()
+        exercise_choices = display_rows(list_exercises(), "name")
         exercise_summary, exercise_pagination, exercise_sort = paged_exercise_summary(exercise_sort, page, per_page)
+        exercise_summary = display_rows(exercise_summary, "name")
         if search_query:
             search_results, search_pagination, search_sort = paged_search_workout_records(
                 search_query,
@@ -75,9 +109,17 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
                 page=page,
                 per_page=per_page,
             )
+            search_results = display_rows(search_results, "exercise_name")
         else:
             search_results, search_pagination, search_sort = [], build_pagination(0, 1, per_page), "newest"
         selected_exercise = exercise_id or (int(exercise_summary[0]["id"]) if exercise_summary else None)
+        body_part_exercise_summary = {
+            part: display_rows(rows, "name") for part, rows in list_exercise_summary_by_body_part().items()
+        }
+        selected_exercise_profile = display_row_names(get_exercise_profile(selected_exercise), "name")
+        exercise_pr_history = display_rows(list_exercise_pr_history(selected_exercise), "exercise_name")
+        recent_pr_events = display_rows(list_recent_pr_events(limit=20), "exercise_name")
+        progressive_overload_rows = display_rows(list_progressive_overload_rows(limit=24), "exercise_name")
         return render_template(
             "summaries/summary.html",
             page_title="운동별 횟수",
@@ -86,23 +128,23 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
             exercise_summary=exercise_summary,
             exercise_pagination=exercise_pagination,
             exercise_sort=exercise_sort,
-            body_part_exercise_summary=list_exercise_summary_by_body_part(),
+            body_part_exercise_summary=body_part_exercise_summary,
             body_parts=body_part_options(),
             exercise_choices=exercise_choices,
             selected_exercise_id=selected_exercise,
-            selected_exercise_profile=get_exercise_profile(selected_exercise),
+            selected_exercise_profile=selected_exercise_profile,
             selected_exercise_next_plan=build_exercise_next_plan(selected_exercise),
             selected_exercise_trend=build_exercise_trend_summary(selected_exercise),
             exercise_growth=build_exercise_growth_chart(selected_exercise),
             exercise_recent_sets=list_exercise_recent_sets(selected_exercise),
-            exercise_pr_history=list_exercise_pr_history(selected_exercise),
-            recent_pr_events=list_recent_pr_events(limit=20),
+            exercise_pr_history=exercise_pr_history,
+            recent_pr_events=recent_pr_events,
             search_query=search_query,
             search_results=search_results,
             search_pagination=search_pagination,
             search_sort=search_sort,
             active_page="exercises",
-            progressive_overload_rows=list_progressive_overload_rows(limit=24),
+            progressive_overload_rows=progressive_overload_rows,
             muscle_balance=build_muscle_balance(shift_date(current_local_date(), -6), current_local_date()),
         )
 
@@ -145,13 +187,15 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
         search_query = request.args.get("q", "").strip()
         pr_sort = request.args.get("sort", "weight")
         pr_rows, pr_pagination, pr_sort = paged_exercise_pr_summary(selected_part, search_query, pr_sort, page, per_page)
-        recent_pr_events = list_recent_pr_events_filtered(selected_part, search_query, limit=30)
+        pr_rows = display_rows(pr_rows, "name")
+        recent_pr_events = display_rows(list_recent_pr_events_filtered(selected_part, search_query, limit=30), "exercise_name")
         selected_exercise = parse_int(request.args.get("exercise_id"))
         selected_exercise = selected_exercise or (int(pr_rows[0]["id"]) if pr_rows else None)
+        selected_profile = display_row_names(get_exercise_profile(selected_exercise), "name")
         return render_template(
             "summaries/pr.html",
             body_parts=body_part_options(),
-            exercise_choices=list_pr_exercise_choices(selected_part, search_query),
+            exercise_choices=display_rows(list_pr_exercise_choices(selected_part, search_query), "name"),
             selected_part=selected_part,
             search_query=search_query,
             pr_rows=pr_rows,
@@ -159,7 +203,7 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
             pr_sort=pr_sort,
             pr_dashboard=build_pr_dashboard(pr_rows, recent_pr_events),
             selected_exercise_id=selected_exercise,
-            selected_profile=get_exercise_profile(selected_exercise),
+            selected_profile=selected_profile,
             selected_growth=build_exercise_growth_chart(selected_exercise, limit=10),
             selected_pr_sets=list_exercise_best_sets(selected_exercise),
             selected_pr_timeline=list_exercise_pr_timeline(selected_exercise),

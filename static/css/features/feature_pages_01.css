@@ -37,7 +37,37 @@
 }
 
 .record-filter-details .list-toolbar {
+  align-items: center;
   margin: 9px 0 0;
+}
+
+.record-filter-details .list-tools {
+  justify-content: flex-end;
+}
+
+.record-filter-details .compact-select {
+  flex: 0 1 auto;
+  min-width: max-content;
+  white-space: nowrap;
+}
+
+.record-filter-details .compact-select span {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.record-filter-details .compact-select select,
+.record-filter-details .btn-small,
+.record-filter-apply {
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.record-filter-apply {
+  min-width: 64px;
+  border-color: rgb(96 165 250 / 36%);
+  background: rgb(96 165 250 / 12%);
+  color: #dbeafe;
 }
 
 .record-list-toolbar {
@@ -281,6 +311,7 @@
 }
 
 .section-title {
+  margin: 0;
   color: var(--strong);
   font-size: 13px;
   font-weight: 800;
@@ -297,20 +328,33 @@
 
 .week-control-row {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr) 34px;
+  grid-template-columns: 38px minmax(0, 1fr) 38px;
   align-items: center;
   gap: 8px;
 }
 
 .week-date-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: stretch;
   gap: 6px;
+  min-width: 0;
 }
 
 .week-date-form input {
   min-width: 0;
   text-align: center;
+}
+
+.week-date-form .btn-small,
+.month-picker-form-wide .btn-primary {
+  min-width: 64px;
+  min-height: 44px;
+  border: 1px solid rgb(96 165 250 / 28%);
+  background: rgb(96 165 250 / 12%);
+  color: #dbeafe;
+  box-shadow: none;
+  white-space: nowrap;
 }
 
 .month-picker-form {
@@ -321,7 +365,28 @@
 }
 
 .month-picker-form-wide {
-  grid-template-columns: 34px minmax(0, 1fr) auto 34px;
+  grid-template-columns: 38px minmax(0, 1fr) max-content 38px;
+  align-items: stretch;
+}
+
+.week-control-row .arrow-btn,
+.month-picker-form-wide .arrow-btn {
+  min-width: 38px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.period-control-panel {
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 3%);
+}
+
+.period-control-panel .week-date-form .btn-small {
+  min-width: max-content;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
 .month-picker {

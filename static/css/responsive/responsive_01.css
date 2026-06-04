@@ -260,6 +260,32 @@
     flex-direction: column;
   }
 
+  .record-list-toolbar .list-tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  .record-list-toolbar .compact-select {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    width: 100%;
+    min-width: 0;
+  }
+
+  .record-list-toolbar .compact-select span {
+    white-space: nowrap;
+  }
+
+  .record-list-toolbar .compact-select select,
+  .record-list-toolbar .btn-small {
+    width: 100%;
+    min-width: 0;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+
   .list-tools,
   .compact-select,
   .compact-select select {
@@ -436,5 +462,32 @@
 
   .item-actions {
     justify-content: flex-end;
+  }
+
+  .period-control-panel {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    gap: 6px;
+  }
+
+  .period-control-panel .arrow-btn {
+    min-width: 36px;
+    min-height: 40px;
+  }
+
+  .period-control-panel .week-date-form {
+    grid-template-columns: minmax(0, 1fr) max-content;
+    gap: 6px;
+  }
+
+  .period-control-panel .week-date-form input {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  .period-control-panel .week-date-form .btn-small {
+    min-width: max-content;
+    min-height: 40px;
+    padding-inline: 10px;
+    white-space: nowrap;
   }
 }

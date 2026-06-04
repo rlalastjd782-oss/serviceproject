@@ -19,6 +19,18 @@ input[type="month"] {
   font-variant-numeric: tabular-nums;
 }
 
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .header {
   position: sticky;
   top: 0;
@@ -115,14 +127,58 @@ input[type="month"] {
 
 .tab-logout-form {
   display: flex;
-  flex: 1;
-  min-width: 68px;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-width: 74px;
   margin: 0;
+  padding: 0 6px;
 }
 
-.tab-logout-form .tab-btn {
-  width: 100%;
+.tab-logout-form .tab-btn,
+.account-action-btn {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 68px;
+  min-height: 32px;
+  margin: 4px 0;
+  padding: 7px 11px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 4%);
+  color: var(--dim);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.tab-logout-form .tab-btn:hover,
+.account-action-btn:hover {
+  border-color: rgb(255 255 255 / 14%);
+  background: rgb(255 255 255 / 7%);
+  color: var(--strong);
+}
+
+.tab-logout-form .tab-btn:focus-visible,
+.account-action-btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.tab-logout-form .tab-btn:active,
+.account-action-btn:active {
+  background: rgb(255 255 255 / 5%);
 }
 
 .tab-btn.active {

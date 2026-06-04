@@ -86,3 +86,20 @@
   background: #101b2e;
 }
 
+.record-search-form .record-filter-details .list-toolbar {
+  padding-top: 8px;
+  border-top: 1px solid rgb(255 255 255 / 8%);
+}
+
+.record-search-form .list-count {
+  min-width: 0;
+  color: var(--muted);
+}
+
+.record-search-form .list-tools {
+  min-width: 0;
+}
+
+.record-search-form .compact-select {
+  color: var(--muted);
+}

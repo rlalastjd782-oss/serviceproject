@@ -37,7 +37,7 @@
   </nav>
 {% endmacro %}
 
-{% macro result_toolbar(pagination=None, sort_options=None, current_sort="", reset_href=None) %}
+{% macro result_toolbar(pagination=None, sort_options=None, current_sort="", reset_href=None, apply_label=None) %}
   <div class="list-toolbar">
     {% if pagination %}
       <div class="list-count">
@@ -65,6 +65,9 @@
       </label>
       {% if reset_href %}
         <a class="btn-small" href="{{ reset_href }}">초기화</a>
+      {% endif %}
+      {% if apply_label %}
+        <button class="btn-small record-filter-apply" type="submit">{{ apply_label }}</button>
       {% endif %}
     </div>
   </div>

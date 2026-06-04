@@ -6,8 +6,8 @@
   <section class="section settings-panel">
     <div class="section-header">
       <div>
-        <div class="section-title">비밀번호 변경</div>
-        <div class="section-subtitle">내 설정 진입 비밀번호만 변경합니다. 데이터, QA, 앱 운영 기능은 관리자 페이지에서 관리합니다.</div>
+        <h1 class="section-title">설정</h1>
+        <div class="section-subtitle">비밀번호 변경 · 내 설정 진입 비밀번호만 변경합니다. 데이터, QA, 앱 운영 기능은 관리자 페이지에서 관리합니다.</div>
       </div>
       {% if has_settings_password %}
         <form method="post" action="{{ url_for('lock_settings_route') }}">
