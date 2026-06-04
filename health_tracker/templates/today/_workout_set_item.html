@@ -4,13 +4,13 @@
       <span class="set-index">{{ loop.index }}세트</span>
       <span class="set-result">
       {% if group.body_part == "유산소" %}
-        {% if item.equipment %}<span class="badge">{{ item.equipment }}</span>{% endif %}
+        {% if item.equipment %}<span class="badge">{{ item.equipment|display_item_name }}</span>{% endif %}
         인클라인 {% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% else %}-{% endif %}
         · 속도 {% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% else %}-{% endif %}
         · {% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}-분{% endif %}
         {% if item.estimated_calories %} · 예상 {{ "%.0f"|format(item.estimated_calories) }}kcal{% endif %}
       {% else %}
-        {% if item.equipment %}<span class="badge">{{ item.equipment }}</span>{% endif %}
+        {% if item.equipment %}<span class="badge">{{ item.equipment|display_item_name }}</span>{% endif %}
         <span class="badge">{{ item.set_type or set_type_options[0] }}</span>
         {% if item.weight is not none %}<span class="blue-text">{{ "%.1f"|format(item.weight) }}kg</span>{% else %}-kg{% endif %}
         ·
@@ -33,7 +33,7 @@
     </label>
     <label class="edit-field edit-field-name">
       <span>운동명</span>
-      <input list="exercise-list" name="exercise_name" value="{{ group.exercise_name }}" autocomplete="off" required>
+      <input list="exercise-list" name="exercise_name" value="{{ group.exercise_name|display_exercise_name }}" autocomplete="off" required>
     </label>
     <label class="edit-field edit-field-small">
       <span>세트</span>
@@ -44,7 +44,7 @@
       <select name="equipment">
         <option value="">미지정</option>
         {% for option in equipment_options %}
-          <option value="{{ option }}" {% if (item.equipment or setting.get('equipment', '')) == option %}selected{% endif %}>{{ option }}</option>
+          <option value="{{ option }}" {% if (item.equipment or setting.get('equipment', '')) == option %}selected{% endif %}>{{ option|display_item_name }}</option>
         {% endfor %}
       </select>
     </label>

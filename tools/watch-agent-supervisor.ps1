@@ -79,7 +79,12 @@ function Get-LastJsonEventText {
         return ""
     }
 
-    $lastLine = Get-Content -LiteralPath $Path -Encoding UTF8 -Tail 1
+    try {
+        $lastLine = Get-Content -LiteralPath $Path -Encoding UTF8 -Tail 1 -ErrorAction Stop
+    }
+    catch {
+        return "log is being written by another process"
+    }
     if (-not $lastLine -or -not $lastLine.StartsWith("{")) {
         return $lastLine
     }
@@ -162,7 +167,8 @@ function Write-SupervisorSnapshot {
         [pscustomobject]@{ Name = "Design -> Dev"; Path = Join-Path $ProjectRoot "handoff\design-to-dev.md" },
         [pscustomobject]@{ Name = "Dev -> QA"; Path = Join-Path $ProjectRoot "handoff\dev-to-qa.md" },
         [pscustomobject]@{ Name = "QA -> Final"; Path = Join-Path $ProjectRoot "handoff\qa-to-final.md" },
-        [pscustomobject]@{ Name = "Final -> Git"; Path = Join-Path $ProjectRoot "handoff\final-to-git.md" }
+        [pscustomobject]@{ Name = "Final -> PlanningFinal"; Path = Join-Path $ProjectRoot "handoff\final-to-git.md" },
+        [pscustomobject]@{ Name = "PlanningFinal -> Git"; Path = Join-Path $ProjectRoot "handoff\planning-final-to-git.md" }
     )
 
     $lines = New-Object System.Collections.ArrayList

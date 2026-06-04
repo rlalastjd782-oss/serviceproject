@@ -25,6 +25,27 @@ from health_tracker.services.accounts import touch_account_seen
 from health_tracker.services.pagination import query_url
 from health_tracker.utils import parse_int
 
+TEST_DISPLAY_PREFIX = "__TEST__"
+
+
+def _clean_display_name(value: object, fallback: str) -> str:
+    text = str(value or "").replace(TEST_DISPLAY_PREFIX, "").strip()
+    return text or fallback
+
+
+def _clean_food_map(value: object) -> dict[str, list[dict[str, object]]]:
+    if not isinstance(value, dict):
+        return {}
+    cleaned: dict[str, list[dict[str, object]]] = {}
+    for meal_type, items in value.items():
+        cleaned_items: list[dict[str, object]] = []
+        for item in items or []:
+            row = dict(item)
+            row["food_name"] = _clean_display_name(row.get("food_name"), "샘플 식품")
+            cleaned_items.append(row)
+        cleaned[str(meal_type)] = cleaned_items
+    return cleaned
+
 
 def configure_lifecycle_hooks(
     app: Flask,
@@ -35,6 +56,10 @@ def configure_lifecycle_hooks(
     is_admin_account: Callable[[], bool],
     settings_unlocked: Callable[[], bool],
 ) -> None:
+    app.jinja_env.filters["display_exercise_name"] = lambda value: _clean_display_name(value, "샘플 운동")
+    app.jinja_env.filters["display_food_name"] = lambda value: _clean_display_name(value, "샘플 식품")
+    app.jinja_env.filters["display_item_name"] = lambda value: _clean_display_name(value, "샘플 항목")
+
     @app.before_request
     def before_request() -> None:
         g.request_started_at = perf_counter()
@@ -116,4 +141,8 @@ def configure_lifecycle_hooks(
             "body_part_class_map": BODY_PART_CLASSES,
             "meal_type_class_map": MEAL_TYPE_CLASSES,
             "query_url": lambda **updates: query_url(request.path, request.args, **updates),
+            "display_exercise_name": lambda value: _clean_display_name(value, "샘플 운동"),
+            "display_food_name": lambda value: _clean_display_name(value, "샘플 식품"),
+            "display_item_name": lambda value: _clean_display_name(value, "샘플 항목"),
+            "display_food_map": _clean_food_map,
         }

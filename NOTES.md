@@ -1,4 +1,11 @@
-﻿## 2026-06-04 Playwright 화면 실검수 기반 UI 정리 조건부 승인
+﻿## 2026-06-04 Fold7 반응형 화면 정리 및 404 재발 방지 조건부 승인
+
+- 최종검수는 조건부 승인으로 정리했습니다. 최신 visual QA summary/json과 대표 PNG, HTTP `200`, 컴파일, 지정 unittest 23개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
+- 운영상 남은 확인 사항: `color-contrast`, `meta-viewport`, `/app`의 `aria-prohibited-attr`, `label`, `/summaries/weekly`의 `scrollable-region-focusable` axe 경고는 별도 접근성 개선 작업으로 분리합니다.
+- 수동 확인 권장: 데이터가 충분한 계정으로 운동별/PR 그래프 카드의 모바일 내부 가로 스크롤 표현과 카드 밀도를 재확인합니다.
+- Git 자동화 전 `git status --short`에 남은 변경 파일과 미추적 파일의 포함 범위를 확인해야 합니다.
+
+## 2026-06-04 Playwright 화면 실검수 기반 UI 정리 조건부 승인
 
 - 최종검수는 조건부 승인으로 정리했습니다. 최신 visual QA summary/json과 대표 PNG, HTTP `200`, 컴파일, 지정 unittest 23개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
 - 운영상 남은 확인 사항: `color-contrast`, `meta-viewport`, `/app`의 `aria-prohibited-attr`, `label` axe 경고는 별도 접근성 개선 작업으로 분리합니다.

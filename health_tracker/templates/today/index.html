@@ -81,10 +81,10 @@
         <article class="today-task-card primary-task-card">
           <span>다음 입력</span>
           {% if workout_session_flow.next_item %}
-            <strong>{{ workout_session_flow.next_item.exercise_name }}</strong>
+            <strong>{{ workout_session_flow.next_item.exercise_name|display_exercise_name }}</strong>
             <small>{{ workout_session_flow.next_item.completed_sets }} / {{ workout_session_flow.next_item.target_sets }}세트</small>
           {% elif workout_session_flow.last_set %}
-            <strong>{{ workout_session_flow.last_set.exercise_name }}</strong>
+            <strong>{{ workout_session_flow.last_set.exercise_name|display_exercise_name }}</strong>
             <small>마지막 입력에서 이어서 진행</small>
           {% else %}
             <strong>첫 세트 입력</strong>
@@ -94,7 +94,7 @@
         <article class="today-task-card">
           <span>마지막 기록</span>
           {% if workout_session_flow.last_set %}
-            <strong>{{ workout_session_flow.last_set.exercise_name }}</strong>
+            <strong>{{ workout_session_flow.last_set.exercise_name|display_exercise_name }}</strong>
             <small>
               {% if workout_session_flow.last_set.body_part == "유산소" %}
                 {{ "%.0f"|format(workout_session_flow.last_set.cardio_minutes or 0) }}분
@@ -123,7 +123,7 @@
             <article class="focus-suggestion-card">
               <div>
                 <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
-                <strong>{{ item.exercise_name }}</strong>
+                <strong>{{ item.exercise_name|display_exercise_name }}</strong>
                 <small>
                   {{ item.reason }}
                   {% if item.last_date %} · 최근 {{ item.last_date }}{% endif %}
@@ -156,8 +156,8 @@
             <article class="focus-suggestion-card adaptive-recommendation-card">
               <div>
                 <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
-                <strong>{{ item.exercise_name }}</strong>
-                <small>{{ item.action }} · {{ item.target_sets }}세트 · {{ item.reason }}</small>
+                <strong>{{ item.exercise_name|display_exercise_name }}</strong>
+                <small>{{ item.action }} · {{ item.target_sets }}세트 · {{ item.reason|display_item_name }}</small>
               </div>
               <button
                 type="button"
@@ -292,7 +292,7 @@
         {% for item in workout_plan %}
           <article class="routine-step-card {% if item.completed_sets >= item.target_sets %}is-done{% endif %}">
             <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
-            <strong>{{ item.exercise_name }}</strong>
+            <strong>{{ item.exercise_name|display_exercise_name }}</strong>
             <span>{{ item.completed_sets }} / {{ item.target_sets }}세트</span>
             <button
               type="button"
@@ -320,7 +320,7 @@
           <article class="routine-recommend-card {{ body_part_class(item.body_part) }}">
             <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
             <strong>{{ item.reason }}</strong>
-            <span>{{ item["items"]|join(" · ") }}</span>
+            <span>{% for exercise_name in item["items"] %}{{ exercise_name|display_exercise_name }}{% if not loop.last %} · {% endif %}{% endfor %}</span>
             <form method="post" action="{{ url_for('add_recommendation_plan_route') }}">
               <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
               <input type="hidden" name="body_part" value="{{ item.body_part }}">
@@ -398,7 +398,7 @@
       {% for item in workout_plan %}
         <form method="post" action="{{ url_for('delete_plan_item_route', item_id=item.id) }}" class="routine-load-row">
           <input type="hidden" name="workout_date" value="{{ session.workout_date }}">
-          <span><span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span> {{ item.exercise_name }} · {{ item.target_sets }}세트</span>
+          <span><span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span> {{ item.exercise_name|display_exercise_name }} · {{ item.target_sets }}세트</span>
           <button class="btn-danger" type="submit">삭제</button>
         </form>
       {% else %}

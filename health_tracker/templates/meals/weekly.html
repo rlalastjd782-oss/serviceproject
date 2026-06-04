@@ -44,7 +44,7 @@
       <div class="summary-label">자주 먹은 음식</div>
     </article>
     <article class="summary-card">
-      <div class="summary-value">{{ meal_summary.top_food }}</div>
+      <div class="summary-value">{{ meal_summary.top_food|display_food_name }}</div>
       <div class="summary-label">최다 음식</div>
     </article>
   </div>
@@ -83,7 +83,7 @@
                 <div class="weekly-meal-item">
                   <span class="badge {{ meal_type_class(meal.meal_type) }}">{{ meal.meal_type or "식사" }}</span>
                   <div class="weekly-meal-main">
-                    <strong>{{ meal.food_name }}</strong>
+                    <strong>{{ meal.food_name|display_food_name }}</strong>
                     <span>
                       {% if meal.quantity %}{{ "%.0f"|format(meal.quantity) }}개{% endif %}
                       {% if meal.grams %}{% if meal.quantity %} · {% endif %}{{ "%.1f"|format(meal.grams) }}g{% endif %}

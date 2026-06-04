@@ -1,7 +1,8 @@
     <section class="section analysis-dashboard-section equipment-dashboard-section">
       <div class="yearly-dashboard-head">
         <div class="yearly-kicker">장비 분석</div>
-        <h1>{{ selected_equipment or "전체 장비" }} 기준 기록</h1>
+        <h1>장비별 기록</h1>
+        <div class="section-subtitle">{{ (selected_equipment or "전체 장비")|display_item_name }} 기준</div>
         <p>각 세트에 저장된 장비 기준으로 운동량, 최근 사용, 장비별 상세 운동을 비교합니다.</p>
       </div>
       <div class="yearly-action-grid analysis-action-grid">
@@ -33,7 +34,7 @@
       <div class="record-list">
         {% for item in equipment_summary %}
           <a class="record-card equipment-summary-card {% if item.equipment == selected_equipment %}is-selected{% endif %}" href="{{ url_for('equipment_summary_page', scope=selected_scope, equipment=item.equipment) }}">
-            <div class="record-date">{{ item.equipment }}</div>
+            <div class="record-date">{{ item.equipment|display_item_name }}</div>
             <div class="record-summary">
               <span class="badge">{{ item.set_count }}세트</span>
               {% if item.rep_count %}<span class="badge">{{ item.rep_count }}회</span>{% endif %}
@@ -54,14 +55,14 @@
       <section class="section">
         <div class="section-header">
           <div>
-            <div class="section-title">{{ selected_equipment }} 운동 상세</div>
+            <div class="section-title">{{ selected_equipment|display_item_name }} 운동 상세</div>
             <div class="section-subtitle">같은 운동명도 장비별로 따로 계산합니다.</div>
           </div>
         </div>
         <div class="detail-list">
           {% for item in equipment_detail %}
             <div class="detail-row">
-              <strong>{{ item.exercise_name }}</strong>
+              <strong>{{ item.exercise_name|display_exercise_name }}</strong>
               <span>
                 {{ item.body_part }} · {{ item.set_count }}세트
                 {% if item.body_part == "유산소" %}
@@ -81,7 +82,7 @@
 
       <section class="section">
         <div class="section-header">
-          <div class="section-title">{{ selected_equipment }} 날짜별 기록</div>
+          <div class="section-title">{{ selected_equipment|display_item_name }} 날짜별 기록</div>
         </div>
         <div class="record-list">
           {% for item in equipment_daily %}

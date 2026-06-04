@@ -89,7 +89,7 @@
         <a class="pr-rank-card {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('pr_summary_page', part=selected_part, q=search_query, exercise_id=item.id) }}">
           <div class="pr-rank-head">
             <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
-            <strong>{{ item.name }}</strong>
+            <strong>{{ item.name|display_exercise_name }}</strong>
           </div>
           <div class="pr-rank-metrics">
             <span>중량 <b>{{ "%.1f"|format(item.best_weight) }}kg</b></span>
@@ -114,7 +114,7 @@
     <section class="section">
       <div class="section-header">
         <div>
-          <div class="section-title">{{ selected_profile.name }} 상세 PR</div>
+        <div class="section-title">{{ selected_profile.name|display_exercise_name }} 상세 PR</div>
           <div class="section-subtitle">{{ selected_profile.body_part }} · 최근 {{ selected_profile.last_date or "-" }}</div>
         </div>
         <a class="btn-small" href="{{ url_for('exercise_summary_page', exercise_id=selected_exercise_id) }}">운동 상세</a>
@@ -191,7 +191,7 @@
     <div class="detail-list compact-detail-list">
       {% for event in recent_pr_events %}
         <div class="detail-row">
-          <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
+          <strong>{{ event.workout_date }} · {{ event.exercise_name|display_exercise_name }}</strong>
           <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
         </div>
       {% else %}

@@ -109,7 +109,7 @@
         <div class="yearly-rank-row">
           <b>{{ loop.index }}</b>
           <div>
-            <strong>{{ item.name }}</strong>
+            <strong>{{ item.name|display_exercise_name }}</strong>
             <span>{{ item.body_part }} · 최근 {{ item.last_date }}</span>
           </div>
           <em>{{ item.set_count }}세트 · {{ "%.0f"|format(item.volume) }}kg</em>

@@ -18,7 +18,7 @@
           <div class="exercise-hero-head">
             <div>
               <span class="cat-badge {{ body_part_class(selected_exercise_profile.body_part) }}">{{ selected_exercise_profile.body_part }}</span>
-              <strong>{{ selected_exercise_profile.name }}</strong>
+              <strong>{{ selected_exercise_profile.name|display_exercise_name }}</strong>
               <small>최근 {{ selected_exercise_profile.last_date or "-" }}</small>
             </div>
             {% if selected_exercise_profile.body_part == "유산소" %}
@@ -164,7 +164,7 @@
             <div class="overload-card-head">
               <div>
                 <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
-                <strong>{{ item.exercise_name }}</strong>
+                <strong>{{ item.exercise_name|display_exercise_name }}</strong>
               </div>
               <b>{{ item.state }}</b>
             </div>
@@ -224,7 +224,7 @@
         <div class="detail-list search-result-list">
           {% for result in search_results %}
             <div class="detail-row">
-              <strong>{{ result.workout_date }} · {{ result.exercise_name }}</strong>
+              <strong>{{ result.workout_date }} · {{ result.exercise_name|display_exercise_name }}</strong>
               <span>
                 {{ result.body_part }} ·
                 {% if result.body_part == "유산소" %}
@@ -254,7 +254,7 @@
         <div class="detail-list compact-detail-list">
           {% for event in recent_pr_events[:8] %}
             <div class="detail-row">
-              <strong>{{ event.workout_date }} · {{ event.exercise_name }}</strong>
+              <strong>{{ event.workout_date }} · {{ event.exercise_name|display_exercise_name }}</strong>
               <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
             </div>
           {% endfor %}
@@ -269,7 +269,7 @@
           <a class="ex-rank-item {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">
             <span class="rank-num">{{ loop.index }}위</span>
             <div class="ex-rank-main">
-              <strong>{{ item.name }}</strong>
+              <strong>{{ item.name|display_exercise_name }}</strong>
               <div class="record-summary">
                 <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
                 <span class="badge">{{ item.set_count }}세트</span>

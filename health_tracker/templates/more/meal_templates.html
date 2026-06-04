@@ -6,7 +6,7 @@
   <section class="section more-tool-section">
     <div class="section-header">
       <div>
-        <div class="section-title">식단 템플릿</div>
+        <h1 class="section-title">식단 템플릿</h1>
         <div class="section-subtitle">저장한 식단 묶음을 원하는 날짜에 적용합니다.</div>
       </div>
       <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
@@ -32,7 +32,7 @@
       {% for template in meal_templates %}
         <article class="meal-template-card">
           <div>
-            <strong>{{ template.name }}</strong>
+            <strong>{{ template.name|display_food_name }}</strong>
             <span>{{ template.item_count }}개 항목</span>
           </div>
           <div class="meal-template-actions">

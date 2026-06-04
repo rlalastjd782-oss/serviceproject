@@ -1,7 +1,7 @@
 <div class="ex-item editable-list-item meal-record-item">
   <div class="item-read-view ex-item-info">
     <div class="ex-name">
-      {{ item.food_name }}
+      {{ item.food_name|display_food_name }}
       {% if item.quantity is not none %}<span class="muted-text"> · {{ "%.0f"|format(item.quantity) }}개</span>{% endif %}
       {% if item.grams is not none %}<span class="muted-text"> · {{ "%.1f"|format(item.grams) }}g</span>{% endif %}
       {% if item.calories is not none %}<span class="muted-text"> · {{ "%.0f"|format(item.calories) }}kcal</span>{% endif %}
@@ -10,7 +10,7 @@
   <form method="post" action="{{ url_for('update_meal', meal_id=item.id) }}" class="inline-edit-form meal-edit-form">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="mode" value="meal">
-    <input name="food_name" value="{{ item.food_name }}" required>
+    <input name="food_name" value="{{ item.food_name|display_food_name }}" required>
     <input name="quantity" type="number" min="0" step="1" inputmode="numeric" value="{% if item.quantity is not none %}{{ "%.0f"|format(item.quantity) }}{% endif %}" placeholder="개">
     <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" value="{% if item.grams is not none %}{{ "%.1f"|format(item.grams) }}{% endif %}" placeholder="g">
     <input name="calories" type="number" min="0" step="1" inputmode="numeric" value="{% if item.calories is not none %}{{ "%.0f"|format(item.calories) }}{% endif %}" placeholder="kcal">

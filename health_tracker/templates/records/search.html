@@ -12,7 +12,7 @@
   <section class="section analysis-dashboard-section record-search-dashboard">
     <div class="yearly-dashboard-head">
       <div class="yearly-kicker">기록 검색</div>
-      <h1>{{ pagination.total }}개 기록 탐색</h1>
+      <h1>기록 검색</h1>
       <p>운동명, 부위, 장비, 날짜 범위를 조합해서 필요한 세트를 빠르게 찾습니다.</p>
     </div>
     <div class="yearly-action-grid analysis-action-grid">
@@ -59,7 +59,7 @@
           <select name="location_id" aria-label="운동 장소">
             <option value="">전체 장소</option>
             {% for location in locations %}
-              <option value="{{ location.id }}" {% if selected_location_id == location.id %}selected{% endif %}>{{ location.name }}</option>
+              <option value="{{ location.id }}" {% if selected_location_id == location.id %}selected{% endif %}>{{ location.name|display_item_name }}</option>
             {% endfor %}
           </select>
           <input class="record-search-start" name="start" type="date" value="{{ selected_start }}" aria-label="시작일">
@@ -80,11 +80,11 @@
         <article class="record-card record-result-card">
           <div class="record-result-main">
             <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
-            <strong>{{ item.exercise_name }}</strong>
+            <strong>{{ item.exercise_name|display_exercise_name }}</strong>
             <div class="record-result-meta">
               <span>{{ item.workout_date }}</span>
-              {% if item.location_name %}<span>{{ item.location_name }}</span>{% endif %}
-              {% if item.equipment %}<span>{{ item.equipment }}</span>{% endif %}
+              {% if item.location_name %}<span>{{ item.location_name|display_item_name }}</span>{% endif %}
+              {% if item.equipment %}<span>{{ item.equipment|display_item_name }}</span>{% endif %}
             </div>
           </div>
           <div class="record-result-value">

@@ -17,7 +17,7 @@
       <div
         class="exercise-quick-panel"
         data-food-quick-panel
-        data-foods-by-meal-type='{{ foods_by_meal_type|tojson }}'
+        data-foods-by-meal-type='{{ display_food_map(foods_by_meal_type)|tojson }}'
       >
         {% set favorite_food_names = favorite_foods|map(attribute='food_name')|list %}
         {% if favorite_foods %}
@@ -25,7 +25,7 @@
           <div class="exercise-quick-list meal-favorite-list">
             {% for food in favorite_foods %}
               <span class="meal-favorite-row">
-                <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name }}</button>
+                <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name|display_food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name|display_food_name }}</button>
                 <form method="post" action="{{ url_for('delete_food_favorite_route', food_name=food.food_name) }}">
                   <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
                   <button class="btn-danger row-remove-button" type="submit" aria-label="고정 음식 해제">×</button>
@@ -39,7 +39,7 @@
           <div class="exercise-quick-list">
             {% for food in frequent_foods %}
               {% if food.food_name not in favorite_food_names %}
-                <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name }} · {{ food.use_count }}회</button>
+                <button class="exercise-quick-button" type="button" data-food-entry data-food-name="{{ food.food_name|display_food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">{{ food.food_name|display_food_name }} · {{ food.use_count }}회</button>
               {% endif %}
             {% endfor %}
           </div>
@@ -84,7 +84,7 @@
             <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
             <input type="hidden" name="source_date" value="{{ combo.meal_date }}">
             <input type="hidden" name="meal_type" value="{{ combo.meal_type }}">
-            <span>{{ combo.meal_type }} · {{ combo.foods }} · {{ "%.0f"|format(combo.calories) }}kcal</span>
+            <span>{{ combo.meal_type }} · {{ combo.foods|display_food_name }} · {{ "%.0f"|format(combo.calories) }}kcal</span>
             <button class="btn-small" type="submit">적용</button>
           </form>
         {% endfor %}
@@ -111,7 +111,7 @@
         <form method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
          <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
           <input type="hidden" name="mode" value="meal">
-          <span>식단 조합 · {{ template.name }} · {{ template.item_count }}개</span>
+          <span>식단 조합 · {{ template.name|display_food_name }} · {{ template.item_count }}개</span>
           <button class="btn-small" type="submit">불러오기</button>
         </form>
       {% endfor %}

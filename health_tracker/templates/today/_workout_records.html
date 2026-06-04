@@ -13,17 +13,17 @@
             <div class="record-date workout-record-head">
               <button class="record-toggle" type="button" data-toggle-card aria-expanded="false">
                 <span class="cat-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>
-                <strong>{{ group.exercise_name }}</strong>
-                <span>{{ group.sets|length }}세트{% if setting.get('equipment') %} · {{ setting.get('equipment') }}{% endif %}{% if group_pr_events %} · PR {{ group_pr_events|length }}{% endif %}</span>
+                <strong>{{ group.exercise_name|display_exercise_name }}</strong>
+                <span>{{ group.sets|length }}세트{% if setting.get('equipment') %} · {{ setting.get('equipment')|display_item_name }}{% endif %}{% if group_pr_events %} · PR {{ group_pr_events|length }}{% endif %}</span>
               </button>
             </div>
             <div class="compact-set-preview">
               {% for item in group.sets[:4] %}
                 <button type="button" data-open-set-edit data-set-id="{{ item.id }}" aria-label="{{ loop.index }}세트 수정">
                   {% if group.body_part == "유산소" %}
-                    {% if item.equipment %}{{ item.equipment }} · {% endif %}{{ "%.0f"|format(item.cardio_minutes or 0) }}분
+                    {% if item.equipment %}{{ item.equipment|display_item_name }} · {% endif %}{{ "%.0f"|format(item.cardio_minutes or 0) }}분
                   {% else %}
-                    {% if item.equipment %}{{ item.equipment }} · {% endif %}{{ "%.1f"|format(item.weight or 0) }}kg x {{ item.reps or 0 }}회
+                    {% if item.equipment %}{{ item.equipment|display_item_name }} · {% endif %}{{ "%.1f"|format(item.weight or 0) }}kg x {{ item.reps or 0 }}회
                   {% endif %}
                 </button>
               {% endfor %}
@@ -58,7 +58,7 @@
               <input type="hidden" name="body_part" value="{{ group.body_part }}">
               <label class="edit-field edit-field-name">
                 <span>운동명 일괄 수정</span>
-                <input list="exercise-list" name="exercise_name" value="{{ group.exercise_name }}" autocomplete="off" required>
+                <input list="exercise-list" name="exercise_name" value="{{ group.exercise_name|display_exercise_name }}" autocomplete="off" required>
               </label>
               <button class="btn-small" type="submit">운동명 변경</button>
             </form>
@@ -79,7 +79,7 @@
               <select name="equipment" aria-label="운동 장비">
                 <option value="">장비 없음</option>
                 {% for option in equipment_options %}
-                  <option value="{{ option }}" {% if setting.get('equipment') == option %}selected{% endif %}>{{ option }}</option>
+                  <option value="{{ option }}" {% if setting.get('equipment') == option %}selected{% endif %}>{{ option|display_item_name }}</option>
                 {% endfor %}
               </select>
               <label class="inline-check"><input name="is_favorite" type="checkbox" value="1" {% if setting.get('is_favorite') %}checked{% endif %}> 즐겨찾기</label>
@@ -121,4 +121,3 @@
       {% endif %}
     </div>
   </section>
-

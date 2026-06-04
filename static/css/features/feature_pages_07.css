@@ -87,6 +87,7 @@
   background: var(--bg);
   padding: 10px;
   scroll-snap-type: x proximity;
+  scrollbar-gutter: stable;
 }
 
 .progress-card {
@@ -105,6 +106,9 @@
   .exercise-progress-chart,
   .pr-growth-chart {
     grid-auto-columns: min(280px, calc(100vw - 72px));
+    background:
+      linear-gradient(90deg, transparent calc(100% - 28px), rgb(96 165 250 / 12%)),
+      var(--bg);
     padding-inline-end: 28px;
     scroll-padding-inline: 10px;
     overscroll-behavior-inline: contain;

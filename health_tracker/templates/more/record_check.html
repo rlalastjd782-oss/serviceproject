@@ -6,7 +6,7 @@
   <section class="section more-tool-section">
     <div class="section-header">
       <div>
-        <div class="section-title">기록 점검</div>
+        <h1 class="section-title">기록 점검</h1>
         <div class="section-subtitle">{{ selected_date }} 기준 최근 {{ selected_days }}일</div>
       </div>
       <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
@@ -65,7 +65,7 @@
           {% for item in duplicate_exercises %}
             <div class="cleanup-row">
               <div class="cleanup-row-main">
-                <strong>{{ item.variants|join(" / ") }}</strong>
+                <strong>{% for name in item.variants %}{{ name|display_exercise_name }}{% if not loop.last %} / {% endif %}{% endfor %}</strong>
                 <span>{{ item.set_count }}세트 · 최근 {{ item.last_date }}</span>
               </div>
               <a class="btn-small" href="{{ url_for('exercise_library_page', q=item.variants[0]) }}">확인</a>
@@ -84,7 +84,7 @@
           {% for item in outlier_sets %}
             <div class="cleanup-row">
               <div class="cleanup-row-main">
-                <strong>{{ item.exercise_name }}</strong>
+                <strong>{{ item.exercise_name|display_exercise_name }}</strong>
                 <span>{{ item.date }} · {% if item.weight %}{{ "%.1f"|format(item.weight) }}kg{% endif %}{% if item.reps %} × {{ item.reps }}회{% endif %}{% if item.cardio_minutes %} · {{ item.cardio_minutes }}분{% endif %}{% if item.rpe %} · RPE {{ "%.1f"|format(item.rpe) }}{% endif %}</span>
               </div>
               <a class="btn-small" href="{{ url_for('index', date=item.date, mode='workout') }}">수정</a>
