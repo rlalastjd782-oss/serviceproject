@@ -19,24 +19,22 @@
   display: contents;
 }
 
-.meal-form.is-collapsed {
+.meal-form.is-collapsed > :not(input[type="hidden"]):not(.meal-input-row) {
   display: none;
 }
 
-.meal-type-picker {
+.meal-input-row {
   display: grid;
-  gap: 7px;
-  margin: 9px 0 10px;
+  grid-template-columns: minmax(132px, 0.72fr) minmax(220px, 1.4fr) minmax(150px, 0.8fr);
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 10px;
 }
 
-.meal-type-picker.is-enhanced .meal-type-select-fallback {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
+.meal-input-row > * {
+  min-width: 0;
+  min-height: 44px;
+  width: 100%;
 }
 
 .meal-type-control {
@@ -482,7 +480,7 @@
 }
 
 .meal-builder-toolbar {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(110px, 0.6fr) minmax(180px, 1fr) minmax(170px, 0.8fr);
   margin-bottom: 10px;
 }
 
@@ -540,7 +538,7 @@
 }
 
 .meal-entry-row {
-  grid-template-columns: minmax(190px, 1fr) minmax(260px, 0.9fr) 34px;
+  grid-template-columns: 42px minmax(150px, 1fr) minmax(220px, 0.9fr) 40px;
   align-items: stretch;
 }
 
@@ -602,7 +600,7 @@
 
 .meal-compact-grid {
   grid-template-columns: 0.7fr 0.8fr 1fr;
-  grid-column: 2;
+  grid-column: 3;
 }
 
 .set-entry-row > input,
@@ -673,7 +671,7 @@
 }
 
 .meal-entry-row .row-remove-button {
-  grid-column: 3;
+  grid-column: 4;
   grid-row: 1;
   min-width: 30px;
 }
@@ -718,6 +716,52 @@
 @media (min-width: 656px) {
   .meal-type-control {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 655px) {
+  .meal-input-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .meal-input-row > [data-meal-type-select] {
+    grid-column: 1 / -1;
+  }
+
+  .meal-builder-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .meal-entry-row {
+    grid-template-columns: 34px minmax(0, 1fr) 38px;
+    grid-template-areas:
+      "number food actions"
+      "fields fields fields";
+  }
+
+  .meal-entry-row > strong {
+    grid-area: number;
+  }
+
+  .meal-entry-row > input[name="meal_food_name"] {
+    grid-area: food;
+  }
+
+  .meal-entry-row .meal-compact-grid {
+    grid-area: fields;
+    grid-column: auto;
+  }
+
+  .meal-entry-row .row-remove-button {
+    grid-area: actions;
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 380px) {
+  .meal-input-row {
+    grid-template-columns: 1fr;
   }
 }
 

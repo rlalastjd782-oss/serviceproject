@@ -205,7 +205,10 @@ class WorkoutMealFlowTest(FlowTestBase):
         self.assertIn('name="csrf_token"', meal_html)
         self.assertIn("meal-record-card", meal_html)
         self.assertIn("meal-record-item", meal_html)
-        self.assertIn("최근 입력 음식", meal_html)
+        self.assertIn("음식 바로 선택", meal_html)
+        self.assertIn('data-meal-quick-tab="recent"', meal_html)
+        self.assertIn('data-meal-quick-tab="favorite"', meal_html)
+        self.assertIn('data-meal-quick-tab="combo"', meal_html)
 
         response = self.client.post(
             "/food-favorites",
@@ -219,9 +222,10 @@ class WorkoutMealFlowTest(FlowTestBase):
         )
         self.assertEqual(response.status_code, 302)
         meal_html = self.client.get(f"/app?date={workout_date}&mode=meal").data.decode("utf-8")
-        self.assertIn("고정 음식", meal_html)
-        self.assertIn("meal-favorite-row", meal_html)
+        self.assertIn("즐겨찾기", meal_html)
+        self.assertIn("meal-favorite-list", meal_html)
         self.assertIn("data-add-meal-preset", meal_html)
+        self.assertIn("data-clone-first-meal", meal_html)
         self.assertIn("고정음식", meal_html)
         self.assertNotIn(">__TEST__ 고정음식<", meal_html)
 

@@ -48,8 +48,6 @@ document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   }
 });
 document.querySelectorAll("[data-meal-type-select]").forEach((select) => {
-  select.closest("[data-meal-type-picker]")?.classList.add("is-enhanced");
-  select.tabIndex = -1;
   applyMealTypeSelectColor(select);
   renderFoodQuickList(select.value);
   syncMealTypeSegments(select.value);
@@ -89,6 +87,24 @@ document.addEventListener("input", (event) => {
   if (event.target.closest("[data-set-count-input]")) {
     syncSetRowsToCount();
   }
+  const mealCountInput = event.target.closest("[data-meal-count-input]");
+  if (mealCountInput) {
+    const mealList = document.querySelector("[data-meal-list]");
+    if (mealList) {
+      syncMealRowsToCount(mealList, mealCountInput.value);
+    }
+  }
+  const mealPrimaryInput = event.target.closest("[data-meal-primary-food-input]");
+  if (mealPrimaryInput) {
+    const firstMealNameInput = document.querySelector('[data-meal-list] .meal-entry-row input[name="meal_food_name"]');
+    if (firstMealNameInput) {
+      firstMealNameInput.value = mealPrimaryInput.value;
+    }
+  }
+  const mealRowNameInput = event.target.closest('[data-meal-list] .meal-entry-row:first-child input[name="meal_food_name"]');
+  if (mealRowNameInput) {
+    syncMealPrimaryFoodInput(mealRowNameInput.value);
+  }
   if (event.target.matches('input[name="set_weight"], select[name="set_weight_unit"]')) {
     updateSetWeightPreviews();
   }
@@ -117,6 +133,7 @@ document.addEventListener("click", (event) => {
   const inlineAddCancelButton = event.target.closest("[data-cancel-inline-add]");
   const detailButton = event.target.closest("[data-toggle-detail]");
   const workoutQuickTab = event.target.closest("[data-workout-quick-tab]");
+  const mealQuickTab = event.target.closest("[data-meal-quick-tab]");
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
   const applyNextSetButton = event.target.closest("[data-apply-next-set]");
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
@@ -125,6 +142,7 @@ document.addEventListener("click", (event) => {
   const setCountPresetButton = event.target.closest("[data-set-count-preset]");
   const fillWeightButton = event.target.closest("[data-fill-weight]");
   const cloneFirstSetButton = event.target.closest("[data-clone-first-set]");
+  const cloneFirstMealButton = event.target.closest("[data-clone-first-meal]");
   const rampWeightButton = event.target.closest("[data-ramp-weight]");
   const foodQuickButton = event.target.closest("[data-food-entry]");
   const mealTypeSegment = event.target.closest("[data-meal-type-option]");
@@ -153,6 +171,11 @@ document.addEventListener("click", (event) => {
 
   if (workoutQuickTab) {
     setWorkoutQuickTab(workoutQuickTab.dataset.workoutQuickTab || "recent");
+    return;
+  }
+
+  if (mealQuickTab) {
+    setMealQuickTab(mealQuickTab.dataset.mealQuickTab || "recent");
     return;
   }
 
@@ -263,6 +286,11 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  if (cloneFirstMealButton && mealList) {
+    cloneFirstMealToRows(mealList);
+    return;
+  }
+
   if (rampWeightButton && setList) {
     rampSetWeights(setList, Number(rampWeightButton.dataset.rampStep || 5));
     return;
@@ -298,20 +326,19 @@ document.addEventListener("click", (event) => {
     if (mealList.querySelectorAll(".meal-entry-row").length > 1) {
       removeMealButton.closest(".meal-entry-row").remove();
       renumberRows(mealList, ".meal-entry-row");
+      updateMealCountInput(mealList);
     }
     return;
   }
 
   if (addMealButton && mealList) {
     addRow(mealList, "meal");
+    updateMealCountInput(mealList);
     return;
   }
 
   if (addMealPresetButton && mealList) {
-    const targetCount = Math.max(1, Math.min(10, Number(addMealPresetButton.dataset.addMealPreset || 1)));
-    while (mealList.querySelectorAll(".meal-entry-row").length < targetCount) {
-      addRow(mealList, "meal", { focus: false });
-    }
+    syncMealRowsToCount(mealList, addMealPresetButton.dataset.addMealPreset);
     mealList.querySelector(".meal-entry-row:last-child input")?.focus();
     return;
   }
