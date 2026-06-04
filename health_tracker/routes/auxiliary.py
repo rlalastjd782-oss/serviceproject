@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from flask import Response
 
+from health_tracker.services.data_cleanup import build_cleanup_wizard
+
 
 def register_aux_routes(app, ctx: dict[str, object]) -> None:
     globals().update(ctx)
@@ -54,15 +56,29 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
     def record_check_page():
         selected_date = normalize_date(request.args.get("date"))
         days = normalize_summary_days(request.args.get("days"))
+        data_quality_profile = build_data_quality_profile(selected_date, days)
+        record_gaps = list_record_gaps(selected_date, days)
+        duplicate_exercises = list_duplicate_exercise_candidates()
+        outlier_sets = list_outlier_set_candidates()
         return render_template(
             "more/record_check.html",
             active_page="record_check",
             selected_date=selected_date,
             selected_days=days,
-            data_quality_profile=build_data_quality_profile(selected_date, days),
-            record_gaps=list_record_gaps(selected_date, days),
-            duplicate_exercises=list_duplicate_exercise_candidates(),
-            outlier_sets=list_outlier_set_candidates(),
+            data_quality_profile=data_quality_profile,
+            record_gaps=record_gaps,
+            duplicate_exercises=duplicate_exercises,
+            outlier_sets=outlier_sets,
+            cleanup_wizard=build_cleanup_wizard(
+                data_quality_profile,
+                record_gaps,
+                duplicate_exercises,
+                outlier_sets,
+                selected_date=selected_date,
+                selected_days=days,
+                active=request.args.get("wizard") == "1",
+                confirm=request.args.get("confirm", "").strip(),
+            ),
             data_counts=get_data_counts(),
         )
 

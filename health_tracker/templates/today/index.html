@@ -55,6 +55,89 @@
   {% if workout_mode %}
     {% include "today/_location_panel.html" %}
 
+    <section class="section workout-coach-section workout-only" id="workout-coach">
+      <div class="section-header">
+        <div>
+          <div class="section-title">오늘 운동 코치</div>
+          <div class="section-subtitle">{{ workout_execution_coach.source_label }} 기준 추천입니다. 세트 저장 전까지 실제 기록으로 확정되지 않습니다.</div>
+        </div>
+        <span class="badge">{{ workout_execution_coach.status }}</span>
+      </div>
+      {% set coach_item = workout_execution_coach.active_item %}
+      {% if coach_item %}
+        <div class="coach-card workout-execution-card state-{{ workout_execution_coach.status }}">
+          <div class="coach-card-main">
+            <span class="cat-badge {{ body_part_class(coach_item.body_part) }}">{{ coach_item.body_part }}</span>
+            <strong>{{ coach_item.exercise_name|display_exercise_name }}</strong>
+            <small>
+              {% if coach_item.is_cardio %}
+                목표 {{ coach_item.cardio_minutes }}분{% if coach_item.cardio_speed %} · {{ coach_item.cardio_speed }}km/h{% endif %}{% if coach_item.cardio_incline %} · 경사 {{ coach_item.cardio_incline }}{% endif %}
+              {% else %}
+                {{ coach_item.target_sets }}세트 · {{ coach_item.target_reps }}회{% if coach_item.target_weight %} · {{ "%.1f"|format(coach_item.target_weight) }}kg{% endif %} · 휴식 {{ coach_item.rest_seconds }}초
+              {% endif %}
+              {% if coach_item.equipment %} · {{ coach_item.equipment|display_item_name }}{% endif %}
+            </small>
+          </div>
+          <div class="coach-action-row">
+            <button
+              type="button"
+              class="btn-primary"
+              data-copy-saved-set
+              data-body-part="{{ coach_item.body_part }}"
+              data-exercise-name="{{ coach_item.exercise_name }}"
+              data-weight="{% if coach_item.target_weight %}{{ coach_item.target_weight }}{% endif %}"
+              data-reps="{% if coach_item.target_reps %}{{ coach_item.target_reps }}{% endif %}"
+              data-cardio-incline="{% if coach_item.cardio_incline %}{{ coach_item.cardio_incline }}{% endif %}"
+              data-cardio-speed="{% if coach_item.cardio_speed %}{{ coach_item.cardio_speed }}{% endif %}"
+              data-cardio-minutes="{% if coach_item.is_cardio %}{{ coach_item.cardio_minutes }}{% endif %}"
+            >운동 시작</button>
+            <a class="btn-small" href="{{ workout_execution_coach.actions.edit }}">수정</a>
+            <a class="btn-small" href="{{ workout_execution_coach.actions.skip }}">건너뛰기</a>
+          </div>
+          {% if coach_item.is_cardio %}
+            <div class="coach-tool-strip">
+              <span>유산소 기준</span>
+              <strong>{{ coach_item.cardio_minutes }}분</strong>
+              <span>속도와 경사는 입력 form에서 조정합니다.</span>
+            </div>
+          {% elif workout_execution_coach.plate_combo or workout_execution_coach.warmup_sets %}
+            <div class="coach-tool-grid">
+              <div class="coach-tool-strip">
+                <span>원판 조합</span>
+                <strong>
+                  {% for plate in workout_execution_coach.plate_combo %}
+                    {{ plate.weight }}kg x {{ plate.count }}{% if not loop.last %} · {% endif %}
+                  {% else %}
+                    목표 중량 입력 필요
+                  {% endfor %}
+                </strong>
+                <a href="{{ workout_execution_coach.actions.plate }}">계산기</a>
+              </div>
+              <div class="coach-tool-strip">
+                <span>워밍업</span>
+                <strong>
+                  {% for warmup in workout_execution_coach.warmup_sets %}
+                    {{ warmup.weight }}kg {{ warmup.reps }}회{% if not loop.last %} · {% endif %}
+                  {% else %}
+                    최근 중량 입력 필요
+                  {% endfor %}
+                </strong>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="coach-card is-empty">
+          <strong>추천을 만들 기록이 부족합니다.</strong>
+          <span>첫 운동을 저장하면 다음부터 주간 계획, 개인화 추천, 최근 기록 순서로 제안합니다.</span>
+          <div class="coach-action-row">
+            <a class="btn-primary" href="#workout-input">첫 운동 기록 만들기</a>
+            <a class="btn-small" href="{{ url_for('exercise_library_page') }}">운동 라이브러리</a>
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
     <section class="section today-task-section workout-focus-section workout-only">
       <div class="section-header">
         <div>

@@ -132,6 +132,11 @@
         </div>
       {% endif %}
     </div>
+    <div class="daily-action-inline-actions">
+      <a class="btn-primary" href="{{ url_for('index', date=session.workout_date, mode='meal') }}#meal-input">식단 입력</a>
+      <a class="btn-small" href="{{ url_for('meal_templates_page', date=session.workout_date) }}">템플릿 적용</a>
+      <a class="btn-small" href="{{ url_for('index', date=session.workout_date, mode='workout') }}#workout-coach">운동 기록 보기</a>
+    </div>
   </section>
 
   {% if record_gaps %}

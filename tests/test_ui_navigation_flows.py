@@ -148,6 +148,10 @@ class UiNavigationFlowTest(FlowTestBase):
 
         workout_html = self.client.get("/app?mode=workout").data.decode("utf-8")
         self.assertIn('id="workout-input"', workout_html)
+        self.assertIn("오늘 운동 코치", workout_html)
+        self.assertIn("운동 시작", workout_html)
+        self.assertIn("data-copy-saved-set", workout_html)
+        self.assertLess(workout_html.index("workout-coach-section"), workout_html.index("today-task-section"))
         self.assertIn("data-workout-quick-tab=\"recent\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"favorite\"", workout_html)
         self.assertIn("data-workout-quick-tab=\"routine\"", workout_html)
@@ -198,9 +202,28 @@ class UiNavigationFlowTest(FlowTestBase):
 
         meal_html = self.client.get("/app?mode=meal").data.decode("utf-8")
         self.assertIn('id="meal-input"', meal_html)
+        self.assertIn("오늘 연료 상태", meal_html)
+        self.assertIn("자주 먹는 조합 적용", meal_html)
+        self.assertIn("템플릿에서 선택", meal_html)
         self.assertIn("식단 기록 없음", meal_html)
         self.assertIn("data-toggle-meal-form", meal_html)
+        self.assertIn("data-meal-type-control", meal_html)
+        self.assertIn('data-meal-type-option="아침"', meal_html)
+        self.assertIn('data-meal-type-option="점심"', meal_html)
+        self.assertIn('data-meal-type-option="저녁"', meal_html)
+        self.assertIn('data-meal-type-option="간식"', meal_html)
+        self.assertIn('data-meal-type-option="기타"', meal_html)
+        self.assertIn('form="meal-entry-form"', meal_html)
+        self.assertLess(meal_html.index('id="meal-input"'), meal_html.index("fuel-coach-card"))
+        self.assertLess(meal_html.index("data-meal-type-control"), meal_html.index('data-meal-form'))
+        self.assertLess(meal_html.index("data-meal-type-control"), meal_html.index("fuel-coach-card"))
+        self.assertLess(meal_html.index('data-meal-form'), meal_html.index("fuel-coach-card"))
         self.assertLess(meal_html.index('id="meal-input"'), meal_html.index("today-meal-section"))
+        app_boot_source = Path("static/js/app_boot.js").read_text(encoding="utf-8")
+        meal_entry_source = Path("static/js/meal_entry.js").read_text(encoding="utf-8")
+        self.assertIn("setMealTypeFromSegment", app_boot_source)
+        self.assertIn("syncMealTypeSegments", meal_entry_source)
+        self.assertIn("renderFoodQuickList(mealTypeSelect.value)", app_boot_source)
 
         search_html = self.client.get("/records/search").data.decode("utf-8")
         self.assertIn("record-filter-details", search_html)
@@ -232,11 +255,44 @@ class UiNavigationFlowTest(FlowTestBase):
         location_insights_html = self.client.get("/locations/insights").data.decode("utf-8")
         self.assertIn("location-insight-list", location_insights_html)
 
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-27",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "마법사테스트",
+                "set_weight": ["40"],
+                "set_reps": ["8"],
+                "set_type": ["본세트"],
+            },
+        )
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-28",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "마법사 테스트",
+                "set_weight": ["405"],
+                "set_reps": ["8"],
+                "set_type": ["본세트"],
+            },
+        )
+
         record_check_html = self.client.get("/records/check").data.decode("utf-8")
         self.assertIn("기록 점검", record_check_html)
+        self.assertIn("정리 마법사 시작", record_check_html)
         self.assertIn("record-gap-list", record_check_html)
         self.assertIn("data-cleanup-grid", record_check_html)
         self.assertIn("cleanup-priority-grid", record_check_html)
+        wizard_html = self.client.get("/records/check?wizard=1").data.decode("utf-8")
+        self.assertIn("cleanup-wizard-card", wizard_html)
+        self.assertIn("한 번에 하나의 문제만 처리합니다.", wizard_html)
+        merge_confirm_html = self.client.get("/records/check?wizard=1&confirm=merge").data.decode("utf-8")
+        self.assertIn("병합 확인", merge_confirm_html)
+        outlier_confirm_html = self.client.get("/records/check?wizard=1&confirm=outlier").data.decode("utf-8")
+        self.assertIn("삭제 확인", outlier_confirm_html)
 
         qa_html = self.client.get("/qa/report").data.decode("utf-8")
         self.assertIn("2.7 릴리스 준비 상태", qa_html)

@@ -16,6 +16,31 @@ function renderFoodQuickList(mealType) {
   foodQuickEmpty.hidden = foods.length > 0;
 }
 
+function syncMealTypeSegments(selectedMealType) {
+  const segments = document.querySelectorAll("[data-meal-type-option]");
+  if (!segments.length) {
+    return;
+  }
+  segments.forEach((segment) => {
+    const isActive = segment.dataset.mealTypeOption === selectedMealType;
+    segment.classList.toggle("is-active", isActive);
+    segment.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
+function setMealTypeFromSegment(segment) {
+  const select = document.querySelector("[data-meal-type-select]");
+  if (!select) {
+    return;
+  }
+  const selectedMealType = segment.dataset.mealTypeOption || "기타";
+  select.value = selectedMealType;
+  if (select.value !== selectedMealType) {
+    select.value = "기타";
+  }
+  select.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
 function loadFoodEntry(button, mealList) {
   const firstRow = mealList.querySelector(".meal-entry-row");
   const row = firstRow && !firstRow.querySelector('input[name="meal_food_name"]').value ? firstRow : addRow(mealList, "meal");

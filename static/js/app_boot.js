@@ -48,8 +48,11 @@ document.querySelectorAll("[data-body-part-select]").forEach((select) => {
   }
 });
 document.querySelectorAll("[data-meal-type-select]").forEach((select) => {
+  select.closest("[data-meal-type-picker]")?.classList.add("is-enhanced");
+  select.tabIndex = -1;
   applyMealTypeSelectColor(select);
   renderFoodQuickList(select.value);
+  syncMealTypeSegments(select.value);
 });
 
 document.addEventListener("change", (event) => {
@@ -72,6 +75,7 @@ document.addEventListener("change", (event) => {
   if (mealTypeSelect) {
     applyMealTypeSelectColor(mealTypeSelect);
     renderFoodQuickList(mealTypeSelect.value);
+    syncMealTypeSegments(mealTypeSelect.value);
     return;
   }
 
@@ -123,6 +127,7 @@ document.addEventListener("click", (event) => {
   const cloneFirstSetButton = event.target.closest("[data-clone-first-set]");
   const rampWeightButton = event.target.closest("[data-ramp-weight]");
   const foodQuickButton = event.target.closest("[data-food-entry]");
+  const mealTypeSegment = event.target.closest("[data-meal-type-option]");
   const restButton = event.target.closest("[data-rest-seconds]");
   const restStopButton = event.target.closest("[data-rest-stop]");
   const workoutClockStartButton = event.target.closest("[data-workout-clock-start]");
@@ -151,6 +156,11 @@ document.addEventListener("click", (event) => {
     return;
   }
 
+  if (mealTypeSegment) {
+    setMealTypeFromSegment(mealTypeSegment);
+    return;
+  }
+
   if (workoutFormToggleButton && workoutForm) {
     toggleWorkoutForm();
     return;
@@ -165,7 +175,7 @@ document.addEventListener("click", (event) => {
     const isCollapsed = mealForm.classList.toggle("is-collapsed");
     setMealFormToggleLabels(isCollapsed ? "입력 열기" : "입력 닫기");
     if (!isCollapsed) {
-      mealForm.querySelector("input:not([type='hidden']), select")?.focus();
+      mealForm.querySelector("input:not([type='hidden'])")?.focus();
     }
     return;
   }

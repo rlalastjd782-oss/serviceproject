@@ -4,16 +4,26 @@
       <div class="section-title">🍱 식단 입력</div>
       <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
     </div>
-    <form method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
-      <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-      <input type="hidden" name="mode" value="meal">
-      <select name="meal_type" class="meal-type-select" data-meal-type-select aria-label="식단 구분">
+    <div class="meal-type-picker" data-meal-type-picker>
+      <label class="quick-panel-title" for="meal-type-select">끼니 선택</label>
+      <select id="meal-type-select" name="meal_type" form="meal-entry-form" class="meal-type-select meal-type-select-fallback" data-meal-type-select aria-label="식단 구분">
         <option value="아침" class="{{ meal_type_class('아침') }}">아침</option>
         <option value="점심" class="{{ meal_type_class('점심') }}">점심</option>
         <option value="저녁" class="{{ meal_type_class('저녁') }}">저녁</option>
         <option value="간식" class="{{ meal_type_class('간식') }}">간식</option>
         <option value="기타" class="{{ meal_type_class('기타') }}">기타</option>
       </select>
+      <div class="meal-type-control" role="group" aria-label="끼니 선택" data-meal-type-control>
+        <button type="button" class="meal-type-segment {{ meal_type_class('아침') }}" data-meal-type-option="아침" aria-pressed="true">아침</button>
+        <button type="button" class="meal-type-segment {{ meal_type_class('점심') }}" data-meal-type-option="점심" aria-pressed="false">점심</button>
+        <button type="button" class="meal-type-segment {{ meal_type_class('저녁') }}" data-meal-type-option="저녁" aria-pressed="false">저녁</button>
+        <button type="button" class="meal-type-segment {{ meal_type_class('간식') }}" data-meal-type-option="간식" aria-pressed="false">간식</button>
+        <button type="button" class="meal-type-segment {{ meal_type_class('기타') }}" data-meal-type-option="기타" aria-pressed="false">기타</button>
+      </div>
+    </div>
+    <form id="meal-entry-form" method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
+      <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+      <input type="hidden" name="mode" value="meal">
       <div
         class="exercise-quick-panel"
         data-food-quick-panel
@@ -75,7 +85,29 @@
         <button class="btn-small" type="button" data-cancel-meal-form>취소</button>
       </div>
     </form>
-    <div class="meal-template-panel meal-helper-section">
+    <div class="fuel-coach-card coach-card state-{{ fuel_coach.status }}" id="fuel-coach">
+      <div class="coach-card-main">
+        <span class="badge">{{ fuel_coach.status_label }}</span>
+        <strong>오늘 연료 상태</strong>
+        <small>
+          {{ fuel_coach.calories_current }} / {{ fuel_coach.calories_goal }}kcal
+          {% if fuel_coach.calories_goal %} · 남은 {{ fuel_coach.calories_remaining }}kcal{% endif %}
+          {% if fuel_coach.workout_context.exercise_name %} · 예정 {{ fuel_coach.workout_context.exercise_name|display_exercise_name }}{% endif %}
+          {% if fuel_coach.workout_context.set_count %} · 운동 {{ fuel_coach.workout_context.set_count }}세트{% endif %}
+        </small>
+        <span class="coach-note">{{ fuel_coach.guidance }}</span>
+      </div>
+      <div class="coach-action-row">
+        {% for action in fuel_coach.combo_actions %}
+          <a class="btn-small" href="{{ action.href }}">{{ action.label }}</a>
+        {% endfor %}
+        {% for action in fuel_coach.template_actions %}
+          <a class="btn-small" href="{{ action.href }}">{{ action.label }}</a>
+        {% endfor %}
+        <a class="btn-primary" href="{{ fuel_coach.primary_action.href }}">{{ fuel_coach.primary_action.label }}</a>
+      </div>
+    </div>
+    <div class="meal-template-panel meal-helper-section" id="meal-combos">
       <div class="quick-panel-title">식단 조합</div>
       {% if frequent_meal_combos %}
         <div class="quick-panel-title">자주 먹는 조합</div>
