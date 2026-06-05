@@ -432,10 +432,15 @@
       </div>
       {% if table_kind == "daily" and body_parts %}
         <div class="body-part-filter-list" aria-label="부위별 분석 필터">
-          <a class="body-part-filter-chip {% if not selected_body_part %}is-active{% endif %}" href="{{ query_url(part=None, page=None) }}#body-part-analysis">전체</a>
+          <a class="body-part-filter-chip {% if not selected_body_part %}is-active{% endif %}" href="{{ query_url(part=None, page=None, part_page=None) }}#body-part-analysis">전체</a>
           {% for part in body_parts %}
-            <a class="body-part-filter-chip {{ body_part_class(part) }} {% if selected_body_part == part %}is-active{% endif %}" href="{{ query_url(part=part, page=None) }}#body-part-analysis">{{ part }}</a>
+            <a class="body-part-filter-chip {{ body_part_class(part) }} {% if selected_body_part == part %}is-active{% endif %}" href="{{ query_url(part=part, page=None, part_page=None) }}#body-part-analysis">{{ part }}</a>
           {% endfor %}
+        </div>
+      {% endif %}
+      {% if body_part_pagination is defined %}
+        <div class="body-part-summary-status">
+          전체 {{ body_part_summary_total }}개 · {{ body_part_pagination.per_page }}개씩 보기 · {{ body_part_pagination.page }} / {{ body_part_pagination.total_pages }}페이지
         </div>
       {% endif %}
       <div class="cat-stat-grid">
@@ -508,6 +513,13 @@
           <div class="empty">선택한 부위의 분석 기록이 없습니다.</div>
         {% endfor %}
       </div>
+      {% if body_part_pagination is defined and body_part_pagination.total_pages > 1 %}
+        <nav class="pagination-nav body-part-pagination-nav" aria-label="부위별 분석 페이지 이동">
+          <a class="btn-small {% if not body_part_pagination.has_prev %}is-disabled{% endif %}" href="{% if body_part_pagination.has_prev %}{{ query_url(part_page=body_part_pagination.page - 1) }}#body-part-analysis{% else %}#body-part-analysis{% endif %}">이전</a>
+          <span>{{ body_part_pagination.page }} / {{ body_part_pagination.total_pages }}</span>
+          <a class="btn-small {% if not body_part_pagination.has_next %}is-disabled{% endif %}" href="{% if body_part_pagination.has_next %}{{ query_url(part_page=body_part_pagination.page + 1) }}#body-part-analysis{% else %}#body-part-analysis{% endif %}">다음</a>
+        </nav>
+      {% endif %}
     </section>
   {% endif %}
 {% endblock %}

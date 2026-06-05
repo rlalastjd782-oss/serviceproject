@@ -7437,3 +7437,212 @@ body,
     grid-template-columns: minmax(0, 1fr) auto auto !important;
   }
 }
+
+/* v3.1 final cascade: keep responsive cleanup rules after all legacy rebuild overrides. */
+.tabs {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.tabs .tab-btn,
+.tab-logout-form .tab-btn {
+  min-height: 40px !important;
+  white-space: nowrap !important;
+}
+
+.period-filter-form.v31-period-filter-form {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.period-filter-form.v31-period-filter-form > button {
+  min-width: 0 !important;
+  min-height: 40px !important;
+  white-space: nowrap !important;
+}
+
+.record-list-toolbar.v31-record-list-toolbar,
+.filter-form .list-toolbar,
+.record-filter-details .list-toolbar {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+
+.list-toolbar .list-count,
+.body-part-summary-status {
+  min-width: 0 !important;
+  color: var(--surface-muted, var(--muted)) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+  padding-inline: 2px !important;
+}
+
+.list-tools {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 8px !important;
+}
+
+.list-control-row {
+  display: grid !important;
+  gap: 8px !important;
+  min-width: 0 !important;
+}
+
+.list-control-row-selects,
+.list-control-row-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.list-control-row-actions:empty {
+  display: none !important;
+}
+
+.compact-select {
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) !important;
+  align-items: center !important;
+  min-width: 0 !important;
+}
+
+.compact-select span,
+.compact-select select,
+.list-control-row-actions .btn-small,
+.list-control-row-actions .record-filter-apply {
+  min-width: 0 !important;
+  min-height: 40px !important;
+  white-space: nowrap !important;
+}
+
+.record-search-form.v31-record-search-form {
+  grid-template-columns: minmax(0, 1fr) auto !important;
+}
+
+.record-filter-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+.record-filter-grid > * {
+  min-width: 0 !important;
+}
+
+.record-body-part-section {
+  scroll-margin-top: 16px !important;
+}
+
+.record-body-part-section .cat-stat-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.body-part-summary-status {
+  margin: 8px 0 !important;
+}
+
+.body-part-pagination-nav {
+  margin-top: 10px !important;
+}
+
+.exercise-ranking-section .record-list,
+.pr-rank-grid {
+  display: grid !important;
+  gap: 9px !important;
+}
+
+.exercise-recent-set-list .detail-row,
+.compact-detail-list .detail-row {
+  min-width: 0 !important;
+}
+
+.record-filter-apply,
+.record-search-form .record-filter-apply {
+  font-weight: 900 !important;
+}
+
+@media (min-width: 656px) {
+  .period-filter-form.v31-period-filter-form {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  .record-body-part-section .cat-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .record-list-toolbar.v31-record-list-toolbar,
+  .filter-form .list-toolbar,
+  .record-filter-details .list-toolbar {
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: center !important;
+  }
+
+  .list-tools {
+    grid-template-columns: auto auto !important;
+  }
+
+  .record-body-part-section .cat-stat-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 430px) {
+  .record-search-form.v31-record-search-form {
+    grid-template-columns: 1fr !important;
+  }
+
+  .record-search-form.v31-record-search-form .record-search-submit {
+    width: 100% !important;
+  }
+}
+
+/* v3.1 QA re-entry: lock the daily mobile filters after every legacy override. */
+@media (max-width: 655px) {
+  .section .period-filter-form.v31-period-filter-form {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-auto-flow: row !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .section .period-filter-form.v31-period-filter-form > button {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .record-body-part-section .body-part-filter-list {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: stretch !important;
+    gap: 7px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+
+  .record-body-part-section .body-part-filter-chip {
+    flex: 1 1 calc(50% - 7px) !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (min-width: 431px) and (max-width: 655px) {
+  .record-body-part-section .body-part-filter-chip {
+    flex-basis: calc(33.333% - 7px) !important;
+  }
+}

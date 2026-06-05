@@ -77,15 +77,19 @@ class StaticAssetIntegrityTest(unittest.TestCase):
             '@import url("overrides/ui_rebuild_02.css");',
             '@import url("overrides/ui_rebuild_03.css");',
             '@import url("overrides/ui_rebuild_04.css");',
+            '@import url("overrides/ui_rebuild_05.css");',
         ]
 
         self.assertEqual(expected_imports, rebuild_source.strip().splitlines())
-        for layer in ["ui_rebuild_01.css", "ui_rebuild_02.css", "ui_rebuild_03.css", "ui_rebuild_04.css"]:
+        for layer in [
+            "ui_rebuild_01.css",
+            "ui_rebuild_02.css",
+            "ui_rebuild_03.css",
+            "ui_rebuild_04.css",
+            "ui_rebuild_05.css",
+        ]:
             self.assertTrue((Path("static/css/overrides") / layer).is_file())
             self.assertIn(f"/static/css/overrides/{layer}", sw_source)
-
-        self.assertNotIn("ui_rebuild_05.css", rebuild_source)
-        self.assertNotIn("/static/css/overrides/ui_rebuild_05.css", sw_source)
 
     def test_service_worker_precache_assets_exist(self) -> None:
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")

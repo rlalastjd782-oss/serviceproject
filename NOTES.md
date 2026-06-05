@@ -1,4 +1,10 @@
-﻿## 2026-06-05 식단 상태 용어 정리 조건부 승인
+﻿## 2026-06-05 v3.1 기존 UI 유지형 반응형 구조 정리 조건부 승인
+
+- 최종검수는 조건부 승인으로 정리했습니다. 2026-06-05 23:27 KST visual QA summary/json과 대표 PNG, `/summaries/daily#body-part-analysis` 추가 DOM/CSS 실측, HTTP `200`, 컴파일, 지정 unittest 25개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
+- 운영상 남은 확인 사항: `aria-prohibited-attr`, `color-contrast`, `label`, `meta-viewport`, `scrollable-region-focusable` axe 경고와 `tests.test_static_assets` 전체 실행의 기존 `ui_rebuild_04.css` `border-color:` 실패 1건은 별도 개선 작업으로 분리합니다.
+- 수동 확인 권장: 운영 반영 전 실제 브라우저에서 service worker cache name `workout-pwa-v3.1.0` 반영과 `/summaries/daily#body-part-analysis` 모바일 390px 화면을 한 번 더 확인합니다.
+- QA 도구 개선 후보: `visual-qa.mjs` 공식 대상에 `/summaries/daily` 또는 `/summaries/daily#body-part-analysis` 직접 PNG 캡처를 추가하면 최종검수 근거가 더 명확해집니다.
+## 2026-06-05 식단 상태 용어 정리 조건부 승인
 
 - 최종검수는 조건부 승인으로 정리했습니다. 2026-06-05 18:21 KST visual QA summary/json과 대표 PNG, `/app?mode=meal` DOM/CSS 검증, HTTP `200`, 컴파일, 지정 unittest 21개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
 - 운영상 남은 확인 사항: `aria-prohibited-attr`, `color-contrast`, `label`, `meta-viewport`, `scrollable-region-focusable` axe 경고는 별도 접근성 개선 작업으로 분리합니다.
@@ -275,6 +281,7 @@
 - 서비스워커 캐시가 남아 있으면 배포 후 예전 CSS가 보일 수 있으므로 버전과 cache name을 반드시 함께 올립니다.
 - 문서 기록 없이 코드만 수정하지 않습니다. 최소한 `NOTES.md`에는 작업 맥락과 검증 결과를, `CHANGELOG.md`에는 사용자에게 의미 있는 변경 사항을 남깁니다.
 - UI를 수정할 때 카드 안에 카드가 반복되는 구조를 만들지 않습니다. 내부 요소는 그림자 없는 flat row/pill로 처리하고, shadow/gradient는 바깥 카드나 최상위 panel에만 제한합니다.
+
 
 
 

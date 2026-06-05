@@ -1,4 +1,10 @@
 ﻿# Changelog
+## 2026-06-05 v3.1 기존 UI 유지형 반응형 구조 정리
+
+- `/summaries/daily#body-part-analysis`의 모바일 기간 필터 2열 배치와 부위 filter chip wrap/overflow 보정을 실제 `ui_rebuild.css` import 체인에 포함했습니다.
+- `static/sw.js` cache name을 `workout-pwa-v3.1.0`으로 갱신하고 `/static/css/overrides/ui_rebuild_05.css`를 precache에 포함했습니다.
+- 부위별 분석 기본 6개 노출, 운동별/PR 기본 랭킹 5개 제한, 선택 상세 조건부 렌더링, 식단 화면 순서 회귀 방지를 QA와 최종검수에서 확인했습니다.
+- 최종검수에서 2026-06-05 23:27 KST Playwright 화면검수 산출물, 추가 DOM/CSS 실측, 로컬 HTTP `200`, 컴파일, 지정 unittest 25개 통과를 확인해 조건부 승인했습니다. 기존 axe 경고와 `tests.test_static_assets` 전체 1건 실패는 후속 개선으로 분리합니다.
 ## 2026-06-05 식단 상태 용어 정리
 
 - `/app?mode=meal`의 식단 보조 카드 사용자 표시명을 `식단 상태`로 통일했습니다.
@@ -305,6 +311,7 @@
 - 실행 인사이트에 개인화 다음 운동 카드를 추가했습니다.
 - 최근 운동 기록을 기반으로 다음 운동 초점과 목표 힌트를 제안하도록 개선했습니다.
 - 개인화 계산 로직을 `health_tracker/services/personalization.py`로 분리했습니다.
+
 
 
 

@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from health_tracker.services.pagination import parse_positive_int
+
+
+BODY_PART_SUMMARY_PER_PAGE = 6
+
 
 def selected_body_part_filter(args, body_parts: list[str]) -> str:
     selected = args.get("part", "").strip()
@@ -65,6 +70,13 @@ def build_daily_summary_context(args, deps: dict[str, object]) -> dict[str, obje
     daily_pagination = deps["build_pagination"](len(daily_rows), page, per_page)
     body_parts = deps["body_part_options"]()
     selected_part = selected_body_part_filter(args, body_parts)
+    all_body_part_summary = filter_body_part_summary(deps["list_body_part_summary"]("daily", limit=120), selected_part)
+    body_part_page = parse_positive_int(args.get("part_page"), 1)
+    body_part_pagination = deps["build_pagination"](
+        len(all_body_part_summary),
+        body_part_page,
+        BODY_PART_SUMMARY_PER_PAGE,
+    )
     return {
         "page_title": "일간 집계",
         "page_kicker": "Daily",
@@ -73,7 +85,11 @@ def build_daily_summary_context(args, deps: dict[str, object]) -> dict[str, obje
         "daily_pagination": daily_pagination,
         "daily_sort": daily_sort,
         "selected_days": days,
-        "body_part_summary": filter_body_part_summary(deps["list_body_part_summary"]("daily", limit=120), selected_part),
+        "body_part_summary": all_body_part_summary[
+            body_part_pagination.offset : body_part_pagination.offset + body_part_pagination.per_page
+        ],
+        "body_part_summary_total": len(all_body_part_summary),
+        "body_part_pagination": body_part_pagination,
         "body_parts": body_parts,
         "selected_body_part": selected_part,
         "active_page": "daily",

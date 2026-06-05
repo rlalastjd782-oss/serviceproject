@@ -5,12 +5,12 @@
       <div class="section-subtitle">최근 {{ selected_days }}일 안에 기록이 있는 날짜만 표시합니다.</div>
     </div>
   </div>
-  <form method="get" action="{{ url_for('daily_summary_page') }}" class="period-filter-form">
+  <form method="get" action="{{ url_for('daily_summary_page') }}" class="period-filter-form v31-period-filter-form">
     {% for option in app_preferences.summary_day_options %}
       <button class="{% if selected_days == option %}btn-primary{% else %}btn-small{% endif %}" type="submit" name="days" value="{{ option }}">{{ option }}일</button>
     {% endfor %}
   </form>
-  <form method="get" action="{{ url_for('daily_summary_page') }}" class="record-list-toolbar">
+  <form method="get" action="{{ url_for('daily_summary_page') }}" class="record-list-toolbar v31-record-list-toolbar">
     <input type="hidden" name="days" value="{{ selected_days }}">
     {{ result_toolbar(daily_pagination, [("newest", "최신순"), ("oldest", "오래된순")], daily_sort, url_for('daily_summary_page'), "적용") }}
   </form>

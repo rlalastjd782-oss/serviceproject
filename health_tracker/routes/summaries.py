@@ -96,6 +96,8 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
     @app.get("/summaries/exercises")
     def exercise_summary_page():
         page, per_page = configured_page_params(request.args)
+        if "per_page" not in request.args:
+            per_page = 5
         exercise_sort = request.args.get("sort", "sets")
         exercise_id = parse_int(request.args.get("exercise_id"))
         search_query = request.args.get("q", "").strip()
@@ -112,13 +114,13 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
             search_results = display_rows(search_results, "exercise_name")
         else:
             search_results, search_pagination, search_sort = [], build_pagination(0, 1, per_page), "newest"
-        selected_exercise = exercise_id or (int(exercise_summary[0]["id"]) if exercise_summary else None)
+        selected_exercise = exercise_id
         body_part_exercise_summary = {
             part: display_rows(rows, "name") for part, rows in list_exercise_summary_by_body_part().items()
         }
-        selected_exercise_profile = display_row_names(get_exercise_profile(selected_exercise), "name")
-        exercise_pr_history = display_rows(list_exercise_pr_history(selected_exercise), "exercise_name")
-        recent_pr_events = display_rows(list_recent_pr_events(limit=20), "exercise_name")
+        selected_exercise_profile = display_row_names(get_exercise_profile(selected_exercise), "name") if selected_exercise else None
+        exercise_pr_history = display_rows(list_exercise_pr_history(selected_exercise), "exercise_name") if selected_exercise else []
+        recent_pr_events = display_rows(list_recent_pr_events(limit=5), "exercise_name")
         progressive_overload_rows = display_rows(list_progressive_overload_rows(limit=24), "exercise_name")
         return render_template(
             "summaries/summary.html",
@@ -133,10 +135,10 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
             exercise_choices=exercise_choices,
             selected_exercise_id=selected_exercise,
             selected_exercise_profile=selected_exercise_profile,
-            selected_exercise_next_plan=build_exercise_next_plan(selected_exercise),
-            selected_exercise_trend=build_exercise_trend_summary(selected_exercise),
-            exercise_growth=build_exercise_growth_chart(selected_exercise),
-            exercise_recent_sets=list_exercise_recent_sets(selected_exercise),
+            selected_exercise_next_plan=build_exercise_next_plan(selected_exercise) if selected_exercise else [],
+            selected_exercise_trend=build_exercise_trend_summary(selected_exercise) if selected_exercise else [],
+            exercise_growth=build_exercise_growth_chart(selected_exercise) if selected_exercise else [],
+            exercise_recent_sets=list_exercise_recent_sets(selected_exercise)[:5] if selected_exercise else [],
             exercise_pr_history=exercise_pr_history,
             recent_pr_events=recent_pr_events,
             search_query=search_query,
@@ -183,15 +185,16 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
     @app.get("/summaries/pr")
     def pr_summary_page():
         page, per_page = configured_page_params(request.args)
+        if "per_page" not in request.args:
+            per_page = 5
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
         pr_sort = request.args.get("sort", "weight")
         pr_rows, pr_pagination, pr_sort = paged_exercise_pr_summary(selected_part, search_query, pr_sort, page, per_page)
         pr_rows = display_rows(pr_rows, "name")
-        recent_pr_events = display_rows(list_recent_pr_events_filtered(selected_part, search_query, limit=30), "exercise_name")
+        recent_pr_events = display_rows(list_recent_pr_events_filtered(selected_part, search_query, limit=5), "exercise_name")
         selected_exercise = parse_int(request.args.get("exercise_id"))
-        selected_exercise = selected_exercise or (int(pr_rows[0]["id"]) if pr_rows else None)
-        selected_profile = display_row_names(get_exercise_profile(selected_exercise), "name")
+        selected_profile = display_row_names(get_exercise_profile(selected_exercise), "name") if selected_exercise else None
         return render_template(
             "summaries/pr.html",
             body_parts=body_part_options(),
@@ -204,9 +207,9 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
             pr_dashboard=build_pr_dashboard(pr_rows, recent_pr_events),
             selected_exercise_id=selected_exercise,
             selected_profile=selected_profile,
-            selected_growth=build_exercise_growth_chart(selected_exercise, limit=10),
-            selected_pr_sets=list_exercise_best_sets(selected_exercise),
-            selected_pr_timeline=list_exercise_pr_timeline(selected_exercise),
+            selected_growth=build_exercise_growth_chart(selected_exercise, limit=10) if selected_exercise else [],
+            selected_pr_sets=list_exercise_best_sets(selected_exercise) if selected_exercise else [],
+            selected_pr_timeline=list_exercise_pr_timeline(selected_exercise) if selected_exercise else [],
             recent_pr_events=recent_pr_events,
             active_page="pr",
         )

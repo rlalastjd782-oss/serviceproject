@@ -45,6 +45,7 @@
       </div>
     {% endif %}
     <div class="list-tools">
+      <div class="list-control-row list-control-row-selects">
       {% if sort_options %}
         <label class="compact-select">
           <span>정렬</span>
@@ -63,12 +64,15 @@
           {% endfor %}
         </select>
       </label>
+      </div>
+      <div class="list-control-row list-control-row-actions">
       {% if reset_href %}
         <a class="btn-small" href="{{ reset_href }}">초기화</a>
       {% endif %}
       {% if apply_label %}
         <button class="btn-small record-filter-apply" type="submit">{{ apply_label }}</button>
       {% endif %}
+      </div>
     </div>
   </div>
 {% endmacro %}

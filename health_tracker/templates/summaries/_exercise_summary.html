@@ -7,6 +7,7 @@
       </div>
       <form method="get" action="{{ url_for('exercise_summary_page') }}" class="tool-form">
         <select name="exercise_id" aria-label="운동 선택">
+          <option value="" {% if not selected_exercise_id %}selected{% endif %}>운동 선택</option>
           {% for exercise in exercise_choices %}
             <option value="{{ exercise.id }}" {% if exercise.id == selected_exercise_id %}selected{% endif %}>{{ exercise.name }}</option>
           {% endfor %}
@@ -69,7 +70,7 @@
           </div>
         {% endif %}
       {% endif %}
-      {% if exercise_growth %}
+      {% if selected_exercise_profile and exercise_growth %}
         <div class="progress-chart exercise-progress-chart" role="img" aria-label="운동 성장 그래프">
           {% for item in exercise_growth %}
             <article class="progress-card">
@@ -119,7 +120,7 @@
             </article>
           {% endfor %}
         </div>
-      {% else %}
+      {% elif selected_exercise_profile %}
         <div class="empty">그래프로 볼 운동 기록이 없습니다.</div>
       {% endif %}
       {% if exercise_recent_sets %}
@@ -151,6 +152,53 @@
       {% endif %}
     </section>
 
+    <section class="section exercise-ranking-section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">상위 운동 목록</div>
+          <div class="section-subtitle">기본 5개씩 보고, 운동을 누르면 상세가 위에 열립니다.</div>
+        </div>
+      </div>
+      {% if recent_pr_events %}
+        <div class="detail-list compact-detail-list">
+          {% for event in recent_pr_events[:5] %}
+            <div class="detail-row">
+              <strong>{{ event.workout_date }} · {{ event.exercise_name|display_exercise_name }}</strong>
+              <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form">
+        {{ result_toolbar(exercise_pagination, [("sets", "세트순"), ("volume", "볼륨순"), ("recent", "최근순"), ("name", "이름순")], exercise_sort, url_for('exercise_summary_page')) }}
+        <button class="btn-small record-filter-apply" type="submit">적용</button>
+      </form>
+      <div class="record-list">
+        {% for item in exercise_summary %}
+          <a class="ex-rank-item {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">
+            <span class="rank-num">{{ exercise_pagination.offset + loop.index }}위</span>
+            <div class="ex-rank-main">
+              <strong>{{ item.name|display_exercise_name }}</strong>
+              <div class="record-summary">
+                <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
+                <span class="badge">{{ item.set_count }}세트</span>
+                {% if item.body_part == "유산소" %}
+                  {% if item.cardio_minutes %}<span class="badge">{{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
+                  {% if item.exercise_calories %}<span class="badge">{{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
+                {% else %}
+                  <span class="badge">{{ item.rep_count }}회</span>
+                  <span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        {% else %}
+          <div class="empty">운동 기록 없음</div>
+        {% endfor %}
+      </div>
+      {{ pagination_nav(exercise_pagination) }}
+    </section>
+
     <section class="section overload-dashboard-section">
       <div class="section-header">
         <div>
@@ -159,7 +207,7 @@
         </div>
       </div>
       <div class="overload-card-grid">
-        {% for item in progressive_overload_rows[:10] %}
+        {% for item in progressive_overload_rows[:5] %}
           <article class="overload-card state-{{ item.state|replace(' ', '-') }}">
             <div class="overload-card-head">
               <div>
@@ -248,46 +296,8 @@
 
     <section class="section">
       <div class="section-header">
-        <div class="section-title">🏆 운동별 기록</div>
+        <div class="section-title">부위별 운동 리스트</div>
       </div>
-      {% if recent_pr_events %}
-        <div class="detail-list compact-detail-list">
-          {% for event in recent_pr_events[:8] %}
-            <div class="detail-row">
-              <strong>{{ event.workout_date }} · {{ event.exercise_name|display_exercise_name }}</strong>
-              <span>{{ event.record_type }} {{ "%.0f"|format(event.record_value) }}</span>
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-      <form method="get" action="{{ url_for('exercise_summary_page') }}" class="filter-form">
-        {{ result_toolbar(exercise_pagination, [("sets", "세트순"), ("volume", "볼륨순"), ("recent", "최근순"), ("name", "이름순")], exercise_sort, url_for('exercise_summary_page')) }}
-        <button class="btn-small" type="submit">적용</button>
-      </form>
-      <div class="record-list">
-        {% for item in exercise_summary %}
-          <a class="ex-rank-item {% if item.id == selected_exercise_id %}is-selected{% endif %}" href="{{ url_for('exercise_summary_page', exercise_id=item.id) }}">
-            <span class="rank-num">{{ loop.index }}위</span>
-            <div class="ex-rank-main">
-              <strong>{{ item.name|display_exercise_name }}</strong>
-              <div class="record-summary">
-                <span class="cat-badge {{ body_part_class(item.body_part) }}">{{ item.body_part }}</span>
-                <span class="badge">{{ item.set_count }}세트</span>
-                {% if item.body_part == "유산소" %}
-                  {% if item.cardio_minutes %}<span class="badge">{{ "%.0f"|format(item.cardio_minutes) }}분</span>{% endif %}
-                  {% if item.exercise_calories %}<span class="badge">{{ "%.0f"|format(item.exercise_calories) }}kcal</span>{% endif %}
-                {% else %}
-                  <span class="badge">{{ item.rep_count }}회</span>
-                  <span class="badge">{{ "%.0f"|format(item.volume) }}kg</span>
-                {% endif %}
-              </div>
-            </div>
-          </a>
-        {% else %}
-          <div class="empty">운동 기록 없음</div>
-        {% endfor %}
-      </div>
-      {{ pagination_nav(exercise_pagination) }}
       <div class="body-part-toggle-panel">
         <div class="quick-panel-title">부위별 운동 리스트</div>
         <div class="body-part-toggle-list">
@@ -315,7 +325,7 @@
               <strong>{{ part }} 운동 리스트</strong>
               <span>{{ rows|length }}개</span>
             </div>
-            {% for exercise in rows %}
+            {% for exercise in rows[:5] %}
               <div class="detail-row">
                 <strong>{{ exercise.name }}</strong>
                 <span>
@@ -329,6 +339,12 @@
             {% else %}
               <div class="empty">이 부위의 운동 기록이 없습니다.</div>
             {% endfor %}
+            {% if rows|length > 5 %}
+              <div class="detail-row">
+                <strong>기본 5개 표시</strong>
+                <span>전체 {{ rows|length }}개 중 5개</span>
+              </div>
+            {% endif %}
           </div>
         {% endfor %}
       </div>
