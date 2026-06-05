@@ -200,7 +200,7 @@ document.addEventListener("click", (event) => {
 
   if (mealFormToggleButton && mealForm) {
     const isCollapsed = mealForm.classList.toggle("is-collapsed");
-    setMealFormToggleLabels(isCollapsed ? "입력 열기" : "입력 닫기");
+    setMealFormToggleLabels(isCollapsed ? "입력" : "입력 닫기");
     if (!isCollapsed) {
       mealForm.querySelector("input:not([type='hidden'])")?.focus();
     }
@@ -209,7 +209,7 @@ document.addEventListener("click", (event) => {
 
   if (mealFormCancelButton && mealForm && mealList) {
     resetMealForm(mealForm, mealList);
-    setMealFormToggleLabels("입력 열기");
+    setMealFormToggleLabels("입력");
     return;
   }
 

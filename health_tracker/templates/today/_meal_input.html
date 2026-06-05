@@ -5,7 +5,7 @@
         <div class="section-title">🍱 식단 입력</div>
         <div class="section-subtitle">필요할 때 열어서 여러 음식을 한 번에 저장합니다.</div>
       </div>
-      <button class="btn-small" type="button" data-toggle-meal-form data-meal-toggle-open-label="입력 열기" data-meal-toggle-close-label="입력 닫기">입력 열기</button>
+      <button class="btn-small" type="button" data-toggle-meal-form data-meal-toggle-open-label="입력" data-meal-toggle-close-label="닫기">입력</button>
     </div>
     <form id="meal-entry-form" method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
       <input type="hidden" name="meal_date" value="{{ session.workout_date }}">

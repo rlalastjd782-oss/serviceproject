@@ -211,7 +211,7 @@
   display: contents;
 }
 
-.meal-form.is-collapsed > :not(input[type="hidden"]):not(.meal-type-select) {
+.meal-form.is-collapsed > :not(input[type="hidden"]) {
   display: none;
 }
 
