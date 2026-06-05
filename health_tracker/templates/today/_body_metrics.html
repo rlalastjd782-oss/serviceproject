@@ -1,3 +1,4 @@
+  {% if not meal_mode %}
   <section class="section optional-section" id="body-metrics">
     <div class="section-header">
       <div>
@@ -7,11 +8,27 @@
     </div>
     {{ goal_cards(goals) }}
   </section>
+  {% endif %}
 
+  {% if meal_mode %}
+  <details class="section optional-section meal-summary-details" id="body-metrics">
+    <summary class="meal-summary-row">
+      <span class="meal-summary-title">체성분</span>
+      <span class="meal-summary-meta">
+        {% if body_metric and body_metric.body_weight is not none %}
+          체중 {{ "%.1f"|format(body_metric.body_weight) }}kg · 최근 입력 있음
+        {% else %}
+          최근 입력 없음
+        {% endif %}
+      </span>
+      <span class="btn-small meal-summary-action">열기</span>
+    </summary>
+  {% else %}
   <section class="section optional-section">
     <div class="section-header">
       <div class="section-title">체성분</div>
     </div>
+  {% endif %}
     <form method="post" action="{{ url_for('save_body_metric_route') }}" class="body-metric-form">
       <input type="hidden" name="metric_date" value="{{ session.workout_date }}">
       <input name="body_weight" type="number" min="0" step="0.1" value="{% if body_metric and body_metric.body_weight is not none %}{{ body_metric.body_weight }}{% endif %}" placeholder="체중 kg">
@@ -40,4 +57,8 @@
         {% endfor %}
       </div>
     {% endif %}
+  {% if meal_mode %}
+  </details>
+  {% else %}
   </section>
+  {% endif %}

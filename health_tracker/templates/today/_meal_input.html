@@ -5,31 +5,44 @@
         <div class="section-title">🍱 식단 입력</div>
         <div class="section-subtitle">필요할 때 열어서 여러 음식을 한 번에 저장합니다.</div>
       </div>
-      <button class="btn-small" type="button" data-toggle-meal-form>입력 열기</button>
+      <button class="btn-small" type="button" data-toggle-meal-form data-meal-toggle-open-label="입력 열기" data-meal-toggle-close-label="입력 닫기">입력 열기</button>
     </div>
     <form id="meal-entry-form" method="post" action="{{ url_for('create_meal') }}" class="record-form meal-form is-collapsed" data-meal-form>
       <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
       <input type="hidden" name="mode" value="meal">
-      <div class="meal-input-row">
-        <select id="meal-type-select" name="meal_type" class="meal-type-select" data-meal-type-select aria-label="끼니 선택">
-          <option value="아침" class="{{ meal_type_class('아침') }}">아침</option>
-          <option value="점심" class="{{ meal_type_class('점심') }}">점심</option>
-          <option value="저녁" class="{{ meal_type_class('저녁') }}">저녁</option>
-          <option value="간식" class="{{ meal_type_class('간식') }}">간식</option>
-          <option value="기타" class="{{ meal_type_class('기타') }}">기타</option>
-        </select>
-        <input autocomplete="off" placeholder="음식 이름" data-meal-primary-food-input>
-        <select name="meal_input_basis" data-meal-input-basis aria-label="입력 기준">
-          <option value="direct">입력 기준</option>
-          <option value="kcal">kcal 기준</option>
-          <option value="grams">g 기준</option>
-          <option value="quantity">개수 기준</option>
-          <option value="usual">자주 먹는 양</option>
-        </select>
-      </div>
+      <select id="meal-type-select" name="meal_type" class="meal-type-select" data-meal-type-select aria-label="끼니 선택">
+        <option value="아침" class="{{ meal_type_class('아침') }}">아침</option>
+        <option value="점심" class="{{ meal_type_class('점심') }}">점심</option>
+        <option value="저녁" class="{{ meal_type_class('저녁') }}">저녁</option>
+        <option value="간식" class="{{ meal_type_class('간식') }}">간식</option>
+        <option value="기타" class="{{ meal_type_class('기타') }}">기타</option>
+      </select>
       <div class="field-help meal-scope-help">
         음식은 아침, 점심, 저녁, 간식, 기타로 저장됩니다. 선택한 끼니 기준으로 후보를 보여줍니다.
       </div>
+      <div class="meal-entry-list" data-meal-list>
+        <article class="meal-entry-card meal-entry-row">
+          <div class="meal-card-head">
+            <input name="meal_food_name" autocomplete="off" placeholder="음식 이름" required>
+            <button class="btn-danger row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
+          </div>
+          <div class="meal-card-fields meal-compact-grid">
+            <label>
+              <span>개</span>
+              <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+            </label>
+            <label>
+              <span>g</span>
+              <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="80">
+            </label>
+            <label>
+              <span>kcal</span>
+              <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="120">
+            </label>
+          </div>
+        </article>
+      </div>
+      <button class="btn-small meal-add-button" type="button" data-add-meal-row>+ 음식 추가</button>
       <div
         class="exercise-quick-panel meal-quick-panel"
         data-food-quick-panel
@@ -38,8 +51,8 @@
         {% set favorite_food_names = favorite_foods|map(attribute='food_name')|list %}
         <div class="quick-panel-head">
           <div>
-            <div class="quick-panel-title">음식 바로 선택</div>
-            <div class="quick-panel-subtitle">최근 기록, 즐겨찾기, 조합을 탭으로 나눠 보여줍니다.</div>
+            <div class="quick-panel-title">자주 먹는 음식</div>
+            <div class="quick-panel-subtitle">최근 기록, 즐겨찾기, 조합 후보를 눌러 음식 카드에 채웁니다.</div>
           </div>
           <a class="btn-small" href="{{ url_for('meal_templates_page') }}">전체</a>
         </div>
@@ -102,45 +115,124 @@
           {% endif %}
         </div>
       </div>
-      <div class="section-header compact-header meal-builder-header">
-        <div>
-          <div class="section-title">음식 빌더</div>
-          <div class="section-subtitle">여러 음식을 만든 뒤 한 번에 저장합니다.</div>
-        </div>
-        <button class="btn-small" type="button" data-add-meal-row>+ 음식 추가</button>
-      </div>
-      <div class="set-builder-toolbar meal-builder-toolbar" aria-label="음식 입력 개수 선택">
-        <label class="set-count-control">
-          <span>음식 수</span>
-          <input name="meal_count_builder" type="number" min="1" max="10" step="1" value="1" inputmode="numeric" data-meal-count-input>
-        </label>
-        <div class="set-preset-list">
-          <button type="button" class="btn-small" data-add-meal-preset="2">2개 입력</button>
-          <button type="button" class="btn-small" data-add-meal-preset="3">3개 입력</button>
-          <button type="button" class="btn-small" data-add-meal-preset="4">4개 입력</button>
-        </div>
-        <div class="set-builder-actions">
-          <button type="button" class="btn-small" disabled aria-disabled="true">같은 끼니 복제</button>
-          <button type="button" class="btn-small" data-clone-first-meal>첫 음식 복제</button>
-        </div>
-      </div>
-      <div class="meal-entry-list" data-meal-list>
-        <div class="meal-entry-row">
-          <strong class="meal-row-number">1</strong>
-          <input name="meal_food_name" autocomplete="off" placeholder="음식 이름" required>
-          <div class="compact-field-grid meal-compact-grid">
-            <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
-            <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
-            <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
-          </div>
-          <button class="btn-danger row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
-        </div>
-      </div>
       <div class="form-action-row">
         <button class="btn-primary" type="submit">식단 저장</button>
         <button class="btn-small" type="button" data-cancel-meal-form>취소</button>
       </div>
     </form>
+    <section class="meal-template-panel meal-helper-section meal-tool-section" id="meal-combos" aria-labelledby="meal-tools-title">
+      <div class="section-header compact-section-header">
+        <div>
+          <div class="section-title" id="meal-tools-title">식단 도구</div>
+          <div class="section-subtitle">조합, 복사, 즐겨찾기를 필요한 만큼만 펼칩니다.</div>
+        </div>
+        <a class="btn-small meal-tool-manage-link" href="{{ url_for('meal_templates_page') }}">전체</a>
+      </div>
+      <div class="meal-tool-tabs" role="tablist" aria-label="식단 도구">
+        <button id="meal-tool-tab-combo" class="meal-tool-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="meal-tool-pane-combo" data-meal-tool-tab="combo">조합</button>
+        <button id="meal-tool-tab-copy" class="meal-tool-tab" type="button" role="tab" aria-selected="false" aria-controls="meal-tool-pane-copy" data-meal-tool-tab="copy">복사</button>
+        <button id="meal-tool-tab-favorite" class="meal-tool-tab" type="button" role="tab" aria-selected="false" aria-controls="meal-tool-pane-favorite" data-meal-tool-tab="favorite">즐겨찾기</button>
+      </div>
+      <div id="meal-tool-pane-combo" class="meal-tool-pane" role="tabpanel" aria-labelledby="meal-tool-tab-combo" data-meal-tool-pane="combo">
+        {% if frequent_meal_combos %}
+          {% for combo in frequent_meal_combos %}
+            <form id="meal-combo-{{ loop.index }}" method="post" action="{{ url_for('apply_meal_combo_route') }}" class="meal-tool-row meal-tool-extra-combo"{% if loop.index > 3 %} hidden{% endif %}>
+              <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+              <input type="hidden" name="source_date" value="{{ combo.meal_date }}">
+              <input type="hidden" name="meal_type" value="{{ combo.meal_type }}">
+              <span class="meal-tool-main">
+                <strong class="meal-tool-title">{{ combo.meal_type }} · {{ combo.foods|display_food_name }}</strong>
+                <span class="meal-tool-meta">{{ "%.0f"|format(combo.calories) }}kcal</span>
+              </span>
+              <button class="btn-small meal-tool-action" type="submit">적용</button>
+            </form>
+          {% endfor %}
+          {% if frequent_meal_combos|length > 3 %}
+            <button class="btn-small meal-tool-more-button" type="button" aria-expanded="false" data-meal-tool-more="combo">+ 더보기</button>
+          {% endif %}
+        {% else %}
+          <div class="quick-empty meal-tool-empty">저장된 조합이 없습니다.</div>
+        {% endif %}
+        <details class="meal-tool-details">
+          <summary>오늘 식단을 조합으로 저장</summary>
+          <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form meal-tool-save-form">
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="meal">
+            <input name="template_name" placeholder="조합 이름">
+            <button class="btn-small" type="submit">저장</button>
+          </form>
+        </details>
+        {% for template in meal_templates %}
+          <form id="meal-template-{{ template.id }}" method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="meal-tool-row meal-template-tool-row"{% if frequent_meal_combos or loop.index > 2 %} hidden{% endif %}>
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input type="hidden" name="mode" value="meal">
+            <span class="meal-tool-main">
+              <strong class="meal-tool-title">템플릿 · {{ template.name|display_food_name }}</strong>
+              <span class="meal-tool-meta">{{ template.item_count }}개</span>
+            </span>
+            <button class="btn-small meal-tool-action" type="submit">불러오기</button>
+          </form>
+        {% endfor %}
+      </div>
+      <div id="meal-tool-pane-copy" class="meal-tool-pane" role="tabpanel" aria-labelledby="meal-tool-tab-copy" data-meal-tool-pane="copy" hidden>
+        {% if meal_copy_sources %}
+          {% for day in meal_copy_sources %}
+            <form id="meal-copy-day-{{ loop.index }}" method="post" action="{{ url_for('copy_meal_day_route') }}" class="meal-tool-row meal-tool-extra-copy"{% if loop.index > 2 %} hidden{% endif %}>
+              <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+              <input type="hidden" name="mode" value="meal">
+              <input type="hidden" name="source_date" value="{{ day.meal_date }}">
+              <span class="meal-tool-main">
+                <strong class="meal-tool-title">{{ day.meal_date }}</strong>
+                <span class="meal-tool-meta">{{ day.meal_count }}개 · {{ "%.0f"|format(day.calories) }}kcal</span>
+              </span>
+              <button class="btn-small meal-tool-action" type="submit">복사</button>
+            </form>
+          {% endfor %}
+          {% if meal_copy_sources|length > 2 %}
+            <button class="btn-small meal-tool-more-button" type="button" aria-expanded="false" data-meal-tool-more="copy">+ 더보기</button>
+          {% endif %}
+        {% else %}
+          <div class="quick-empty meal-tool-empty">복사할 지난 식단이 없습니다.</div>
+        {% endif %}
+      </div>
+      <div id="meal-tool-pane-favorite" class="meal-tool-pane" role="tabpanel" aria-labelledby="meal-tool-tab-favorite" data-meal-tool-pane="favorite" hidden>
+        {% if favorite_foods %}
+          {% for food in favorite_foods %}
+            {% if loop.index <= 8 %}
+              <div class="meal-tool-row meal-tool-extra-favorite"{% if loop.index > 4 %} hidden{% endif %}>
+                <span class="meal-tool-main">
+                  <strong class="meal-tool-title">{{ food.food_name|display_food_name }}</strong>
+                  <span class="meal-tool-meta">
+                    {% if food.quantity %}{{ food.quantity|int if food.quantity == food.quantity|int else food.quantity }}개{% endif %}
+                    {% if food.grams %}{% if food.quantity %} · {% endif %}{{ "%.0f"|format(food.grams) }}g{% endif %}
+                    {% if food.calories %}{% if food.quantity or food.grams %} · {% endif %}{{ "%.0f"|format(food.calories) }}kcal{% endif %}
+                  </span>
+                </span>
+                <button class="btn-small meal-tool-action" type="button" data-food-entry data-food-name="{{ food.food_name|display_food_name }}" data-food-quantity="{{ food.quantity or '' }}" data-food-grams="{{ food.grams or '' }}" data-food-calories="{{ food.calories or '' }}">추가</button>
+              </div>
+            {% endif %}
+          {% endfor %}
+          {% if favorite_foods|length > 4 %}
+            <button class="btn-small meal-tool-more-button" type="button" aria-expanded="false" data-meal-tool-more="favorite">+ 더보기</button>
+          {% endif %}
+        {% else %}
+          <div class="quick-empty meal-tool-empty">즐겨찾기 음식이 없습니다.</div>
+        {% endif %}
+        <details class="meal-tool-details">
+          <summary>+ 즐겨찾기 추가</summary>
+          <form method="post" action="{{ url_for('save_food_favorite_route') }}" class="routine-form meal-favorite-create-form">
+            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
+            <input name="food_name" placeholder="즐겨찾기 음식">
+            <div class="compact-field-grid meal-compact-grid">
+              <input name="quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
+              <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
+              <input name="calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+            </div>
+            <button class="btn-small" type="submit">고정</button>
+          </form>
+        </details>
+      </div>
+    </section>
     <div class="fuel-coach-card coach-card state-{{ fuel_coach.status }}" id="fuel-coach">
       <div class="coach-card-main">
         <span class="badge">{{ fuel_coach.status_label }}</span>
@@ -163,65 +255,15 @@
         <a class="btn-primary" href="{{ fuel_coach.primary_action.href }}">{{ fuel_coach.primary_action.label }}</a>
       </div>
     </div>
-    <div class="meal-template-panel meal-helper-section" id="meal-combos">
-      <div class="quick-panel-title">식단 조합</div>
-      {% if frequent_meal_combos %}
-        <div class="quick-panel-title">자주 먹는 조합</div>
-        {% for combo in frequent_meal_combos %}
-          <form id="meal-combo-{{ loop.index }}" method="post" action="{{ url_for('apply_meal_combo_route') }}" class="routine-load-row">
-            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-            <input type="hidden" name="source_date" value="{{ combo.meal_date }}">
-            <input type="hidden" name="meal_type" value="{{ combo.meal_type }}">
-            <span>{{ combo.meal_type }} · {{ combo.foods|display_food_name }} · {{ "%.0f"|format(combo.calories) }}kcal</span>
-            <button class="btn-small" type="submit">적용</button>
-          </form>
-        {% endfor %}
-      {% endif %}
-      {% if meal_copy_sources %}
-        <div class="quick-panel-title">지난 식단 복사</div>
-        {% for day in meal_copy_sources %}
-          <form id="meal-copy-day-{{ loop.index }}" method="post" action="{{ url_for('copy_meal_day_route') }}" class="routine-load-row">
-            <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-            <input type="hidden" name="mode" value="meal">
-            <input type="hidden" name="source_date" value="{{ day.meal_date }}">
-            <span>{{ day.meal_date }} · {{ day.meal_count }}개 · {{ "%.0f"|format(day.calories) }}kcal</span>
-            <button class="btn-small" type="submit">복사</button>
-          </form>
-        {% endfor %}
-      {% endif %}
-      <form method="post" action="{{ url_for('create_meal_template_from_day_route') }}" class="routine-form">
-        <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-        <input type="hidden" name="mode" value="meal">
-        <input name="template_name" placeholder="오늘 식단을 조합으로 저장">
-        <button class="btn-small" type="submit">조합 저장</button>
-      </form>
-      {% for template in meal_templates %}
-        <form id="meal-template-{{ template.id }}" method="post" action="{{ url_for('apply_meal_template_route', template_id=template.id) }}" class="routine-load-row">
-         <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-          <input type="hidden" name="mode" value="meal">
-          <span>식단 조합 · {{ template.name|display_food_name }} · {{ template.item_count }}개</span>
-          <button class="btn-small" type="submit">불러오기</button>
-        </form>
-      {% endfor %}
-      <form method="post" action="{{ url_for('save_food_favorite_route') }}" class="routine-form">
-        <input type="hidden" name="meal_date" value="{{ session.workout_date }}">
-        <input name="food_name" placeholder="즐겨찾기 음식">
-        <div class="compact-field-grid meal-compact-grid">
-          <input name="quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
-          <input name="grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
-          <input name="calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
-        </div>
-        <button class="btn-small" type="submit">고정</button>
-      </form>
-    </div>
   </section>
-  <section class="section meal-only meal-goal-section">
-    <div class="section-header">
-      <div>
-        <div class="section-title">오늘 칼로리</div>
-        <div class="section-subtitle">{{ "%.0f"|format(today_summary.calories) }} / {{ daily_calorie_goal }}kcal · 남은 {{ "%.0f"|format(daily_calorie_goal - today_summary.calories) }}kcal</div>
-      </div>
-    </div>
+  <details class="section meal-only meal-summary-details meal-goal-section">
+    <summary class="meal-summary-row">
+      <span class="meal-summary-title">목표 달성률</span>
+      <span class="meal-summary-meta">
+        {{ "%.0f"|format(today_summary.calories / daily_calorie_goal * 100 if daily_calorie_goal else 0) }}% · {{ "%.0f"|format(today_summary.calories) }}/{{ daily_calorie_goal }}kcal
+      </span>
+      <span class="btn-small meal-summary-action">요약 보기</span>
+    </summary>
     <div class="goal-card {% if today_summary.calories >= daily_calorie_goal %}is-complete{% endif %}">
       <div class="goal-head">
         <strong>하루 목표</strong>
@@ -235,5 +277,5 @@
         <button class="btn-small" type="submit">목표 저장</button>
       </form>
     </div>
-  </section>
+  </details>
   {% endif %}

@@ -1,6 +1,16 @@
-  <section class="section meal-only today-meal-section">
-    <div class="section-header">
-      <div class="section-title">🍱 오늘 식단</div>
+  <section class="section meal-only today-meal-section" id="today-meal">
+    <div class="section-header compact-section-header">
+      <div>
+        <div class="section-title">오늘 식단</div>
+        <div class="section-subtitle">
+          {% if today_summary.meal_count %}
+            총 {{ today_summary.meal_count }}개 · {{ "%.0f"|format(today_summary.calories) }}kcal
+          {% else %}
+            0kcal · 기록 없음
+          {% endif %}
+        </div>
+      </div>
+      <button class="btn-small meal-inline-cta" type="button" data-toggle-meal-form data-meal-toggle-open-label="+ 식단 입력" data-meal-toggle-close-label="입력 닫기">+ 식단 입력</button>
     </div>
     <div class="record-list">
       {% if meal_groups %}
@@ -29,8 +39,7 @@
           </article>
         {% endfor %}
       {% else %}
-        <div class="empty">식단 기록 없음</div>
+        <div class="empty compact-empty">아직 저장된 식단이 없습니다.</div>
       {% endif %}
     </div>
   </section>
-

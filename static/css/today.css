@@ -66,20 +66,25 @@
   order: 90;
 }
 
-.meal-mode .meal-input-section {
+.meal-mode .today-meal-section {
   order: 10;
 }
 
-.meal-mode .today-meal-section {
+.meal-mode .meal-input-section {
   order: 20;
 }
 
-.meal-mode .meal-goal-section {
+.meal-mode .meal-helper-section,
+.meal-mode .meal-tool-section {
   order: 30;
 }
 
-.meal-mode .meal-helper-section {
+.meal-mode #fuel-coach {
   order: 40;
+}
+
+.meal-mode .meal-goal-section {
+  order: 70;
 }
 
 .meal-mode .optional-section {
@@ -144,6 +149,7 @@
 }
 
 .meal-mode .meal-helper-section,
+.meal-mode .meal-tool-section,
 .meal-mode .meal-goal-section {
   background: rgb(17 24 39 / 55%);
   border-color: rgb(75 85 99 / 55%);

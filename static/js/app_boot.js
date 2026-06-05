@@ -36,7 +36,10 @@ initNotificationTools();
 
 function setMealFormToggleLabels(label) {
   document.querySelectorAll("[data-toggle-meal-form]").forEach((button) => {
-    button.textContent = label;
+    const isClosing = label.includes("닫기");
+    button.textContent = isClosing
+      ? button.dataset.mealToggleCloseLabel || label
+      : button.dataset.mealToggleOpenLabel || label;
   });
 }
 
@@ -94,17 +97,6 @@ document.addEventListener("input", (event) => {
       syncMealRowsToCount(mealList, mealCountInput.value);
     }
   }
-  const mealPrimaryInput = event.target.closest("[data-meal-primary-food-input]");
-  if (mealPrimaryInput) {
-    const firstMealNameInput = document.querySelector('[data-meal-list] .meal-entry-row input[name="meal_food_name"]');
-    if (firstMealNameInput) {
-      firstMealNameInput.value = mealPrimaryInput.value;
-    }
-  }
-  const mealRowNameInput = event.target.closest('[data-meal-list] .meal-entry-row:first-child input[name="meal_food_name"]');
-  if (mealRowNameInput) {
-    syncMealPrimaryFoodInput(mealRowNameInput.value);
-  }
   if (event.target.matches('input[name="set_weight"], select[name="set_weight_unit"]')) {
     updateSetWeightPreviews();
   }
@@ -134,6 +126,8 @@ document.addEventListener("click", (event) => {
   const detailButton = event.target.closest("[data-toggle-detail]");
   const workoutQuickTab = event.target.closest("[data-workout-quick-tab]");
   const mealQuickTab = event.target.closest("[data-meal-quick-tab]");
+  const mealToolTab = event.target.closest("[data-meal-tool-tab]");
+  const mealToolMoreButton = event.target.closest("[data-meal-tool-more]");
   const quickExerciseButton = event.target.closest("[data-exercise-name]");
   const applyNextSetButton = event.target.closest("[data-apply-next-set]");
   const recentSetButton = event.target.closest("[data-load-recent-sets]");
@@ -176,6 +170,16 @@ document.addEventListener("click", (event) => {
 
   if (mealQuickTab) {
     setMealQuickTab(mealQuickTab.dataset.mealQuickTab || "recent");
+    return;
+  }
+
+  if (mealToolTab) {
+    setMealToolTab(mealToolTab.dataset.mealToolTab || "combo");
+    return;
+  }
+
+  if (mealToolMoreButton) {
+    expandMealToolRows(mealToolMoreButton.dataset.mealToolMore || "");
     return;
   }
 
@@ -327,6 +331,10 @@ document.addEventListener("click", (event) => {
       removeMealButton.closest(".meal-entry-row").remove();
       renumberRows(mealList, ".meal-entry-row");
       updateMealCountInput(mealList);
+    } else {
+      removeMealButton.closest(".meal-entry-row")?.querySelectorAll("input").forEach((input) => {
+        input.value = "";
+      });
     }
     return;
   }

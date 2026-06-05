@@ -27,6 +27,27 @@ function setMealQuickTab(tabName) {
   });
 }
 
+function setMealToolTab(tabName) {
+  document.querySelectorAll("[data-meal-tool-tab]").forEach((button) => {
+    const isActive = button.dataset.mealToolTab === tabName;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+  document.querySelectorAll("[data-meal-tool-pane]").forEach((pane) => {
+    pane.hidden = pane.dataset.mealToolPane !== tabName;
+  });
+}
+
+function expandMealToolRows(kind) {
+  document.querySelectorAll(`.meal-tool-extra-${kind}[hidden]`).forEach((row) => {
+    row.hidden = false;
+  });
+  document.querySelectorAll(`[data-meal-tool-more="${kind}"]`).forEach((button) => {
+    button.setAttribute("aria-expanded", "true");
+    button.hidden = true;
+  });
+}
+
 function syncMealTypeSegments(selectedMealType) {
   const segments = document.querySelectorAll("[data-meal-type-option]");
   if (!segments.length) {
@@ -52,23 +73,12 @@ function setMealTypeFromSegment(segment) {
   select.dispatchEvent(new Event("change", { bubbles: true }));
 }
 
-function syncMealPrimaryFoodInput(value) {
-  const primaryInput = document.querySelector("[data-meal-primary-food-input]");
-  if (primaryInput && primaryInput.value !== value) {
-    primaryInput.value = value || "";
-  }
-}
-
 function loadFoodEntry(button, mealList) {
-  const firstRow = mealList.querySelector(".meal-entry-row");
-  const row = firstRow && !firstRow.querySelector('input[name="meal_food_name"]').value ? firstRow : addRow(mealList, "meal");
+  const row = getMealRows(mealList).find((entry) => !entry.querySelector('input[name="meal_food_name"]')?.value) || addRow(mealList, "meal");
   row.querySelector('input[name="meal_food_name"]').value = button.dataset.foodName || "";
   row.querySelector('input[name="meal_quantity"]').value = button.dataset.foodQuantity || "";
   row.querySelector('input[name="meal_grams"]').value = button.dataset.foodGrams || "";
   row.querySelector('input[name="meal_calories"]').value = button.dataset.foodCalories || "";
-  if (row === firstRow) {
-    syncMealPrimaryFoodInput(button.dataset.foodName || "");
-  }
   updateMealCountInput(mealList);
 }
 
@@ -120,19 +130,28 @@ function resetMealForm(form, mealList) {
     }
   });
   form.classList.add("is-collapsed");
-  syncMealPrimaryFoodInput("");
   updateMealCountInput(mealList);
 }
 
 function mealRowHtml(index) {
   return `
-    <strong class="meal-row-number">${index}</strong>
-    <input name="meal_food_name" autocomplete="off" placeholder="음식 이름" required>
-    <div class="compact-field-grid meal-compact-grid">
-      <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="개">
-      <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="g">
-      <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="kcal">
+    <div class="meal-card-head">
+      <input name="meal_food_name" autocomplete="off" placeholder="음식 이름" required>
+      <button class="btn-danger row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
     </div>
-    <button class="btn-danger row-remove-button" type="button" data-remove-meal-row aria-label="음식 삭제">×</button>
+    <div class="meal-card-fields meal-compact-grid">
+      <label>
+        <span>개</span>
+        <input name="meal_quantity" type="number" min="0" step="1" inputmode="numeric" placeholder="1">
+      </label>
+      <label>
+        <span>g</span>
+        <input name="meal_grams" type="number" min="0" step="0.1" inputmode="decimal" placeholder="80">
+      </label>
+      <label>
+        <span>kcal</span>
+        <input name="meal_calories" type="number" min="0" step="1" inputmode="numeric" placeholder="120">
+      </label>
+    </div>
   `;
 }

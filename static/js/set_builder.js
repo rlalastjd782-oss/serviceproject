@@ -212,7 +212,7 @@ function addRow(list, type, options = {}) {
   const selector = type === "set" ? ".set-entry-row" : ".meal-entry-row";
   const index = list.querySelectorAll(selector).length + 1;
   const row = document.createElement("div");
-  row.className = type === "set" ? "set-entry-row" : "meal-entry-row";
+  row.className = type === "set" ? "set-entry-row" : "meal-entry-card meal-entry-row";
   row.innerHTML = type === "set" ? setRowHtml(index) : mealRowHtml(index);
   list.append(row);
   if (options.focus !== false) {

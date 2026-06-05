@@ -8,6 +8,70 @@
   white-space: nowrap;
 }
 
+.today-shell .meal-entry-card.meal-entry-row,
+.meal-form .meal-entry-card.meal-entry-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: none;
+  align-items: stretch;
+  gap: 9px;
+  min-width: 0;
+}
+
+.today-shell .meal-entry-card .meal-card-head,
+.meal-form .meal-entry-card .meal-card-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+}
+
+.today-shell .meal-entry-card .meal-card-fields,
+.meal-form .meal-entry-card .meal-card-fields,
+.today-shell .meal-entry-card .meal-card-fields.meal-compact-grid,
+.meal-form .meal-entry-card .meal-card-fields.meal-compact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-column: auto;
+  grid-area: auto;
+  gap: 7px;
+  min-width: 0;
+}
+
+.today-shell .meal-entry-card .meal-card-head input,
+.meal-form .meal-entry-card .meal-card-head input,
+.today-shell .meal-entry-card .meal-card-fields input,
+.meal-form .meal-entry-card .meal-card-fields input {
+  width: 100%;
+  min-width: 0;
+}
+
+.today-shell .meal-entry-card .meal-card-fields label,
+.meal-form .meal-entry-card .meal-card-fields label {
+  min-width: 0;
+}
+
+.today-shell .meal-entry-card .meal-card-fields span,
+.meal-form .meal-entry-card .meal-card-fields span {
+  white-space: nowrap;
+}
+
+.today-shell .meal-entry-card .row-remove-button,
+.meal-form .meal-entry-card .row-remove-button {
+  grid-column: auto;
+  grid-row: auto;
+  grid-area: auto;
+  width: 42px;
+  min-width: 42px;
+  max-width: 42px;
+  height: 42px;
+  min-height: 42px;
+  max-height: 42px;
+  align-self: stretch;
+  justify-self: stretch;
+}
+
 .workout-mode .workout-coach-section {
   order: 15;
 }
