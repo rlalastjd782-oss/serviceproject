@@ -1,6 +1,6 @@
 ﻿## 2026-06-05 식단 기록 압축 UI 재기획 조건부 승인
 
-- 최종검수는 조건부 승인으로 정리했습니다. 2026-06-05 14:54 KST visual QA summary/json과 대표 PNG, `/app?mode=meal` DOM/CSS/동작 검증, HTTP `200`, 컴파일, 지정 unittest 21개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
+- 최종검수는 조건부 승인으로 정리했습니다. 2026-06-05 16:22 KST visual QA summary/json과 대표 PNG, `/app?mode=meal` DOM/CSS/동작 검증, HTTP `200`, 컴파일, 지정 unittest 21개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
 - 운영상 남은 확인 사항: `aria-prohibited-attr`, `color-contrast`, `label`, `meta-viewport`, `scrollable-region-focusable` axe 경고는 별도 접근성 개선 작업으로 분리합니다.
 - 수동 확인 권장: 실제 사용 데이터가 많은 계정에서 `/app?mode=meal`의 즐겨찾기 compact row와 `추가` 동작을 한 번 더 확인합니다.
 - QA 도구 개선 후보: `visual-qa.mjs`의 `today` 경로에 `/app?mode=meal` 직접 PNG 캡처를 추가하면 최종검수 근거가 더 명확해집니다.
@@ -261,6 +261,7 @@
 - 서비스워커 캐시가 남아 있으면 배포 후 예전 CSS가 보일 수 있으므로 버전과 cache name을 반드시 함께 올립니다.
 - 문서 기록 없이 코드만 수정하지 않습니다. 최소한 `NOTES.md`에는 작업 맥락과 검증 결과를, `CHANGELOG.md`에는 사용자에게 의미 있는 변경 사항을 남깁니다.
 - UI를 수정할 때 카드 안에 카드가 반복되는 구조를 만들지 않습니다. 내부 요소는 그림자 없는 flat row/pill로 처리하고, shadow/gradient는 바깥 카드나 최상위 panel에만 제한합니다.
+
 
 
 

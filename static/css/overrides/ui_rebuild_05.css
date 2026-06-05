@@ -2980,13 +2980,13 @@ a[class*="btn"] {
   }
 }
 
-/* v2.8.29 meal mode order pass: keep meal recording ahead of body/support panels. */
+/* v2.8.29 meal mode order pass: keep today's meal records ahead of input and support panels. */
 .today-shell.meal-mode .date-row,
 .today-shell.meal-mode .today-mode-actions {
   order: 0 !important;
 }
 
-.today-shell.meal-mode .meal-goal-section {
+.today-shell.meal-mode .today-meal-section {
   order: 10 !important;
 }
 
@@ -2994,16 +2994,24 @@ a[class*="btn"] {
   order: 20 !important;
 }
 
-.today-shell.meal-mode .today-meal-section {
+.today-shell.meal-mode .meal-helper-section {
   order: 30 !important;
 }
 
-.today-shell.meal-mode .meal-helper-section {
+.today-shell.meal-mode .meal-tool-section {
+  order: 30 !important;
+}
+
+.today-shell.meal-mode #fuel-coach {
   order: 40 !important;
 }
 
+.today-shell.meal-mode .meal-goal-section {
+  order: 70 !important;
+}
+
 .today-shell.meal-mode .optional-section {
-  order: 50 !important;
+  order: 80 !important;
 }
 
 /* v2.8.30 records-style dimensional UI pass: shared light surfaces and active states. */
