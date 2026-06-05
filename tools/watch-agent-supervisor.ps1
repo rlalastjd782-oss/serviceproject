@@ -72,6 +72,45 @@ function Get-LatestFile {
         Select-Object -First 1
 }
 
+function Get-LatestProjectFile {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return $null
+    }
+
+    return Get-ChildItem -LiteralPath $Path -Recurse -File -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+}
+
+function Get-FileStamp {
+    param([string]$Path)
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return "missing"
+    }
+
+    return (Get-Item -LiteralPath $Path).LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+}
+
+function Test-FileNewerThan {
+    param(
+        [string]$LeftPath,
+        [string]$RightPath
+    )
+
+    if (-not (Test-Path -LiteralPath $LeftPath)) {
+        return $false
+    }
+
+    if (-not (Test-Path -LiteralPath $RightPath)) {
+        return $true
+    }
+
+    return ((Get-Item -LiteralPath $LeftPath).LastWriteTime -gt (Get-Item -LiteralPath $RightPath).LastWriteTime)
+}
+
 function Get-LastJsonEventText {
     param([string]$Path)
 
@@ -163,13 +202,16 @@ function Write-SupervisorSnapshot {
     }
 
     $handoffs = @(
-        [pscustomobject]@{ Name = "Planning -> Design"; Path = Join-Path $ProjectRoot "handoff\planning-to-design.md" },
-        [pscustomobject]@{ Name = "Design -> Dev"; Path = Join-Path $ProjectRoot "handoff\design-to-dev.md" },
-        [pscustomobject]@{ Name = "Dev -> QA"; Path = Join-Path $ProjectRoot "handoff\dev-to-qa.md" },
-        [pscustomobject]@{ Name = "QA -> Final"; Path = Join-Path $ProjectRoot "handoff\qa-to-final.md" },
-        [pscustomobject]@{ Name = "Final -> PlanningFinal"; Path = Join-Path $ProjectRoot "handoff\final-to-git.md" },
-        [pscustomobject]@{ Name = "PlanningFinal -> Git"; Path = Join-Path $ProjectRoot "handoff\planning-final-to-git.md" }
+        [pscustomobject]@{ Name = "Planning -> Design"; Path = Join-Path $ProjectRoot "handoff\planning-to-design.md"; Next = Join-Path $ProjectRoot "handoff\design-to-dev.md" },
+        [pscustomobject]@{ Name = "Design -> Dev"; Path = Join-Path $ProjectRoot "handoff\design-to-dev.md"; Next = Join-Path $ProjectRoot "handoff\dev-to-qa.md" },
+        [pscustomobject]@{ Name = "Dev -> QA"; Path = Join-Path $ProjectRoot "handoff\dev-to-qa.md"; Next = Join-Path $ProjectRoot "handoff\qa-to-final.md" },
+        [pscustomobject]@{ Name = "QA -> Final"; Path = Join-Path $ProjectRoot "handoff\qa-to-final.md"; Next = Join-Path $ProjectRoot "handoff\final-to-git.md" },
+        [pscustomobject]@{ Name = "Final -> PlanningFinal"; Path = Join-Path $ProjectRoot "handoff\final-to-git.md"; Next = Join-Path $ProjectRoot "handoff\planning-final-to-git.md" },
+        [pscustomobject]@{ Name = "PlanningFinal -> Git"; Path = Join-Path $ProjectRoot "handoff\planning-final-to-git.md"; Next = "" }
     )
+
+    $latestSpec = Get-LatestProjectFile -Path (Join-Path $ProjectRoot "docs\specs")
+    $planningHandoffPath = Join-Path $ProjectRoot "handoff\planning-to-design.md"
 
     $lines = New-Object System.Collections.ArrayList
     [void]$lines.Add("Codex Pipeline Supervisor")
@@ -212,12 +254,34 @@ function Write-SupervisorSnapshot {
     [void]$lines.Add("")
     [void]$lines.Add("Handoff")
     foreach ($handoff in $handoffs) {
-        [void]$lines.Add("  $($handoff.Name): $(Get-HandoffStatus -Path $handoff.Path)")
+        [void]$lines.Add("  $($handoff.Name): $(Get-HandoffStatus -Path $handoff.Path) / updated $(Get-FileStamp -Path $handoff.Path)")
+    }
+    [void]$lines.Add("")
+    [void]$lines.Add("Freshness")
+    if ($latestSpec) {
+        $specStamp = $latestSpec.LastWriteTime.ToString("yyyy-MM-dd HH:mm:ss")
+        if (Test-FileNewerThan -LeftPath $latestSpec.FullName -RightPath $planningHandoffPath) {
+            [void]$lines.Add("  Planning spec newer than handoff: $($latestSpec.Name) / updated $specStamp")
+            [void]$lines.Add("  Action: planning must update handoff\planning-to-design.md")
+        }
+        else {
+            [void]$lines.Add("  Planning spec is covered by handoff: $($latestSpec.Name) / updated $specStamp")
+        }
+    }
+    foreach ($handoff in $handoffs) {
+        if ($handoff.Next -and (Test-FileNewerThan -LeftPath $handoff.Path -RightPath $handoff.Next)) {
+            [void]$lines.Add("  $($handoff.Name): upstream handoff is newer. Next stage should rerun.")
+        }
     }
     [void]$lines.Add("")
 
-    if ($lockExists -and $activeCount -eq 0 -and $lockStale) {
+    $scanLock = $lockExists -and $activeCount -eq 0 -and $lockContent.Contains("Role: PipelineScan")
+
+    if ($lockExists -and $activeCount -eq 0 -and $lockStale -and -not $scanLock) {
         [void]$lines.Add("Decision: stale lock. Run with -Fix to remove it.")
+    }
+    elseif ($scanLock) {
+        [void]$lines.Add("Decision: pipeline is checking ready stages.")
     }
     elseif ($lockExists -and $activeCount -gt 0 -and $logStale) {
         [void]$lines.Add("Decision: Codex process looks stalled. Run with -Fix -KillStaleCodex to stop only this project's stale Codex exec.")
