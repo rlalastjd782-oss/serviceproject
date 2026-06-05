@@ -215,7 +215,10 @@ class UiNavigationFlowTest(FlowTestBase):
 
         meal_html = self.client.get("/app?mode=meal").data.decode("utf-8")
         self.assertIn('id="meal-input"', meal_html)
-        self.assertIn("오늘 연료 상태", meal_html)
+        self.assertIn("식단 상태", meal_html)
+        self.assertNotIn("오늘 연료 상태", meal_html)
+        self.assertNotIn("연료 상태", meal_html)
+        self.assertNotIn("연료 코치", meal_html)
         self.assertIn('id="today-meal"', meal_html)
         self.assertIn("+ 식단 입력", meal_html)
         self.assertIn("식단 도구", meal_html)

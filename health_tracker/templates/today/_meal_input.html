@@ -236,7 +236,7 @@
     <div class="fuel-coach-card coach-card state-{{ fuel_coach.status }}" id="fuel-coach">
       <div class="coach-card-main">
         <span class="badge">{{ fuel_coach.status_label }}</span>
-        <strong>오늘 연료 상태</strong>
+        <strong>식단 상태</strong>
         <small>
           {{ fuel_coach.calories_current }} / {{ fuel_coach.calories_goal }}kcal
           {% if fuel_coach.calories_goal %} · 남은 {{ fuel_coach.calories_remaining }}kcal{% endif %}
