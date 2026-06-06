@@ -1,18 +1,18 @@
 ﻿/* v2.8.13 final UI QA pass: normalize card depth, menu density, and mobile sizing. */
 :root {
-  --qa-panel: #e6ecf3;
-  --qa-chip: #dfe7ef;
-  --qa-line: #c8d1dc;
-  --qa-text: #25303a;
-  --qa-strong: #24303a;
-  --qa-muted: #42505d;
-  --qa-dark-a: #56616d;
-  --qa-dark-b: #3f4955;
+  --qa-panel: #111827;
+  --qa-chip: #0f172a;
+  --qa-line: rgb(71 85 105 / 62%);
+  --qa-text: #f8fafc;
+  --qa-strong: #f8fafc;
+  --qa-muted: #cbd5e1;
+  --qa-dark-a: #2563eb;
+  --qa-dark-b: #1d4ed8;
   --qa-radius: 12px;
   --qa-radius-sm: 9px;
-  --qa-shadow: 0 4px 12px rgb(28 36 46 / 6%);
-  --qa-shadow-soft: 0 3px 8px rgb(28 36 46 / 5%);
-  --qa-inset: inset 0 1px 0 rgb(255 255 255 / 62%);
+  --qa-shadow: 0 18px 34px rgb(0 0 0 / 24%);
+  --qa-shadow-soft: 0 14px 26px rgb(0 0 0 / 20%);
+  --qa-inset: inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
 /* v3.0 whole-app UI restructure pass: navigation split, task-first home, and shared depth contract. */
@@ -44,9 +44,9 @@
   min-height: 38px !important;
   border: 1px solid rgb(160 82 82 / 28%) !important;
   border-radius: 9px !important;
-  background: #fff7f7 !important;
+  background: #1e293b !important;
   box-shadow: none !important;
-  color: #8a2f2f !important;
+  color: #fca5a5 !important;
   padding: 8px 10px !important;
 }
 
@@ -214,7 +214,7 @@
 
 .danger-zone .settings-action-row {
   grid-template-columns: minmax(0, 1fr) minmax(96px, 140px) auto !important;
-  background: #fff7f7 !important;
+  background: #1e293b !important;
 }
 
 /* v3.0 final enforcement: keep the restructure rules last in the cascade. */
@@ -245,9 +245,9 @@
   min-height: 38px !important;
   border: 1px solid rgb(160 82 82 / 28%) !important;
   border-radius: 9px !important;
-  background: #fff7f7 !important;
+  background: #1e293b !important;
   box-shadow: none !important;
-  color: #8a2f2f !important;
+  color: #fca5a5 !important;
   padding: 8px 10px !important;
 }
 
@@ -336,7 +336,7 @@
 
 .danger-zone .settings-action-row {
   grid-template-columns: minmax(0, 1fr) minmax(96px, 140px) auto !important;
-  background: #fff7f7 !important;
+  background: #1e293b !important;
 }
 
 .analysis-conclusion-card *,
@@ -440,7 +440,7 @@ body {
   border: 0 !important;
   border-radius: var(--qa-radius) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 66%) 0%, rgb(237 242 247 / 48%) 48%, rgb(216 225 234 / 30%) 100%),
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(30 41 59 / 72%) 48%, rgb(15 23 42 / 80%) 100%),
     var(--qa-panel) !important;
   color: var(--qa-text) !important;
   box-shadow: var(--qa-inset), var(--qa-shadow) !important;
@@ -491,7 +491,7 @@ body {
   border: 0 !important;
   border-radius: var(--qa-radius-sm) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 92%)),
     #e1e8f0 !important;
   color: var(--qa-text) !important;
   box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
@@ -569,7 +569,7 @@ small {
   border: 0 !important;
   border-radius: var(--qa-radius) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 92%)),
     #e1e8f0 !important;
   box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
   padding: 8px !important;
@@ -626,8 +626,8 @@ a[class*="btn"] {
   border: 0 !important;
   border-radius: var(--qa-radius-sm) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 62%), rgb(225 232 240 / 72%)),
-    #e2e8f0 !important;
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(30 41 59 / 86%)),
+    #1e293b !important;
   color: var(--qa-text) !important;
   box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
   padding: 8px 10px !important;
@@ -663,7 +663,7 @@ textarea,
   border: 1px solid var(--qa-line) !important;
   border-radius: var(--qa-radius-sm) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 54%), rgb(224 232 240 / 78%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 94%)),
     #e1e8f0 !important;
   color: var(--qa-text) !important;
   box-shadow: var(--qa-inset), inset 0 -1px 0 rgb(28 36 46 / 5%) !important;
@@ -687,8 +687,8 @@ textarea,
   background:
     linear-gradient(180deg, rgb(255 255 255 / 44%), rgb(222 230 239 / 62%)),
     var(--qa-chip) !important;
-  color: #3b4854 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 58%) !important;
+  color: #cbd5e1 !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
   padding: 5px 9px !important;
   line-height: 1.15 !important;
 }
@@ -697,7 +697,7 @@ textarea,
   min-height: 26px !important;
   border: 0 !important;
   border-radius: 999px !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 58%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
   padding: 5px 9px !important;
 }
 
@@ -766,7 +766,7 @@ textarea,
 .pr-rank-card.is-selected,
 .equipment-summary-card.is-selected {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 70%) 0%, rgb(229 237 246 / 58%) 52%, rgb(207 219 232 / 34%) 100%),
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(30 41 59 / 82%) 52%, rgb(207 219 232 / 34%) 100%),
     #e0e8f1 !important;
 }
 
@@ -812,8 +812,8 @@ textarea,
   border: 0 !important;
   border-radius: 999px !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 44%), rgb(205 215 226 / 50%)),
-    #d5dee8 !important;
+    linear-gradient(180deg, rgb(30 41 59 / 82%), rgb(15 23 42 / 96%)),
+    #0f172a !important;
   overflow: hidden !important;
 }
 
@@ -837,7 +837,7 @@ textarea,
   border: 0 !important;
   border-radius: var(--qa-radius-sm) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 92%)),
     #e1e8f0 !important;
   color: var(--qa-muted) !important;
   box-shadow: var(--qa-inset) !important;
@@ -965,7 +965,7 @@ textarea,
 .admin-filter-form {
   border-radius: var(--qa-radius) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 92%)),
     #e1e8f0 !important;
   box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
   padding: 8px !important;
@@ -1002,7 +1002,7 @@ textarea,
   align-items: center !important;
   border-radius: var(--qa-radius) !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(224 232 240 / 70%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 92%)),
     #e1e8f0 !important;
   box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
   padding: 8px !important;
@@ -1140,8 +1140,8 @@ button[name="action"][value="save"],
 :root {
   --qa-shadow: 0 3px 9px rgb(28 36 46 / 5%);
   --qa-shadow-soft: none;
-  --qa-flat: #e4eaf1;
-  --qa-flat-strong: #dbe3ec;
+  --qa-flat: #172033;
+  --qa-flat-strong: #1e293b;
 }
 
 .tabs,
@@ -1149,9 +1149,9 @@ button[name="action"][value="save"],
 .analysis-subnav,
 .record-subnav {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 38%), rgb(218 226 236 / 36%)),
-    #dbe3ec !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 48%) !important;
+    linear-gradient(180deg, rgb(30 41 59 / 82%), rgb(15 23 42 / 96%)),
+    #111827 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
   padding: 6px !important;
 }
 
@@ -1162,7 +1162,7 @@ button[name="action"][value="save"],
 .record-subnav a {
   background: transparent !important;
   box-shadow: none !important;
-  color: #3f4d5a !important;
+  color: var(--qa-muted) !important;
 }
 
 .tabs .tab-btn:hover,
@@ -1170,7 +1170,7 @@ button[name="action"][value="save"],
 .subnav a:hover,
 .analysis-subnav a:hover,
 .record-subnav a:hover {
-  background: rgb(255 255 255 / 34%) !important;
+  background: rgb(30 41 59 / 72%) !important;
 }
 
 .tab-btn.active,
@@ -1304,7 +1304,7 @@ textarea,
 .week-date-form input,
 .period-picker input,
 .compact-select select {
-  background: #edf1f5 !important;
+  background: #0f172a !important;
   box-shadow: none !important;
 }
 
@@ -1355,7 +1355,7 @@ a[class*="btn"] {
 .location-equipment-item,
 .meal-template-card,
 .recent-meal-template-row {
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 56%), var(--qa-shadow) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), var(--qa-shadow) !important;
 }
 
 .summary-card .summary-card,
@@ -1372,32 +1372,32 @@ a[class*="btn"] {
 /* v2.8.17 lighter today summary: avoid dark gray blocks on the overview screen. */
 .today-mode-actions {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 54%), rgb(228 235 243 / 42%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(228 235 243 / 42%)),
     #e7edf4 !important;
 }
 
 .today-mode-actions .mode-button {
   background: transparent !important;
-  color: #43505c !important;
+  color: #cbd5e1 !important;
 }
 
 .today-mode-actions .mode-button.btn-primary {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 72%), rgb(232 239 247 / 72%)),
-    #edf3f8 !important;
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 92%)),
+    #111827 !important;
   color: #263442 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 76%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 0 0 1px rgb(132 148 166 / 18%) !important;
 }
 
 .overview-only.data-quality-section {
   background: #f6f7f9 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .data-quality-section .badge {
-  background: #ffffff !important;
+  background: #111827 !important;
   color: #4a5560 !important;
   box-shadow: none !important;
 }
@@ -1406,22 +1406,22 @@ a[class*="btn"] {
 .data-quality-card.state-high,
 .data-quality-card.state-normal,
 .data-quality-card.state-low {
-  background: #ffffff !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+  background: #111827 !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 .data-quality-copy,
 .quality-metric {
-  background: #f8f9fb !important;
+  background: #172033 !important;
   box-shadow: none !important;
 }
 
 .data-quality-ring {
   background:
     conic-gradient(from 180deg, #9ab7a4 var(--score), #d8dde3 var(--score), #edf0f3 0),
-    #f8f9fb !important;
+    #172033 !important;
   color: #303b45 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 .data-quality-ring strong,
@@ -1430,7 +1430,7 @@ a[class*="btn"] {
 }
 
 .quality-bar {
-  background: #eceff3 !important;
+  background: #0f172a !important;
   box-shadow: none !important;
 }
 
@@ -1440,10 +1440,10 @@ a[class*="btn"] {
 
 /* v2.8.19 workout neutral pass: align today workout surfaces with record cards. */
 .workout-mode .today-mode-actions .mode-button.btn-primary {
-  background: #ffffff !important;
+  background: #111827 !important;
   color: #263442 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 0 0 1px rgb(132 148 166 / 18%) !important;
 }
 
@@ -1457,7 +1457,7 @@ a[class*="btn"] {
 .workout-mode .workout-secondary-section,
 .workout-mode .workout-location-section {
   background: #f6f7f9 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .workout-mode .workout-summary-card,
@@ -1478,9 +1478,9 @@ a[class*="btn"] {
 .workout-mode .routine-step-card,
 .workout-mode .routine-recommend-card,
 .workout-mode .pr-share-card {
-  background: #ffffff !important;
+  background: #111827 !important;
   color: var(--qa-text) !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 .workout-mode .compact-set-preview button,
@@ -1500,7 +1500,7 @@ a[class*="btn"] {
 .workout-mode .record-summary .badge,
 .workout-mode .cat-badge,
 .workout-mode .badge {
-  background: #f8f9fb !important;
+  background: #172033 !important;
   color: #303b45 !important;
   box-shadow: none !important;
 }
@@ -1521,19 +1521,19 @@ a[class*="btn"] {
 .workout-mode textarea,
 .workout-mode .weight-unit-control,
 .workout-mode .set-count-control input {
-  background: #f3f5f7 !important;
+  background: #172033 !important;
   color: var(--qa-text) !important;
   box-shadow: none !important;
 }
 
 .workout-mode .workout-action-dock {
   background: #f6f7f9 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .workout-mode .workout-action-dock a,
 .workout-mode .workout-action-dock button {
-  background: #ffffff !important;
+  background: #111827 !important;
   color: #303b45 !important;
   box-shadow: none !important;
 }
@@ -1543,13 +1543,13 @@ a[class*="btn"] {
 .workout-mode button[name="action"][value="save"] {
   background: #eef2f6 !important;
   color: #263442 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 /* v2.8.20 today overview neutral pass: make summary surfaces match record cards. */
 .today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions {
   background: #f6f7f9 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions .mode-button {
@@ -1559,9 +1559,9 @@ a[class*="btn"] {
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions .mode-button.btn-primary {
-  background: #ffffff !important;
+  background: #111827 !important;
   color: #263442 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 78%), 0 0 0 1px rgb(132 148 166 / 18%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 0 0 1px rgb(132 148 166 / 18%) !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section,
@@ -1569,7 +1569,7 @@ a[class*="btn"] {
 .today-shell:not(.workout-mode):not(.meal-mode) .summary-grid.overview-only {
   background: #f6f7f9 !important;
   color: var(--qa-text) !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .today-hero-head,
@@ -1587,9 +1587,9 @@ a[class*="btn"] {
 .today-shell:not(.workout-mode):not(.meal-mode) .data-quality-copy,
 .today-shell:not(.workout-mode):not(.meal-mode) .quality-metric,
 .today-shell:not(.workout-mode):not(.meal-mode) .record-card {
-  background: #ffffff !important;
+  background: #111827 !important;
   color: var(--qa-text) !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .detail-row,
@@ -1597,7 +1597,7 @@ a[class*="btn"] {
 .today-shell:not(.workout-mode):not(.meal-mode) .record-summary .badge,
 .today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section .badge,
 .today-shell:not(.workout-mode):not(.meal-mode) .quality-action-list .btn-small {
-  background: #f8f9fb !important;
+  background: #172033 !important;
   color: #303b45 !important;
   box-shadow: none !important;
 }
@@ -1605,7 +1605,7 @@ a[class*="btn"] {
 .today-shell:not(.workout-mode):not(.meal-mode) .today-hero-head .btn-primary {
   background: #eef2f6 !important;
   color: #263442 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 /* v2.8.21 today records-layout parity: align today page spacing with records pages. */
@@ -1643,7 +1643,7 @@ a[class*="btn"] {
 .today-shell .today-mode-actions,
 .today-shell .workout-action-dock {
   background: #f6f7f9 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .today-shell .section-header {
@@ -1662,7 +1662,7 @@ a[class*="btn"] {
 .today-shell .today-meal-section,
 .today-shell .workout-only {
   background: #f6f7f9 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 2px 8px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .today-shell .today-focus-panel,
@@ -1704,9 +1704,9 @@ a[class*="btn"] {
 .today-shell .focus-grid article {
   border: 0 !important;
   border-radius: 12px !important;
-  background: #ffffff !important;
+  background: #111827 !important;
   color: var(--qa-text) !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 76%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
   padding: 10px !important;
 }
 
@@ -1737,7 +1737,7 @@ a[class*="btn"] {
 .today-shell .cat-badge,
 .today-shell .missing-day-chip,
 .today-shell .quality-action-list .btn-small {
-  background: #f8f9fb !important;
+  background: #172033 !important;
   color: #303b45 !important;
   box-shadow: none !important;
 }
@@ -1745,7 +1745,7 @@ a[class*="btn"] {
 .today-shell input,
 .today-shell select,
 .today-shell textarea {
-  background: #f3f5f7 !important;
+  background: #172033 !important;
   color: var(--qa-text) !important;
   box-shadow: none !important;
 }
@@ -1792,7 +1792,7 @@ a[class*="btn"] {
 .today-shell .summary-grid.overview-only,
 .today-shell .section {
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 82%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 5px 14px rgb(28 36 46 / 7%) !important;
 }
 
@@ -1808,7 +1808,7 @@ a[class*="btn"] {
 .today-shell .today-task-card,
 .today-shell .focus-grid article {
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 86%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 4px 10px rgb(28 36 46 / 6%) !important;
 }
 
@@ -1817,7 +1817,7 @@ a[class*="btn"] {
 .today-shell .cat-badge,
 .today-shell .missing-day-chip,
 .today-shell .quality-action-list .btn-small {
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 1px 3px rgb(28 36 46 / 4%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 1px 3px rgb(28 36 46 / 4%) !important;
 }
 
 /* v2.8.23 restore workout focus action without adding a fourth top tab. */
@@ -1828,7 +1828,7 @@ a[class*="btn"] {
   background: #eef2f6 !important;
   color: #263442 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 82%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 2px 6px rgb(28 36 46 / 5%) !important;
 }
 
@@ -1844,10 +1844,10 @@ a[class*="btn"] {
 .today-shell .section {
   border-radius: 14px !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 86%) 0%, rgb(244 247 250 / 70%) 46%, rgb(229 235 242 / 58%) 100%),
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 96%) 46%, rgb(15 23 42 / 92%) 100%),
     #eef2f6 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 92%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -1px 0 rgb(132 148 166 / 10%),
     0 10px 24px rgb(36 46 58 / 10%),
     0 2px 6px rgb(36 46 58 / 7%) !important;
@@ -1861,7 +1861,7 @@ a[class*="btn"] {
 .today-shell .today-meal-section,
 .today-shell .workout-only {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 88%) 0%, rgb(244 247 250 / 74%) 52%, rgb(229 235 242 / 56%) 100%),
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 96%) 52%, rgb(15 23 42 / 92%) 100%),
     #eef2f6 !important;
 }
 
@@ -1883,10 +1883,10 @@ a[class*="btn"] {
 .today-shell .meal-form {
   border-radius: 12px !important;
   background:
-    linear-gradient(180deg, #ffffff 0%, #f9fafb 56%, #f1f4f7 100%),
-    #ffffff !important;
+    linear-gradient(180deg, #111827 0%, #172033 56%, #0f172a 100%),
+    #111827 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 94%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -1px 0 rgb(132 148 166 / 8%),
     0 7px 16px rgb(36 46 58 / 9%),
     0 1px 3px rgb(36 46 58 / 7%) !important;
@@ -1897,7 +1897,7 @@ a[class*="btn"] {
 .today-shell .summary-card:hover {
   transform: translateY(-1px) !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 95%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -1px 0 rgb(132 148 166 / 8%),
     0 10px 20px rgb(36 46 58 / 11%),
     0 2px 5px rgb(36 46 58 / 7%) !important;
@@ -1912,19 +1912,19 @@ a[class*="btn"] {
 .today-shell .missing-day-chip,
 .today-shell .quality-action-list .btn-small {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f3f5f7 100%),
-    #f8f9fb !important;
+    linear-gradient(180deg, #111827 0%, #172033 100%),
+    #172033 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 92%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 2px 5px rgb(36 46 58 / 6%) !important;
 }
 
 .today-shell .today-mode-actions .mode-button.btn-primary {
   background:
-    linear-gradient(180deg, #ffffff 0%, #edf2f7 100%),
-    #ffffff !important;
+    linear-gradient(180deg, #111827 0%, #0f172a 100%),
+    #111827 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 96%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 0 0 1px rgb(132 148 166 / 18%),
     0 5px 12px rgb(36 46 58 / 9%) !important;
 }
@@ -1933,11 +1933,11 @@ a[class*="btn"] {
 .today-shell select,
 .today-shell textarea {
   background:
-    linear-gradient(180deg, #eef2f6 0%, #f7f9fb 100%),
-    #f3f5f7 !important;
+    linear-gradient(180deg, #eef2f6 0%, #172033 100%),
+    #172033 !important;
   box-shadow:
     inset 0 1px 2px rgb(36 46 58 / 7%),
-    inset 0 1px 0 rgb(255 255 255 / 72%) !important;
+    inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 .today-shell .today-focus-panel,
@@ -1981,10 +1981,10 @@ a[class*="btn"] {
 .today-shell .section.overview-only,
 .today-shell .summary-grid.overview-only {
   background:
-    linear-gradient(180deg, #f9fbfd 0%, #eef3f7 54%, #e3eaf1 100%),
-    #edf2f6 !important;
+    linear-gradient(180deg, #172033 0%, #0f172a 54%, #111827 100%),
+    #111827 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 94%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -1px 0 rgb(128 145 162 / 12%),
     0 12px 28px rgb(36 46 58 / 11%),
     0 3px 8px rgb(36 46 58 / 8%) !important;
@@ -2005,10 +2005,10 @@ a[class*="btn"] {
 .today-shell:not(.workout-mode):not(.meal-mode) .summary-card,
 .today-shell:not(.workout-mode):not(.meal-mode) .record-card {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f7f9fb 52%, #eef3f7 100%),
-    #ffffff !important;
+    linear-gradient(180deg, #111827 0%, #172033 52%, #0f172a 100%),
+    #111827 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 95%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -1px 0 rgb(128 145 162 / 8%),
     0 8px 18px rgb(36 46 58 / 9%),
     0 2px 5px rgb(36 46 58 / 6%) !important;
@@ -2037,11 +2037,11 @@ a[class*="btn"] {
 .today-shell:not(.workout-mode):not(.meal-mode) .record-summary .badge,
 .today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section .badge {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f4f7fa 100%),
+    linear-gradient(180deg, #111827 0%, #172033 100%),
     #f8fafc !important;
   color: #263442 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 94%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 3px 8px rgb(36 46 58 / 7%) !important;
 }
 
@@ -2049,19 +2049,19 @@ a[class*="btn"] {
 .today-shell .timer-display,
 .today-shell .data-quality-ring {
   background:
-    radial-gradient(circle at 50% 35%, rgb(255 255 255 / 92%), rgb(238 243 248 / 86%) 62%, rgb(222 231 240 / 78%) 100%),
-    #eef3f7 !important;
+    radial-gradient(circle at 50% 35%, rgb(30 41 59 / 88%), rgb(238 243 248 / 86%) 62%, rgb(222 231 240 / 78%) 100%),
+    #0f172a !important;
   color: #263442 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 96%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -2px 4px rgb(128 145 162 / 14%),
     0 8px 16px rgb(36 46 58 / 10%) !important;
 }
 
 .today-shell .completion-card:not(.is-complete) {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f5f8fb 50%, #e9eff5 100%),
-    #f7f9fb !important;
+    linear-gradient(180deg, #111827 0%, #172033 50%, #0f172a 100%),
+    #172033 !important;
 }
 
 .today-shell .today-hero-head,
@@ -2078,12 +2078,12 @@ a[class*="btn"] {
   --today-card-strong: #e7edf4;
   --today-line: rgb(120 138 156 / 18%);
   --today-shadow-panel:
-    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -1px 0 rgb(120 138 156 / 12%),
     0 10px 22px rgb(42 52 64 / 10%),
     0 2px 6px rgb(42 52 64 / 7%);
   --today-shadow-card:
-    inset 0 1px 0 rgb(255 255 255 / 70%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 5px 12px rgb(42 52 64 / 7%);
 }
 
@@ -2098,7 +2098,7 @@ a[class*="btn"] {
 .today-shell .summary-grid.overview-only,
 .today-shell .section.overview-only {
   background:
-    linear-gradient(180deg, #f4f7fa 0%, #e9eef4 52%, #dde6ee 100%),
+    linear-gradient(180deg, #172033 0%, #e9eef4 52%, #dde6ee 100%),
     var(--today-panel) !important;
   border: 1px solid var(--today-line) !important;
   box-shadow: var(--today-shadow-panel) !important;
@@ -2109,7 +2109,7 @@ a[class*="btn"] {
   gap: 8px !important;
   padding: 8px !important;
   background:
-    linear-gradient(180deg, #eef3f7 0%, #e1e9f1 100%),
+    linear-gradient(180deg, #0f172a 0%, #e1e9f1 100%),
     var(--today-panel-strong) !important;
 }
 
@@ -2138,7 +2138,7 @@ a[class*="btn"] {
     #d9e3ec !important;
   border-color: rgb(102 124 146 / 22%) !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 64%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 6px 14px rgb(42 52 64 / 13%) !important;
 }
 
@@ -2170,7 +2170,7 @@ a[class*="btn"] {
   gap: 8px !important;
   padding: 8px !important;
   background:
-    linear-gradient(180deg, #edf2f7 0%, #dde6ef 100%),
+    linear-gradient(180deg, #0f172a 0%, #dde6ef 100%),
     var(--today-panel-strong) !important;
 }
 
@@ -2194,7 +2194,7 @@ a[class*="btn"] {
 .today-shell .duration-manual-edit,
 .today-shell .timer-actions {
   background:
-    linear-gradient(180deg, #f5f8fb 0%, #eef3f7 58%, #e4ecf3 100%),
+    linear-gradient(180deg, #172033 0%, #0f172a 58%, #e4ecf3 100%),
     var(--today-card) !important;
   border: 1px solid rgb(120 138 156 / 15%) !important;
   border-radius: 12px !important;
@@ -2211,12 +2211,12 @@ a[class*="btn"] {
   min-height: 92px !important;
   border-radius: 50% !important;
   background:
-    radial-gradient(circle at center, #f6f9fc 0 52%, transparent 53%),
+    radial-gradient(circle at center, #172033 0 52%, transparent 53%),
     conic-gradient(from 180deg, #6f8f7c var(--score), #c4ced9 var(--score), #e4eaf0 0),
     #e4eaf0 !important;
   color: #253341 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 78%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -2px 5px rgb(112 130 148 / 16%),
     0 7px 16px rgb(42 52 64 / 11%) !important;
 }
@@ -2248,12 +2248,12 @@ a[class*="btn"] {
 .today-shell .missing-day-chip,
 .today-shell .cat-badge {
   background:
-    linear-gradient(180deg, #eef3f7 0%, #e2eaf2 100%),
+    linear-gradient(180deg, #0f172a 0%, #e2eaf2 100%),
     var(--today-card-strong) !important;
   border: 1px solid rgb(120 138 156 / 14%) !important;
   color: #263442 !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 64%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 2px 6px rgb(42 52 64 / 6%) !important;
 }
 
@@ -2275,13 +2275,13 @@ a[class*="btn"] {
 .today-shell .workout-clock-display,
 .today-shell .timer-display {
   background:
-    radial-gradient(circle at 50% 28%, #f5f8fb 0%, #e6edf4 58%, #d9e3ec 100%),
+    radial-gradient(circle at 50% 28%, #172033 0%, #e6edf4 58%, #d9e3ec 100%),
     var(--today-panel-strong) !important;
   color: #263442 !important;
   border: 1px solid rgb(120 138 156 / 16%) !important;
   border-radius: 14px !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 74%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     inset 0 -2px 5px rgb(112 130 148 / 14%),
     0 8px 18px rgb(42 52 64 / 10%) !important;
 }
@@ -2291,7 +2291,7 @@ a[class*="btn"] {
 .today-shell textarea {
   background:
     linear-gradient(180deg, #e8eef5 0%, #f2f6f9 100%),
-    #edf2f7 !important;
+    #0f172a !important;
   border-color: rgb(120 138 156 / 18%) !important;
   color: #263442 !important;
 }
@@ -2332,7 +2332,7 @@ a[class*="btn"] {
 .today-shell {
   --today-outer: #e2eaf2;
   --today-outer-strong: #d7e2ec;
-  --today-inner: #eef3f7;
+  --today-inner: #0f172a;
   --today-inner-strong: #e5edf4;
   --today-control: #dce7f0;
   --today-border: rgb(105 124 144 / 20%);
@@ -2413,11 +2413,11 @@ a[class*="btn"] {
 .today-shell .summary-grid.overview-only,
 .today-shell .workout-action-dock {
   background:
-    linear-gradient(180deg, #edf3f8 0%, var(--today-outer) 58%, var(--today-outer-strong) 100%),
+    linear-gradient(180deg, #0b0f17 0%, var(--today-outer) 58%, var(--today-outer-strong) 100%),
     var(--today-outer) !important;
   border: 1px solid var(--today-border) !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 58%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 7px 18px rgb(42 52 64 / 9%) !important;
 }
 
@@ -2547,11 +2547,11 @@ a[class*="btn"] {
   min-width: 78px !important;
   min-height: 78px !important;
   background:
-    radial-gradient(circle at center, #edf3f8 0 50%, transparent 51%),
+    radial-gradient(circle at center, #0b0f17 0 50%, transparent 51%),
     conic-gradient(from 180deg, #5f7f70 var(--score), #b7c4d0 var(--score), #d8e2eb 0),
     #d8e2eb !important;
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 56%),
+    inset 0 1px 0 rgb(30 41 59 / 88%),
     0 4px 10px rgb(42 52 64 / 8%) !important;
 }
 
@@ -2589,7 +2589,7 @@ a[class*="btn"] {
     linear-gradient(180deg, #5d7184 0%, #3f5062 100%),
     #4d6073 !important;
   border-color: rgb(55 70 85 / 22%) !important;
-  color: #f5f8fb !important;
+  color: #172033 !important;
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 18%),
     0 5px 12px rgb(42 52 64 / 13%) !important;
@@ -2696,17 +2696,17 @@ a[class*="btn"] {
 
 /* v2.8.28 today visual reset: return from all-gray panels to clean white cards. */
 .today-shell {
-  --today-page: #eef3f8;
-  --today-surface: #ffffff;
-  --today-surface-soft: #f7f9fb;
-  --today-control-soft: #eef4f9;
-  --today-control-strong: #e0eaf3;
+  --today-page: #0b0f17;
+  --today-surface: #111827;
+  --today-surface-soft: #172033;
+  --today-control-soft: #0f172a;
+  --today-control-strong: #1e293b;
   --today-border-soft: rgb(113 132 151 / 16%);
   --today-border-strong: rgb(113 132 151 / 24%);
-  --today-text: #142235;
-  --today-muted: #526476;
-  --today-primary: #43576b;
-  --today-primary-strong: #314457;
+  --today-text: #f8fafc;
+  --today-muted: #cbd5e1;
+  --today-primary: #2563eb;
+  --today-primary-strong: #1d4ed8;
   background: var(--today-page) !important;
 }
 
@@ -2879,10 +2879,10 @@ a[class*="btn"] {
   height: 82px !important;
   min-height: 82px !important;
   background:
-    radial-gradient(circle at center, #ffffff 0 51%, transparent 52%),
+    radial-gradient(circle at center, #111827 0 51%, transparent 52%),
     conic-gradient(from 180deg, #557865 var(--score), #bac7d2 var(--score), #e4eaf0 0),
     #e4eaf0 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 70%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
 }
 
 .today-shell .workout-clock-section .section-header,
@@ -2901,7 +2901,7 @@ a[class*="btn"] {
 .today-shell input,
 .today-shell select,
 .today-shell textarea {
-  background: #ffffff !important;
+  background: #111827 !important;
   border: 1px solid var(--today-border-strong) !important;
   color: var(--today-text) !important;
   box-shadow: none !important;
@@ -3016,15 +3016,15 @@ a[class*="btn"] {
 
 /* v2.8.30 records-style dimensional UI pass: shared light surfaces and active states. */
 :root {
-  --surface-page: #edf3f8;
-  --surface-card: #ffffff;
-  --surface-card-soft: #f7f9fc;
-  --surface-control: #eef4f9;
-  --surface-control-strong: #e1ebf4;
+  --surface-page: #0b0f17;
+  --surface-card: #111827;
+  --surface-card-soft: #172033;
+  --surface-control: #0f172a;
+  --surface-control-strong: #1e293b;
   --surface-border: rgb(105 124 144 / 17%);
   --surface-border-strong: rgb(105 124 144 / 27%);
-  --surface-text: #172536;
-  --surface-muted: #526576;
+  --surface-text: #f8fafc;
+  --surface-muted: #cbd5e1;
   --surface-active: #3d5267;
   --surface-active-strong: #2f4357;
   --surface-shadow: 0 8px 18px rgb(36 46 58 / 7%), 0 1px 2px rgb(36 46 58 / 4%);
@@ -3149,7 +3149,7 @@ body,
 .analysis-dashboard-section input,
 .analysis-dashboard-section select,
 .analysis-dashboard-section textarea {
-  background: #ffffff !important;
+  background: #111827 !important;
   border: 1px solid var(--surface-border-strong) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -3250,7 +3250,7 @@ body,
 .daily-record-card:hover,
 .record-result-card:hover,
 .more-link-card:hover {
-  background: #ffffff !important;
+  background: #111827 !important;
   border-color: var(--surface-border-strong) !important;
 }
 
@@ -3294,15 +3294,15 @@ body,
 
 /* v2.8.31 meal-tab dimensional UI pass: align app depth to weekly meals. */
 :root {
-  --surface-page: #edf3f8;
-  --surface-card: #ffffff;
-  --surface-card-soft: #f8fafc;
-  --surface-control: #eef4f9;
-  --surface-control-strong: #e2edf6;
+  --surface-page: #0b0f17;
+  --surface-card: #111827;
+  --surface-card-soft: #172033;
+  --surface-control: #0f172a;
+  --surface-control-strong: #1e293b;
   --surface-border: rgb(92 112 133 / 16%);
   --surface-border-strong: rgb(92 112 133 / 27%);
-  --surface-text: #142235;
-  --surface-muted: #516476;
+  --surface-text: #f8fafc;
+  --surface-muted: #cbd5e1;
   --surface-active: #3d5267;
   --surface-active-strong: #2e4052;
   --surface-shadow: 0 8px 18px rgb(36 46 58 / 7%), 0 1px 2px rgb(36 46 58 / 4%);
@@ -3552,7 +3552,7 @@ body,
 .more-tool-section input,
 .more-tool-section select,
 .more-tool-section textarea {
-  background: #ffffff !important;
+  background: #111827 !important;
   border: 1px solid var(--surface-border-strong) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -3671,7 +3671,7 @@ body,
 .daily-record-card:hover,
 .record-result-card:hover,
 .more-link-card:hover {
-  background: #ffffff !important;
+  background: #111827 !important;
   border-color: var(--surface-border-strong) !important;
 }
 
@@ -3738,15 +3738,15 @@ body,
 
 /* v2.8.32 global surface enforcement pass: keep all primary app screens on the meal-tab depth system. */
 :root {
-  --surface-page: #edf3f8;
-  --surface-card: #ffffff;
-  --surface-card-soft: #f8fafc;
-  --surface-control: #eef4f9;
-  --surface-control-strong: #e2edf6;
+  --surface-page: #0b0f17;
+  --surface-card: #111827;
+  --surface-card-soft: #172033;
+  --surface-control: #0f172a;
+  --surface-control-strong: #1e293b;
   --surface-border: rgb(92 112 133 / 16%);
   --surface-border-strong: rgb(92 112 133 / 27%);
-  --surface-text: #142235;
-  --surface-muted: #516476;
+  --surface-text: #f8fafc;
+  --surface-muted: #cbd5e1;
   --surface-active: #3d5267;
   --surface-active-strong: #2e4052;
   --surface-shadow: 0 8px 18px rgb(36 46 58 / 7%), 0 1px 2px rgb(36 46 58 / 4%);
@@ -3943,7 +3943,7 @@ body,
 .settings-panel input,
 .settings-panel select,
 .settings-panel textarea {
-  background: #ffffff !important;
+  background: #111827 !important;
   border: 1px solid var(--surface-border-strong) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -4113,9 +4113,9 @@ body,
   min-height: 38px !important;
   border: 1px solid rgb(160 82 82 / 28%) !important;
   border-radius: 9px !important;
-  background: #fff7f7 !important;
+  background: #1e293b !important;
   box-shadow: none !important;
-  color: #8a2f2f !important;
+  color: #fca5a5 !important;
   padding: 8px 10px !important;
 }
 
@@ -4170,7 +4170,7 @@ body,
 
 .danger-zone .settings-action-row {
   grid-template-columns: minmax(0, 1fr) minmax(96px, 140px) auto !important;
-  background: #fff7f7 !important;
+  background: #1e293b !important;
 }
 
 /* v3.0.0 post-release EOF enforcement: keep correction selectors after legacy anchors. */
@@ -4363,12 +4363,12 @@ body,
 
 /* v3.0.0 21 point correction: shared depth, controls, chips, and result rows. */
 :root {
-  --surface-page: #edf3f8;
-  --surface-page-layer: radial-gradient(circle at 12% 0%, rgb(255 255 255 / 82%) 0 220px, rgb(255 255 255 / 0%) 360px),
-    linear-gradient(180deg, #f6f9fc 0%, #edf3f8 46%, #e8eff6 100%);
-  --surface-card: #ffffff;
-  --surface-card-soft: #f8fafc;
-  --surface-control: #eef4f9;
+  --surface-page: #0b0f17;
+  --surface-page-layer: radial-gradient(circle at 12% 0%, rgb(30 41 59 / 88%) 0 220px, rgb(255 255 255 / 0%) 360px),
+    linear-gradient(180deg, #172033 0%, #0b0f17 46%, #0f172a 100%);
+  --surface-card: #111827;
+  --surface-card-soft: #172033;
+  --surface-control: #0f172a;
   --surface-control-strong: #e5edf5;
   --surface-active: #3d5267;
   --surface-active-strong: #2f4254;
@@ -4403,7 +4403,7 @@ body,
 .location-page-section,
 .settings-panel {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(248 251 253 / 96%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(248 251 253 / 96%)),
     var(--surface-card) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 12px !important;
@@ -4426,7 +4426,7 @@ body,
 .tool-card-large,
 .calendar-cell {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--surface-card-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-card-soft) 100%),
     var(--surface-card-soft) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 10px !important;
@@ -4448,11 +4448,11 @@ body,
   align-items: stretch !important;
   gap: 8px !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 58%), rgb(228 237 246 / 48%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(228 237 246 / 48%)),
     var(--surface-control) !important;
   border: 1px solid var(--surface-border-strong) !important;
   border-radius: 9px !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%), 0 4px 11px rgb(37 51 66 / 5%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 4px 11px rgb(37 51 66 / 5%) !important;
   padding: 8px !important;
 }
 
@@ -4477,7 +4477,7 @@ body,
 .tool-input-row input,
 .tool-input-row select {
   min-height: 40px !important;
-  background: rgb(255 255 255 / 72%) !important;
+  background: #172033 !important;
   border: 1px solid rgb(82 102 121 / 12%) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -4491,7 +4491,7 @@ body,
 .more-tool-filter .btn-small,
 .tool-form .btn-small:not(.btn-primary) {
   min-height: 40px !important;
-  background: #f9fbfd !important;
+  background: #1e293b !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -4544,7 +4544,7 @@ body,
 }
 
 .account-action-btn {
-  background: #fff6f6 !important;
+  background: #1e293b !important;
   border-color: rgb(163 71 71 / 24%) !important;
   box-shadow: none !important;
   color: var(--accent-danger) !important;
@@ -4578,55 +4578,55 @@ body,
 .body-part-toggle {
   border: 1px solid rgb(82 102 121 / 16%) !important;
   box-shadow: none !important;
-  color: var(--surface-text) !important;
+  color: #f8fafc !important;
 }
 
 .cat-badge.body-part-legs,
 .body-part-filter-chip.body-part-legs,
 .body-part-toggle.body-part-legs {
-  background: #eef4e7 !important;
+  background: rgb(34 197 94 / 14%) !important;
   border-color: rgb(92 124 64 / 24%) !important;
 }
 
 .cat-badge.body-part-chest,
 .body-part-filter-chip.body-part-chest,
 .body-part-toggle.body-part-chest {
-  background: #f5ecef !important;
+  background: rgb(244 63 94 / 13%) !important;
   border-color: rgb(146 82 101 / 22%) !important;
 }
 
 .cat-badge.body-part-arms,
 .body-part-filter-chip.body-part-arms,
 .body-part-toggle.body-part-arms {
-  background: #edf0f8 !important;
+  background: rgb(99 102 241 / 14%) !important;
   border-color: rgb(83 97 151 / 22%) !important;
 }
 
 .cat-badge.body-part-back,
 .body-part-filter-chip.body-part-back,
 .body-part-toggle.body-part-back {
-  background: #eaf3f4 !important;
+  background: rgb(6 182 212 / 14%) !important;
   border-color: rgb(63 125 133 / 22%) !important;
 }
 
 .cat-badge.body-part-shoulders,
 .body-part-filter-chip.body-part-shoulders,
 .body-part-toggle.body-part-shoulders {
-  background: #f3efe8 !important;
+  background: rgb(245 158 11 / 13%) !important;
   border-color: rgb(136 102 56 / 22%) !important;
 }
 
 .cat-badge.body-part-cardio,
 .body-part-filter-chip.body-part-cardio,
 .body-part-toggle.body-part-cardio {
-  background: #e8f3f8 !important;
+  background: rgb(14 165 233 / 14%) !important;
   border-color: rgb(35 123 166 / 24%) !important;
 }
 
 .cat-badge.body-part-other,
 .body-part-filter-chip.body-part-other,
 .body-part-toggle.body-part-other {
-  background: #f0f2f5 !important;
+  background: rgb(148 163 184 / 14%) !important;
   border-color: rgb(82 102 121 / 18%) !important;
 }
 
@@ -4675,7 +4675,7 @@ body,
 .location-manage-details summary,
 .weekly-meal-item {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f7fafc 100%),
+    linear-gradient(180deg, #111827 0%, #172033 100%),
     var(--surface-card-soft) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 10px !important;
@@ -4718,7 +4718,7 @@ a.more-link-card:hover,
   min-height: 48px !important;
   align-content: center !important;
   background:
-    linear-gradient(180deg, #ffffff 0%, #edf5fb 100%),
+    linear-gradient(180deg, #111827 0%, #edf5fb 100%),
     #edf5fb !important;
   border: 1px solid rgb(35 123 166 / 18%) !important;
   border-radius: 10px !important;
@@ -4730,7 +4730,7 @@ a.more-link-card:hover,
 
 .plate-result span,
 .warmup-result span {
-  background: rgb(255 255 255 / 66%) !important;
+  background: rgb(30 41 59 / 88%) !important;
   border: 1px solid rgb(35 123 166 / 12%) !important;
   border-radius: 8px !important;
   box-shadow: none !important;
@@ -4741,7 +4741,7 @@ a.more-link-card:hover,
 .exercise-hero-card,
 .overload-dashboard-section {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f6f9fc 100%),
+    linear-gradient(180deg, #111827 0%, #172033 100%),
     var(--surface-card) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 12px !important;
@@ -4759,7 +4759,7 @@ a.more-link-card:hover,
 
 .next-plan-list div {
   background:
-    linear-gradient(180deg, #ffffff 0%, #f3f7fb 100%),
+    linear-gradient(180deg, #111827 0%, #f3f7fb 100%),
     var(--surface-card-soft) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 10px !important;
@@ -4789,24 +4789,24 @@ a.more-link-card:hover,
 }
 
 .overload-card.state-상승 {
-  background: linear-gradient(180deg, #ffffff 0%, #eaf6ef 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
   border-color: rgb(52 121 91 / 24%) !important;
 }
 
 .overload-card.state-정체 {
-  background: linear-gradient(180deg, #ffffff 0%, #eef4fa 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
   border-color: rgb(73 109 146 / 22%) !important;
 }
 
 .overload-card.state-회복-필요,
 .overload-card.state-회복필요,
 .overload-card.state-주의 {
-  background: linear-gradient(180deg, #ffffff 0%, #fff4e6 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
   border-color: rgb(173 109 34 / 28%) !important;
 }
 
 .overload-card-head b {
-  background: rgb(255 255 255 / 68%) !important;
+  background: rgb(30 41 59 / 88%) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -4816,7 +4816,7 @@ a.more-link-card:hover,
 .data-warning-card,
 .analysis-action-card.is-warning,
 .insight-group-card.is-warning {
-  background: linear-gradient(180deg, #ffffff 0%, #fff7ea 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
   border-color: rgb(173 109 34 / 24%) !important;
   color: #644715 !important;
 }
@@ -4879,12 +4879,12 @@ a.more-link-card:hover,
 
 /* v3.0.0 global UI final overhaul: whole-app depth, controls, and action hierarchy. */
 :root {
-  --surface-page: #edf3f8;
-  --surface-page-layer: radial-gradient(circle at 18% 0%, rgb(255 255 255 / 86%) 0 230px, rgb(255 255 255 / 0%) 390px),
-    linear-gradient(180deg, #f7fafc 0%, #edf3f8 48%, #e6eef6 100%);
-  --surface-card: #ffffff;
-  --surface-card-soft: #f8fafc;
-  --surface-control: #eef4f9;
+  --surface-page: #0b0f17;
+  --surface-page-layer: radial-gradient(circle at 18% 0%, rgb(30 41 59 / 88%) 0 230px, rgb(255 255 255 / 0%) 390px),
+    linear-gradient(180deg, #172033 0%, #0b0f17 48%, #0f172a 100%);
+  --surface-card: #111827;
+  --surface-card-soft: #172033;
+  --surface-control: #0f172a;
   --surface-control-strong: #e4edf5;
   --surface-active: #3c5165;
   --surface-active-strong: #2e4052;
@@ -4927,7 +4927,7 @@ body {
   align-items: center !important;
   gap: 10px !important;
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(247 250 252 / 94%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(247 250 252 / 94%)),
     var(--surface-card) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 12px !important;
@@ -5009,7 +5009,7 @@ body {
 .danger-zone button,
 .danger-zone .btn-small {
   min-height: 38px !important;
-  background: #fff7f7 !important;
+  background: #1e293b !important;
   border: 1px solid rgb(163 71 71 / 26%) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -5024,7 +5024,7 @@ body {
 .location-page-section,
 .settings-panel {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 98%), rgb(248 251 253 / 96%)),
+    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(248 251 253 / 96%)),
     var(--surface-card) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 12px !important;
@@ -5054,7 +5054,7 @@ body {
 .quality-metric {
   min-width: 0 !important;
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--surface-card-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-card-soft) 100%),
     var(--surface-card-soft) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 10px !important;
@@ -5128,7 +5128,7 @@ textarea,
 .more-tool-filter input,
 .more-tool-filter select {
   min-height: 38px !important;
-  background: rgb(255 255 255 / 78%) !important;
+  background: #172033 !important;
   border: 1px solid var(--surface-border-strong) !important;
   border-radius: 8px !important;
   box-shadow: none !important;
@@ -5220,7 +5220,7 @@ button.btn-primary,
 .analysis-action-card,
 .insight-group-card {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--surface-card-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-card-soft) 100%),
     var(--surface-card-soft) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 10px !important;
@@ -5231,12 +5231,12 @@ button.btn-primary,
 .analysis-action-card.is-warning,
 .insight-group-card.is-warning,
 .danger-zone {
-  background: linear-gradient(180deg, #ffffff 0%, #fff7ea 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
   border-color: rgb(173 109 34 / 25%) !important;
 }
 
 .danger-zone {
-  background: linear-gradient(180deg, #ffffff 0%, #fff7f7 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
   border-color: rgb(163 71 71 / 28%) !important;
 }
 
@@ -5246,7 +5246,7 @@ button.btn-primary,
   min-height: 48px !important;
   align-content: center !important;
   background:
-    linear-gradient(180deg, #ffffff 0%, #edf5fb 100%),
+    linear-gradient(180deg, #111827 0%, #edf5fb 100%),
     #edf5fb !important;
   border-color: rgb(35 123 166 / 20%) !important;
   box-shadow: var(--surface-shadow-soft) !important;
@@ -5364,7 +5364,7 @@ button.btn-primary,
 /* v3.0.0 semantic color system redesign: keep this final so meaning tokens beat older gray passes. */
 :root {
   --app-bg: #f6faf7;
-  --surface: #ffffff;
+  --surface: #111827;
   --surface-soft: #f2f7f4;
   --surface-tint: #eaf4ef;
   --text-strong: #0f172a;
@@ -5398,7 +5398,7 @@ button.btn-primary,
   --surface-card: var(--surface);
   --surface-card-soft: var(--surface-soft);
   --surface-control: var(--surface-tint);
-  --surface-control-strong: #deebe4;
+  --surface-control-strong: #1e293b;
   --surface-active: var(--active);
   --surface-active-strong: #0d2e49;
   --surface-border: var(--border-soft);
@@ -5435,7 +5435,7 @@ body,
 .record-body-part-section,
 .meal-weekly-shell > .section {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 98%) 0%, rgb(255 255 255 / 92%) 100%),
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(30 41 59 / 88%) 100%),
     var(--surface) !important;
   border: 1px solid var(--border-soft) !important;
   border-radius: 12px !important;
@@ -5465,7 +5465,7 @@ body,
 .analysis-action-card,
 .insight-group-card {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--surface-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-soft) 100%),
     var(--surface-soft) !important;
   border: 1px solid var(--border-soft) !important;
   border-radius: 10px !important;
@@ -5479,7 +5479,7 @@ body,
 .today-shell .summary-card:first-of-type,
 .today-shell .record-quality {
   background:
-    linear-gradient(135deg, rgb(18 59 93 / 12%) 0%, #ffffff 58%, rgb(37 99 235 / 8%) 100%),
+    linear-gradient(135deg, rgb(18 59 93 / 12%) 0%, #111827 58%, rgb(37 99 235 / 8%) 100%),
     var(--surface) !important;
   border-color: rgb(18 59 93 / 18%) !important;
   box-shadow: 0 14px 32px rgb(18 59 93 / 12%), 0 1px 2px rgb(18 59 93 / 6%) !important;
@@ -5522,7 +5522,7 @@ body,
 .location-create-panel,
 .location-create-form {
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 72%) 0%, var(--surface-tint) 100%),
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, var(--surface-tint) 100%),
     var(--surface-tint) !important;
   border: 1px solid var(--border-soft) !important;
   border-radius: 10px !important;
@@ -5530,7 +5530,7 @@ body,
 }
 
 .tabs {
-  background: rgb(255 255 255 / 72%) !important;
+  background: #172033 !important;
   border-color: rgb(18 59 93 / 14%) !important;
 }
 
@@ -5605,7 +5605,7 @@ button[data-danger],
 .record-body-part-section,
 .location-card {
   background:
-    linear-gradient(180deg, #ffffff 0%, rgb(37 99 235 / 7%) 100%),
+    linear-gradient(180deg, #111827 0%, rgb(37 99 235 / 7%) 100%),
     var(--workout-soft) !important;
   border-color: rgb(37 99 235 / 18%) !important;
 }
@@ -5619,7 +5619,7 @@ button[data-danger],
 .meal-template-card,
 .recent-meal-template-row {
   background:
-    linear-gradient(180deg, #ffffff 0%, rgb(22 163 74 / 8%) 100%),
+    linear-gradient(180deg, #111827 0%, rgb(22 163 74 / 8%) 100%),
     var(--meal-soft) !important;
   border-color: rgb(22 163 74 / 18%) !important;
 }
@@ -5633,7 +5633,7 @@ button[data-danger],
 .overload-card.state-정체,
 .overload-card.state-회복-필요 {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--recovery-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--recovery-soft) 100%),
     var(--recovery-soft) !important;
   border-color: rgb(245 158 11 / 28%) !important;
 }
@@ -5644,7 +5644,7 @@ button[data-danger],
 .body-metric-card,
 .yearly-body-section {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--body-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--body-soft) 100%),
     var(--body-soft) !important;
   border-color: rgb(124 58 237 / 20%) !important;
 }
@@ -5654,7 +5654,7 @@ button[data-danger],
 .analysis-action-card.is-achievement,
 .overload-card.state-상승 {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--achievement-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%),
     var(--achievement-soft) !important;
   border-color: rgb(249 115 22 / 28%) !important;
 }
@@ -5663,7 +5663,7 @@ button[data-danger],
 .overload-card.state-주의,
 .overload-card.state-위험 {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--danger-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--danger-soft) 100%),
     var(--danger-soft) !important;
   border-color: rgb(220 38 38 / 28%) !important;
 }
@@ -5726,7 +5726,7 @@ button[data-danger],
 .plate-result,
 .warmup-result {
   background:
-    linear-gradient(180deg, #ffffff 0%, var(--cardio-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%),
     var(--cardio-soft) !important;
   border-color: rgb(6 182 212 / 24%) !important;
   color: var(--text-strong) !important;
@@ -5796,7 +5796,7 @@ input[type="file"]::file-selector-button {
   --achievement-coral: #FF6B35;
   --danger-red: #DC2626;
   --app-bg: #F7FBF5;
-  --surface: #FFFFFF;
+  --surface: #111827;
   --surface-soft: #EEF8F3;
   --text-primary: #0B1220;
   --text-secondary: #475569;
@@ -5806,8 +5806,8 @@ input[type="file"]::file-selector-button {
     radial-gradient(circle at 92% 8%, rgb(183 240 0 / 13%) 0 190px, rgb(183 240 0 / 0%) 340px);
   --surface-card: var(--surface);
   --surface-card-soft: var(--surface-soft);
-  --surface-control: #F3FAF6;
-  --surface-control-strong: #E1F3EA;
+  --surface-control: #0f172a;
+  --surface-control-strong: #1e293b;
   --surface-active: var(--brand-navy);
   --surface-active-strong: var(--brand-navy-deep);
   --surface-border: var(--line-soft);
@@ -5896,7 +5896,7 @@ body,
 }
 
 .tabs {
-  background: rgb(255 255 255 / 94%) !important;
+  background: #111827 !important;
   border: 1px solid rgb(0 166 166 / 18%) !important;
   border-radius: 12px !important;
   box-shadow: 0 10px 24px rgb(16 42 67 / 8%) !important;
@@ -5925,7 +5925,7 @@ body,
     var(--brand-navy) !important;
   border-color: rgb(183 240 0 / 32%) !important;
   box-shadow: inset 0 -3px 0 var(--energy-lime), var(--surface-shadow-active) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .account-actions {
@@ -5938,7 +5938,7 @@ body,
 .danger-zone .btn-small,
 button[data-danger],
 .delete-button {
-  background: #FFF5F5 !important;
+  background: #1e293b !important;
   border: 1px solid rgb(220 38 38 / 28%) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -5958,7 +5958,7 @@ button.btn-primary,
     var(--brand-teal) !important;
   border: 1px solid rgb(0 116 116 / 24%) !important;
   box-shadow: 0 10px 20px rgb(0 166 166 / 19%) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   font-weight: 850 !important;
 }
 
@@ -5970,7 +5970,7 @@ button.btn-primary,
 .analysis-action-grid .btn-small,
 .yearly-action-grid .btn-small,
 .more-link-card .btn-small {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid var(--line-soft) !important;
   box-shadow: none !important;
   color: var(--text-secondary) !important;
@@ -5988,7 +5988,7 @@ button.btn-primary,
 .equipment-dashboard-section,
 .record-body-part-section,
 .meal-weekly-shell > .section {
-  background: rgb(255 255 255 / 97%) !important;
+  background: #111827 !important;
   border: 1px solid var(--line-soft) !important;
   border-radius: 12px !important;
   box-shadow: var(--surface-shadow-card) !important;
@@ -5999,7 +5999,7 @@ button.btn-primary,
 .weekly-meal-day-head,
 .tool-card-head {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, #F0FAF5 100%),
+    linear-gradient(180deg, #111827 0%, #172033 100%),
     var(--surface-soft) !important;
   border: 1px solid rgb(0 166 166 / 13%) !important;
   color: var(--text-primary) !important;
@@ -6034,7 +6034,7 @@ small,
 
 .today-shell .today-hero-section {
   background:
-    linear-gradient(135deg, rgb(0 166 166 / 18%) 0%, #FFFFFF 48%, rgb(183 240 0 / 20%) 100%),
+    linear-gradient(135deg, rgb(0 166 166 / 18%) 0%, #111827 48%, rgb(183 240 0 / 20%) 100%),
     var(--surface) !important;
   border: 1px solid rgb(0 166 166 / 28%) !important;
   border-top: 5px solid var(--brand-teal) !important;
@@ -6060,24 +6060,24 @@ small,
 
 .today-focus-card.is-workout,
 .next-action-card.action-workout {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--workout-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
   border-color: rgb(37 99 235 / 24%) !important;
 }
 
 .today-focus-card.is-meal,
 .next-action-card.action-meal {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--meal-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
   border-color: rgb(34 197 94 / 26%) !important;
 }
 
 .today-focus-card.is-body,
 .next-action-card.action-body {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--body-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
   border-color: rgb(124 58 237 / 22%) !important;
 }
 
 .today-focus-card.is-analysis {
-  background: linear-gradient(180deg, #FFFFFF 0%, rgb(183 240 0 / 18%) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, rgb(183 240 0 / 18%) 100%) !important;
   border-color: rgb(183 240 0 / 38%) !important;
 }
 
@@ -6089,7 +6089,7 @@ small,
 .more-tool-filter,
 .tool-input-row {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, var(--surface-soft) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-soft) 100%),
     var(--surface-soft) !important;
   border: 1px solid var(--line-soft) !important;
   box-shadow: none !important;
@@ -6100,7 +6100,7 @@ select,
 textarea,
 .period-control-panel input,
 .date-picker-form input {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid #BFD3CA !important;
   box-shadow: none !important;
   color: var(--text-primary) !important;
@@ -6113,7 +6113,7 @@ textarea,
   border: 1px solid rgb(255 107 53 / 36%) !important;
   border-left: 6px solid var(--achievement-coral) !important;
   box-shadow: 0 18px 36px rgb(16 42 67 / 20%) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .analysis-conclusion-card > span {
@@ -6124,7 +6124,7 @@ textarea,
 .analysis-conclusion-card > strong,
 .analysis-conclusion-card b,
 .analysis-conclusion-card small {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .analysis-conclusion-grid > div {
@@ -6151,7 +6151,7 @@ textarea,
 .analysis-primary-metrics > *:nth-child(1),
 .daily-metric:nth-child(1),
 .record-result-value:nth-child(1) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--workout-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
   border-color: rgb(37 99 235 / 24%) !important;
 }
 
@@ -6159,14 +6159,14 @@ textarea,
 .analysis-secondary-metrics > *:nth-child(3),
 .daily-metric:nth-child(2),
 .record-result-value:nth-child(2) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--cardio-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
   border-color: rgb(6 182 212 / 26%) !important;
 }
 
 .analysis-primary-metrics > *:nth-child(3),
 .daily-metric:nth-child(3),
 .record-result-value:nth-child(3) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--meal-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
   border-color: rgb(34 197 94 / 26%) !important;
 }
 
@@ -6177,7 +6177,7 @@ textarea,
 .meal-template-card,
 .recent-meal-template-row {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, rgb(34 197 94 / 10%) 100%),
+    linear-gradient(180deg, #111827 0%, rgb(34 197 94 / 10%) 100%),
     var(--meal-soft) !important;
   border-color: rgb(34 197 94 / 24%) !important;
 }
@@ -6187,7 +6187,7 @@ textarea,
 }
 
 .meal-weekly-shell .weekly-meal-item {
-  background: rgb(255 255 255 / 74%) !important;
+  background: #172033 !important;
   border: 1px solid rgb(34 197 94 / 18%) !important;
 }
 
@@ -6224,18 +6224,18 @@ textarea,
     linear-gradient(135deg, var(--brand-navy) 0%, #0E4956 56%, rgb(0 166 166 / 76%) 100%),
     var(--brand-navy) !important;
   border-color: rgb(183 240 0 / 28%) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .more-section *,
 .more-section .yearly-kicker {
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .more-overview-strip article {
   background: rgb(255 255 255 / 12%) !important;
   border: 1px solid rgb(255 255 255 / 18%) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .more-group-section {
@@ -6265,15 +6265,15 @@ textarea,
 }
 
 .more-group-section .section-header {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--group-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--group-soft) 100%) !important;
   border-color: color-mix(in srgb, var(--group-color) 28%, var(--line-soft)) !important;
 }
 
 .more-link-card {
   position: relative !important;
   background:
-    linear-gradient(180deg, #FFFFFF 0%, var(--group-soft, rgb(0 166 166 / 10%)) 100%),
-    #FFFFFF !important;
+    linear-gradient(180deg, #111827 0%, var(--group-soft, rgb(0 166 166 / 10%)) 100%),
+    #111827 !important;
   border: 1px solid color-mix(in srgb, var(--group-color, var(--brand-teal)) 24%, var(--line-soft)) !important;
   border-left: 5px solid var(--group-color, var(--brand-teal)) !important;
   box-shadow: var(--surface-shadow-soft) !important;
@@ -6285,7 +6285,7 @@ textarea,
   align-items: center !important;
   background: var(--group-color, var(--brand-teal)) !important;
   border-radius: 999px !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   content: "›" !important;
   display: inline-flex !important;
   font-size: 20px !important;
@@ -6302,7 +6302,7 @@ textarea,
   align-items: center !important;
   background: var(--group-color, var(--brand-teal)) !important;
   border-radius: 999px !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
   display: inline-flex !important;
   font-size: 11px !important;
   font-weight: 850 !important;
@@ -6332,14 +6332,14 @@ textarea,
 
 .plate-tool-page {
   background:
-    linear-gradient(135deg, rgb(6 182 212 / 13%) 0%, #FFFFFF 46%, rgb(0 166 166 / 12%) 100%),
-    #FFFFFF !important;
+    linear-gradient(135deg, rgb(6 182 212 / 13%) 0%, #111827 46%, rgb(0 166 166 / 12%) 100%),
+    #111827 !important;
   border-color: rgb(6 182 212 / 28%) !important;
 }
 
 .plate-tool-page .tool-card-large {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, rgb(6 182 212 / 9%) 100%),
+    linear-gradient(180deg, #111827 0%, rgb(6 182 212 / 9%) 100%),
     var(--cardio-soft) !important;
   border: 1px solid rgb(6 182 212 / 24%) !important;
   border-top: 4px solid var(--cardio-cyan) !important;
@@ -6347,7 +6347,7 @@ textarea,
 }
 
 .plate-tool-page .tool-input-row {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid rgb(6 182 212 / 18%) !important;
 }
 
@@ -6355,7 +6355,7 @@ textarea,
 .warmup-result {
   align-content: center !important;
   background:
-    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, #FFFFFF 54%, rgb(0 166 166 / 16%) 100%),
+    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, #111827 54%, rgb(0 166 166 / 16%) 100%),
     var(--cardio-soft) !important;
   border: 1px solid rgb(6 182 212 / 36%) !important;
   border-left: 5px solid var(--brand-teal) !important;
@@ -6447,9 +6447,9 @@ textarea,
   --body-violet: #7C3AED;
   --achievement-coral: #FF6B35;
   --danger-red: #DC2626;
-  --app-bg: #F6FAF4;
-  --surface: #FFFFFF;
-  --surface-warm: #F9FCF7;
+  --app-bg: #0b0f17;
+  --surface: #111827;
+  --surface-warm: #172033;
   --line: #D7E5DD;
   --text-primary: #0B1220;
   --text-secondary: #475569;
@@ -6529,7 +6529,7 @@ body,
 
 .meal-weekly-hero {
   background:
-    linear-gradient(135deg, rgb(34 197 94 / 16%) 0%, #FFFFFF 52%, rgb(184 240 66 / 16%) 100%),
+    linear-gradient(135deg, rgb(34 197 94 / 16%) 0%, #111827 52%, rgb(184 240 66 / 16%) 100%),
     var(--surface) !important;
   border-color: rgb(34 197 94 / 28%) !important;
   border-top: 5px solid var(--meal-green) !important;
@@ -6555,7 +6555,7 @@ body,
 }
 
 .meal-hero-metrics article {
-  background: rgb(255 255 255 / 78%) !important;
+  background: #172033 !important;
   border: 1px solid rgb(34 197 94 / 20%) !important;
   border-radius: 10px !important;
   padding: 10px !important;
@@ -6619,7 +6619,7 @@ body,
 .plate-result,
 .warmup-result {
   background:
-    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, #FFFFFF 54%, rgb(0 166 166 / 16%) 100%),
+    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, #111827 54%, rgb(0 166 166 / 16%) 100%),
     var(--cardio-soft) !important;
   border-color: rgb(6 182 212 / 36%) !important;
   border-left-color: var(--brand-teal) !important;
@@ -6660,7 +6660,7 @@ body,
 
 .today-shell .today-hero-section {
   background:
-    linear-gradient(135deg, rgb(0 166 166 / 24%) 0%, #FFFFFF 44%, rgb(184 240 66 / 24%) 100%),
+    linear-gradient(135deg, rgb(0 166 166 / 24%) 0%, #111827 44%, rgb(184 240 66 / 24%) 100%),
     var(--surface) !important;
   border-color: rgb(0 166 166 / 36%) !important;
   border-top-color: var(--brand-teal) !important;
@@ -6682,19 +6682,19 @@ body,
 .summary-grid.overview-only .summary-card:nth-child(1),
 .summary-grid.overview-only .summary-card:nth-child(2),
 .summary-grid.overview-only .summary-card:nth-child(3) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--workout-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
   border-color: rgb(47 128 237 / 24%) !important;
 }
 
 .summary-grid.overview-only .summary-card:nth-child(4),
 .summary-grid.overview-only .summary-card:nth-child(5) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--meal-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
   border-color: rgb(34 197 94 / 26%) !important;
 }
 
 .summary-grid.overview-only .summary-card:nth-child(6),
 .summary-grid.overview-only .summary-card:nth-child(7) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--cardio-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
   border-color: rgb(6 182 212 / 26%) !important;
 }
 
@@ -6704,7 +6704,7 @@ body,
 
 .analysis-dashboard-section > .analysis-period-panel {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
     var(--surface-warm) !important;
   border: 1px solid var(--line) !important;
   border-radius: 12px !important;
@@ -6714,29 +6714,29 @@ body,
 
 .analysis-metric-grid .yearly-metric-card:nth-child(1),
 .analysis-metric-grid .yearly-metric-card:nth-child(2) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--workout-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
   border-color: rgb(47 128 237 / 24%) !important;
 }
 
 .analysis-metric-grid .yearly-metric-card:nth-child(3),
 .analysis-metric-grid .yearly-metric-card:nth-child(4) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--cardio-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
   border-color: rgb(6 182 212 / 26%) !important;
 }
 
 .analysis-metric-grid .yearly-metric-card:nth-child(5) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--body-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
   border-color: rgb(124 58 237 / 24%) !important;
 }
 
 .analysis-metric-grid .yearly-metric-card:nth-child(6) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--achievement-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%) !important;
   border-color: rgb(255 107 53 / 28%) !important;
 }
 
 .more-link-card[data-tool-group] {
   background:
-    linear-gradient(135deg, rgb(255 255 255 / 92%) 0%, var(--group-soft) 100%),
+    linear-gradient(135deg, rgb(30 41 59 / 88%) 0%, var(--group-soft) 100%),
     var(--surface) !important;
   border: 1px solid color-mix(in srgb, var(--group-color) 34%, var(--line)) !important;
   border-top: 4px solid var(--group-color) !important;
@@ -6779,13 +6779,13 @@ body,
 
 .plate-tool-page .tool-card-large[data-plate-tool],
 .plate-tool-page .tool-card-large[data-warmup-tool] {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border-color: var(--line) !important;
   border-top-color: var(--cardio-cyan) !important;
 }
 
 .plate-tool-page .tool-input-row {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border-color: var(--line) !important;
 }
 
@@ -6806,7 +6806,7 @@ body,
 }
 
 .warmup-result span {
-  background: rgb(255 255 255 / 78%) !important;
+  background: #172033 !important;
   border: 1px solid rgb(0 166 166 / 24%) !important;
   border-radius: 999px !important;
   cursor: default !important;
@@ -6814,30 +6814,30 @@ body,
 }
 
 .data-center-card {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--cardio-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
   border: 1px solid rgb(0 166 166 / 24%) !important;
   border-top: 4px solid var(--brand-teal) !important;
 }
 
 .data-center-card:nth-child(1),
 .data-center-card:nth-child(2) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--workout-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
   border-top-color: var(--workout-blue) !important;
 }
 
 .data-center-card:nth-child(3) {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--meal-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
   border-top-color: var(--meal-green) !important;
 }
 
 .data-warning-card {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--warning-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--warning-soft) 100%) !important;
   border: 1px solid rgb(245 158 11 / 34%) !important;
   border-left: 5px solid var(--recovery-amber) !important;
 }
 
 .export-link-card {
-  background: linear-gradient(180deg, #FFFFFF 0%, rgb(0 166 166 / 10%) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, rgb(0 166 166 / 10%) 100%) !important;
   border: 1px solid rgb(0 166 166 / 24%) !important;
   border-top: 4px solid var(--brand-teal) !important;
   box-shadow: var(--surface-shadow-soft) !important;
@@ -6846,7 +6846,7 @@ body,
 
 .record-gap-card {
   align-items: center !important;
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid var(--line) !important;
   border-left: 5px solid var(--body-violet) !important;
   box-shadow: none !important;
@@ -6864,7 +6864,7 @@ body,
 
 .record-search-form {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, rgb(0 166 166 / 8%) 100%),
+    linear-gradient(180deg, #111827 0%, rgb(0 166 166 / 8%) 100%),
     var(--surface) !important;
   border: 1px solid rgb(0 166 166 / 18%) !important;
   display: grid !important;
@@ -6889,7 +6889,7 @@ body,
 
 .record-filter-grid,
 .record-filter-details .record-list-toolbar {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid var(--line) !important;
   border-radius: 9px !important;
   box-shadow: none !important;
@@ -6898,7 +6898,7 @@ body,
 
 .record-filter-apply,
 .record-search-form .record-filter-apply {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid rgb(0 166 166 / 28%) !important;
   box-shadow: none !important;
   color: var(--brand-teal) !important;
@@ -6961,11 +6961,11 @@ body,
 .more-tool-filter {
   align-items: center !important;
   background:
-    linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
     var(--surface-warm) !important;
   border: 1px solid var(--line) !important;
   border-radius: 999px !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 72%) !important;
+  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
   gap: 10px !important;
   padding: 10px !important;
 }
@@ -6976,14 +6976,14 @@ body,
 .period-control-panel select,
 .month-picker-form-wide.period-control-panel input,
 .week-control-row.period-control-panel input {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid rgb(215 229 221 / 72%) !important;
   box-shadow: none !important;
 }
 
 .analysis-dashboard-section > .yearly-action-grid.analysis-action-grid {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
     var(--surface-warm) !important;
   border: 1px solid var(--line) !important;
   border-radius: 12px !important;
@@ -7003,25 +7003,25 @@ body,
 }
 
 .analysis-action-card {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
   border: 1px solid var(--line) !important;
   box-shadow: none !important;
 }
 
 .analysis-action-card.is-warning,
 .insight-group-card.is-warning {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--warning-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--warning-soft) 100%) !important;
   border-color: rgb(245 158 11 / 34%) !important;
   box-shadow: inset 4px 0 0 var(--recovery-amber) !important;
 }
 
 .analysis-action-card.is-goal {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--achievement-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%) !important;
   border-color: rgb(255 107 53 / 28%) !important;
 }
 
 .record-result-card {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid var(--line) !important;
   border-left: 5px solid var(--workout-blue) !important;
   box-shadow: none !important;
@@ -7070,7 +7070,7 @@ body,
 .tool-input-row,
 .goal-form-compact {
   background:
-    linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%),
+    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
     var(--surface-warm) !important;
   border: 1px solid var(--line) !important;
   border-radius: 12px !important;
@@ -7083,12 +7083,12 @@ body,
 .body-photo-form .btn-primary {
   background: var(--brand-navy) !important;
   border-color: rgb(11 31 51 / 22%) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .settings-panel .btn-secondary,
 .settings-management-panel .btn-small:not(.btn-danger) {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border-color: rgb(0 166 166 / 24%) !important;
   color: var(--brand-teal) !important;
 }
@@ -7101,7 +7101,7 @@ body,
 }
 
 .danger-zone .settings-action-row {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--danger-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--danger-soft) 100%) !important;
 }
 
 .plate-result,
@@ -7181,18 +7181,18 @@ body,
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .today-action-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--workout-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
   border: 1px solid rgb(47 128 237 / 24%) !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .quick-record-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--meal-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
   border: 1px solid rgb(34 197 94 / 24%) !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .recent-record-section,
 .today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
   border: 1px solid var(--line) !important;
 }
 
@@ -7246,19 +7246,19 @@ body,
 .date-picker-form .btn-small,
 .more-tool-filter .btn-small,
 .record-search-form .record-filter-apply {
-  background: #FFFFFF !important;
+  background: #111827 !important;
   border: 1px solid rgb(0 166 166 / 24%) !important;
   box-shadow: none !important;
   color: var(--brand-teal) !important;
 }
 
 .record-search-dashboard {
-  background: linear-gradient(135deg, #FFFFFF 0%, rgb(0 166 166 / 10%) 100%) !important;
+  background: linear-gradient(135deg, #111827 0%, rgb(0 166 166 / 10%) 100%) !important;
   border-color: rgb(0 166 166 / 20%) !important;
 }
 
 .record-search-quick-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
   border: 1px solid var(--line) !important;
 }
 
@@ -7268,17 +7268,17 @@ body,
 }
 
 .analysis-control-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
   border: 1px solid var(--line) !important;
 }
 
 .analysis-detail-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, rgb(47 128 237 / 8%) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, rgb(47 128 237 / 8%) 100%) !important;
   border: 1px solid rgb(47 128 237 / 18%) !important;
 }
 
 .analysis-goal-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--achievement-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%) !important;
   border: 1px solid rgb(255 107 53 / 24%) !important;
 }
 
@@ -7291,7 +7291,7 @@ body,
 .calendar-hero-section,
 .meal-template-apply-section,
 .data-center-hero-section {
-  background: linear-gradient(135deg, #FFFFFF 0%, var(--meal-soft) 100%) !important;
+  background: linear-gradient(135deg, #111827 0%, var(--meal-soft) 100%) !important;
   border: 1px solid rgb(34 197 94 / 24%) !important;
   border-top: 4px solid var(--meal-green) !important;
 }
@@ -7299,50 +7299,50 @@ body,
 .calendar-grid-section,
 .meal-template-list-section,
 .data-center-metric-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--cardio-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
   border: 1px solid rgb(6 182 212 / 22%) !important;
 }
 
 .calendar-goal-section,
 .meal-template-create-section,
 .data-center-export-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--workout-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
   border: 1px solid rgb(47 128 237 / 22%) !important;
 }
 
 .calendar-body-section,
 .data-center-gap-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--body-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
   border: 1px solid rgb(124 58 237 / 20%) !important;
 }
 
 .data-center-warning-section {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--warning-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--warning-soft) 100%) !important;
   border: 1px solid rgb(245 158 11 / 28%) !important;
 }
 
 .settings-account-panel {
-  background: linear-gradient(135deg, #FFFFFF 0%, rgb(11 31 51 / 8%) 100%) !important;
+  background: linear-gradient(135deg, #111827 0%, rgb(11 31 51 / 8%) 100%) !important;
   border-color: rgb(11 31 51 / 18%) !important;
 }
 
 .settings-security-panel {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
   border-color: var(--line) !important;
 }
 
 .settings-body-panel {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--body-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
   border-color: rgb(124 58 237 / 22%) !important;
 }
 
 .settings-management-panel {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--cardio-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
   border-color: rgb(6 182 212 / 22%) !important;
 }
 
 .settings-panel.danger-zone {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--danger-soft) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--danger-soft) 100%) !important;
   border-color: rgb(220 38 38 / 34%) !important;
 }
 
@@ -7362,7 +7362,7 @@ body,
 .location-create-form .btn-primary {
   background: var(--brand-navy) !important;
   border: 1px solid rgb(11 31 51 / 22%) !important;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .plate-tool-page {
@@ -7374,7 +7374,7 @@ body,
 
 .plate-tool-page .tool-card-large[data-plate-tool],
 .plate-tool-page .tool-card-large[data-warmup-tool] {
-  background: linear-gradient(180deg, #FFFFFF 0%, var(--surface-warm) 100%) !important;
+  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
   border: 1px solid var(--line) !important;
   border-top: 4px solid var(--cardio-cyan) !important;
 }
@@ -7646,3 +7646,615 @@ body,
     flex-basis: calc(33.333% - 7px) !important;
   }
 }
+
+/* v3.1 dark theme regression lock: keep the final app surfaces on the dark UI system. */
+:root {
+  --brand-navy: #0f172a;
+  --brand-navy-deep: #020617;
+  --line: rgb(71 85 105 / 62%);
+  --line-soft: rgb(71 85 105 / 42%);
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --muted-gray: #94a3b8;
+  --app-bg: #0b0f17;
+  --surface: #111827;
+  --surface-warm: #172033;
+  --surface-soft: #162033;
+  --surface-tint: #0f172a;
+  --surface-page: var(--app-bg);
+  --surface-page-layer:
+    radial-gradient(circle at 12% 0%, rgb(47 128 237 / 16%) 0 220px, rgb(47 128 237 / 0%) 390px),
+    linear-gradient(180deg, #0b0f17 0%, #0f172a 48%, #111827 100%);
+  --surface-card: var(--surface);
+  --surface-card-soft: var(--surface-soft);
+  --surface-control: var(--surface-tint);
+  --surface-control-strong: #1e293b;
+  --surface-active: #2563eb;
+  --surface-active-strong: #1d4ed8;
+  --surface-border: var(--line);
+  --surface-text: var(--text-primary);
+  --surface-muted: var(--text-secondary);
+  --surface-shadow-soft: 0 18px 34px rgb(0 0 0 / 24%);
+  --workout-soft: rgb(47 128 237 / 14%);
+  --cardio-soft: rgb(6 182 212 / 13%);
+  --meal-soft: rgb(34 197 94 / 12%);
+  --recovery-soft: rgb(245 158 11 / 13%);
+  --body-soft: rgb(124 58 237 / 13%);
+  --achievement-soft: rgb(255 107 53 / 12%);
+  --warning-soft: rgb(245 158 11 / 13%);
+  --danger-soft: rgb(220 38 38 / 12%);
+  --today-outer: #0b0f17;
+  --today-outer-strong: #020617;
+  --today-surface: var(--surface-card);
+  --today-control-soft: var(--surface-control);
+}
+
+html,
+body,
+#app,
+.content {
+  background: var(--surface-page-layer), var(--app-bg) !important;
+  color: var(--surface-text) !important;
+}
+
+.content {
+  min-height: 100vh !important;
+}
+
+.header {
+  background:
+    linear-gradient(135deg, #020617 0%, #0f172a 58%, #123b5d 100%),
+    var(--brand-navy-deep) !important;
+  border-color: rgb(96 165 250 / 20%) !important;
+  color: var(--surface-text) !important;
+}
+
+.tabs,
+.subnav,
+.record-subnav,
+.analysis-subnav {
+  background: rgb(15 23 42 / 94%) !important;
+  border-color: var(--surface-border) !important;
+  box-shadow: 0 14px 28px rgb(0 0 0 / 22%) !important;
+}
+
+.tabs .tab-btn:not(.active),
+.tab-logout-form .tab-btn:not(.active),
+.subnav a,
+.record-subnav a,
+.analysis-subnav a {
+  background: var(--surface-card-soft) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-muted) !important;
+}
+
+.tabs .tab-btn.active,
+.tab-btn.active,
+.subnav a.active,
+.record-subnav a.active,
+.analysis-subnav a.active,
+.period-filter-form button.active,
+.period-control-panel .period-view-btn.active {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+  border-color: rgb(147 197 253 / 56%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 24px rgb(37 99 235 / 24%) !important;
+}
+
+.section,
+section,
+article,
+.summary-card,
+.record-card,
+.record-result-card,
+.pr-rank-card,
+.today-task-card,
+.today-hero-section,
+.today-action-section,
+.quick-record-section,
+.recent-record-section,
+.data-quality-section,
+.record-gap-section,
+.today-meal-section,
+.meal-input-section,
+.meal-tool-section,
+.fuel-coach-card,
+.meal-goal-section,
+.optional-section,
+.analysis-dashboard-section,
+.analysis-control-section,
+.analysis-detail-section,
+.analysis-goal-section,
+.analysis-dashboard-section .yearly-dashboard-head,
+.yearly-metric-card,
+.monthly-conclusion-card,
+.exercise-ranking-section,
+.exercise-hero-card,
+.exercise-recent-section,
+.exercise-overload-section,
+.record-search-dashboard,
+.record-search-quick-section,
+.record-search-form,
+.record-filter-details,
+.record-filter-grid,
+.record-list-toolbar,
+.settings-panel,
+.settings-action-row,
+.settings-password-form,
+.body-photo-form,
+.calendar-hero-section,
+.calendar-grid-section,
+.calendar-goal-section,
+.calendar-body-section,
+.meal-weekly-hero,
+.meal-template-apply-section,
+.meal-template-list-section,
+.meal-template-create-section,
+.data-center-hero-section,
+.data-center-metric-section,
+.data-center-export-section,
+.data-center-gap-section,
+.data-center-warning-section,
+.data-center-card,
+.data-warning-card,
+.export-link-card,
+.more-section,
+.more-group-section,
+.more-tool-section,
+.more-link-card,
+.plate-tool-page .tool-card-large[data-plate-tool],
+.plate-tool-page .tool-card-large[data-warmup-tool],
+.tool-input-row,
+.goal-form-compact,
+.date-row,
+.date-picker-form,
+.period-control-panel,
+.month-picker-form-wide.period-control-panel,
+.week-control-row.period-control-panel,
+.more-tool-filter {
+  background:
+    linear-gradient(180deg, rgb(30 41 59 / 82%) 0%, rgb(15 23 42 / 96%) 100%),
+    var(--surface-card) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+}
+
+.summary-grid.overview-only .summary-card,
+.meal-hero-metrics article,
+.weekly-meal-day,
+.weekly-meal-item,
+.detail-row,
+.record-gap-card,
+.location-card,
+.settings-management-panel,
+.settings-account-panel,
+.settings-security-panel,
+.settings-body-panel,
+.settings-panel.danger-zone,
+.record-filter-details .record-list-toolbar,
+.analysis-dashboard-section > .analysis-period-panel {
+  background:
+    linear-gradient(180deg, rgb(30 41 59 / 78%) 0%, rgb(15 23 42 / 92%) 100%),
+    var(--surface-card-soft) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+}
+
+input,
+select,
+textarea,
+.date-row input,
+.date-picker-form input,
+.period-control-panel input,
+.period-control-panel select,
+.more-tool-filter input,
+.compact-select select,
+.tool-form select[name="exercise_id"] {
+  background: var(--surface-control) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.btn-primary,
+button.btn-primary,
+.record-search-submit,
+.record-filter-apply,
+.record-search-form .record-filter-apply,
+.record-filter-apply.primary,
+.period-control-panel .btn-primary,
+.meal-weekly-hero .btn-primary,
+.settings-panel .btn-primary,
+.body-photo-form .btn-primary,
+.location-create-form .btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border-color: rgb(147 197 253 / 46%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
+}
+
+.btn-small,
+.btn-secondary,
+.period-control-panel .btn-small,
+.period-control-panel .period-view-btn,
+.date-picker-form .btn-small,
+.more-tool-filter .btn-small,
+.settings-panel .btn-secondary,
+.settings-management-panel .btn-small:not(.btn-danger),
+.goal-form-compact .btn-small {
+  background: var(--surface-control-strong) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: none !important;
+}
+
+.badge,
+.chip,
+.body-part-filter-chip,
+.category-chip,
+.meal-summary-row,
+.meal-tool-row,
+.warmup-result span {
+  background: rgb(15 23 42 / 74%) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+}
+
+.section-title,
+.today-hero-head h1,
+.yearly-dashboard-head h1,
+.more-section h1,
+.meal-hero-metrics strong,
+.summary-value,
+.record-result-card strong {
+  color: var(--surface-text) !important;
+}
+
+.section-subtitle,
+.summary-label,
+.meal-hero-metrics span,
+.weekly-meal-main span,
+.list-count,
+.body-part-summary-status,
+.muted,
+.text-muted {
+  color: var(--surface-muted) !important;
+}
+
+.plate-result,
+.warmup-result {
+  background:
+    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, rgb(15 23 42 / 92%) 100%),
+    var(--surface-card-soft) !important;
+  border-color: rgb(6 182 212 / 38%) !important;
+  color: var(--surface-text) !important;
+}
+
+/* v3.1 dark theme QA re-entry: cover the surfaces that final review measured as light. */
+.today-shell .today-hero-section,
+.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section,
+.workout-mode .workout-clock-section,
+.today-shell .workout-clock-section,
+.mode-actions,
+.today-mode-actions,
+.timer-actions,
+.meal-record-item,
+.meal-entry-list .meal-record-item,
+.meal-list .meal-record-item,
+.record-list-toolbar,
+.record-list-toolbar.v31-record-list-toolbar,
+.list-toolbar,
+.filter-form .list-toolbar,
+.record-filter-details .list-toolbar,
+.pagination-nav,
+.body-part-pagination-nav,
+.month-picker-form-wide,
+.month-picker-form-wide.period-control-panel,
+.week-control-row,
+.week-control-row.period-control-panel,
+.pr-filter-form,
+.record-search-query,
+.record-search-form .record-search-query,
+.record-search-form .record-filter-details,
+.record-search-form .record-filter-grid {
+  background:
+    linear-gradient(180deg, rgb(30 41 59 / 86%) 0%, rgb(15 23 42 / 98%) 100%),
+    var(--surface-card) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+}
+
+.mode-actions > *,
+.today-mode-actions > *,
+.timer-actions > *,
+.record-list-toolbar > *,
+.list-toolbar > *,
+.pagination-nav > *,
+.body-part-pagination-nav > *,
+.month-picker-form-wide > *,
+.week-control-row > *,
+.pr-filter-form > *,
+.record-search-query > *,
+.record-search-form .record-filter-grid > * {
+  min-width: 0 !important;
+}
+
+.mode-actions .btn-primary,
+.today-mode-actions .btn-primary,
+.timer-actions .btn-primary,
+.record-list-toolbar .btn-primary,
+.list-toolbar .btn-primary,
+.month-picker-form-wide .btn-primary,
+.week-control-row .btn-primary,
+.pr-filter-form .btn-primary,
+.record-search-form .btn-primary,
+.record-search-submit,
+.record-filter-apply {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border-color: rgb(147 197 253 / 46%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
+}
+
+.mode-actions .btn-small,
+.today-mode-actions .btn-small,
+.timer-actions .btn-small,
+.timer-actions button:not(.btn-primary),
+.btn-add,
+.record-list-toolbar .btn-small,
+.list-toolbar .btn-small,
+.pagination-nav a,
+.body-part-pagination-nav a,
+.month-picker-form-wide .btn-small,
+.week-control-row .btn-small,
+.pr-filter-form .btn-small,
+.record-search-form .btn-small,
+.record-search-form .record-filter-apply:not(.primary) {
+  background: var(--surface-control-strong) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: none !important;
+}
+
+.month-picker-form-wide input,
+.month-picker-form-wide select,
+.week-control-row input,
+.week-control-row select,
+.pr-filter-form input,
+.pr-filter-form select,
+.record-search-query input,
+.record-search-query select,
+.record-search-form input,
+.record-search-form select,
+.record-filter-grid input,
+.record-filter-grid select {
+  background: var(--surface-control) !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
+}
+
+/* v3.1 dark theme cache-busted final lock: keep measured card/control background-color dark. */
+:root {
+  --app-bg: #0b0f17 !important;
+  --surface: #111827 !important;
+  --surface-card: #111827 !important;
+  --surface-card-soft: #172033 !important;
+  --surface-control: #0f172a !important;
+  --surface-control-strong: #1e293b !important;
+  --surface-page: #0b0f17 !important;
+  --surface-warm: #111827 !important;
+}
+
+.content .section,
+.content section,
+.content article,
+.today-shell .today-hero-section,
+.today-shell .today-action-section,
+.today-shell .quick-record-section,
+.today-shell .recent-record-section,
+.today-shell .workout-clock-section,
+.today-shell .summary-card,
+.today-shell .record-card,
+.summary-grid.overview-only .summary-card,
+.summary-grid.overview-only .summary-card:nth-child(n),
+.record-list > .record-card,
+.record-card.workout-summary-card,
+.daily-record-card,
+.meal-record-card,
+.meal-record-item,
+.recent-meal-template-row,
+.record-result-card,
+.pr-rank-card,
+.exercise-hero-card,
+.exercise-overload-card,
+.record-search-dashboard,
+.record-search-quick-section,
+.record-search-form,
+.record-search-query,
+.record-search-form .record-filter-details,
+.record-search-form .record-filter-grid,
+.filter-form,
+.tool-form,
+.more-tool-filter,
+.period-filter-form,
+.period-control-panel,
+.date-picker-form,
+.month-picker-form-wide,
+.week-control-row,
+.pr-filter-form,
+.analysis-control-section,
+.analysis-dashboard-section,
+.analysis-dashboard-section > .analysis-period-panel,
+.record-body-part-section,
+.body-part-filter-list,
+.mode-actions,
+.today-mode-actions,
+.timer-actions,
+.record-list-toolbar,
+.list-toolbar,
+.pagination-nav,
+.body-part-pagination-nav {
+  background:
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 98%) 100%),
+    #111827 !important;
+  background-color: #111827 !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: var(--surface-shadow-soft) !important;
+}
+
+.content .daily-metric,
+.content .daily-metric:nth-child(n),
+.content .daily-metric strong,
+.content .daily-metric b {
+  color: var(--surface-text) !important;
+}
+
+.content .daily-metric span,
+.content .daily-metric small {
+  color: var(--surface-muted) !important;
+}
+
+.content .cat-badge,
+.today-shell .cat-badge,
+.record-search-dashboard .cat-badge,
+.exercise-ranking-section .cat-badge,
+.pr-hero-section .cat-badge,
+.content .body-part-filter-chip,
+.content .body-part-toggle {
+  background: rgb(15 23 42 / 74%) !important;
+  background-color: #0f172a !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%) !important;
+}
+
+.content .record-result-value,
+.content .record-result-value:nth-child(n),
+.content .analysis-action-plan,
+.content .recent-meal-template-row {
+  background:
+    linear-gradient(180deg, rgb(30 41 59 / 78%) 0%, rgb(15 23 42 / 92%) 100%),
+    #172033 !important;
+  background-color: #172033 !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+}
+
+.content .record-result-value strong,
+.content .record-result-value b,
+.content .record-result-value span,
+.content .analysis-action-plan,
+.content .analysis-action-plan *,
+.content .recent-meal-template-row,
+.content .recent-meal-template-row * {
+  color: var(--surface-text) !important;
+}
+
+.content .quality-bar,
+.today-shell .quality-bar,
+.record-check-section .quality-bar {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: var(--surface-border) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%) !important;
+}
+
+.content input,
+.content select,
+.content textarea,
+.today-shell input,
+.today-shell select,
+.today-shell textarea,
+.record-search-form input,
+.record-search-form select,
+.record-search-form textarea,
+.period-control-panel input,
+.period-control-panel select,
+.date-picker-form input,
+.date-picker-form select,
+.month-picker-form-wide input,
+.month-picker-form-wide select,
+.week-control-row input,
+.week-control-row select,
+.pr-filter-form input,
+.pr-filter-form select {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
+}
+
+.content .btn-small,
+.content .btn-secondary,
+.content .btn-add,
+.content button:not(.btn-primary):not(.btn-danger),
+.period-control-panel .btn-small,
+.period-control-panel .period-view-btn,
+.date-picker-form .btn-small,
+.month-picker-form-wide .btn-small,
+.week-control-row .btn-small,
+.pr-filter-form .btn-small,
+.record-search-form .btn-small,
+.record-search-form .record-filter-apply:not(.primary),
+.pagination-nav a,
+.body-part-pagination-nav a,
+.list-control-row-actions .btn-small {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  border-color: var(--surface-border) !important;
+  color: var(--surface-text) !important;
+  box-shadow: none !important;
+}
+
+.content .btn-primary,
+.content button.btn-primary,
+.mode-actions .btn-primary,
+.today-mode-actions .btn-primary,
+.period-control-panel .btn-primary,
+.month-picker-form-wide .btn-primary,
+.week-control-row .btn-primary,
+.pr-filter-form .btn-primary,
+.record-search-form .btn-primary,
+.record-search-submit,
+.record-filter-apply.primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  background-color: #2563eb !important;
+  border-color: rgb(147 197 253 / 46%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
+}
+
+.content .btn-danger,
+.content button.btn-danger,
+.content .row-remove-button,
+.content button.row-remove-button,
+.content .account-action-btn,
+.content button[data-danger],
+.content .delete-button,
+.today-shell .btn-danger,
+.today-shell button.btn-danger,
+.today-shell .row-remove-button,
+.today-shell button.row-remove-button {
+  background:
+    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 96%) 100%),
+    #1e293b !important;
+  background-color: #1e293b !important;
+  border: 1px solid rgb(220 38 38 / 42%) !important;
+  color: #fca5a5 !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%) !important;
+}
+
+
+
+
+

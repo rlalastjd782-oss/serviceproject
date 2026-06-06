@@ -120,3 +120,162 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         ]
         for token in disallowed_tokens:
             self.assertNotIn(token, source)
+
+    def test_v31_dark_theme_lock_stays_after_light_rebuild_overrides(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        marker = "/* v3.1 dark theme regression lock: keep the final app surfaces on the dark UI system. */"
+        self.assertIn(marker, source)
+        lock_source = source.split(marker, 1)[1].lower()
+        disallowed_backgrounds = [
+            "background: #fff",
+            "background: #ffffff",
+            "background: #f6faf4",
+            "background: #f6faf7",
+            "background: #f9fcf7",
+            "background: #edf3f8",
+            "background: #f7fafc",
+            "background: #eaf4ef",
+            "background: #eef4f9",
+            "linear-gradient(180deg, #ffffff 0%",
+            "linear-gradient(180deg, #fff 0%",
+        ]
+
+        self.assertIn("--app-bg: #0b0f17;", lock_source)
+        self.assertIn("--surface: #111827;", lock_source)
+        self.assertIn("--surface-card: var(--surface);", lock_source)
+        self.assertIn("--surface-control: var(--surface-tint);", lock_source)
+        self.assertIn(".tabs .tab-btn:not(.active)", lock_source)
+        self.assertIn(".record-search-dashboard", lock_source)
+        self.assertIn(".period-control-panel .btn-primary", lock_source)
+        self.assertIn("/* v3.1 dark theme qa re-entry: cover the surfaces that final review measured as light. */", lock_source)
+        self.assertIn("/* v3.1 dark theme cache-busted final lock: keep measured card/control background-color dark. */", lock_source)
+        self.assertIn("background-color: #111827 !important;", lock_source)
+        self.assertIn("background-color: #0f172a !important;", lock_source)
+        self.assertIn("background-color: #1e293b !important;", lock_source)
+        for selector in [
+            ".today-shell .today-hero-section",
+            ".summary-grid.overview-only .summary-card:nth-child(n)",
+            ".workout-mode .workout-clock-section",
+            ".mode-actions",
+            ".meal-record-item",
+            ".list-toolbar",
+            ".pagination-nav",
+            ".month-picker-form-wide",
+            ".pr-filter-form",
+            ".filter-form",
+            ".tool-form",
+            ".content .daily-metric",
+            ".content .cat-badge",
+            ".content .record-result-value",
+            ".content .analysis-action-plan",
+            ".content .recent-meal-template-row",
+            ".content .quality-bar",
+            ".content .btn-danger",
+            ".content .row-remove-button",
+            ".content .account-action-btn",
+            ".record-search-query",
+            ".btn-add",
+        ]:
+            self.assertIn(selector, lock_source)
+        for token in disallowed_backgrounds:
+            self.assertNotIn(token, lock_source)
+
+    def test_v31_existing_ui_restore_removes_light_surface_pass_tokens(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        source_lower = source.lower()
+        disallowed_tokens = [
+            "--app-bg: #f6faf4",
+            "--surface: #ffffff",
+            "--surface-card: #ffffff",
+            "--surface-card-soft: #f8fafc",
+            "--surface-page: #edf3f8",
+            "--surface-control: #eef4f9",
+            "--surface-control-strong: #e2edf6",
+            "--surface-warm: #f9fcf7",
+            "--today-surface: #ffffff",
+            "--today-surface-soft: #f7f9fb",
+            "--surface-text: #142235",
+            "--surface-text: #172536",
+            "--surface-muted: #516476",
+            "--surface-muted: #526576",
+            "#e2e8f0",
+            "#e4eaf1",
+            "#dbe3ec",
+            "#d5dee8",
+            "#eceff3",
+            "#eef4e7",
+            "#f5ecef",
+            "#edf0f8",
+            "#eaf3f4",
+            "#f3efe8",
+            "#e8f3f8",
+            "#f0f2f5",
+            "#526476",
+            "#eef3f8",
+            "#e0eaf3",
+            "rgb(228, 234, 241)",
+            "#f9fbfd",
+            "background: #ffffff !important",
+            "background-color: #ffffff !important",
+            "background: #fff7f7 !important",
+            "#fff6f6",
+            "#fff5f5",
+            "rgb(255, 245, 245)",
+            "linear-gradient(180deg, #ffffff 0%",
+            "linear-gradient(135deg, #ffffff",
+        ]
+        high_alpha_white = re.compile(r"rgb\(255 255 255 / (?:5[0-9]|[6-9][0-9]|100)%\)")
+
+        for token in disallowed_tokens:
+            self.assertNotIn(token, source_lower)
+        self.assertIsNone(high_alpha_white.search(source_lower))
+
+    def test_v31_dark_theme_cache_busting_and_manifest_colors_are_dark(self) -> None:
+        version = Path("VERSION").read_text(encoding="utf-8-sig").strip()
+        sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
+        manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
+
+        self.assertEqual("3.1.9", version)
+        self.assertIn(f'const CACHE_NAME = "workout-pwa-v{version}";', sw_source)
+        self.assertIn('"version": "3.1.9"', manifest_source)
+        self.assertIn('"background_color": "#0b0f17"', manifest_source)
+        self.assertIn('"theme_color": "#0b0f17"', manifest_source)
+        self.assertIn("/static/css/dark_theme_lock.css", sw_source)
+
+    def test_v31_dark_theme_lock_is_last_linked_stylesheet(self) -> None:
+        expected_link = "filename='css/dark_theme_lock.css'"
+        for template in [
+            Path("health_tracker/templates/layouts/base.html"),
+            Path("health_tracker/templates/layouts/admin.html"),
+        ]:
+            source = template.read_text(encoding="utf-8-sig")
+            with self.subTest(template=str(template)):
+                self.assertIn("filename='css/ui_rebuild.css'", source)
+                self.assertIn(expected_link, source)
+                self.assertLess(source.index("filename='css/ui_rebuild.css'"), source.index(expected_link))
+
+        lock_source = Path("static/css/dark_theme_lock.css").read_text(encoding="utf-8-sig").lower()
+        self.assertIn("v3.1.3 dark theme final cascade lock", lock_source)
+        self.assertIn("v3.1.3 dark theme measured-surface lock", lock_source)
+        self.assertIn(".content .today-hero-section", lock_source)
+        self.assertIn(".content .workout-clock-section", lock_source)
+        self.assertIn(".content .quality-metric", lock_source)
+        self.assertIn(".content .summary-card", lock_source)
+        self.assertIn(".content .record-card", lock_source)
+        self.assertIn(".content .pr-filter-form", lock_source)
+        self.assertIn(".content .mode-button.btn-primary", lock_source)
+        self.assertIn(".content .cat-badge", lock_source)
+        self.assertIn(".content .record-result-value", lock_source)
+        self.assertIn(".content .analysis-action-plan", lock_source)
+        self.assertIn(".content .recent-meal-template-row", lock_source)
+        self.assertIn(".content .quality-bar", lock_source)
+        self.assertIn(".content .btn-danger", lock_source)
+        self.assertIn(".content .row-remove-button", lock_source)
+        self.assertIn(".content .account-action-btn", lock_source)
+        self.assertIn("body.account-user #app > .content .today-shell .today-hero-section", lock_source)
+        self.assertIn("body.account-user #app > .content .today-shell .workout-clock-section", lock_source)
+        self.assertIn("body.account-user #app > .content .today-shell .summary-grid.overview-only > .summary-card", lock_source)
+        self.assertIn("body.account-user #app > .content .today-shell .record-card.workout-summary-card", lock_source)
+        self.assertIn("background-color: #111827 !important;", lock_source)
+        self.assertIn("background-color: #0f172a !important;", lock_source)
+        self.assertIn("background-color: #1e293b !important;", lock_source)

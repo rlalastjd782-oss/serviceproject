@@ -1,4 +1,15 @@
 ﻿# Changelog
+## 2026-06-06 v3.1 기존 UI 전체 복구
+
+- `static/css/overrides/ui_rebuild_05.css`와 `static/css/dark_theme_lock.css`의 라이트 surface, 밝은 form/control, 파스텔 chip, 어두운 텍스트, danger/delete 라이트 표면 잔여를 기존 다크 UI 계층으로 정리했습니다.
+- `VERSION`, `static/sw.js`, `static/manifest.webmanifest`를 `3.1.9`와 `workout-pwa-v3.1.9` 기준으로 맞춰 이전 CSS/service worker cache 재사용 경로를 줄였습니다.
+- 최종검수에서 2026-06-06 19:13~19:17 KST Playwright 화면검수 산출물, 추가 DOM/CSS 140개 조합 실측, 로컬 HTTP `200`, 지정 unittest 31개 통과를 확인해 조건부 승인했습니다. axe 잔여 항목 36건은 후속 접근성 개선으로 분리합니다.
+
+## 2026-06-06 v3.1 다크 테마 회귀 차단
+
+- `static/css/dark_theme_lock.css`를 v3.1.3 실측 표면 잠금 기준으로 갱신해 `/app`, `/app?mode=workout`의 주요 section/card/record 표면이 라이트 계열로 돌아가는 회귀를 차단했습니다.
+- `VERSION`, `static/sw.js`, `static/manifest.webmanifest`를 `3.1.3`과 `workout-pwa-v3.1.3` 기준으로 맞춰 이전 CSS/service worker cache 재사용 경로를 줄였습니다.
+- 최종검수에서 2026-06-06 01:43~01:46 KST Playwright 화면검수 산출물, 추가 DOM/CSS 63개 조합 실측, 로컬 HTTP `200`, 지정 unittest 27개 통과를 확인해 조건부 승인했습니다. 기존 `tests.test_static_assets` 전체 1건 실패와 axe 잔여 항목은 후속 개선으로 분리합니다.
 ## 2026-06-05 v3.1 기존 UI 유지형 반응형 구조 정리
 
 - `/summaries/daily#body-part-analysis`의 모바일 기간 필터 2열 배치와 부위 filter chip wrap/overflow 보정을 실제 `ui_rebuild.css` import 체인에 포함했습니다.
@@ -311,6 +322,11 @@
 - 실행 인사이트에 개인화 다음 운동 카드를 추가했습니다.
 - 최근 운동 기록을 기반으로 다음 운동 초점과 목표 힌트를 제안하도록 개선했습니다.
 - 개인화 계산 로직을 `health_tracker/services/personalization.py`로 분리했습니다.
+
+
+
+
+
 
 
 

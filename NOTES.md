@@ -1,4 +1,16 @@
-﻿## 2026-06-05 v3.1 기존 UI 유지형 반응형 구조 정리 조건부 승인
+﻿## 2026-06-06 v3.1 기존 UI 전체 복구 3.1.9 조건부 승인
+
+- 최종검수는 조건부 승인으로 정리했습니다. 2026-06-06 19:13~19:17 KST visual QA summary/json과 대표 PNG, 추가 DOM/CSS 140개 조합 실측, HTTP `200`, 지정 unittest 31개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
+- 운영상 남은 확인 사항: service worker cache `workout-pwa-v3.1.9` 반영, `/app`, `/app?mode=workout`, `/app?mode=meal`의 danger/delete 버튼 다크 표면 표시, axe 잔여 항목 36건입니다.
+- 수동 확인 권장: 운영 반영 전 실제 브라우저에서 기본 QA 계정 `test / 1234`로 오늘·운동·식단 입력 화면의 위험 액션 버튼과 주요 card/form 표면을 한 번 더 확인합니다.
+- QA 도구 개선 후보: 공식 `visual-qa.mjs` 대상에 `/app?mode=workout`, `/app?mode=meal`, `/summaries/daily`, `/records/search`, `/summaries/pr`, `/settings` 직접 PNG 캡처를 추가하면 다음 최종검수 근거가 더 명확해집니다.
+
+## 2026-06-06 v3.1 다크 테마 회귀 차단 조건부 승인
+
+- 최종검수는 조건부 승인으로 정리했습니다. 2026-06-06 01:43~01:46 KST visual QA summary/json과 대표 PNG, 추가 DOM/CSS 63개 조합 실측, HTTP `200`, 지정 unittest 27개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
+- 운영상 남은 확인 사항: service worker cache `workout-pwa-v3.1.3` 반영, `/app` 긴 데이터 구간의 밝은 chip/badge 체감, axe 잔여 항목, 기존 `tests.test_static_assets` 전체 실행의 `ui_rebuild_04.css` `border-color:` 실패 1건입니다.
+- QA 도구 개선 후보: 공식 `visual-qa.mjs` 대상에 `/app?mode=workout`, `/summaries/daily`, `/summaries/pr`, `/records/search` 직접 PNG 캡처를 추가하면 다음 최종검수 근거가 더 명확해집니다.
+## 2026-06-05 v3.1 기존 UI 유지형 반응형 구조 정리 조건부 승인
 
 - 최종검수는 조건부 승인으로 정리했습니다. 2026-06-05 23:27 KST visual QA summary/json과 대표 PNG, `/summaries/daily#body-part-analysis` 추가 DOM/CSS 실측, HTTP `200`, 컴파일, 지정 unittest 25개 통과를 근거로 Git 자동화 단계 진행이 가능합니다.
 - 운영상 남은 확인 사항: `aria-prohibited-attr`, `color-contrast`, `label`, `meta-viewport`, `scrollable-region-focusable` axe 경고와 `tests.test_static_assets` 전체 실행의 기존 `ui_rebuild_04.css` `border-color:` 실패 1건은 별도 개선 작업으로 분리합니다.
@@ -281,6 +293,12 @@
 - 서비스워커 캐시가 남아 있으면 배포 후 예전 CSS가 보일 수 있으므로 버전과 cache name을 반드시 함께 올립니다.
 - 문서 기록 없이 코드만 수정하지 않습니다. 최소한 `NOTES.md`에는 작업 맥락과 검증 결과를, `CHANGELOG.md`에는 사용자에게 의미 있는 변경 사항을 남깁니다.
 - UI를 수정할 때 카드 안에 카드가 반복되는 구조를 만들지 않습니다. 내부 요소는 그림자 없는 flat row/pill로 처리하고, shadow/gradient는 바깥 카드나 최상위 panel에만 제한합니다.
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "workout-pwa-v3.1.0";
+const CACHE_NAME = "workout-pwa-v3.1.9";
 const ASSETS = [
   "/static/css/styles.css",
   "/static/css/core/styles_01.css",
@@ -23,6 +23,7 @@ const ASSETS = [
   "/static/css/responsive/responsive_03.css",
   "/static/css/rules.css",
   "/static/css/ui_rebuild.css",
+  "/static/css/dark_theme_lock.css",
   "/static/css/overrides/ui_rebuild_01.css",
   "/static/css/overrides/ui_rebuild_02.css",
   "/static/css/overrides/ui_rebuild_03.css",
@@ -103,3 +104,4 @@ function offlineFallback(request, requestUrl) {
     return caches.match(requestUrl.pathname).then((page) => page || caches.match("/"));
   });
 }
+

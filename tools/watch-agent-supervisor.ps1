@@ -111,6 +111,28 @@ function Test-FileNewerThan {
     return ((Get-Item -LiteralPath $LeftPath).LastWriteTime -gt (Get-Item -LiteralPath $RightPath).LastWriteTime)
 }
 
+function Test-BlockedFinalStatus {
+    param([string]$Status)
+
+    if ($Status.Length -eq 0) {
+        return $false
+    }
+
+    $ready = -join @([char]0xC900, [char]0xBE44)
+    $possible = -join @([char]0xAC00, [char]0xB2A5)
+    $blocked = -join @([char]0xBD88, [char]0xAC00)
+    $hold = -join @([char]0xBCF4, [char]0xB958)
+    $stuck = -join @([char]0xB9C9, [char]0xD798)
+    $gitReadyPossible = "Git $ready $possible"
+
+    return (
+        ($Status.Contains("Git ") -and -not $Status.Contains($gitReadyPossible)) -or
+        $Status.Contains($blocked) -or
+        $Status.Contains($hold) -or
+        $Status.Contains($stuck)
+    )
+}
+
 function Get-LastJsonEventText {
     param([string]$Path)
 
@@ -118,12 +140,32 @@ function Get-LastJsonEventText {
         return ""
     }
 
+    $stream = $null
     try {
-        $lastLine = Get-Content -LiteralPath $Path -Encoding UTF8 -Tail 1 -ErrorAction Stop
+        $stream = [System.IO.File]::Open($Path, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+        $length = $stream.Length
+        if ($length -eq 0) {
+            return ""
+        }
+
+        $bytesToRead = [Math]::Min(32768, $length)
+        [void]$stream.Seek(-$bytesToRead, [System.IO.SeekOrigin]::End)
+        $buffer = New-Object byte[] $bytesToRead
+        [void]$stream.Read($buffer, 0, $bytesToRead)
+        $text = [System.Text.Encoding]::UTF8.GetString($buffer)
+        $lastLine = $text -split "`r?`n" |
+            Where-Object { $_.Trim().Length -gt 0 } |
+            Select-Object -Last 1
     }
     catch {
         return "log is being written by another process"
     }
+    finally {
+        if ($stream) {
+            $stream.Dispose()
+        }
+    }
+
     if (-not $lastLine -or -not $lastLine.StartsWith("{")) {
         return $lastLine
     }
@@ -270,7 +312,24 @@ function Write-SupervisorSnapshot {
     }
     foreach ($handoff in $handoffs) {
         if ($handoff.Next -and (Test-FileNewerThan -LeftPath $handoff.Path -RightPath $handoff.Next)) {
-            [void]$lines.Add("  $($handoff.Name): upstream handoff is newer. Next stage should rerun.")
+            $handoffStatus = Get-HandoffStatus -Path $handoff.Path
+            if ($handoff.Name -eq "Final -> PlanningFinal" -and (Test-BlockedFinalStatus -Status $handoffStatus)) {
+                $devToQaPath = Join-Path $ProjectRoot "handoff\dev-to-qa.md"
+                $qaToFinalPath = Join-Path $ProjectRoot "handoff\qa-to-final.md"
+                $finalToGitPath = Join-Path $ProjectRoot "handoff\final-to-git.md"
+                if (Test-FileNewerThan -LeftPath $devToQaPath -RightPath $qaToFinalPath) {
+                    [void]$lines.Add("  Final review is blocked, and Dev has reworked it. Action: QA should rerun.")
+                }
+                elseif (Test-FileNewerThan -LeftPath $qaToFinalPath -RightPath $finalToGitPath) {
+                    [void]$lines.Add("  Final review is blocked, and QA has newer results. Action: Final should rerun.")
+                }
+                else {
+                    [void]$lines.Add("  Final review is blocked. Action: Dev should rework the blocker before Git.")
+                }
+            }
+            else {
+                [void]$lines.Add("  $($handoff.Name): upstream handoff is newer. Next stage should rerun.")
+            }
         }
     }
     [void]$lines.Add("")
