@@ -372,7 +372,6 @@
 .week-control-row .arrow-btn,
 .month-picker-form-wide .arrow-btn {
   min-width: 38px;
-  min-height: 44px;
   white-space: nowrap;
 }
 

@@ -1,4 +1,4 @@
-/* v3.1.3 dark theme final cascade lock: this file must load after ui_rebuild.css. */
+/* v3.1 v3.0 UI cascade rollback: final layer is intentionally narrow. */
 :root {
   --app-bg: #0b0f17 !important;
   --surface: #111827 !important;
@@ -7,164 +7,16 @@
   --surface-control: #0f172a !important;
   --surface-control-strong: #1e293b !important;
   --surface-page: #0b0f17 !important;
-  --surface-warm: #111827 !important;
   --surface-border: rgb(71 85 105 / 62%) !important;
   --surface-text: #f8fafc !important;
   --surface-muted: #cbd5e1 !important;
-  --surface-shadow-soft: 0 18px 34px rgb(0 0 0 / 24%) !important;
 }
 
 html,
 body,
 #app,
 .content {
-  background:
-    radial-gradient(circle at 12% 0%, rgb(47 128 237 / 16%) 0 220px, rgb(47 128 237 / 0%) 390px),
-    linear-gradient(180deg, #0b0f17 0%, #0f172a 48%, #111827 100%) !important;
-  background-color: #0b0f17 !important;
   color: var(--surface-text) !important;
-}
-
-.header,
-.tabs,
-.subnav,
-.record-subnav,
-.analysis-subnav {
-  background: rgb(15 23 42 / 94%) !important;
-  background-color: #0f172a !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: 0 14px 28px rgb(0 0 0 / 22%) !important;
-}
-
-.tabs .tab-btn:not(.active),
-.tab-logout-form .tab-btn:not(.active),
-.subnav a,
-.record-subnav a,
-.analysis-subnav a {
-  background: #172033 !important;
-  background-color: #172033 !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-muted) !important;
-}
-
-.content .section,
-.content section,
-.content article,
-.content .summary-card,
-.content .record-card,
-.content .record-result-card,
-.content .pr-rank-card,
-.content .today-task-card,
-.content .quality-metric,
-.content .today-hero-section,
-.content .today-action-section,
-.content .quick-record-section,
-.content .recent-record-section,
-.content .workout-clock-section,
-.content .data-quality-section,
-.content .record-gap-section,
-.content .today-meal-section,
-.content .meal-input-section,
-.content .meal-tool-section,
-.content .meal-record-card,
-.content .meal-record-item,
-.content .recent-meal-template-row,
-.content .fuel-coach-card,
-.content .meal-goal-section,
-.content .optional-section,
-.content .analysis-dashboard-section,
-.content .analysis-control-section,
-.content .analysis-detail-section,
-.content .analysis-goal-section,
-.content .analysis-dashboard-section .yearly-dashboard-head,
-.content .analysis-dashboard-section > .analysis-period-panel,
-.content .yearly-metric-card,
-.content .monthly-conclusion-card,
-.content .exercise-ranking-section,
-.content .exercise-hero-card,
-.content .exercise-recent-section,
-.content .exercise-overload-section,
-.content .exercise-overload-card,
-.content .record-search-dashboard,
-.content .record-search-quick-section,
-.content .record-search-form,
-.content .record-search-query,
-.content .record-filter-details,
-.content .record-filter-grid,
-.content .record-list-toolbar,
-.content .settings-panel,
-.content .settings-action-row,
-.content .settings-password-form,
-.content .body-photo-form,
-.content .calendar-hero-section,
-.content .calendar-grid-section,
-.content .calendar-goal-section,
-.content .calendar-body-section,
-.content .meal-weekly-hero,
-.content .meal-template-apply-section,
-.content .meal-template-list-section,
-.content .meal-template-create-section,
-.content .data-center-hero-section,
-.content .data-center-metric-section,
-.content .data-center-export-section,
-.content .data-center-gap-section,
-.content .data-center-warning-section,
-.content .data-center-card,
-.content .data-warning-card,
-.content .export-link-card,
-.content .more-section,
-.content .more-group-section,
-.content .more-tool-section,
-.content .more-link-card,
-.content .plate-tool-page .tool-card-large[data-plate-tool],
-.content .plate-tool-page .tool-card-large[data-warmup-tool],
-.content .tool-input-row,
-.content .goal-form-compact,
-.content .date-row,
-.content .date-picker-form,
-.content .period-filter-form,
-.content .period-control-panel,
-.content .month-picker-form-wide,
-.content .week-control-row,
-.content .pr-filter-form,
-.content .record-body-part-section,
-.content .body-part-filter-list,
-.content .mode-actions,
-.content .today-mode-actions,
-.content .timer-actions,
-.content .list-toolbar,
-.content .list-tools,
-.content .pagination-nav,
-.content .body-part-pagination-nav,
-.content .progress-chart,
-.content .exercise-progress-chart,
-.content .pr-growth-chart {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 98%) 100%),
-    #111827 !important;
-  background-color: #111827 !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-}
-
-.content .detail-row,
-.content .meal-hero-metrics article,
-.content .weekly-meal-day,
-.content .weekly-meal-item,
-.content .record-gap-card,
-.content .location-card,
-.content .settings-management-panel,
-.content .settings-account-panel,
-.content .settings-security-panel,
-.content .settings-body-panel,
-.content .settings-panel.danger-zone,
-.content .record-filter-details .record-list-toolbar {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 78%) 0%, rgb(15 23 42 / 92%) 100%),
-    #172033 !important;
-  background-color: #172033 !important;
 }
 
 .content input,
@@ -172,80 +24,28 @@ body,
 .content textarea,
 .content .compact-select select,
 .content .tool-form select[name="exercise_id"] {
-  background: #0f172a !important;
-  background-color: #0f172a !important;
+  background: var(--surface-control) !important;
+  background-color: var(--surface-control) !important;
   border-color: var(--surface-border) !important;
   color: var(--surface-text) !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
 }
 
-.content .btn-primary,
-.content button.btn-primary,
-.content .mode-button.btn-primary,
-.content .record-search-submit,
-.content .record-filter-apply,
-.content .record-filter-apply.primary,
-.content .period-control-panel .btn-primary,
-.content .meal-weekly-hero .btn-primary,
-.content .settings-panel .btn-primary,
-.content .body-photo-form .btn-primary,
-.content .location-create-form .btn-primary,
-.tabs .tab-btn.active,
-.tab-btn.active,
-.subnav a.active,
-.record-subnav a.active,
-.analysis-subnav a.active,
-.period-filter-form button.active,
-.period-control-panel .period-view-btn.active {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  background-color: #2563eb !important;
-  border-color: rgb(147 197 253 / 46%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
+.content input::placeholder,
+.content textarea::placeholder {
+  color: #94a3b8 !important;
 }
 
-.content .btn-small,
-.content .btn-secondary,
-.content .btn-add,
-.content .btn-ghost,
-.content button:not(.btn-primary):not(.btn-danger),
-.content .period-control-panel .btn-small,
-.content .period-control-panel .period-view-btn,
-.content .date-picker-form .btn-small,
-.content .month-picker-form-wide .btn-small,
-.content .week-control-row .btn-small,
-.content .pr-filter-form .btn-small,
-.content .record-search-form .btn-small,
-.content .record-search-form .record-filter-apply:not(.primary),
-.content .pagination-nav a,
-.content .body-part-pagination-nav a,
-.content .list-control-row-actions .btn-small {
-  background: #1e293b !important;
-  background-color: #1e293b !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: none !important;
-}
-
-.content .badge,
 .content .cat-badge,
-.content .chip,
 .content .body-part-filter-chip,
+.content .body-part-toggle,
 .content .category-chip,
-.content .meal-summary-row,
-.content .meal-tool-row,
-.content .warmup-result span,
-.content .record-summary .badge,
-.content .exercise-hero-stats span,
-.content .next-plan-list div,
-.content .overload-metrics span,
-.content .pr-rank-metrics span,
-.content .trend-snapshot-row span,
 .content .missing-day-chip {
   background: rgb(15 23 42 / 74%) !important;
-  background-color: #0f172a !important;
+  background-color: var(--surface-control) !important;
   border-color: var(--surface-border) !important;
   color: var(--surface-text) !important;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%) !important;
 }
 
 .content .record-result-value,
@@ -253,9 +53,9 @@ body,
 .content .analysis-action-plan,
 .content .recent-meal-template-row {
   background:
-    linear-gradient(180deg, rgb(30 41 59 / 78%) 0%, rgb(15 23 42 / 92%) 100%),
-    #172033 !important;
-  background-color: #172033 !important;
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent 48%),
+    var(--surface-card-soft) !important;
+  background-color: var(--surface-card-soft) !important;
   border-color: var(--surface-border) !important;
   color: var(--surface-text) !important;
 }
@@ -270,99 +70,30 @@ body,
   color: var(--surface-text) !important;
 }
 
-.content .quality-bar {
-  background: #0f172a !important;
-  background-color: #0f172a !important;
+.content .quality-bar,
+.content .goal-bar,
+.content .heat-track {
+  background: var(--surface-control) !important;
+  background-color: var(--surface-control) !important;
   border-color: var(--surface-border) !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%) !important;
 }
 
-.content .section-title,
-.content .today-hero-head h1,
-.content .yearly-dashboard-head h1,
-.content .more-section h1,
-.content .meal-hero-metrics strong,
-.content .summary-value,
-.content .record-result-card strong,
-.content .quality-metric strong {
-  color: var(--surface-text) !important;
-}
-
-.content .section-subtitle,
-.content .summary-label,
-.content .meal-hero-metrics span,
-.content .weekly-meal-main span,
-.content .list-count,
-.content .body-part-summary-status,
-.content .muted,
-.content .text-muted,
-.content small {
-  color: var(--surface-muted) !important;
-}
-
-/* v3.1.3 dark theme measured-surface lock: out-specificity today/workout light rebuild rules. */
-body.account-user #app > .content .today-shell .section,
-body.account-user #app > .content .today-shell section,
-body.account-user #app > .content .today-shell section.section,
-body.account-user #app > .content .today-shell article,
-body.account-user #app > .content .today-shell .today-hero-section,
-body.account-user #app > .content .today-shell .workout-clock-section,
-body.account-user #app > .content .today-shell .summary-card,
-body.account-user #app > .content .today-shell .summary-grid.overview-only > .summary-card,
-body.account-user #app > .content .today-shell .record-card,
-body.account-user #app > .content .today-shell .record-card.workout-summary-card,
-body.account-user #app > .content .today-shell .quality-metric,
-body.account-user #app > .content .today-shell .today-task-card,
-body.account-user #app > .content .today-shell .mode-actions,
-body.account-user #app > .content .today-shell .today-mode-actions,
-body.account-user #app > .content .today-shell .timer-actions {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 90%) 0%, rgb(15 23 42 / 98%) 100%),
-    #111827 !important;
-  background-color: #111827 !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-}
-
-body.account-user #app > .content .today-shell .mode-actions .btn-primary,
-body.account-user #app > .content .today-shell .today-mode-actions .btn-primary,
-body.account-user #app > .content .today-shell .btn-primary.mode-button,
-body.account-user #app > .content .today-shell a.btn-primary,
-body.account-user #app > .content .today-shell button.btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  background-color: #2563eb !important;
-  border-color: rgb(147 197 253 / 46%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
-}
-
-body.account-user #app > .content .today-shell .mode-actions .btn-small,
-body.account-user #app > .content .today-shell .today-mode-actions .btn-small,
-body.account-user #app > .content .today-shell .timer-actions .btn-small,
-body.account-user #app > .content .today-shell button:not(.btn-primary):not(.btn-danger) {
-  background: #1e293b !important;
-  background-color: #1e293b !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: none !important;
+.content .heat-track span {
+  background: linear-gradient(90deg, rgb(47 128 237 / 72%), rgb(6 182 212 / 68%)) !important;
+  background-color: rgb(47 128 237 / 72%) !important;
 }
 
 .content .btn-danger,
 .content button.btn-danger,
 .content .row-remove-button,
 .content button.row-remove-button,
-.content .account-action-btn,
 .content button[data-danger],
-.content .delete-button,
-body.account-user #app > .content .today-shell .btn-danger,
-body.account-user #app > .content .today-shell button.btn-danger,
-body.account-user #app > .content .today-shell .row-remove-button,
-body.account-user #app > .content .today-shell button.row-remove-button {
+.content .delete-button {
   background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 96%) 100%),
-    #1e293b !important;
-  background-color: #1e293b !important;
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent 52%),
+    var(--surface-control-strong) !important;
+  background-color: var(--surface-control-strong) !important;
   border: 1px solid rgb(220 38 38 / 42%) !important;
   color: #fca5a5 !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%) !important;

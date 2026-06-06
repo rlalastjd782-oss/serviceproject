@@ -1,4 +1,4 @@
-﻿/* v2.8.13 final UI QA pass: normalize card depth, menu density, and mobile sizing. */
+/* v2.8.13 final UI QA pass: normalize card depth, menu density, and mobile sizing. */
 :root {
   --qa-panel: #111827;
   --qa-chip: #0f172a;
@@ -20,10 +20,6 @@
   display: grid !important;
   gap: 8px !important;
   margin-top: 16px !important;
-}
-
-.app-navigation-shell .tabs {
-  margin-top: 0 !important;
 }
 
 .account-actions {
@@ -48,11 +44,6 @@
   box-shadow: none !important;
   color: #fca5a5 !important;
   padding: 8px 10px !important;
-}
-
-.tabs .tab-logout-form,
-.tabs .account-action-btn {
-  display: none !important;
 }
 
 .today-hero-section,
@@ -224,10 +215,6 @@
   margin-top: 16px !important;
 }
 
-.app-navigation-shell .tabs {
-  margin-top: 0 !important;
-}
-
 .account-actions {
   display: flex !important;
   justify-content: flex-end !important;
@@ -249,11 +236,6 @@
   box-shadow: none !important;
   color: #fca5a5 !important;
   padding: 8px 10px !important;
-}
-
-.tabs .tab-logout-form,
-.tabs .account-action-btn {
-  display: none !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section {
@@ -367,32 +349,6 @@ body {
   color: var(--qa-text) !important;
 }
 
-.header {
-  padding-bottom: 14px !important;
-}
-
-.header .account-greeting,
-.header .app-version {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 10%), transparent 48%),
-    linear-gradient(180deg, #4a525d 0%, #343c46 58%, #2d343e 100%) !important;
-  color: #f8fafc !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 14%), 0 4px 10px rgb(24 30 38 / 12%) !important;
-}
-
-.tabs {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  margin-top: 22px !important;
-  gap: 8px !important;
-  padding: 8px !important;
-}
-
-.tab-btn,
-.tab-logout-form .tab-btn {
-  width: 100% !important;
-  min-width: 0 !important;
-}
-
 .tab-logout-form {
   display: contents !important;
 }
@@ -400,51 +356,6 @@ body {
 .content {
   display: grid !important;
   gap: 14px !important;
-}
-
-.section {
-  margin-block: 0 !important;
-}
-
-.section,
-.summary-card,
-.today-task-card,
-.record-card,
-.daily-record-card,
-.workout-summary-card,
-.meal-record-card,
-.record-result-card,
-.more-link-card,
-.data-center-card,
-.quality-metric,
-.cleanup-panel,
-.calendar-cell,
-.exercise-hero-card,
-.overload-card,
-.muscle-balance-card,
-.ex-rank-item,
-.pr-rank-card,
-.pr-best-card,
-.progress-card,
-.equipment-summary-card,
-.weekly-meal-day,
-.meal-week-card,
-.focus-suggestion-card,
-.next-action-card,
-.data-warning-card,
-.location-card,
-.location-overview-card,
-.location-equipment-item,
-.meal-template-card,
-.recent-meal-template-row {
-  border: 0 !important;
-  border-radius: var(--qa-radius) !important;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(30 41 59 / 72%) 48%, rgb(15 23 42 / 80%) 100%),
-    var(--qa-panel) !important;
-  color: var(--qa-text) !important;
-  box-shadow: var(--qa-inset), var(--qa-shadow) !important;
-  overflow: hidden !important;
 }
 
 .summary-card,
@@ -542,40 +453,6 @@ small {
 }
 
 .tool-form,
-.filter-form,
-.record-list-toolbar,
-.list-toolbar,
-.list-tools,
-.compact-select,
-.pagination-nav,
-.week-control-row,
-.week-date-form,
-.period-picker,
-.month-picker-form,
-.month-picker-form-wide,
-.analysis-action-grid,
-.yearly-action-grid,
-.quick-tab-list,
-.mode-actions,
-.timer-actions,
-.set-preset-list,
-.set-builder-actions,
-.program-chip-list,
-.exercise-quick-list,
-.body-part-toggle-list {
-  display: grid !important;
-  align-items: stretch !important;
-  gap: 8px !important;
-  border: 0 !important;
-  border-radius: var(--qa-radius) !important;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(15 23 42 / 92%)),
-    #e1e8f0 !important;
-  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
-  padding: 8px !important;
-}
-
-.tool-form,
 .filter-form {
   grid-template-columns: minmax(0, 1fr) auto !important;
 }
@@ -604,52 +481,6 @@ small {
 .body-part-toggle-list > * {
   min-height: 38px !important;
   width: 100% !important;
-}
-
-button,
-.btn-primary,
-.btn-small,
-.btn-ghost,
-.btn-add,
-.tab-btn,
-.mode-button,
-.quick-tab-button,
-.exercise-quick-button,
-.row-copy-button,
-.row-remove-button,
-.rest-start-button,
-.body-part-filter-chip,
-.body-part-toggle,
-.pagination-nav a,
-a[class*="btn"] {
-  min-height: 38px !important;
-  border: 0 !important;
-  border-radius: var(--qa-radius-sm) !important;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(30 41 59 / 86%)),
-    #1e293b !important;
-  color: var(--qa-text) !important;
-  box-shadow: var(--qa-inset), var(--qa-shadow-soft) !important;
-  padding: 8px 10px !important;
-  line-height: 1.15 !important;
-}
-
-.btn-primary,
-.tab-btn.active,
-.mode-button.btn-primary,
-.quick-tab-button.is-active,
-.body-part-filter-chip.is-active,
-.body-part-toggle.is-active,
-.analysis-subnav a.active,
-button[name="action"][value="save"],
-.workout-form .btn-primary,
-.meal-form .btn-primary,
-.record-list-toolbar .btn-primary {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 15%), rgb(255 255 255 / 3%)),
-    linear-gradient(180deg, var(--qa-dark-a), var(--qa-dark-b)) !important;
-  color: #f8fafc !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 16%), 0 6px 14px rgb(28 36 46 / 14%) !important;
 }
 
 input,
@@ -860,27 +691,13 @@ textarea,
     gap: 14px !important;
   }
 
-  .tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    margin-top: 22px !important;
-  }
-
-  .tab-btn,
-  .tab-logout-form .tab-btn {
-    width: 100% !important;
-    min-width: 0 !important;
-    font-size: 12px !important;
-  }
-
   .tool-form,
   .filter-form,
   .analysis-action-grid,
   .yearly-action-grid,
-  .week-control-row,
   .week-date-form,
   .period-picker,
   .month-picker-form,
-  .month-picker-form-wide,
   .exercise-hero-head,
   .ex-rank-item {
     grid-template-columns: 1fr !important;
@@ -1046,24 +863,6 @@ textarea,
   padding: 10px !important;
 }
 
-.tabs {
-  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr)) !important;
-  align-items: stretch !important;
-}
-
-.tabs .tab-btn,
-.tab-logout-form .tab-btn {
-  min-height: 40px !important;
-  white-space: nowrap !important;
-}
-
-.tab-btn.active {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 14%), rgb(255 255 255 / 3%)),
-    linear-gradient(180deg, var(--qa-dark-a), var(--qa-dark-b)) !important;
-  color: #f8fafc !important;
-}
-
 .record-list > .record-card:not(.daily-record-card):not(.workout-summary-card):not(.equipment-summary-card):not(.meal-record-card) {
   display: grid !important;
   grid-template-columns: minmax(112px, 0.24fr) minmax(0, 1fr) !important;
@@ -1079,38 +878,7 @@ textarea,
   gap: 10px !important;
 }
 
-.btn-primary:not(.tab-btn),
-button[name="action"][value="save"],
-.workout-form .btn-primary,
-.meal-form .btn-primary {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 18%), rgb(255 255 255 / 4%)),
-    linear-gradient(180deg, #4f6b86, #38546f) !important;
-  color: #f8fafc !important;
-}
-
 @media (max-width: 560px) {
-  .header {
-    grid-template-columns: 1fr !important;
-  }
-
-  .header-meta {
-    justify-self: stretch !important;
-    width: 100% !important;
-  }
-
-  .tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 6px !important;
-  }
-
-  .tabs .tab-btn,
-  .tab-logout-form .tab-btn {
-    padding-inline: 4px !important;
-    font-size: 12px !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
 
   .record-search-dashboard .filter-form,
   .analysis-dashboard-section .tool-form,
@@ -1121,9 +889,7 @@ button[name="action"][value="save"],
   .more-tool-section .more-tool-filter,
   .library-section .library-filter-form,
   .admin-filter-form,
-  .month-picker-form-wide,
-  .period-picker,
-  .week-control-row {
+  .period-picker {
     grid-template-columns: 1fr !important;
   }
 
@@ -1142,46 +908,6 @@ button[name="action"][value="save"],
   --qa-shadow-soft: none;
   --qa-flat: #172033;
   --qa-flat-strong: #1e293b;
-}
-
-.tabs,
-.subnav,
-.analysis-subnav,
-.record-subnav {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 82%), rgb(15 23 42 / 96%)),
-    #111827 !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
-  padding: 6px !important;
-}
-
-.tabs .tab-btn,
-.tab-logout-form .tab-btn,
-.subnav a,
-.analysis-subnav a,
-.record-subnav a {
-  background: transparent !important;
-  box-shadow: none !important;
-  color: var(--qa-muted) !important;
-}
-
-.tabs .tab-btn:hover,
-.tab-logout-form .tab-btn:hover,
-.subnav a:hover,
-.analysis-subnav a:hover,
-.record-subnav a:hover {
-  background: rgb(30 41 59 / 72%) !important;
-}
-
-.tab-btn.active,
-.subnav a.is-active,
-.analysis-subnav a.active,
-.record-subnav a.active {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 12%), rgb(255 255 255 / 2%)),
-    linear-gradient(180deg, #505b66, #3b4652) !important;
-  color: #f8fafc !important;
-  box-shadow: 0 3px 8px rgb(28 36 46 / 12%) !important;
 }
 
 .section-header,
@@ -1308,23 +1034,6 @@ textarea,
   box-shadow: none !important;
 }
 
-button,
-.btn-small,
-.btn-ghost,
-.btn-add,
-.mode-button,
-.quick-tab-button,
-.exercise-quick-button,
-.row-copy-button,
-.row-remove-button,
-.rest-start-button,
-.body-part-filter-chip,
-.body-part-toggle,
-.pagination-nav a,
-a[class*="btn"] {
-  box-shadow: none !important;
-}
-
 .summary-card,
 .today-task-card,
 .record-card,
@@ -1356,17 +1065,6 @@ a[class*="btn"] {
 .meal-template-card,
 .recent-meal-template-row {
   box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), var(--qa-shadow) !important;
-}
-
-.summary-card .summary-card,
-.section .section,
-.record-card .record-card,
-.daily-record-card .record-card,
-.workout-summary-card .record-card,
-.meal-record-card .record-card,
-.data-center-card .data-center-card,
-.more-link-card .more-link-card {
-  box-shadow: none !important;
 }
 
 /* v2.8.17 lighter today summary: avoid dark gray blocks on the overview screen. */
@@ -1445,19 +1143,6 @@ a[class*="btn"] {
   box-shadow:
     inset 0 1px 0 rgb(30 41 59 / 88%),
     0 0 0 1px rgb(132 148 166 / 18%) !important;
-}
-
-.workout-mode .section.workout-only,
-.workout-mode .routine-library-section,
-.workout-mode #workout-input,
-.workout-mode #today-workout,
-.workout-mode .workout-clock-section,
-.workout-mode #rest-timer,
-.workout-mode .workout-focus-section,
-.workout-mode .workout-secondary-section,
-.workout-mode .workout-location-section {
-  background: #f6f7f9 !important;
-  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
 }
 
 .workout-mode .workout-summary-card,
@@ -1564,14 +1249,6 @@ a[class*="btn"] {
   box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 0 0 1px rgb(132 148 166 / 18%) !important;
 }
 
-.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section,
-.today-shell:not(.workout-mode):not(.meal-mode) .section.overview-only,
-.today-shell:not(.workout-mode):not(.meal-mode) .summary-grid.overview-only {
-  background: #f6f7f9 !important;
-  color: var(--qa-text) !important;
-  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 2px 8px rgb(28 36 46 / 4%) !important;
-}
-
 .today-shell:not(.workout-mode):not(.meal-mode) .today-hero-head,
 .today-shell:not(.workout-mode):not(.meal-mode) .section-header,
 .today-shell:not(.workout-mode):not(.meal-mode) .record-date {
@@ -1619,24 +1296,6 @@ a[class*="btn"] {
 .today-shell.meal-mode {
   display: flex !important;
   gap: 12px !important;
-}
-
-.today-shell > .date-row,
-.today-shell > .today-mode-actions,
-.today-shell > .summary-grid.overview-only,
-.today-shell > .section,
-.today-shell > details.section,
-.today-shell .workout-action-dock {
-  margin: 0 !important;
-}
-
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .workout-action-dock,
-.today-shell .summary-grid.overview-only,
-.today-shell .section {
-  border-radius: var(--qa-radius) !important;
-  padding: 12px !important;
 }
 
 .today-shell .date-row,
@@ -1755,14 +1414,6 @@ a[class*="btn"] {
     gap: 10px !important;
   }
 
-  .today-shell .date-row,
-  .today-shell .today-mode-actions,
-  .today-shell .workout-action-dock,
-  .today-shell .summary-grid.overview-only,
-  .today-shell .section {
-    padding: 10px !important;
-  }
-
   .today-shell .today-focus-panel,
   .today-shell .summary-grid,
   .today-shell .compact-summary-grid,
@@ -1784,16 +1435,6 @@ a[class*="btn"] {
 
 .today-shell .today-mode-actions .focus-mode-button {
   display: none !important;
-}
-
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .workout-action-dock,
-.today-shell .summary-grid.overview-only,
-.today-shell .section {
-  box-shadow:
-    inset 0 1px 0 rgb(30 41 59 / 88%),
-    0 5px 14px rgb(28 36 46 / 7%) !important;
 }
 
 .today-shell .today-focus-card,
@@ -1835,22 +1476,6 @@ a[class*="btn"] {
 /* v2.8.24 today depth polish: stronger hierarchy without changing the records layout. */
 .today-shell {
   gap: 14px !important;
-}
-
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .workout-action-dock,
-.today-shell .summary-grid.overview-only,
-.today-shell .section {
-  border-radius: 14px !important;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 96%) 46%, rgb(15 23 42 / 92%) 100%),
-    #eef2f6 !important;
-  box-shadow:
-    inset 0 1px 0 rgb(30 41 59 / 88%),
-    inset 0 -1px 0 rgb(132 148 166 / 10%),
-    0 10px 24px rgb(36 46 58 / 10%),
-    0 2px 6px rgb(36 46 58 / 7%) !important;
 }
 
 .today-shell .today-hero-section,
@@ -1961,33 +1586,6 @@ a[class*="btn"] {
   .today-shell {
     gap: 12px !important;
   }
-
-  .today-shell .date-row,
-  .today-shell .today-mode-actions,
-  .today-shell .workout-action-dock,
-  .today-shell .summary-grid.overview-only,
-  .today-shell .section {
-    padding: 11px !important;
-  }
-}
-
-/* v2.8.25 today full surface pass: cover equipment, timers, status, and overview cards. */
-.today-shell .workout-location-section,
-.today-shell .workout-clock-section,
-.today-shell #rest-timer,
-.today-shell .workout-finish-section,
-.today-shell .today-hero-section,
-.today-shell .data-quality-section,
-.today-shell .section.overview-only,
-.today-shell .summary-grid.overview-only {
-  background:
-    linear-gradient(180deg, #172033 0%, #0f172a 54%, #111827 100%),
-    #111827 !important;
-  box-shadow:
-    inset 0 1px 0 rgb(30 41 59 / 88%),
-    inset 0 -1px 0 rgb(128 145 162 / 12%),
-    0 12px 28px rgb(36 46 58 / 11%),
-    0 3px 8px rgb(36 46 58 / 8%) !important;
 }
 
 .today-shell .location-select-form,
@@ -2085,23 +1683,6 @@ a[class*="btn"] {
   --today-shadow-card:
     inset 0 1px 0 rgb(30 41 59 / 88%),
     0 5px 12px rgb(42 52 64 / 7%);
-}
-
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .today-hero-section,
-.today-shell .data-quality-section,
-.today-shell .workout-location-section,
-.today-shell .workout-clock-section,
-.today-shell #rest-timer,
-.today-shell .workout-finish-section,
-.today-shell .summary-grid.overview-only,
-.today-shell .section.overview-only {
-  background:
-    linear-gradient(180deg, #172033 0%, #e9eef4 52%, #dde6ee 100%),
-    var(--today-panel) !important;
-  border: 1px solid var(--today-line) !important;
-  box-shadow: var(--today-shadow-panel) !important;
 }
 
 .today-shell:not(.workout-mode):not(.meal-mode) .today-mode-actions {
@@ -2314,13 +1895,6 @@ a[class*="btn"] {
 }
 
 @media (max-width: 560px) {
-  .today-shell .date-row,
-  .today-shell .today-mode-actions,
-  .today-shell .workout-action-dock,
-  .today-shell .section {
-    border-radius: 12px !important;
-    padding: 10px !important;
-  }
 
   .today-shell .workout-clock-display,
   .today-shell .timer-display {
@@ -2405,33 +1979,6 @@ a[class*="btn"] {
 .workout-mode .routine-library-section,
 .workout-mode .workout-secondary-section {
   order: 30 !important;
-}
-
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .section,
-.today-shell .summary-grid.overview-only,
-.today-shell .workout-action-dock {
-  background:
-    linear-gradient(180deg, #0b0f17 0%, var(--today-outer) 58%, var(--today-outer-strong) 100%),
-    var(--today-outer) !important;
-  border: 1px solid var(--today-border) !important;
-  box-shadow:
-    inset 0 1px 0 rgb(30 41 59 / 88%),
-    0 7px 18px rgb(42 52 64 / 9%) !important;
-}
-
-.today-shell .section {
-  padding: 12px !important;
-}
-
-.today-shell > .section,
-.today-shell > .summary-grid,
-.today-shell > details.section,
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .workout-action-dock {
-  margin-bottom: 0 !important;
 }
 
 .today-shell .section-header {
@@ -2670,9 +2217,6 @@ a[class*="btn"] {
 }
 
 @media (max-width: 560px) {
-  .today-shell .section {
-    padding: 10px !important;
-  }
 
   .today-shell .data-quality-card {
     grid-template-columns: 1fr !important;
@@ -2719,24 +2263,6 @@ a[class*="btn"] {
 .today-shell.workout-mode .overview-only:not(.workout-only),
 .today-shell.meal-mode .overview-only {
   display: none !important;
-}
-
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .section,
-.today-shell .summary-grid.overview-only,
-.today-shell .workout-action-dock {
-  background: var(--today-surface) !important;
-  border: 1px solid var(--today-border-soft) !important;
-  border-radius: 12px !important;
-  box-shadow:
-    0 8px 18px rgb(36 46 58 / 7%),
-    0 1px 2px rgb(36 46 58 / 4%) !important;
-}
-
-.today-shell .section,
-.today-shell .summary-grid.overview-only {
-  padding: 12px !important;
 }
 
 .today-shell .section-header {
@@ -2933,21 +2459,6 @@ a[class*="btn"] {
   backdrop-filter: none !important;
 }
 
-.today-shell.workout-mode .overview-only:not(.workout-only),
-.today-shell.meal-mode .overview-only,
-.today-shell.workout-mode > .summary-grid.overview-only,
-.today-shell.meal-mode > .summary-grid.overview-only,
-.today-shell.workout-mode > .section.overview-only:not(.workout-only),
-.today-shell.meal-mode > .section.overview-only {
-  display: none !important;
-  height: 0 !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  overflow: hidden !important;
-}
-
 .today-shell > a,
 .today-shell > strong,
 .today-shell > small {
@@ -3038,43 +2549,6 @@ body,
   background: var(--surface-page) !important;
 }
 
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .section,
-.today-shell .summary-grid.overview-only,
-.today-shell .workout-action-dock,
-.record-subnav,
-.analysis-subnav,
-.record-subnav ~ .section,
-.record-search-dashboard,
-.record-result-section,
-.analysis-dashboard-section,
-.yearly-dashboard-section,
-.equipment-dashboard-section,
-.pr-hero-section,
-.more-section,
-.more-group-section {
-  background: var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow) !important;
-  color: var(--surface-text) !important;
-}
-
-.today-shell .section,
-.today-shell .summary-grid.overview-only,
-.record-subnav ~ .section,
-.record-search-dashboard,
-.record-result-section,
-.analysis-dashboard-section,
-.yearly-dashboard-section,
-.equipment-dashboard-section,
-.pr-hero-section,
-.more-section,
-.more-group-section {
-  padding: 12px !important;
-}
-
 .daily-record-card,
 .record-result-card,
 .today-shell .today-focus-card,
@@ -3156,51 +2630,6 @@ body,
   color: var(--surface-text) !important;
 }
 
-.tabs .tab-btn,
-.tab-logout-form .tab-btn,
-.record-subnav a,
-.analysis-subnav a,
-.today-shell .today-mode-actions .mode-button,
-.today-shell .today-mode-actions .focus-mode-button,
-.today-shell .workout-action-dock a,
-.today-shell .workout-action-dock button,
-.period-filter-form .btn-small,
-.record-list-toolbar .btn-small,
-.analysis-action-grid .btn-small,
-.yearly-action-grid .btn-small,
-.record-search-dashboard .btn-small {
-  background: var(--surface-control) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-}
-
-.tab-btn.active,
-.tabs .tab-btn.active,
-.record-subnav a.active,
-.record-subnav a.is-active,
-.analysis-subnav a.active,
-.analysis-subnav a.is-active,
-.btn-primary,
-.today-shell .today-mode-actions .mode-button.btn-primary,
-.today-shell .today-mode-actions .focus-mode-button.btn-primary,
-.today-shell .workout-action-dock button[data-workout-clock-start],
-.today-shell .workout-form .btn-primary,
-.today-shell .meal-form .btn-primary,
-.today-shell .timer-actions .btn-primary,
-.today-shell .form-action-row .btn-primary,
-.period-filter-form .btn-primary,
-.record-list-toolbar .btn-primary,
-.record-search-dashboard .btn-primary {
-  background:
-    linear-gradient(180deg, #53697d 0%, var(--surface-active-strong) 100%),
-    var(--surface-active) !important;
-  border-color: rgb(45 64 82 / 30%) !important;
-  box-shadow: var(--surface-shadow-active) !important;
-  color: #ffffff !important;
-}
-
 .today-shell .cat-badge,
 .today-shell .badge,
 .today-shell .record-summary .badge,
@@ -3213,18 +2642,6 @@ body,
   border: 1px solid var(--surface-border) !important;
   box-shadow: none !important;
   color: var(--surface-text) !important;
-}
-
-.today-shell .section-header,
-.record-subnav ~ .section .section-header,
-.daily-record-head,
-.yearly-dashboard-head,
-.more-group-section .section-header {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-  padding: 0 !important;
 }
 
 .section-title,
@@ -3266,21 +2683,6 @@ body,
 }
 
 @media (max-width: 560px) {
-  .today-shell .date-row,
-  .today-shell .today-mode-actions,
-  .today-shell .section,
-  .today-shell .summary-grid.overview-only,
-  .today-shell .workout-action-dock,
-  .record-search-dashboard,
-  .record-result-section,
-  .analysis-dashboard-section,
-  .yearly-dashboard-section,
-  .equipment-dashboard-section,
-  .pr-hero-section,
-  .more-section,
-  .more-group-section {
-    padding: 10px !important;
-  }
 
   .record-result-card {
     grid-template-columns: 1fr !important;
@@ -3320,56 +2722,6 @@ body,
 .meal-weekly-shell {
   display: grid !important;
   gap: 12px !important;
-}
-
-.meal-weekly-shell > .section,
-.today-shell .date-row,
-.today-shell .today-mode-actions,
-.today-shell .section,
-.today-shell .summary-grid.overview-only,
-.today-shell .workout-action-dock,
-.record-subnav,
-.analysis-subnav,
-.record-subnav ~ .section,
-.record-search-dashboard,
-.record-result-section,
-.analysis-dashboard-section,
-.yearly-dashboard-section,
-.equipment-dashboard-section,
-.equipment-summary-section,
-.pr-hero-section,
-.overload-dashboard-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.settings-panel,
-.settings-overview-section {
-  background: var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow) !important;
-  color: var(--surface-text) !important;
-  overflow: visible !important;
-}
-
-.meal-weekly-shell > .section,
-.today-shell .section,
-.today-shell .summary-grid.overview-only,
-.record-subnav ~ .section,
-.record-search-dashboard,
-.record-result-section,
-.analysis-dashboard-section,
-.yearly-dashboard-section,
-.equipment-dashboard-section,
-.equipment-summary-section,
-.pr-hero-section,
-.overload-dashboard-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.settings-panel,
-.settings-overview-section {
-  padding: 12px !important;
 }
 
 .meal-weekly-shell .summary-card,
@@ -3499,7 +2851,7 @@ body,
 .meal-weekly-shell .week-control-row {
   display: grid !important;
   grid-template-columns: auto minmax(0, 1fr) auto !important;
-  align-items: stretch !important;
+  align-items: center !important;
 }
 
 .meal-weekly-shell .week-date-form,
@@ -3560,57 +2912,6 @@ body,
   min-height: 38px !important;
 }
 
-.meal-weekly-shell .btn-small,
-.meal-weekly-shell .arrow-btn,
-.tabs .tab-btn,
-.tab-logout-form .tab-btn,
-.record-subnav a,
-.analysis-subnav a,
-.today-shell .today-mode-actions .mode-button,
-.today-shell .today-mode-actions .focus-mode-button,
-.today-shell .workout-action-dock a,
-.today-shell .workout-action-dock button,
-.period-filter-form .btn-small,
-.record-list-toolbar .btn-small,
-.analysis-action-grid .btn-small,
-.yearly-action-grid .btn-small,
-.record-search-dashboard .btn-small,
-.settings-panel .btn-small {
-  background: var(--surface-control) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-  min-height: 38px !important;
-}
-
-.tab-btn.active,
-.tabs .tab-btn.active,
-.record-subnav a.active,
-.record-subnav a.is-active,
-.analysis-subnav a.active,
-.analysis-subnav a.is-active,
-.btn-primary,
-.meal-weekly-shell .btn-primary,
-.today-shell .today-mode-actions .mode-button.btn-primary,
-.today-shell .today-mode-actions .focus-mode-button.btn-primary,
-.today-shell .workout-action-dock button[data-workout-clock-start],
-.today-shell .workout-form .btn-primary,
-.today-shell .meal-form .btn-primary,
-.today-shell .timer-actions .btn-primary,
-.today-shell .form-action-row .btn-primary,
-.period-filter-form .btn-primary,
-.record-list-toolbar .btn-primary,
-.record-search-dashboard .btn-primary,
-.settings-panel .btn-primary {
-  background:
-    linear-gradient(180deg, #53697d 0%, var(--surface-active-strong) 100%),
-    var(--surface-active) !important;
-  border-color: rgb(45 64 82 / 30%) !important;
-  box-shadow: var(--surface-shadow-active) !important;
-  color: #ffffff !important;
-}
-
 .meal-weekly-shell .badge,
 .today-shell .cat-badge,
 .today-shell .badge,
@@ -3624,20 +2925,6 @@ body,
   border: 1px solid var(--surface-border) !important;
   box-shadow: none !important;
   color: var(--surface-text) !important;
-}
-
-.meal-weekly-shell .section-header,
-.today-shell .section-header,
-.record-subnav ~ .section .section-header,
-.daily-record-head,
-.yearly-dashboard-head,
-.more-group-section .section-header,
-.settings-panel .section-header {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-  padding: 0 !important;
 }
 
 .section-title,
@@ -3690,28 +2977,7 @@ body,
 }
 
 @media (max-width: 560px) {
-  .meal-weekly-shell > .section,
-  .today-shell .date-row,
-  .today-shell .today-mode-actions,
-  .today-shell .section,
-  .today-shell .summary-grid.overview-only,
-  .today-shell .workout-action-dock,
-  .record-search-dashboard,
-  .record-result-section,
-  .analysis-dashboard-section,
-  .yearly-dashboard-section,
-  .equipment-dashboard-section,
-  .equipment-summary-section,
-  .pr-hero-section,
-  .overload-dashboard-section,
-  .more-section,
-  .more-group-section,
-  .more-tool-section,
-  .settings-panel {
-    padding: 10px !important;
-  }
 
-  .meal-weekly-shell .week-control-row,
   .meal-weekly-shell .week-date-form,
   .meal-weekly-shell .goal-form.goal-form-compact,
   .meal-weekly-shell .weekly-meal-day-head,
@@ -3723,16 +2989,6 @@ body,
 
   .meal-weekly-shell .summary-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  .meal-weekly-shell .summary-value,
-  .meal-weekly-shell .weekly-meal-main,
-  .meal-weekly-shell .weekly-meal-main strong,
-  .meal-weekly-shell .weekly-meal-main span,
-  .tabs .tab-btn,
-  .tab-logout-form .tab-btn {
-    min-width: 0 !important;
-    overflow-wrap: anywhere !important;
   }
 }
 
@@ -3759,102 +3015,6 @@ body,
 .today-shell,
 .meal-weekly-shell {
   background: var(--surface-page) !important;
-  color: var(--surface-text) !important;
-}
-
-.meal-weekly-shell > .section,
-.today-shell > .date-row,
-.today-shell > .today-mode-actions,
-.today-shell > .section,
-.today-shell > .summary-grid.overview-only,
-.today-shell .workout-action-dock,
-.record-subnav,
-.analysis-subnav,
-.record-subnav ~ .section,
-.record-search-dashboard,
-.record-result-section,
-.analysis-dashboard-section,
-.yearly-dashboard-section,
-.yearly-body-section,
-.equipment-dashboard-section,
-.equipment-summary-section,
-.pr-hero-section,
-.overload-dashboard-section,
-.record-body-part-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.settings-panel,
-.settings-overview-section {
-  background: var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow) !important;
-  color: var(--surface-text) !important;
-}
-
-.meal-weekly-shell > .section,
-.today-shell > .date-row,
-.today-shell > .today-mode-actions,
-.today-shell > .section,
-.today-shell > .summary-grid.overview-only,
-.today-shell .workout-action-dock,
-.record-subnav,
-.analysis-subnav,
-.record-subnav ~ .section,
-.record-search-dashboard,
-.record-result-section,
-.analysis-dashboard-section,
-.yearly-dashboard-section,
-.yearly-body-section,
-.equipment-dashboard-section,
-.equipment-summary-section,
-.pr-hero-section,
-.overload-dashboard-section,
-.record-body-part-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.settings-panel,
-.settings-overview-section {
-  padding: 12px !important;
-}
-
-.meal-weekly-shell .summary-card,
-.meal-weekly-shell .goal-card,
-.meal-weekly-shell .weekly-meal-day,
-.today-shell .summary-card,
-.today-shell .record-card,
-.today-shell .meal-record-card,
-.today-shell .workout-summary-card,
-.today-shell .workout-form,
-.today-shell .meal-form,
-.today-shell .goal-card,
-.today-shell .today-focus-card,
-.today-shell .quality-metric,
-.today-shell .today-task-card,
-.today-shell .rule-card,
-.today-shell .next-action-card,
-.daily-record-card,
-.record-result-card,
-.yearly-metric-card,
-.metric-card,
-.month-card,
-.yearly-month-card,
-.rank-card,
-.analysis-action-card,
-.pr-rank-card,
-.pr-best-card,
-.equipment-summary-card,
-.cat-stat-card,
-.more-link-card,
-.more-overview-strip article,
-.tool-card,
-.settings-action-card {
-  background: var(--surface-card-soft) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 10px !important;
-  box-shadow: var(--surface-shadow-soft) !important;
   color: var(--surface-text) !important;
 }
 
@@ -3951,82 +3111,6 @@ body,
   min-height: 38px !important;
 }
 
-.meal-weekly-shell .btn-small,
-.meal-weekly-shell .arrow-btn,
-.tabs .tab-btn,
-.tab-logout-form .tab-btn,
-.record-subnav a,
-.analysis-subnav a,
-.today-shell .today-mode-actions .mode-button,
-.today-shell .today-mode-actions .focus-mode-button,
-.today-shell .workout-action-dock a,
-.today-shell .workout-action-dock button,
-.period-filter-form .btn-small,
-.record-list-toolbar .btn-small,
-.analysis-action-grid .btn-small,
-.yearly-action-grid .btn-small,
-.record-search-dashboard .btn-small,
-.more-tool-section .btn-small,
-.settings-panel .btn-small,
-.body-part-filter-chip,
-.body-part-toggle {
-  background: var(--surface-control) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-  min-height: 38px !important;
-}
-
-.tab-btn.active,
-.tabs .tab-btn.active,
-.record-subnav a.active,
-.record-subnav a.is-active,
-.analysis-subnav a.active,
-.analysis-subnav a.is-active,
-.body-part-filter-chip.is-active,
-.body-part-toggle.is-active,
-.pr-rank-card.is-selected,
-.equipment-summary-card.is-selected,
-.btn-primary,
-.meal-weekly-shell .btn-primary,
-.today-shell .today-mode-actions .mode-button.btn-primary,
-.today-shell .today-mode-actions .focus-mode-button.btn-primary,
-.today-shell .workout-action-dock button[data-workout-clock-start],
-.today-shell .workout-form .btn-primary,
-.today-shell .meal-form .btn-primary,
-.today-shell .timer-actions .btn-primary,
-.today-shell .form-action-row .btn-primary,
-.today-shell .body-metric-form .btn-small,
-.period-filter-form .btn-primary,
-.record-list-toolbar .btn-primary,
-.record-search-dashboard .btn-primary,
-.more-tool-section .btn-primary,
-.settings-panel .btn-primary {
-  background:
-    linear-gradient(180deg, #53697d 0%, var(--surface-active-strong) 100%),
-    var(--surface-active) !important;
-  border-color: rgb(45 64 82 / 30%) !important;
-  box-shadow: var(--surface-shadow-active) !important;
-  color: #ffffff !important;
-}
-
-.meal-weekly-shell .section-header,
-.today-shell .section-header,
-.record-subnav ~ .section .section-header,
-.record-search-dashboard .section-header,
-.analysis-dashboard-section .section-header,
-.yearly-dashboard-section .section-header,
-.more-group-section .section-header,
-.more-tool-section .section-header,
-.settings-panel .section-header {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-  padding: 0 !important;
-}
-
 .summary-value,
 .section-title,
 .meal-weekly-shell .section-title,
@@ -4051,29 +3135,7 @@ body,
 }
 
 @media (max-width: 560px) {
-  .meal-weekly-shell > .section,
-  .today-shell > .date-row,
-  .today-shell > .today-mode-actions,
-  .today-shell > .section,
-  .today-shell > .summary-grid.overview-only,
-  .today-shell .workout-action-dock,
-  .record-search-dashboard,
-  .record-result-section,
-  .analysis-dashboard-section,
-  .yearly-dashboard-section,
-  .yearly-body-section,
-  .equipment-dashboard-section,
-  .pr-hero-section,
-  .overload-dashboard-section,
-  .record-body-part-section,
-  .more-section,
-  .more-group-section,
-  .more-tool-section,
-  .settings-panel {
-    padding: 10px !important;
-  }
 
-  .meal-weekly-shell .week-control-row,
   .meal-weekly-shell .week-date-form,
   .meal-weekly-shell .goal-form.goal-form-compact,
   .meal-weekly-shell .weekly-meal-day-head,
@@ -4094,10 +3156,6 @@ body,
   display: grid !important;
   gap: 8px !important;
   margin-top: 16px !important;
-}
-
-.app-navigation-shell .tabs {
-  margin-top: 0 !important;
 }
 
 .account-actions {
@@ -4180,7 +3238,7 @@ body,
 .more-tool-filter {
   display: grid !important;
   grid-template-columns: minmax(40px, auto) minmax(0, 1fr) minmax(40px, auto) minmax(74px, auto) !important;
-  align-items: stretch !important;
+  align-items: center !important;
   background: var(--surface-control) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 9px !important;
@@ -4196,15 +3254,6 @@ body,
   box-shadow: none !important;
   grid-template-columns: minmax(0, 1fr) !important;
   padding: 0 !important;
-}
-
-.period-control-panel .arrow-btn,
-.period-control-panel .period-view-btn {
-  min-height: 40px !important;
-  background: var(--surface-card-soft) !important;
-  border: 1px solid var(--surface-border) !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
 }
 
 .secondary-segmented-control,
@@ -4257,12 +3306,6 @@ body,
   border-radius: 10px !important;
   box-shadow: var(--surface-shadow-soft) !important;
   padding: 10px !important;
-}
-
-.insight-group-card.is-warning,
-.analysis-action-card.is-warning {
-  background: #fff8eb !important;
-  border-color: rgb(168 111 35 / 24%) !important;
 }
 
 .info-action-row,
@@ -4343,9 +3386,6 @@ body,
 }
 
 @media (max-width: 560px) {
-  .period-control-panel,
-  .month-picker-form-wide.period-control-panel,
-  .meal-weekly-shell .week-control-row.period-control-panel,
   .more-tool-filter,
   .filter-action-panel,
   .analysis-dashboard-section .filter-form,
@@ -4397,20 +3437,6 @@ body,
   gap: 12px !important;
 }
 
-.section,
-.analysis-dashboard-section,
-.more-tool-section,
-.location-page-section,
-.settings-panel {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(248 251 253 / 96%)),
-    var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow-card) !important;
-  padding: 12px !important;
-}
-
 .summary-card,
 .record-card,
 .daily-record-card,
@@ -4433,71 +3459,6 @@ body,
   box-shadow: var(--surface-shadow-soft) !important;
 }
 
-.today-shell > .date-row,
-.today-shell .date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.meal-weekly-shell .week-control-row.period-control-panel,
-.more-tool-filter,
-.filter-action-panel,
-.body-metric-form,
-.body-photo-form,
-.tool-input-row {
-  display: grid !important;
-  align-items: stretch !important;
-  gap: 8px !important;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(228 237 246 / 48%)),
-    var(--surface-control) !important;
-  border: 1px solid var(--surface-border-strong) !important;
-  border-radius: 9px !important;
-  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%), 0 4px 11px rgb(37 51 66 / 5%) !important;
-  padding: 8px !important;
-}
-
-.today-shell > .date-row,
-.today-shell .date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.meal-weekly-shell .week-control-row.period-control-panel,
-.more-tool-filter {
-  grid-template-columns: minmax(40px, auto) minmax(0, 1fr) minmax(40px, auto) minmax(76px, auto) !important;
-}
-
-.period-control-panel input,
-.period-control-panel select,
-.date-picker-form input,
-.date-picker-form select,
-.more-tool-filter input,
-.more-tool-filter select,
-.body-metric-form input,
-.body-photo-form input[type="file"],
-.tool-input-row input,
-.tool-input-row select {
-  min-height: 40px !important;
-  background: #172033 !important;
-  border: 1px solid rgb(82 102 121 / 12%) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-  padding: 8px 10px !important;
-}
-
-.period-control-panel .arrow-btn,
-.period-control-panel .period-view-btn,
-.date-picker-form .btn-small,
-.more-tool-filter .btn-small,
-.tool-form .btn-small:not(.btn-primary) {
-  min-height: 40px !important;
-  background: #1e293b !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-}
-
 .btn-primary,
 .today-shell .body-metric-form .btn-small,
 .today-shell .body-photo-form .btn-small,
@@ -4513,19 +3474,6 @@ body,
 
 .account-actions {
   justify-content: flex-start !important;
-}
-
-.header {
-  align-items: start !important;
-  gap: 8px !important;
-}
-
-.header-meta {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  justify-content: flex-start !important;
-  gap: 5px 7px !important;
-  min-width: 0 !important;
 }
 
 .account-greeting,
@@ -4738,13 +3686,21 @@ a.more-link-card:hover,
   padding: 7px 8px !important;
 }
 
-.exercise-hero-card,
-.overload-dashboard-section {
+.exercise-hero-card {
   background:
     linear-gradient(180deg, #111827 0%, #172033 100%),
     var(--surface-card) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 12px !important;
+  box-shadow: var(--surface-shadow-card) !important;
+}
+
+.overload-dashboard-section {
+  background:
+    linear-gradient(180deg, #111827 0%, #172033 100%),
+    var(--surface-card) !important;
+  border: 1px solid var(--surface-border) !important;
+  border-radius: 8px !important;
   box-shadow: var(--surface-shadow-card) !important;
 }
 
@@ -4813,14 +3769,6 @@ a.more-link-card:hover,
   color: var(--surface-text) !important;
 }
 
-.data-warning-card,
-.analysis-action-card.is-warning,
-.insight-group-card.is-warning {
-  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
-  border-color: rgb(173 109 34 / 24%) !important;
-  color: #644715 !important;
-}
-
 .more-overview-strip,
 .analysis-primary-metrics,
 .analysis-secondary-metrics,
@@ -4831,33 +3779,6 @@ a.more-link-card:hover,
 }
 
 @media (max-width: 560px) {
-  .header {
-    grid-template-columns: 1fr !important;
-  }
-
-  .header-meta,
-  .account-actions {
-    justify-content: flex-start !important;
-    width: 100% !important;
-  }
-
-  .today-shell > .date-row,
-  .today-shell .date-row,
-  .date-picker-form,
-  .period-control-panel,
-  .month-picker-form-wide.period-control-panel,
-  .meal-weekly-shell .week-control-row.period-control-panel,
-  .more-tool-filter,
-  .filter-action-panel,
-  .body-metric-form,
-  .body-photo-form,
-  .tool-input-row,
-  .recent-meal-template-row,
-  .location-card-main,
-  .location-card-actions,
-  .location-manage-details summary {
-    grid-template-columns: 1fr !important;
-  }
 
   .body-photo-form .btn-small,
   .body-metric-form .btn-small,
@@ -4922,34 +3843,6 @@ body {
   background: transparent !important;
 }
 
-.header {
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  gap: 10px !important;
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(247 250 252 / 94%)),
-    var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow-card) !important;
-  color: var(--surface-text) !important;
-}
-
-.header-title,
-.header-meta,
-.account-greeting,
-.app-version {
-  min-width: 0 !important;
-  overflow-wrap: anywhere !important;
-}
-
-.header-meta {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 6px !important;
-  justify-content: flex-end !important;
-}
-
 .account-greeting,
 .app-version {
   background: var(--surface-control) !important;
@@ -4963,41 +3856,6 @@ body {
 .app-navigation-shell {
   display: grid !important;
   gap: 8px !important;
-}
-
-.tabs {
-  display: grid !important;
-  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-  gap: 6px !important;
-  background: var(--surface-control) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  padding: 6px !important;
-}
-
-.tabs .tab-btn {
-  display: inline-flex !important;
-  min-width: 0 !important;
-  min-height: 40px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  overflow-wrap: anywhere !important;
-  background: transparent !important;
-  border: 1px solid transparent !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--surface-muted) !important;
-  padding: 8px 6px !important;
-}
-
-.tabs .tab-btn.active {
-  background:
-    linear-gradient(180deg, #51677a 0%, var(--surface-active-strong) 100%),
-    var(--surface-active) !important;
-  border-color: rgb(47 66 84 / 20%) !important;
-  box-shadow: var(--surface-shadow-active) !important;
-  color: #ffffff !important;
 }
 
 .account-actions {
@@ -5014,23 +3872,6 @@ body {
   border-radius: 9px !important;
   box-shadow: none !important;
   color: var(--accent-danger) !important;
-}
-
-.section,
-.analysis-dashboard-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.location-page-section,
-.settings-panel {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%), rgb(248 251 253 / 96%)),
-    var(--surface-card) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow-card) !important;
-  color: var(--surface-text) !important;
-  padding: 12px !important;
 }
 
 .summary-card,
@@ -5062,79 +3903,6 @@ body {
   color: var(--surface-text) !important;
 }
 
-.date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter,
-.record-search-form,
-.record-filter-details,
-.record-list-toolbar,
-.filter-action-panel,
-.period-filter-form,
-.body-metric-form,
-.body-photo-form,
-.goal-form.goal-form-compact,
-.tool-input-row,
-.settings-password-form,
-.settings-action-row,
-.location-create-panel,
-.location-create-form,
-.info-action-row,
-.detail-row,
-.weekly-meal-item,
-.recent-meal-template-row,
-.plate-result,
-.warmup-result {
-  min-width: 0 !important;
-  background: var(--surface-control) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-  gap: 8px !important;
-}
-
-.date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter {
-  display: grid !important;
-  grid-template-columns: minmax(40px, auto) minmax(0, 1fr) minmax(40px, auto) minmax(76px, auto) !important;
-  align-items: stretch !important;
-  min-height: 40px !important;
-  padding: 8px !important;
-}
-
-.date-row > *,
-.date-picker-form > *,
-.period-control-panel > *,
-.more-tool-filter > *,
-.filter-action-panel > *,
-.record-search-form > *,
-.record-filter-details > *,
-.record-list-toolbar > * {
-  min-width: 0 !important;
-}
-
-input,
-select,
-textarea,
-.period-control-panel input,
-.date-picker-form input,
-.more-tool-filter input,
-.more-tool-filter select {
-  min-height: 38px !important;
-  background: #172033 !important;
-  border: 1px solid var(--surface-border-strong) !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
-  color: var(--surface-text) !important;
-}
-
 textarea,
 input,
 select,
@@ -5155,41 +3923,6 @@ input[type="file"]::file-selector-button {
   background: var(--surface-card-soft) !important;
   border: 1px solid var(--surface-border) !important;
   border-radius: 8px !important;
-  color: var(--surface-text) !important;
-}
-
-.btn-primary,
-button.btn-primary,
-.filter-action-panel .btn-small,
-.record-search-form .btn-primary,
-.settings-panel .btn-primary,
-.more-tool-section .btn-primary,
-.tab-btn.active,
-.analysis-subnav a.active,
-.record-subnav a.active,
-.record-subnav a.is-active {
-  background:
-    linear-gradient(180deg, #51677a 0%, var(--surface-active-strong) 100%),
-    var(--surface-active) !important;
-  border-color: rgb(47 66 84 / 24%) !important;
-  box-shadow: var(--surface-shadow-active) !important;
-  color: #ffffff !important;
-}
-
-.period-view-btn,
-.arrow-btn,
-.btn-secondary,
-.date-picker-form button,
-.more-tool-filter .btn-small,
-.month-picker-form-wide .btn-small,
-.analysis-action-grid .btn-small,
-.yearly-action-grid .btn-small,
-.more-link-card .btn-small {
-  min-height: 38px !important;
-  background: var(--surface-card-soft) !important;
-  border: 1px solid var(--surface-border) !important;
-  border-radius: 8px !important;
-  box-shadow: none !important;
   color: var(--surface-text) !important;
 }
 
@@ -5225,14 +3958,6 @@ button.btn-primary,
   border: 1px solid var(--surface-border) !important;
   border-radius: 10px !important;
   box-shadow: var(--surface-shadow-soft) !important;
-}
-
-.data-warning-card,
-.analysis-action-card.is-warning,
-.insight-group-card.is-warning,
-.danger-zone {
-  background: linear-gradient(180deg, #111827 0%, #172033 100%) !important;
-  border-color: rgb(173 109 34 / 25%) !important;
 }
 
 .danger-zone {
@@ -5302,65 +4027,6 @@ button.btn-primary,
   outline-offset: 2px !important;
 }
 
-@media (max-width: 760px) {
-  .tabs {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 560px) {
-  .header {
-    grid-template-columns: 1fr !important;
-  }
-
-  .header-meta,
-  .account-actions {
-    justify-content: flex-start !important;
-    width: 100% !important;
-  }
-
-  .tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  .date-row,
-  .date-picker-form,
-  .period-control-panel,
-  .month-picker-form-wide.period-control-panel,
-  .week-control-row.period-control-panel,
-  .more-tool-filter,
-  .record-search-form,
-  .record-filter-details,
-  .record-list-toolbar,
-  .filter-action-panel,
-  .period-filter-form,
-  .body-metric-form,
-  .body-photo-form,
-  .goal-form.goal-form-compact,
-  .tool-input-row,
-  .settings-password-form,
-  .settings-action-row,
-  .location-create-panel,
-  .location-create-form,
-  .info-action-row,
-  .recent-meal-template-row,
-  .location-card-main,
-  .location-card-actions,
-  .location-manage-details summary {
-    grid-template-columns: 1fr !important;
-  }
-
-  .period-view-btn,
-  .date-picker-form button,
-  .more-tool-filter .btn-small,
-  .body-photo-form .btn-small,
-  .body-metric-form .btn-small,
-  .settings-action-row button,
-  .danger-zone button {
-    width: 100% !important;
-  }
-}
-
 /* v3.0.0 semantic color system redesign: keep this final so meaning tokens beat older gray passes. */
 :root {
   --app-bg: #f6faf7;
@@ -5422,27 +4088,6 @@ body,
   color: var(--text-strong) !important;
 }
 
-.section,
-.analysis-dashboard-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.settings-panel,
-.record-search-dashboard,
-.record-result-section,
-.yearly-body-section,
-.equipment-dashboard-section,
-.record-body-part-section,
-.meal-weekly-shell > .section {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(30 41 59 / 88%) 100%),
-    var(--surface) !important;
-  border: 1px solid var(--border-soft) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow-card) !important;
-  color: var(--text-strong) !important;
-}
-
 .summary-card,
 .goal-card,
 .daily-record-card,
@@ -5501,62 +4146,6 @@ body,
   border-radius: 9px !important;
   box-shadow: none !important;
   color: var(--text-strong) !important;
-}
-
-.date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter,
-.record-search-form,
-.record-filter-details,
-.record-list-toolbar,
-.filter-action-panel,
-.period-filter-form,
-.body-metric-form,
-.body-photo-form,
-.goal-form.goal-form-compact,
-.tool-input-row,
-.settings-password-form,
-.location-create-panel,
-.location-create-form {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, var(--surface-tint) 100%),
-    var(--surface-tint) !important;
-  border: 1px solid var(--border-soft) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-}
-
-.tabs {
-  background: #172033 !important;
-  border-color: rgb(18 59 93 / 14%) !important;
-}
-
-.tabs .tab-btn {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  color: var(--text-muted) !important;
-}
-
-.tabs .tab-btn.active,
-.analysis-subnav a.active,
-.record-subnav a.active,
-.record-subnav a.is-active,
-.btn-primary,
-button.btn-primary,
-.filter-action-panel .btn-small,
-.record-search-form .btn-primary,
-.settings-panel .btn-primary,
-.more-tool-section .btn-primary {
-  background:
-    linear-gradient(180deg, #174d78 0%, var(--active) 100%),
-    var(--active) !important;
-  border-color: rgb(18 59 93 / 26%) !important;
-  box-shadow: var(--surface-shadow-active) !important;
-  color: #ffffff !important;
 }
 
 .account-action-btn,
@@ -5624,20 +4213,6 @@ button[data-danger],
   border-color: rgb(22 163 74 / 18%) !important;
 }
 
-.recovery-section,
-.rest-day-section,
-.readiness-section,
-.data-warning-card,
-.analysis-action-card.is-warning,
-.insight-group-card.is-warning,
-.overload-card.state-정체,
-.overload-card.state-회복-필요 {
-  background:
-    linear-gradient(180deg, #111827 0%, var(--recovery-soft) 100%),
-    var(--recovery-soft) !important;
-  border-color: rgb(245 158 11 / 28%) !important;
-}
-
 .body-metric-form,
 .body-photo-form,
 .settings-body-panel,
@@ -5649,16 +4224,6 @@ button[data-danger],
   border-color: rgb(124 58 237 / 20%) !important;
 }
 
-.pr-rank-card.is-selected,
-.achievement-card,
-.analysis-action-card.is-achievement,
-.overload-card.state-상승 {
-  background:
-    linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%),
-    var(--achievement-soft) !important;
-  border-color: rgb(249 115 22 / 28%) !important;
-}
-
 .danger-zone,
 .overload-card.state-주의,
 .overload-card.state-위험 {
@@ -5666,37 +4231,6 @@ button[data-danger],
     linear-gradient(180deg, #111827 0%, var(--danger-soft) 100%),
     var(--danger-soft) !important;
   border-color: rgb(220 38 38 / 28%) !important;
-}
-
-.daily-metric:nth-child(1),
-.record-result-value:nth-child(1),
-.analysis-primary-metrics > *:nth-child(1),
-.progress-card .set-bar,
-.progress-card .volume-bar {
-  background: var(--workout-soft) !important;
-  border-color: rgb(37 99 235 / 22%) !important;
-}
-
-.daily-metric:nth-child(2),
-.record-result-value:nth-child(2),
-.analysis-primary-metrics > *:nth-child(2),
-.progress-card .duration-bar {
-  background: var(--cardio-soft) !important;
-  border-color: rgb(6 182 212 / 24%) !important;
-}
-
-.daily-metric:nth-child(3),
-.record-result-value:nth-child(3),
-.analysis-primary-metrics > *:nth-child(3) {
-  background: var(--meal-soft) !important;
-  border-color: rgb(22 163 74 / 22%) !important;
-}
-
-.daily-metric:nth-child(4),
-.record-result-value:nth-child(4),
-.progress-card .burn-bar {
-  background: var(--recovery-soft) !important;
-  border-color: rgb(245 158 11 / 26%) !important;
 }
 
 .more-group-section:nth-of-type(1) .more-link-card,
@@ -5783,2357 +4317,33 @@ input[type="file"]::file-selector-button {
   }
 }
 
-/* v3.0.0 brand color reboot: final cascade for navy/teal fitness identity. */
-:root {
-  --brand-navy: #102A43;
-  --brand-navy-deep: #071A2D;
-  --brand-teal: #00A6A6;
-  --energy-lime: #B7F000;
-  --meal-green: #22C55E;
-  --cardio-cyan: #06B6D4;
-  --recovery-amber: #F59E0B;
-  --body-violet: #7C3AED;
-  --achievement-coral: #FF6B35;
-  --danger-red: #DC2626;
-  --app-bg: #F7FBF5;
-  --surface: #111827;
-  --surface-soft: #EEF8F3;
-  --text-primary: #0B1220;
-  --text-secondary: #475569;
-  --line-soft: #D6E4DE;
-  --surface-page: var(--app-bg);
-  --surface-page-layer: radial-gradient(circle at 10% 0%, rgb(0 166 166 / 12%) 0 220px, rgb(0 166 166 / 0%) 380px),
-    radial-gradient(circle at 92% 8%, rgb(183 240 0 / 13%) 0 190px, rgb(183 240 0 / 0%) 340px);
-  --surface-card: var(--surface);
-  --surface-card-soft: var(--surface-soft);
-  --surface-control: #0f172a;
-  --surface-control-strong: #1e293b;
-  --surface-active: var(--brand-navy);
-  --surface-active-strong: var(--brand-navy-deep);
-  --surface-border: var(--line-soft);
-  --surface-border-strong: #AFC7BF;
-  --surface-text: var(--text-primary);
-  --surface-muted: var(--text-secondary);
-  --surface-shadow-card: 0 14px 30px rgb(16 42 67 / 9%), 0 1px 2px rgb(16 42 67 / 5%);
-  --surface-shadow-soft: 0 8px 18px rgb(16 42 67 / 7%);
-  --surface-shadow-active: 0 12px 22px rgb(0 166 166 / 20%);
-  --workout: #2563EB;
-  --workout-soft: rgb(37 99 235 / 10%);
-  --cardio: var(--cardio-cyan);
-  --cardio-soft: rgb(6 182 212 / 13%);
-  --meal: var(--meal-green);
-  --meal-soft: rgb(34 197 94 / 12%);
-  --recovery: var(--recovery-amber);
-  --recovery-soft: rgb(245 158 11 / 14%);
-  --body: var(--body-violet);
-  --body-soft: rgb(124 58 237 / 11%);
-  --achievement: var(--achievement-coral);
-  --achievement-soft: rgb(255 107 53 / 13%);
-  --warning: var(--recovery-amber);
-  --warning-soft: rgb(245 158 11 / 14%);
-  --danger: var(--danger-red);
-  --danger-soft: rgb(220 38 38 / 10%);
-}
-
-body,
-.content {
-  background: var(--surface-page-layer), var(--app-bg) !important;
-  color: var(--text-primary) !important;
-}
-
-.header {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  gap: 12px !important;
-  background:
-    linear-gradient(135deg, var(--brand-navy-deep) 0%, var(--brand-navy) 58%, #083F4D 100%),
-    var(--brand-navy) !important;
-  border: 1px solid rgb(183 240 0 / 18%) !important;
-  border-radius: 0 0 14px 14px !important;
-  box-shadow: 0 16px 34px rgb(16 42 67 / 22%) !important;
-  color: #F7FBF5 !important;
-  padding: 18px 16px !important;
-}
-
-.header-title,
-.header .header-title {
-  color: #F7FBF5 !important;
-  display: block !important;
-  font-size: clamp(22px, 5.2vw, 30px) !important;
-  font-weight: 850 !important;
-  letter-spacing: 0 !important;
-  line-height: 1.1 !important;
-  min-width: 0 !important;
-  overflow-wrap: anywhere !important;
-  text-shadow: 0 1px 0 rgb(0 0 0 / 18%) !important;
-}
-
-.header-meta {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 7px !important;
-  justify-content: flex-end !important;
-  min-width: 0 !important;
-}
-
-.header .account-greeting,
-.header .app-version {
-  background: rgb(247 251 245 / 12%) !important;
-  border: 1px solid rgb(247 251 245 / 20%) !important;
-  border-radius: 999px !important;
-  box-shadow: none !important;
-  color: rgb(247 251 245 / 86%) !important;
-  font-size: 12px !important;
-  font-weight: 700 !important;
-  min-height: 28px !important;
-  padding: 6px 9px !important;
-}
-
-.app-navigation-shell {
-  gap: 8px !important;
-  margin-top: 10px !important;
-}
-
-.tabs {
-  background: #111827 !important;
-  border: 1px solid rgb(0 166 166 / 18%) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 10px 24px rgb(16 42 67 / 8%) !important;
-  gap: 7px !important;
-  padding: 7px !important;
-}
-
-.tabs .tab-btn,
-.tab-logout-form .tab-btn {
-  background: transparent !important;
-  border: 1px solid transparent !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--text-secondary) !important;
-  font-weight: 800 !important;
-  min-height: 40px !important;
-}
-
-.tabs .tab-btn.active,
-.tab-btn.active,
-.analysis-subnav a.active,
-.record-subnav a.active,
-.record-subnav a.is-active {
-  background:
-    linear-gradient(180deg, rgb(0 166 166 / 18%) 0%, rgb(16 42 67 / 0%) 38%),
-    var(--brand-navy) !important;
-  border-color: rgb(183 240 0 / 32%) !important;
-  box-shadow: inset 0 -3px 0 var(--energy-lime), var(--surface-shadow-active) !important;
-  color: #ffffff !important;
-}
-
-.account-actions {
-  justify-content: flex-end !important;
-}
-
-.account-action-btn,
-.btn-danger,
-.danger-zone button,
-.danger-zone .btn-small,
-button[data-danger],
-.delete-button {
-  background: #1e293b !important;
-  border: 1px solid rgb(220 38 38 / 28%) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  color: var(--danger-red) !important;
-  font-weight: 800 !important;
-}
-
-.btn-primary,
-button.btn-primary,
-.workout-form .btn-primary,
-.meal-form .btn-primary,
-.record-list-toolbar .btn-primary,
-.settings-panel .btn-primary,
-.more-tool-section .btn-primary {
-  background:
-    linear-gradient(180deg, rgb(183 240 0 / 22%) 0%, rgb(0 166 166 / 0%) 42%),
-    var(--brand-teal) !important;
-  border: 1px solid rgb(0 116 116 / 24%) !important;
-  box-shadow: 0 10px 20px rgb(0 166 166 / 19%) !important;
-  color: #ffffff !important;
-  font-weight: 850 !important;
-}
-
-.period-view-btn,
-.arrow-btn,
-.btn-secondary,
-.date-picker-form button,
-.month-picker-form-wide .btn-small,
-.analysis-action-grid .btn-small,
-.yearly-action-grid .btn-small,
-.more-link-card .btn-small {
-  background: #111827 !important;
-  border: 1px solid var(--line-soft) !important;
-  box-shadow: none !important;
-  color: var(--text-secondary) !important;
-}
-
-.section,
-.analysis-dashboard-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.settings-panel,
-.record-search-dashboard,
-.record-result-section,
-.yearly-body-section,
-.equipment-dashboard-section,
-.record-body-part-section,
-.meal-weekly-shell > .section {
-  background: #111827 !important;
-  border: 1px solid var(--line-soft) !important;
-  border-radius: 12px !important;
-  box-shadow: var(--surface-shadow-card) !important;
-  color: var(--text-primary) !important;
-}
-
-.section-header,
-.weekly-meal-day-head,
-.tool-card-head {
-  background:
-    linear-gradient(180deg, #111827 0%, #172033 100%),
-    var(--surface-soft) !important;
-  border: 1px solid rgb(0 166 166 / 13%) !important;
-  color: var(--text-primary) !important;
-}
-
-.section-title,
-.summary-value,
-.weekly-meal-main strong,
-.tool-card-head strong,
-.more-link-card strong,
-.analysis-conclusion-card > strong {
-  color: var(--text-primary) !important;
-}
-
-.section-subtitle,
-.summary-label,
-.weekly-meal-main span,
-.more-link-card span,
-small,
-.muted {
-  color: var(--text-secondary) !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section {
-  order: 10 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) > .date-row,
-.today-shell:not(.workout-mode):not(.meal-mode) .date-row {
-  order: 15 !important;
-}
-
-.today-shell .today-hero-section {
-  background:
-    linear-gradient(135deg, rgb(0 166 166 / 18%) 0%, #111827 48%, rgb(183 240 0 / 20%) 100%),
-    var(--surface) !important;
-  border: 1px solid rgb(0 166 166 / 28%) !important;
-  border-top: 5px solid var(--brand-teal) !important;
-  box-shadow: 0 16px 34px rgb(0 166 166 / 12%) !important;
-}
-
-.today-hero-head h1 {
-  color: var(--brand-navy) !important;
-  font-weight: 850 !important;
-}
-
-.today-hero-head > div > span,
-.today-focus-card strong {
-  color: var(--brand-navy) !important;
-}
-
-.today-focus-card,
-.next-action-card {
-  border: 1px solid var(--line-soft) !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-}
-
-.today-focus-card.is-workout,
-.next-action-card.action-workout {
-  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
-  border-color: rgb(37 99 235 / 24%) !important;
-}
-
-.today-focus-card.is-meal,
-.next-action-card.action-meal {
-  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
-  border-color: rgb(34 197 94 / 26%) !important;
-}
-
-.today-focus-card.is-body,
-.next-action-card.action-body {
-  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
-  border-color: rgb(124 58 237 / 22%) !important;
-}
-
-.today-focus-card.is-analysis {
-  background: linear-gradient(180deg, #111827 0%, rgb(183 240 0 / 18%) 100%) !important;
-  border-color: rgb(183 240 0 / 38%) !important;
-}
-
-.date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter,
-.tool-input-row {
-  background:
-    linear-gradient(180deg, #111827 0%, var(--surface-soft) 100%),
-    var(--surface-soft) !important;
-  border: 1px solid var(--line-soft) !important;
-  box-shadow: none !important;
-}
-
-input,
-select,
-textarea,
-.period-control-panel input,
-.date-picker-form input {
-  background: #111827 !important;
-  border: 1px solid #BFD3CA !important;
-  box-shadow: none !important;
-  color: var(--text-primary) !important;
-}
-
-.analysis-conclusion-card {
-  background:
-    linear-gradient(135deg, var(--brand-navy) 0%, #163E5E 58%, #0B5960 100%),
-    var(--brand-navy) !important;
-  border: 1px solid rgb(255 107 53 / 36%) !important;
-  border-left: 6px solid var(--achievement-coral) !important;
-  box-shadow: 0 18px 36px rgb(16 42 67 / 20%) !important;
-  color: #ffffff !important;
-}
-
-.analysis-conclusion-card > span {
-  color: rgb(183 240 0 / 92%) !important;
-  font-weight: 850 !important;
-}
-
-.analysis-conclusion-card > strong,
-.analysis-conclusion-card b,
-.analysis-conclusion-card small {
-  color: #ffffff !important;
-}
-
-.analysis-conclusion-grid > div {
-  background: rgb(255 255 255 / 10%) !important;
-  border: 1px solid rgb(255 255 255 / 18%) !important;
-  box-shadow: none !important;
-}
-
-.analysis-conclusion-grid > div:nth-child(1) {
-  border-color: rgb(255 107 53 / 54%) !important;
-  box-shadow: inset 4px 0 0 var(--achievement-coral) !important;
-}
-
-.analysis-conclusion-grid > div:nth-child(2) {
-  border-color: rgb(245 158 11 / 54%) !important;
-  box-shadow: inset 4px 0 0 var(--recovery-amber) !important;
-}
-
-.analysis-conclusion-grid > div:nth-child(3) {
-  border-color: rgb(0 166 166 / 54%) !important;
-  box-shadow: inset 4px 0 0 var(--brand-teal) !important;
-}
-
-.analysis-primary-metrics > *:nth-child(1),
-.daily-metric:nth-child(1),
-.record-result-value:nth-child(1) {
-  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
-  border-color: rgb(37 99 235 / 24%) !important;
-}
-
-.analysis-primary-metrics > *:nth-child(2),
-.analysis-secondary-metrics > *:nth-child(3),
-.daily-metric:nth-child(2),
-.record-result-value:nth-child(2) {
-  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
-  border-color: rgb(6 182 212 / 26%) !important;
-}
-
-.analysis-primary-metrics > *:nth-child(3),
-.daily-metric:nth-child(3),
-.record-result-value:nth-child(3) {
-  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
-  border-color: rgb(34 197 94 / 26%) !important;
-}
-
-.meal-weekly-shell .summary-card,
-.meal-weekly-shell .goal-card,
-.meal-weekly-shell .weekly-meal-day,
-.meal-record-card,
-.meal-template-card,
-.recent-meal-template-row {
-  background:
-    linear-gradient(180deg, #111827 0%, rgb(34 197 94 / 10%) 100%),
-    var(--meal-soft) !important;
-  border-color: rgb(34 197 94 / 24%) !important;
-}
-
-.meal-weekly-shell .weekly-meal-day {
-  border-top: 4px solid var(--meal-green) !important;
-}
-
-.meal-weekly-shell .weekly-meal-item {
-  background: #172033 !important;
-  border: 1px solid rgb(34 197 94 / 18%) !important;
-}
-
-.weekly-meal-item .badge.meal-type-breakfast,
-.today-meal-section .badge.meal-type-breakfast {
-  background: rgb(245 158 11 / 20%) !important;
-  border: 1px solid rgb(245 158 11 / 42%) !important;
-  color: #7A4D05 !important;
-}
-
-.weekly-meal-item .badge.meal-type-lunch,
-.today-meal-section .badge.meal-type-lunch {
-  background: rgb(34 197 94 / 20%) !important;
-  border: 1px solid rgb(34 197 94 / 42%) !important;
-  color: #14532D !important;
-}
-
-.weekly-meal-item .badge.meal-type-dinner,
-.today-meal-section .badge.meal-type-dinner {
-  background: rgb(6 182 212 / 20%) !important;
-  border: 1px solid rgb(6 182 212 / 42%) !important;
-  color: #155E75 !important;
-}
-
-.weekly-meal-item .badge.meal-type-snack,
-.today-meal-section .badge.meal-type-snack {
-  background: rgb(124 58 237 / 18%) !important;
-  border: 1px solid rgb(124 58 237 / 36%) !important;
-  color: #4C1D95 !important;
-}
-
-.more-section {
-  background:
-    linear-gradient(135deg, var(--brand-navy) 0%, #0E4956 56%, rgb(0 166 166 / 76%) 100%),
-    var(--brand-navy) !important;
-  border-color: rgb(183 240 0 / 28%) !important;
-  color: #ffffff !important;
-}
-
-.more-section *,
-.more-section .yearly-kicker {
-  color: #ffffff !important;
-}
-
-.more-overview-strip article {
-  background: rgb(255 255 255 / 12%) !important;
-  border: 1px solid rgb(255 255 255 / 18%) !important;
-  color: #ffffff !important;
-}
-
-.more-group-section {
-  --group-color: var(--brand-teal);
-  --group-soft: rgb(0 166 166 / 10%);
-  border-top: 4px solid var(--group-color) !important;
-}
-
-.more-group-section:nth-of-type(2) {
-  --group-color: var(--brand-teal);
-  --group-soft: rgb(0 166 166 / 11%);
-}
-
-.more-group-section:nth-of-type(3) {
-  --group-color: var(--meal-green);
-  --group-soft: rgb(34 197 94 / 12%);
-}
-
-.more-group-section:nth-of-type(4) {
-  --group-color: var(--cardio-cyan);
-  --group-soft: rgb(6 182 212 / 12%);
-}
-
-.more-group-section:nth-of-type(5) {
-  --group-color: var(--brand-navy);
-  --group-soft: rgb(16 42 67 / 10%);
-}
-
-.more-group-section .section-header {
-  background: linear-gradient(180deg, #111827 0%, var(--group-soft) 100%) !important;
-  border-color: color-mix(in srgb, var(--group-color) 28%, var(--line-soft)) !important;
-}
-
-.more-link-card {
-  position: relative !important;
-  background:
-    linear-gradient(180deg, #111827 0%, var(--group-soft, rgb(0 166 166 / 10%)) 100%),
-    #111827 !important;
-  border: 1px solid color-mix(in srgb, var(--group-color, var(--brand-teal)) 24%, var(--line-soft)) !important;
-  border-left: 5px solid var(--group-color, var(--brand-teal)) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-  padding-right: 34px !important;
-  text-decoration: none !important;
-}
-
-.more-link-card::after {
-  align-items: center !important;
-  background: var(--group-color, var(--brand-teal)) !important;
-  border-radius: 999px !important;
-  color: #ffffff !important;
-  content: "›" !important;
-  display: inline-flex !important;
-  font-size: 20px !important;
-  font-weight: 850 !important;
-  height: 24px !important;
-  justify-content: center !important;
-  position: absolute !important;
-  right: 10px !important;
-  top: 12px !important;
-  width: 24px !important;
-}
-
-.more-link-card b {
-  align-items: center !important;
-  background: var(--group-color, var(--brand-teal)) !important;
-  border-radius: 999px !important;
-  color: #ffffff !important;
-  display: inline-flex !important;
-  font-size: 11px !important;
-  font-weight: 850 !important;
-  min-height: 26px !important;
-  padding: 5px 9px !important;
-  width: max-content !important;
-}
-
-.more-link-card[href*="meal"],
-.more-link-card[href*="plate"] {
-  --group-color: var(--meal-green);
-  --group-soft: rgb(34 197 94 / 12%);
-}
-
-.more-link-card[href*="exercise"],
-.more-link-card[href*="location"],
-.more-link-card[href*="plans"] {
-  --group-color: var(--cardio-cyan);
-  --group-soft: rgb(6 182 212 / 12%);
-}
-
-.more-link-card[href*="data"],
-.more-link-card[href*="settings"] {
-  --group-color: var(--brand-navy);
-  --group-soft: rgb(16 42 67 / 10%);
-}
-
-.plate-tool-page {
-  background:
-    linear-gradient(135deg, rgb(6 182 212 / 13%) 0%, #111827 46%, rgb(0 166 166 / 12%) 100%),
-    #111827 !important;
-  border-color: rgb(6 182 212 / 28%) !important;
-}
-
-.plate-tool-page .tool-card-large {
-  background:
-    linear-gradient(180deg, #111827 0%, rgb(6 182 212 / 9%) 100%),
-    var(--cardio-soft) !important;
-  border: 1px solid rgb(6 182 212 / 24%) !important;
-  border-top: 4px solid var(--cardio-cyan) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-}
-
-.plate-tool-page .tool-input-row {
-  background: #111827 !important;
-  border: 1px solid rgb(6 182 212 / 18%) !important;
-}
-
-.plate-result,
-.warmup-result {
-  align-content: center !important;
-  background:
-    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, #111827 54%, rgb(0 166 166 / 16%) 100%),
-    var(--cardio-soft) !important;
-  border: 1px solid rgb(6 182 212 / 36%) !important;
-  border-left: 5px solid var(--brand-teal) !important;
-  box-shadow: 0 10px 22px rgb(6 182 212 / 12%) !important;
-  color: var(--brand-navy) !important;
-  cursor: default !important;
-  font-size: 20px !important;
-  font-weight: 850 !important;
-  line-height: 1.35 !important;
-  min-height: 58px !important;
-  padding: 14px !important;
-}
-
-.plate-result *,
-.warmup-result * {
-  color: var(--brand-navy) !important;
-  font-weight: 850 !important;
-}
-
-:focus-visible {
-  outline: 2px solid var(--brand-teal) !important;
-  outline-offset: 2px !important;
-}
-
-@media (max-width: 760px) {
-  .header {
-    grid-template-columns: 1fr !important;
-  }
-
-  .header-meta,
-  .account-actions {
-    justify-content: flex-start !important;
-  }
-}
-
-@media (max-width: 560px) {
-  .header {
-    gap: 10px !important;
-    padding: 16px 12px !important;
-  }
-
-  .header-title,
-  .header .header-title {
-    font-size: 24px !important;
-  }
-
-  .header-meta {
-    width: 100% !important;
-  }
-
-  .header .account-greeting,
-  .header .app-version {
-    max-width: 100% !important;
-  }
-
-  .tabs {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-
-  .tabs .tab-btn,
-  .tab-logout-form .tab-btn {
-    overflow-wrap: anywhere !important;
-    white-space: normal !important;
-  }
-
-  .today-shell:not(.workout-mode):not(.meal-mode) > .date-row,
-  .today-shell:not(.workout-mode):not(.meal-mode) .date-row,
-  .date-row,
-  .date-picker-form,
-  .period-control-panel,
-  .month-picker-form-wide.period-control-panel,
-  .week-control-row.period-control-panel,
-  .more-tool-filter,
-  .tool-input-row {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* v3.0.0 brand color reboot replanning: exact palette and representative screen structure. */
-:root {
-  --brand-navy: #0B1F33;
-  --brand-navy-deep: #071A2D;
-  --brand-teal: #00A6A6;
-  --energy-lime: #B8F042;
-  --workout-blue: #2F80ED;
-  --meal-green: #22C55E;
-  --cardio-cyan: #06B6D4;
-  --recovery-amber: #F59E0B;
-  --body-violet: #7C3AED;
-  --achievement-coral: #FF6B35;
-  --danger-red: #DC2626;
-  --app-bg: #0b0f17;
-  --surface: #111827;
-  --surface-warm: #172033;
-  --line: #D7E5DD;
-  --text-primary: #0B1220;
-  --text-secondary: #475569;
-  --muted-gray: #94A3B8;
-  --surface-soft: var(--surface-warm);
-  --line-soft: var(--line);
-  --surface-page: var(--app-bg);
-  --surface-card: var(--surface);
-  --surface-card-soft: var(--surface-warm);
-  --surface-control: var(--surface-warm);
-  --surface-active: var(--brand-navy);
-  --surface-active-strong: var(--brand-navy-deep);
-  --surface-border: var(--line);
-  --surface-text: var(--text-primary);
-  --surface-muted: var(--text-secondary);
-  --workout: var(--workout-blue);
-  --workout-soft: rgb(47 128 237 / 11%);
-  --cardio: var(--cardio-cyan);
-  --cardio-soft: rgb(6 182 212 / 13%);
-  --meal: var(--meal-green);
-  --meal-soft: rgb(34 197 94 / 12%);
-  --recovery: var(--recovery-amber);
-  --recovery-soft: rgb(245 158 11 / 14%);
-  --body: var(--body-violet);
-  --body-soft: rgb(124 58 237 / 11%);
-  --achievement: var(--achievement-coral);
-  --achievement-soft: rgb(255 107 53 / 13%);
-  --warning: var(--recovery-amber);
-  --warning-soft: rgb(245 158 11 / 14%);
-  --danger: var(--danger-red);
-  --danger-soft: rgb(220 38 38 / 10%);
-}
-
-body,
-.content {
-  background: var(--app-bg) !important;
-}
-
-.header {
-  background: linear-gradient(135deg, var(--brand-navy-deep) 0%, var(--brand-navy) 62%, #073D46 100%) !important;
-}
-
-.tabs {
-  background: var(--surface-warm) !important;
-  border-color: var(--line) !important;
-}
-
-.tabs .tab-btn:not(.active),
-.tab-logout-form .tab-btn:not(.active) {
-  background: var(--surface) !important;
-  border-color: var(--line) !important;
-  color: var(--brand-navy) !important;
-}
-
-.tabs .tab-btn.active,
-.tab-btn.active {
-  background: var(--brand-navy) !important;
-  border-color: rgb(184 240 66 / 38%) !important;
-  box-shadow: inset 0 -3px 0 var(--energy-lime), 0 12px 22px rgb(11 31 51 / 16%) !important;
-}
-
-.analysis-period-panel {
-  display: grid !important;
-  gap: 10px !important;
-  margin-top: 12px !important;
-}
-
-.analysis-conclusion-grid > div:nth-child(3) {
-  border-color: rgb(245 158 11 / 58%) !important;
-  box-shadow: inset 4px 0 0 var(--recovery-amber) !important;
-}
-
-.analysis-conclusion-grid > div:nth-child(4) {
-  border-color: rgb(0 166 166 / 58%) !important;
-  box-shadow: inset 4px 0 0 var(--brand-teal) !important;
-}
-
-.meal-weekly-hero {
-  background:
-    linear-gradient(135deg, rgb(34 197 94 / 16%) 0%, #111827 52%, rgb(184 240 66 / 16%) 100%),
-    var(--surface) !important;
-  border-color: rgb(34 197 94 / 28%) !important;
-  border-top: 5px solid var(--meal-green) !important;
-}
-
-.meal-weekly-hero .section-header {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-}
-
-.meal-weekly-hero .btn-primary {
-  background: var(--meal-green) !important;
-  border-color: rgb(34 197 94 / 36%) !important;
-  box-shadow: 0 10px 20px rgb(34 197 94 / 18%) !important;
-}
-
-.meal-hero-metrics {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 9px !important;
-  margin-bottom: 10px !important;
-}
-
-.meal-hero-metrics article {
-  background: #172033 !important;
-  border: 1px solid rgb(34 197 94 / 20%) !important;
-  border-radius: 10px !important;
-  padding: 10px !important;
-}
-
-.meal-hero-metrics span {
-  color: var(--text-secondary) !important;
-  display: block !important;
-  font-size: 12px !important;
-  font-weight: 800 !important;
-}
-
-.meal-hero-metrics strong {
-  color: var(--brand-navy) !important;
-  display: block !important;
-  font-size: 22px !important;
-  font-weight: 850 !important;
-}
-
-.weekly-meal-item .badge.meal-type-breakfast,
-.today-meal-section .badge.meal-type-breakfast {
-  background: rgb(251 191 36 / 22%) !important;
-  border-color: rgb(251 191 36 / 44%) !important;
-}
-
-.weekly-meal-item .badge.meal-type-dinner,
-.today-meal-section .badge.meal-type-dinner {
-  background: rgb(59 130 246 / 18%) !important;
-  border-color: rgb(59 130 246 / 38%) !important;
-  color: #1E3A8A !important;
-}
-
-.more-group-section[data-more-group="workout"],
-.more-link-card[data-tool-group="workout"] {
-  --group-color: var(--workout-blue);
-  --group-soft: rgb(47 128 237 / 11%);
-}
-
-.more-group-section[data-more-group="meal"],
-.more-link-card[data-tool-group="meal"] {
-  --group-color: var(--meal-green);
-  --group-soft: rgb(34 197 94 / 12%);
-}
-
-.more-group-section[data-more-group="analysis"],
-.more-link-card[data-tool-group="analysis"] {
-  --group-color: var(--achievement-coral);
-  --group-soft: rgb(255 107 53 / 13%);
-}
-
-.more-group-section[data-more-group="data"],
-.more-link-card[data-tool-group="data"] {
-  --group-color: var(--brand-teal);
-  --group-soft: rgb(0 166 166 / 11%);
-}
-
-.more-link-card {
-  border-left-width: 0 !important;
-}
-
-.plate-result,
-.warmup-result {
-  background:
-    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, #111827 54%, rgb(0 166 166 / 16%) 100%),
-    var(--cardio-soft) !important;
-  border-color: rgb(6 182 212 / 36%) !important;
-  border-left-color: var(--brand-teal) !important;
-}
-
-@media (max-width: 560px) {
-  .meal-hero-metrics {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* v3.0.0 browser audit follow-up: clipping, hierarchy, and role-specific surfaces. */
-.header {
-  align-items: start !important;
-  gap: 10px 16px !important;
-  padding-block: 16px !important;
-}
-
-.header-title,
-.header .header-title {
-  color: #F7FBF5 !important;
-  font-size: 28px !important;
-  font-weight: 850 !important;
-  height: auto !important;
-  line-height: 1.24 !important;
-  min-height: 35px !important;
-  overflow: visible !important;
-  padding-block: 2px !important;
-}
-
-.header-meta {
-  align-content: center !important;
-  align-self: center !important;
-  line-height: 1.25 !important;
-  min-height: 32px !important;
-  min-width: 0 !important;
-}
-
-.today-shell .today-hero-section {
-  background:
-    linear-gradient(135deg, rgb(0 166 166 / 24%) 0%, #111827 44%, rgb(184 240 66 / 24%) 100%),
-    var(--surface) !important;
-  border-color: rgb(0 166 166 / 36%) !important;
-  border-top-color: var(--brand-teal) !important;
-}
-
-.today-hero-head h1,
-.today-focus-card strong,
-.summary-grid.overview-only .summary-value,
-.summary-grid.overview-only .summary-label {
-  line-height: 1.28 !important;
-}
-
-.today-focus-card,
-.summary-grid.overview-only .summary-card {
-  min-height: 96px !important;
-  overflow: visible !important;
-}
-
-.summary-grid.overview-only .summary-card:nth-child(1),
-.summary-grid.overview-only .summary-card:nth-child(2),
-.summary-grid.overview-only .summary-card:nth-child(3) {
-  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
-  border-color: rgb(47 128 237 / 24%) !important;
-}
-
-.summary-grid.overview-only .summary-card:nth-child(4),
-.summary-grid.overview-only .summary-card:nth-child(5) {
-  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
-  border-color: rgb(34 197 94 / 26%) !important;
-}
-
-.summary-grid.overview-only .summary-card:nth-child(6),
-.summary-grid.overview-only .summary-card:nth-child(7) {
-  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
-  border-color: rgb(6 182 212 / 26%) !important;
-}
-
-.monthly-conclusion-card {
-  margin-bottom: 12px !important;
-}
-
-.analysis-dashboard-section > .analysis-period-panel {
-  background:
-    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
-    var(--surface-warm) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  padding: 10px !important;
-}
-
-.analysis-metric-grid .yearly-metric-card:nth-child(1),
-.analysis-metric-grid .yearly-metric-card:nth-child(2) {
-  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
-  border-color: rgb(47 128 237 / 24%) !important;
-}
-
-.analysis-metric-grid .yearly-metric-card:nth-child(3),
-.analysis-metric-grid .yearly-metric-card:nth-child(4) {
-  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
-  border-color: rgb(6 182 212 / 26%) !important;
-}
-
-.analysis-metric-grid .yearly-metric-card:nth-child(5) {
-  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
-  border-color: rgb(124 58 237 / 24%) !important;
-}
-
-.analysis-metric-grid .yearly-metric-card:nth-child(6) {
-  background: linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%) !important;
-  border-color: rgb(255 107 53 / 28%) !important;
-}
-
-.more-link-card[data-tool-group] {
-  background:
-    linear-gradient(135deg, rgb(30 41 59 / 88%) 0%, var(--group-soft) 100%),
-    var(--surface) !important;
-  border: 1px solid color-mix(in srgb, var(--group-color) 34%, var(--line)) !important;
-  border-top: 4px solid var(--group-color) !important;
-}
-
-.more-link-card[data-tool-group]::after,
-.more-link-card[data-tool-group] b {
-  background: var(--group-color) !important;
-}
-
-.meal-weekly-hero,
-.meal-hero-metrics article,
-.weekly-meal-day,
-.weekly-meal-item,
-.goal-form-compact {
-  overflow: visible !important;
-}
-
-.meal-weekly-hero .section-title,
-.meal-weekly-hero .section-subtitle,
-.meal-hero-metrics span,
-.meal-hero-metrics strong,
-.weekly-meal-day-head strong,
-.weekly-meal-day-head span,
-.weekly-meal-main strong,
-.weekly-meal-main span,
-.goal-form-compact input,
-.goal-form-compact button {
-  line-height: 1.3 !important;
-}
-
-.meal-hero-metrics article {
-  min-height: 82px !important;
-}
-
-.weekly-meal-item .badge {
-  min-height: 30px !important;
-  white-space: normal !important;
-}
-
-.plate-tool-page .tool-card-large[data-plate-tool],
-.plate-tool-page .tool-card-large[data-warmup-tool] {
-  background: #111827 !important;
-  border-color: var(--line) !important;
-  border-top-color: var(--cardio-cyan) !important;
-}
-
-.plate-tool-page .tool-input-row {
-  background: #111827 !important;
-  border-color: var(--line) !important;
-}
-
-.plate-result,
-.warmup-result {
-  background:
-    linear-gradient(135deg, rgb(0 166 166 / 22%) 0%, rgb(6 182 212 / 14%) 100%),
-    var(--cardio-soft) !important;
-  border-color: rgb(0 166 166 / 38%) !important;
-  color: var(--brand-navy) !important;
-  cursor: default !important;
-}
-
-.warmup-result {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-}
-
-.warmup-result span {
-  background: #172033 !important;
-  border: 1px solid rgb(0 166 166 / 24%) !important;
-  border-radius: 999px !important;
-  cursor: default !important;
-  padding: 6px 9px !important;
-}
-
-.data-center-card {
-  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
-  border: 1px solid rgb(0 166 166 / 24%) !important;
-  border-top: 4px solid var(--brand-teal) !important;
-}
-
-.data-center-card:nth-child(1),
-.data-center-card:nth-child(2) {
-  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
-  border-top-color: var(--workout-blue) !important;
-}
-
-.data-center-card:nth-child(3) {
-  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
-  border-top-color: var(--meal-green) !important;
-}
-
-.data-warning-card {
-  background: linear-gradient(180deg, #111827 0%, var(--warning-soft) 100%) !important;
-  border: 1px solid rgb(245 158 11 / 34%) !important;
-  border-left: 5px solid var(--recovery-amber) !important;
-}
-
-.export-link-card {
-  background: linear-gradient(180deg, #111827 0%, rgb(0 166 166 / 10%) 100%) !important;
-  border: 1px solid rgb(0 166 166 / 24%) !important;
-  border-top: 4px solid var(--brand-teal) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-  text-decoration: none !important;
-}
-
-.record-gap-card {
-  align-items: center !important;
-  background: #111827 !important;
-  border: 1px solid var(--line) !important;
-  border-left: 5px solid var(--body-violet) !important;
-  box-shadow: none !important;
-  display: grid !important;
-  gap: 10px !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  padding: 10px !important;
-}
-
-.record-gap-actions {
-  background: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
-.record-search-form {
-  background:
-    linear-gradient(180deg, #111827 0%, rgb(0 166 166 / 8%) 100%),
-    var(--surface) !important;
-  border: 1px solid rgb(0 166 166 / 18%) !important;
-  display: grid !important;
-  gap: 10px !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-}
-
-.record-filter-details {
-  background: var(--surface-warm) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 10px !important;
-  grid-column: 1 / -1 !important;
-  padding: 10px !important;
-}
-
-.record-filter-details summary {
-  color: var(--brand-navy) !important;
-  cursor: pointer !important;
-  font-weight: 850 !important;
-  line-height: 1.3 !important;
-}
-
-.record-filter-grid,
-.record-filter-details .record-list-toolbar {
-  background: #111827 !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 9px !important;
-  box-shadow: none !important;
-  padding: 8px !important;
-}
-
-.record-filter-apply,
-.record-search-form .record-filter-apply {
-  background: #111827 !important;
-  border: 1px solid rgb(0 166 166 / 28%) !important;
-  box-shadow: none !important;
-  color: var(--brand-teal) !important;
-  font-weight: 850 !important;
-}
-
-@media (max-width: 760px) {
-  .header-title,
-  .header .header-title {
-    font-size: 26px !important;
-  }
-}
-
-@media (max-width: 560px) {
-  .header-title,
-  .header .header-title {
-    font-size: 24px !important;
-    min-height: 32px !important;
-  }
-
-  .record-search-form,
-  .record-gap-card {
-    grid-template-columns: 1fr !important;
-  }
-
-  .record-search-form .record-search-submit,
-  .record-search-form .record-filter-apply {
-    width: 100% !important;
-  }
-
-  .meal-weekly-hero .section-header,
-  .week-control-row.period-control-panel,
-  .goal-form-compact {
-    grid-template-columns: 1fr !important;
-  }
-}
-
-/* v3.0.0 global UI replanning master: role hierarchy and secondary controls. */
-.section,
-.analysis-dashboard-section,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.settings-panel {
-  border-radius: 12px !important;
-}
-
-.today-hero-section,
-.meal-weekly-hero,
-.analysis-dashboard-section .yearly-dashboard-head,
-.more-section {
-  box-shadow: 0 12px 28px rgb(11 31 51 / 10%) !important;
-}
-
-.date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter {
-  align-items: center !important;
-  background:
-    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
-    var(--surface-warm) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 999px !important;
-  box-shadow: inset 0 1px 0 rgb(30 41 59 / 88%) !important;
-  gap: 10px !important;
-  padding: 10px !important;
-}
-
-.date-row input,
-.date-picker-form input,
-.period-control-panel input,
-.period-control-panel select,
-.month-picker-form-wide.period-control-panel input,
-.week-control-row.period-control-panel input {
-  background: #111827 !important;
-  border: 1px solid rgb(215 229 221 / 72%) !important;
-  box-shadow: none !important;
-}
-
-.analysis-dashboard-section > .yearly-action-grid.analysis-action-grid {
-  background:
-    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
-    var(--surface-warm) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  gap: 8px !important;
-  margin-top: 10px !important;
-  padding: 8px !important;
-}
-
-.analysis-dashboard-section > .analysis-conclusion-card + .yearly-action-grid.analysis-action-grid,
-.analysis-dashboard-section > .analysis-conclusion-card + .secondary-segmented-control {
-  margin-top: 12px !important;
-}
-
-.analysis-dashboard-section > .analysis-period-panel {
-  margin-top: 12px !important;
-}
-
-.analysis-action-card {
-  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
-  border: 1px solid var(--line) !important;
-  box-shadow: none !important;
-}
-
-.analysis-action-card.is-warning,
-.insight-group-card.is-warning {
-  background: linear-gradient(180deg, #111827 0%, var(--warning-soft) 100%) !important;
-  border-color: rgb(245 158 11 / 34%) !important;
-  box-shadow: inset 4px 0 0 var(--recovery-amber) !important;
-}
-
-.analysis-action-card.is-goal {
-  background: linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%) !important;
-  border-color: rgb(255 107 53 / 28%) !important;
-}
-
-.record-result-card {
-  background: #111827 !important;
-  border: 1px solid var(--line) !important;
-  border-left: 5px solid var(--workout-blue) !important;
-  box-shadow: none !important;
-}
-
-.record-result-value:nth-child(1) {
-  background: var(--workout-soft) !important;
-  border-color: rgb(47 128 237 / 22%) !important;
-}
-
-.record-result-value:nth-child(2) {
-  background: var(--body-soft) !important;
-  border-color: rgb(124 58 237 / 20%) !important;
-}
-
-.record-result-value:nth-child(3) {
-  background: var(--meal-soft) !important;
-  border-color: rgb(34 197 94 / 20%) !important;
-}
-
-.record-result-value:nth-child(4) {
-  background: var(--cardio-soft) !important;
-  border-color: rgb(6 182 212 / 20%) !important;
-}
-
-.weekly-meal-item,
-.record-gap-card,
-.detail-row.info-action-row {
-  box-shadow: none !important;
-  line-height: 1.3 !important;
-}
-
-.weekly-meal-main,
-.weekly-meal-main *,
-.record-result-card *,
-.location-card *,
-.settings-action-row *,
-.body-photo-form * {
-  min-width: 0 !important;
-  overflow-wrap: anywhere !important;
-}
-
-.settings-action-row,
-.settings-password-form,
-.body-photo-form,
-.tool-input-row,
-.goal-form-compact {
-  background:
-    linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%),
-    var(--surface-warm) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 12px !important;
-  box-shadow: none !important;
-  gap: 10px !important;
-}
-
-.settings-panel .btn-primary,
-.goal-form-compact .btn-small,
-.body-photo-form .btn-primary {
-  background: var(--brand-navy) !important;
-  border-color: rgb(11 31 51 / 22%) !important;
-  color: #ffffff !important;
-}
-
-.settings-panel .btn-secondary,
-.settings-management-panel .btn-small:not(.btn-danger) {
-  background: #111827 !important;
-  border-color: rgb(0 166 166 / 24%) !important;
-  color: var(--brand-teal) !important;
-}
-
-.danger-zone,
-.danger-zone .settings-action-row,
-.settings-panel .btn-danger,
-.btn-danger {
-  border-color: rgb(220 38 38 / 28%) !important;
-}
-
-.danger-zone .settings-action-row {
-  background: linear-gradient(180deg, #111827 0%, var(--danger-soft) 100%) !important;
-}
-
-.plate-result,
-.warmup-result {
-  user-select: text !important;
-}
-
-.header-title,
-.header .header-title,
-.section-title,
-.today-hero-head h1,
-.yearly-dashboard-head h1,
-.more-section h1 {
-  letter-spacing: 0 !important;
-}
-
-@media (max-width: 560px) {
-  .date-row,
-  .date-picker-form,
-  .period-control-panel,
-  .month-picker-form-wide.period-control-panel,
-  .week-control-row.period-control-panel,
-  .more-tool-filter {
-    border-radius: 14px !important;
-    grid-template-columns: 1fr !important;
-  }
-
-  .analysis-dashboard-section > .yearly-action-grid.analysis-action-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-
-/* v3.0.0 final closeout corrections: first-screen order, compact controls, and role surfaces. */
-.today-shell:not(.workout-mode):not(.meal-mode) {
-  display: flex !important;
-  flex-direction: column !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section {
-  order: 10 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .today-action-section {
-  order: 20 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .quick-record-section {
-  order: 30 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .recent-record-section {
-  order: 40 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section {
-  order: 50 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) > .date-row {
-  order: 60 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) > .today-mode-actions {
-  order: 65 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) > .summary-grid.overview-only {
-  order: 70 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .nutrition-link-section {
-  order: 80 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .record-gap-section {
-  order: 90 !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .today-action-section {
-  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
-  border: 1px solid rgb(47 128 237 / 24%) !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .quick-record-section {
-  background: linear-gradient(180deg, #111827 0%, var(--meal-soft) 100%) !important;
-  border: 1px solid rgb(34 197 94 / 24%) !important;
-}
-
-.today-shell:not(.workout-mode):not(.meal-mode) .recent-record-section,
-.today-shell:not(.workout-mode):not(.meal-mode) .data-quality-section {
-  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
-  border: 1px solid var(--line) !important;
-}
-
-.date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter {
-  align-items: center !important;
-  border-radius: 14px !important;
-  display: grid !important;
-  gap: 8px !important;
-  min-height: 0 !important;
-  padding: 8px !important;
-}
-
-.date-row {
-  grid-template-columns: auto minmax(0, 1fr) auto !important;
-}
-
-.date-picker-form {
-  grid-template-columns: minmax(0, 1fr) auto !important;
-}
-
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter {
-  grid-template-columns: auto minmax(150px, 1fr) auto auto !important;
-}
-
-.period-control-panel .month-picker,
-.period-control-panel .week-date-form,
-.period-control-panel form,
-.more-tool-filter {
-  min-width: 0 !important;
-}
-
-.period-control-panel input,
-.period-control-panel select,
-.date-picker-form input,
-.more-tool-filter input {
-  min-height: 38px !important;
-  width: 100% !important;
-}
-
-.period-control-panel .btn-primary,
-.period-control-panel .btn-small,
-.period-control-panel .period-view-btn,
-.date-picker-form .btn-small,
-.more-tool-filter .btn-small,
-.record-search-form .record-filter-apply {
-  background: #111827 !important;
-  border: 1px solid rgb(0 166 166 / 24%) !important;
-  box-shadow: none !important;
-  color: var(--brand-teal) !important;
-}
-
-.record-search-dashboard {
-  background: linear-gradient(135deg, #111827 0%, rgb(0 166 166 / 10%) 100%) !important;
-  border-color: rgb(0 166 166 / 20%) !important;
-}
-
-.record-search-quick-section {
-  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
-  border: 1px solid var(--line) !important;
-}
-
-.record-search-form {
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  padding: 10px !important;
-}
-
-.analysis-control-section {
-  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
-  border: 1px solid var(--line) !important;
-}
-
-.analysis-detail-section {
-  background: linear-gradient(180deg, #111827 0%, rgb(47 128 237 / 8%) 100%) !important;
-  border: 1px solid rgb(47 128 237 / 18%) !important;
-}
-
-.analysis-goal-section {
-  background: linear-gradient(180deg, #111827 0%, var(--achievement-soft) 100%) !important;
-  border: 1px solid rgb(255 107 53 / 24%) !important;
-}
-
-.tool-form select[name="exercise_id"] {
-  flex: 1 1 220px !important;
-  min-width: min(100%, 220px) !important;
-  width: 100% !important;
-}
-
-.calendar-hero-section,
-.meal-template-apply-section,
-.data-center-hero-section {
-  background: linear-gradient(135deg, #111827 0%, var(--meal-soft) 100%) !important;
-  border: 1px solid rgb(34 197 94 / 24%) !important;
-  border-top: 4px solid var(--meal-green) !important;
-}
-
-.calendar-grid-section,
-.meal-template-list-section,
-.data-center-metric-section {
-  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
-  border: 1px solid rgb(6 182 212 / 22%) !important;
-}
-
-.calendar-goal-section,
-.meal-template-create-section,
-.data-center-export-section {
-  background: linear-gradient(180deg, #111827 0%, var(--workout-soft) 100%) !important;
-  border: 1px solid rgb(47 128 237 / 22%) !important;
-}
-
-.calendar-body-section,
-.data-center-gap-section {
-  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
-  border: 1px solid rgb(124 58 237 / 20%) !important;
-}
-
-.data-center-warning-section {
-  background: linear-gradient(180deg, #111827 0%, var(--warning-soft) 100%) !important;
-  border: 1px solid rgb(245 158 11 / 28%) !important;
-}
-
-.settings-account-panel {
-  background: linear-gradient(135deg, #111827 0%, rgb(11 31 51 / 8%) 100%) !important;
-  border-color: rgb(11 31 51 / 18%) !important;
-}
-
-.settings-security-panel {
-  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
-  border-color: var(--line) !important;
-}
-
-.settings-body-panel {
-  background: linear-gradient(180deg, #111827 0%, var(--body-soft) 100%) !important;
-  border-color: rgb(124 58 237 / 22%) !important;
-}
-
-.settings-management-panel {
-  background: linear-gradient(180deg, #111827 0%, var(--cardio-soft) 100%) !important;
-  border-color: rgb(6 182 212 / 22%) !important;
-}
-
-.settings-panel.danger-zone {
-  background: linear-gradient(180deg, #111827 0%, var(--danger-soft) 100%) !important;
-  border-color: rgb(220 38 38 / 34%) !important;
-}
-
-.location-form-actions,
-.checkbox-row {
-  align-items: center !important;
-  display: flex !important;
-  gap: 10px !important;
-  min-width: 0 !important;
-}
-
-.checkbox-row input[type="checkbox"] {
-  flex: 0 0 auto !important;
-  width: 18px !important;
-}
-
-.location-create-form .btn-primary {
-  background: var(--brand-navy) !important;
-  border: 1px solid rgb(11 31 51 / 22%) !important;
-  color: #ffffff !important;
-}
-
-.plate-tool-page {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
-.plate-tool-page .tool-card-large[data-plate-tool],
-.plate-tool-page .tool-card-large[data-warmup-tool] {
-  background: linear-gradient(180deg, #111827 0%, var(--surface-warm) 100%) !important;
-  border: 1px solid var(--line) !important;
-  border-top: 4px solid var(--cardio-cyan) !important;
-}
-
-.plate-result,
-.warmup-result {
-  display: grid !important;
-  gap: 8px !important;
-  min-height: 44px !important;
-}
-
-@media (max-width: 560px) {
-  .date-row {
-    grid-template-columns: auto minmax(0, 1fr) auto !important;
-  }
-
-  .date-picker-form {
-    grid-template-columns: minmax(0, 1fr) auto !important;
-  }
-
-  .period-control-panel,
-  .month-picker-form-wide.period-control-panel,
-  .week-control-row.period-control-panel,
-  .more-tool-filter,
-  .record-search-form {
-    grid-template-columns: 1fr !important;
-  }
-
-  .period-control-panel {
-    max-height: none !important;
-  }
-
-  .record-search-form .record-search-submit,
-  .record-search-form .record-filter-apply {
-    width: 100% !important;
-  }
-}
-
-@media (max-width: 560px) {
-  .period-control-panel,
-  .month-picker-form-wide.period-control-panel,
-  .week-control-row.period-control-panel {
-    grid-template-columns: auto minmax(0, 1fr) auto !important;
-  }
-
-  .period-control-panel .month-picker,
-  .period-control-panel .week-date-form,
-  .period-control-panel form {
-    grid-column: 2 !important;
-  }
-
-  .period-control-panel .period-view-btn,
-  .period-control-panel > .btn-small,
-  .month-picker-form-wide.period-control-panel > .btn-small,
-  .week-control-row.period-control-panel > .btn-small {
-    grid-column: span 3 !important;
-  }
-
-  .more-tool-filter {
-    grid-template-columns: minmax(0, 1fr) auto auto !important;
-  }
-}
-
-/* v3.1 final cascade: keep responsive cleanup rules after all legacy rebuild overrides. */
-.tabs {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-}
-
-.tabs .tab-btn,
-.tab-logout-form .tab-btn {
-  min-height: 40px !important;
-  white-space: nowrap !important;
-}
-
-.period-filter-form.v31-period-filter-form {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 8px !important;
-}
-
-.period-filter-form.v31-period-filter-form > button {
-  min-width: 0 !important;
-  min-height: 40px !important;
-  white-space: nowrap !important;
-}
-
-.record-list-toolbar.v31-record-list-toolbar,
-.filter-form .list-toolbar,
-.record-filter-details .list-toolbar {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 8px !important;
-}
-
-.list-toolbar .list-count,
-.body-part-summary-status {
-  min-width: 0 !important;
-  color: var(--surface-muted, var(--muted)) !important;
-  font-size: 12px !important;
-  font-weight: 800 !important;
-  line-height: 1.35 !important;
-  padding-inline: 2px !important;
-}
-
-.list-tools {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-  gap: 8px !important;
-}
-
-.list-control-row {
-  display: grid !important;
-  gap: 8px !important;
-  min-width: 0 !important;
-}
-
-.list-control-row-selects,
-.list-control-row-actions {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-
-.list-control-row-actions:empty {
-  display: none !important;
-}
-
-.compact-select {
-  display: grid !important;
-  grid-template-columns: auto minmax(0, 1fr) !important;
-  align-items: center !important;
-  min-width: 0 !important;
-}
-
-.compact-select span,
-.compact-select select,
-.list-control-row-actions .btn-small,
-.list-control-row-actions .record-filter-apply {
-  min-width: 0 !important;
-  min-height: 40px !important;
-  white-space: nowrap !important;
-}
-
-.record-search-form.v31-record-search-form {
-  grid-template-columns: minmax(0, 1fr) auto !important;
-}
-
-.record-filter-grid {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 8px !important;
-}
-
-.record-filter-grid > * {
-  min-width: 0 !important;
-}
-
-.record-body-part-section {
-  scroll-margin-top: 16px !important;
-}
-
-.record-body-part-section .cat-stat-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-
-.body-part-summary-status {
-  margin: 8px 0 !important;
-}
-
-.body-part-pagination-nav {
-  margin-top: 10px !important;
-}
-
-.exercise-ranking-section .record-list,
-.pr-rank-grid {
-  display: grid !important;
-  gap: 9px !important;
-}
-
-.exercise-recent-set-list .detail-row,
-.compact-detail-list .detail-row {
-  min-width: 0 !important;
-}
-
-.record-filter-apply,
-.record-search-form .record-filter-apply {
-  font-weight: 900 !important;
-}
-
-@media (min-width: 656px) {
-  .period-filter-form.v31-period-filter-form {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-
-  .record-body-part-section .cat-stat-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (min-width: 768px) {
-  .record-list-toolbar.v31-record-list-toolbar,
-  .filter-form .list-toolbar,
-  .record-filter-details .list-toolbar {
-    grid-template-columns: minmax(0, 1fr) auto !important;
-    align-items: center !important;
-  }
-
-  .list-tools {
-    grid-template-columns: auto auto !important;
-  }
-
-  .record-body-part-section .cat-stat-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  }
-}
-
-@media (max-width: 430px) {
-  .record-search-form.v31-record-search-form {
-    grid-template-columns: 1fr !important;
-  }
-
-  .record-search-form.v31-record-search-form .record-search-submit {
-    width: 100% !important;
-  }
-}
-
-/* v3.1 QA re-entry: lock the daily mobile filters after every legacy override. */
-@media (max-width: 655px) {
-  .section .period-filter-form.v31-period-filter-form {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    grid-auto-flow: row !important;
-    align-items: stretch !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow: hidden !important;
-  }
-
-  .section .period-filter-form.v31-period-filter-form > button {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-  }
-
-  .record-body-part-section .body-part-filter-list {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    align-items: stretch !important;
-    gap: 7px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    overflow-x: hidden !important;
-  }
-
-  .record-body-part-section .body-part-filter-chip {
-    flex: 1 1 calc(50% - 7px) !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    box-sizing: border-box !important;
-    white-space: nowrap !important;
-  }
-}
-
-@media (min-width: 431px) and (max-width: 655px) {
-  .record-body-part-section .body-part-filter-chip {
-    flex-basis: calc(33.333% - 7px) !important;
-  }
-}
-
-/* v3.1 dark theme regression lock: keep the final app surfaces on the dark UI system. */
-:root {
-  --brand-navy: #0f172a;
-  --brand-navy-deep: #020617;
-  --line: rgb(71 85 105 / 62%);
-  --line-soft: rgb(71 85 105 / 42%);
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --muted-gray: #94a3b8;
-  --app-bg: #0b0f17;
-  --surface: #111827;
-  --surface-warm: #172033;
-  --surface-soft: #162033;
-  --surface-tint: #0f172a;
-  --surface-page: var(--app-bg);
-  --surface-page-layer:
-    radial-gradient(circle at 12% 0%, rgb(47 128 237 / 16%) 0 220px, rgb(47 128 237 / 0%) 390px),
-    linear-gradient(180deg, #0b0f17 0%, #0f172a 48%, #111827 100%);
-  --surface-card: var(--surface);
-  --surface-card-soft: var(--surface-soft);
-  --surface-control: var(--surface-tint);
-  --surface-control-strong: #1e293b;
-  --surface-active: #2563eb;
-  --surface-active-strong: #1d4ed8;
-  --surface-border: var(--line);
-  --surface-text: var(--text-primary);
-  --surface-muted: var(--text-secondary);
-  --surface-shadow-soft: 0 18px 34px rgb(0 0 0 / 24%);
-  --workout-soft: rgb(47 128 237 / 14%);
-  --cardio-soft: rgb(6 182 212 / 13%);
-  --meal-soft: rgb(34 197 94 / 12%);
-  --recovery-soft: rgb(245 158 11 / 13%);
-  --body-soft: rgb(124 58 237 / 13%);
-  --achievement-soft: rgb(255 107 53 / 12%);
-  --warning-soft: rgb(245 158 11 / 13%);
-  --danger-soft: rgb(220 38 38 / 12%);
-  --today-outer: #0b0f17;
-  --today-outer-strong: #020617;
-  --today-surface: var(--surface-card);
-  --today-control-soft: var(--surface-control);
-}
-
-html,
-body,
-#app,
-.content {
-  background: var(--surface-page-layer), var(--app-bg) !important;
-  color: var(--surface-text) !important;
-}
-
-.content {
-  min-height: 100vh !important;
-}
-
-.header {
-  background:
-    linear-gradient(135deg, #020617 0%, #0f172a 58%, #123b5d 100%),
-    var(--brand-navy-deep) !important;
-  border-color: rgb(96 165 250 / 20%) !important;
-  color: var(--surface-text) !important;
-}
-
-.tabs,
-.subnav,
-.record-subnav,
-.analysis-subnav {
-  background: rgb(15 23 42 / 94%) !important;
-  border-color: var(--surface-border) !important;
-  box-shadow: 0 14px 28px rgb(0 0 0 / 22%) !important;
-}
-
-.tabs .tab-btn:not(.active),
-.tab-logout-form .tab-btn:not(.active),
-.subnav a,
-.record-subnav a,
-.analysis-subnav a {
-  background: var(--surface-card-soft) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-muted) !important;
-}
-
-.tabs .tab-btn.active,
-.tab-btn.active,
-.subnav a.active,
-.record-subnav a.active,
-.analysis-subnav a.active,
-.period-filter-form button.active,
-.period-control-panel .period-view-btn.active {
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
-  border-color: rgb(147 197 253 / 56%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 24px rgb(37 99 235 / 24%) !important;
-}
-
-.section,
-section,
-article,
-.summary-card,
-.record-card,
-.record-result-card,
-.pr-rank-card,
-.today-task-card,
-.today-hero-section,
-.today-action-section,
-.quick-record-section,
-.recent-record-section,
-.data-quality-section,
-.record-gap-section,
-.today-meal-section,
-.meal-input-section,
-.meal-tool-section,
-.fuel-coach-card,
-.meal-goal-section,
-.optional-section,
-.analysis-dashboard-section,
-.analysis-control-section,
-.analysis-detail-section,
-.analysis-goal-section,
-.analysis-dashboard-section .yearly-dashboard-head,
-.yearly-metric-card,
-.monthly-conclusion-card,
-.exercise-ranking-section,
-.exercise-hero-card,
-.exercise-recent-section,
-.exercise-overload-section,
-.record-search-dashboard,
-.record-search-quick-section,
-.record-search-form,
-.record-filter-details,
-.record-filter-grid,
-.record-list-toolbar,
-.settings-panel,
-.settings-action-row,
-.settings-password-form,
-.body-photo-form,
-.calendar-hero-section,
-.calendar-grid-section,
-.calendar-goal-section,
-.calendar-body-section,
-.meal-weekly-hero,
-.meal-template-apply-section,
-.meal-template-list-section,
-.meal-template-create-section,
-.data-center-hero-section,
-.data-center-metric-section,
-.data-center-export-section,
-.data-center-gap-section,
-.data-center-warning-section,
-.data-center-card,
-.data-warning-card,
-.export-link-card,
-.more-section,
-.more-group-section,
-.more-tool-section,
-.more-link-card,
-.plate-tool-page .tool-card-large[data-plate-tool],
-.plate-tool-page .tool-card-large[data-warmup-tool],
-.tool-input-row,
-.goal-form-compact,
-.date-row,
-.date-picker-form,
-.period-control-panel,
-.month-picker-form-wide.period-control-panel,
-.week-control-row.period-control-panel,
-.more-tool-filter {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 82%) 0%, rgb(15 23 42 / 96%) 100%),
-    var(--surface-card) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-}
-
-.summary-grid.overview-only .summary-card,
-.meal-hero-metrics article,
-.weekly-meal-day,
-.weekly-meal-item,
-.detail-row,
-.record-gap-card,
-.location-card,
-.settings-management-panel,
-.settings-account-panel,
-.settings-security-panel,
-.settings-body-panel,
-.settings-panel.danger-zone,
-.record-filter-details .record-list-toolbar,
-.analysis-dashboard-section > .analysis-period-panel {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 78%) 0%, rgb(15 23 42 / 92%) 100%),
-    var(--surface-card-soft) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-}
-
-input,
-select,
-textarea,
-.date-row input,
-.date-picker-form input,
-.period-control-panel input,
-.period-control-panel select,
-.more-tool-filter input,
-.compact-select select,
-.tool-form select[name="exercise_id"] {
-  background: var(--surface-control) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
+/* v3.1 v3.0 UI cascade rollback: narrow guards only after legacy rebuild passes. */
+.content input,
+.content select,
+.content textarea,
+.content .compact-select select,
+.content .tool-form select[name="exercise_id"] {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: rgb(71 85 105 / 62%) !important;
+  color: #f8fafc !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
 }
 
-input::placeholder,
-textarea::placeholder {
+.content input::placeholder,
+.content textarea::placeholder {
   color: #94a3b8 !important;
 }
 
-.btn-primary,
-button.btn-primary,
-.record-search-submit,
-.record-filter-apply,
-.record-search-form .record-filter-apply,
-.record-filter-apply.primary,
-.period-control-panel .btn-primary,
-.meal-weekly-hero .btn-primary,
-.settings-panel .btn-primary,
-.body-photo-form .btn-primary,
-.location-create-form .btn-primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  border-color: rgb(147 197 253 / 46%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
-}
-
-.btn-small,
-.btn-secondary,
-.period-control-panel .btn-small,
-.period-control-panel .period-view-btn,
-.date-picker-form .btn-small,
-.more-tool-filter .btn-small,
-.settings-panel .btn-secondary,
-.settings-management-panel .btn-small:not(.btn-danger),
-.goal-form-compact .btn-small {
-  background: var(--surface-control-strong) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: none !important;
-}
-
-.badge,
-.chip,
-.body-part-filter-chip,
-.category-chip,
-.meal-summary-row,
-.meal-tool-row,
-.warmup-result span {
-  background: rgb(15 23 42 / 74%) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-}
-
-.section-title,
-.today-hero-head h1,
-.yearly-dashboard-head h1,
-.more-section h1,
-.meal-hero-metrics strong,
-.summary-value,
-.record-result-card strong {
-  color: var(--surface-text) !important;
-}
-
-.section-subtitle,
-.summary-label,
-.meal-hero-metrics span,
-.weekly-meal-main span,
-.list-count,
-.body-part-summary-status,
-.muted,
-.text-muted {
-  color: var(--surface-muted) !important;
-}
-
-.plate-result,
-.warmup-result {
-  background:
-    linear-gradient(135deg, rgb(6 182 212 / 18%) 0%, rgb(15 23 42 / 92%) 100%),
-    var(--surface-card-soft) !important;
-  border-color: rgb(6 182 212 / 38%) !important;
-  color: var(--surface-text) !important;
-}
-
-/* v3.1 dark theme QA re-entry: cover the surfaces that final review measured as light. */
-.today-shell .today-hero-section,
-.today-shell:not(.workout-mode):not(.meal-mode) .today-hero-section,
-.workout-mode .workout-clock-section,
-.today-shell .workout-clock-section,
-.mode-actions,
-.today-mode-actions,
-.timer-actions,
-.meal-record-item,
-.meal-entry-list .meal-record-item,
-.meal-list .meal-record-item,
-.record-list-toolbar,
-.record-list-toolbar.v31-record-list-toolbar,
-.list-toolbar,
-.filter-form .list-toolbar,
-.record-filter-details .list-toolbar,
-.pagination-nav,
-.body-part-pagination-nav,
-.month-picker-form-wide,
-.month-picker-form-wide.period-control-panel,
-.week-control-row,
-.week-control-row.period-control-panel,
-.pr-filter-form,
-.record-search-query,
-.record-search-form .record-search-query,
-.record-search-form .record-filter-details,
-.record-search-form .record-filter-grid {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 86%) 0%, rgb(15 23 42 / 98%) 100%),
-    var(--surface-card) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-}
-
-.mode-actions > *,
-.today-mode-actions > *,
-.timer-actions > *,
-.record-list-toolbar > *,
-.list-toolbar > *,
-.pagination-nav > *,
-.body-part-pagination-nav > *,
-.month-picker-form-wide > *,
-.week-control-row > *,
-.pr-filter-form > *,
-.record-search-query > *,
-.record-search-form .record-filter-grid > * {
-  min-width: 0 !important;
-}
-
-.mode-actions .btn-primary,
-.today-mode-actions .btn-primary,
-.timer-actions .btn-primary,
-.record-list-toolbar .btn-primary,
-.list-toolbar .btn-primary,
-.month-picker-form-wide .btn-primary,
-.week-control-row .btn-primary,
-.pr-filter-form .btn-primary,
-.record-search-form .btn-primary,
-.record-search-submit,
-.record-filter-apply {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  border-color: rgb(147 197 253 / 46%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
-}
-
-.mode-actions .btn-small,
-.today-mode-actions .btn-small,
-.timer-actions .btn-small,
-.timer-actions button:not(.btn-primary),
-.btn-add,
-.record-list-toolbar .btn-small,
-.list-toolbar .btn-small,
-.pagination-nav a,
-.body-part-pagination-nav a,
-.month-picker-form-wide .btn-small,
-.week-control-row .btn-small,
-.pr-filter-form .btn-small,
-.record-search-form .btn-small,
-.record-search-form .record-filter-apply:not(.primary) {
-  background: var(--surface-control-strong) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: none !important;
-}
-
-.month-picker-form-wide input,
-.month-picker-form-wide select,
-.week-control-row input,
-.week-control-row select,
-.pr-filter-form input,
-.pr-filter-form select,
-.record-search-query input,
-.record-search-query select,
-.record-search-form input,
-.record-search-form select,
-.record-filter-grid input,
-.record-filter-grid select {
-  background: var(--surface-control) !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
-}
-
-/* v3.1 dark theme cache-busted final lock: keep measured card/control background-color dark. */
-:root {
-  --app-bg: #0b0f17 !important;
-  --surface: #111827 !important;
-  --surface-card: #111827 !important;
-  --surface-card-soft: #172033 !important;
-  --surface-control: #0f172a !important;
-  --surface-control-strong: #1e293b !important;
-  --surface-page: #0b0f17 !important;
-  --surface-warm: #111827 !important;
-}
-
-.content .section,
-.content section,
-.content article,
-.today-shell .today-hero-section,
-.today-shell .today-action-section,
-.today-shell .quick-record-section,
-.today-shell .recent-record-section,
-.today-shell .workout-clock-section,
-.today-shell .summary-card,
-.today-shell .record-card,
-.summary-grid.overview-only .summary-card,
-.summary-grid.overview-only .summary-card:nth-child(n),
-.record-list > .record-card,
-.record-card.workout-summary-card,
-.daily-record-card,
-.meal-record-card,
-.meal-record-item,
-.recent-meal-template-row,
-.record-result-card,
-.pr-rank-card,
-.exercise-hero-card,
-.exercise-overload-card,
-.record-search-dashboard,
-.record-search-quick-section,
-.record-search-form,
-.record-search-query,
-.record-search-form .record-filter-details,
-.record-search-form .record-filter-grid,
-.filter-form,
-.tool-form,
-.more-tool-filter,
-.period-filter-form,
-.period-control-panel,
-.date-picker-form,
-.month-picker-form-wide,
-.week-control-row,
-.pr-filter-form,
-.analysis-control-section,
-.analysis-dashboard-section,
-.analysis-dashboard-section > .analysis-period-panel,
-.record-body-part-section,
-.body-part-filter-list,
-.mode-actions,
-.today-mode-actions,
-.timer-actions,
-.record-list-toolbar,
-.list-toolbar,
-.pagination-nav,
-.body-part-pagination-nav {
-  background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 98%) 100%),
-    #111827 !important;
-  background-color: #111827 !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: var(--surface-shadow-soft) !important;
-}
-
-.content .daily-metric,
-.content .daily-metric:nth-child(n),
-.content .daily-metric strong,
-.content .daily-metric b {
-  color: var(--surface-text) !important;
-}
-
-.content .daily-metric span,
-.content .daily-metric small {
-  color: var(--surface-muted) !important;
-}
-
 .content .cat-badge,
-.today-shell .cat-badge,
-.record-search-dashboard .cat-badge,
-.exercise-ranking-section .cat-badge,
-.pr-hero-section .cat-badge,
 .content .body-part-filter-chip,
-.content .body-part-toggle {
+.content .body-part-toggle,
+.content .category-chip,
+.content .missing-day-chip {
   background: rgb(15 23 42 / 74%) !important;
   background-color: #0f172a !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
+  border-color: rgb(71 85 105 / 62%) !important;
+  color: #f8fafc !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%) !important;
 }
 
@@ -8142,11 +4352,11 @@ button.btn-primary,
 .content .analysis-action-plan,
 .content .recent-meal-template-row {
   background:
-    linear-gradient(180deg, rgb(30 41 59 / 78%) 0%, rgb(15 23 42 / 92%) 100%),
+    linear-gradient(180deg, rgb(255 255 255 / 3%), transparent 48%),
     #172033 !important;
   background-color: #172033 !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
+  border-color: rgb(71 85 105 / 62%) !important;
+  color: #f8fafc !important;
 }
 
 .content .record-result-value strong,
@@ -8156,105 +4366,34 @@ button.btn-primary,
 .content .analysis-action-plan *,
 .content .recent-meal-template-row,
 .content .recent-meal-template-row * {
-  color: var(--surface-text) !important;
+  color: #f8fafc !important;
 }
 
 .content .quality-bar,
-.today-shell .quality-bar,
-.record-check-section .quality-bar {
+.content .goal-bar,
+.content .heat-track {
   background: #0f172a !important;
   background-color: #0f172a !important;
-  border-color: var(--surface-border) !important;
+  border-color: rgb(71 85 105 / 62%) !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%) !important;
 }
 
-.content input,
-.content select,
-.content textarea,
-.today-shell input,
-.today-shell select,
-.today-shell textarea,
-.record-search-form input,
-.record-search-form select,
-.record-search-form textarea,
-.period-control-panel input,
-.period-control-panel select,
-.date-picker-form input,
-.date-picker-form select,
-.month-picker-form-wide input,
-.month-picker-form-wide select,
-.week-control-row input,
-.week-control-row select,
-.pr-filter-form input,
-.pr-filter-form select {
-  background: #0f172a !important;
-  background-color: #0f172a !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%) !important;
-}
-
-.content .btn-small,
-.content .btn-secondary,
-.content .btn-add,
-.content button:not(.btn-primary):not(.btn-danger),
-.period-control-panel .btn-small,
-.period-control-panel .period-view-btn,
-.date-picker-form .btn-small,
-.month-picker-form-wide .btn-small,
-.week-control-row .btn-small,
-.pr-filter-form .btn-small,
-.record-search-form .btn-small,
-.record-search-form .record-filter-apply:not(.primary),
-.pagination-nav a,
-.body-part-pagination-nav a,
-.list-control-row-actions .btn-small {
-  background: #1e293b !important;
-  background-color: #1e293b !important;
-  border-color: var(--surface-border) !important;
-  color: var(--surface-text) !important;
-  box-shadow: none !important;
-}
-
-.content .btn-primary,
-.content button.btn-primary,
-.mode-actions .btn-primary,
-.today-mode-actions .btn-primary,
-.period-control-panel .btn-primary,
-.month-picker-form-wide .btn-primary,
-.week-control-row .btn-primary,
-.pr-filter-form .btn-primary,
-.record-search-form .btn-primary,
-.record-search-submit,
-.record-filter-apply.primary {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
-  background-color: #2563eb !important;
-  border-color: rgb(147 197 253 / 46%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 24px rgb(37 99 235 / 22%) !important;
+.content .heat-track span {
+  background: linear-gradient(90deg, rgb(47 128 237 / 72%), rgb(6 182 212 / 68%)) !important;
+  background-color: rgb(47 128 237 / 72%) !important;
 }
 
 .content .btn-danger,
 .content button.btn-danger,
 .content .row-remove-button,
 .content button.row-remove-button,
-.content .account-action-btn,
 .content button[data-danger],
-.content .delete-button,
-.today-shell .btn-danger,
-.today-shell button.btn-danger,
-.today-shell .row-remove-button,
-.today-shell button.row-remove-button {
+.content .delete-button {
   background:
-    linear-gradient(180deg, rgb(30 41 59 / 88%) 0%, rgb(15 23 42 / 96%) 100%),
+    linear-gradient(180deg, rgb(255 255 255 / 4%), transparent 52%),
     #1e293b !important;
   background-color: #1e293b !important;
   border: 1px solid rgb(220 38 38 / 42%) !important;
   color: #fca5a5 !important;
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%) !important;
 }
-
-
-
-
-

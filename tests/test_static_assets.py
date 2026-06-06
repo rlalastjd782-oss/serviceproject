@@ -121,9 +121,9 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         for token in disallowed_tokens:
             self.assertNotIn(token, source)
 
-    def test_v31_dark_theme_lock_stays_after_light_rebuild_overrides(self) -> None:
+    def test_v31_v30_ui_cascade_rollback_removes_broad_final_locks(self) -> None:
         source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
-        marker = "/* v3.1 dark theme regression lock: keep the final app surfaces on the dark UI system. */"
+        marker = "/* v3.1 v3.0 UI cascade rollback: narrow guards only after legacy rebuild passes. */"
         self.assertIn(marker, source)
         lock_source = source.split(marker, 1)[1].lower()
         disallowed_backgrounds = [
@@ -140,45 +140,81 @@ class StaticAssetIntegrityTest(unittest.TestCase):
             "linear-gradient(180deg, #fff 0%",
         ]
 
-        self.assertIn("--app-bg: #0b0f17;", lock_source)
-        self.assertIn("--surface: #111827;", lock_source)
-        self.assertIn("--surface-card: var(--surface);", lock_source)
-        self.assertIn("--surface-control: var(--surface-tint);", lock_source)
-        self.assertIn(".tabs .tab-btn:not(.active)", lock_source)
-        self.assertIn(".record-search-dashboard", lock_source)
-        self.assertIn(".period-control-panel .btn-primary", lock_source)
-        self.assertIn("/* v3.1 dark theme qa re-entry: cover the surfaces that final review measured as light. */", lock_source)
-        self.assertIn("/* v3.1 dark theme cache-busted final lock: keep measured card/control background-color dark. */", lock_source)
-        self.assertIn("background-color: #111827 !important;", lock_source)
         self.assertIn("background-color: #0f172a !important;", lock_source)
         self.assertIn("background-color: #1e293b !important;", lock_source)
         for selector in [
-            ".today-shell .today-hero-section",
-            ".summary-grid.overview-only .summary-card:nth-child(n)",
-            ".workout-mode .workout-clock-section",
-            ".mode-actions",
-            ".meal-record-item",
-            ".list-toolbar",
-            ".pagination-nav",
-            ".month-picker-form-wide",
-            ".pr-filter-form",
-            ".filter-form",
-            ".tool-form",
-            ".content .daily-metric",
             ".content .cat-badge",
             ".content .record-result-value",
             ".content .analysis-action-plan",
             ".content .recent-meal-template-row",
             ".content .quality-bar",
+            ".content .heat-track",
             ".content .btn-danger",
             ".content .row-remove-button",
-            ".content .account-action-btn",
-            ".record-search-query",
-            ".btn-add",
         ]:
             self.assertIn(selector, lock_source)
+        for selector in [
+            ".header",
+            ".tabs",
+            "tab-btn",
+            "date-picker-form",
+            "arrow-btn",
+            "pagination-nav",
+            "body-part-pagination-nav",
+            "daily-metric:nth-child",
+            "analysis-metric-grid .yearly-metric-card:nth-child",
+            "analysis-action-card.is-warning",
+            "analysis-action-card.is-goal",
+            "analysis-action-card.is-achievement",
+            ".cat-stat-card",
+        ]:
+            self.assertNotIn(selector, lock_source)
         for token in disallowed_backgrounds:
             self.assertNotIn(token, lock_source)
+
+    def test_v31_v30_ui_cascade_rollback_keeps_period_controls_compact(self) -> None:
+        source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
+        source_without_comments = re.sub(r"/\*.*?\*/", "", source, flags=re.S)
+
+        for selector in [
+            ".month-picker-form-wide",
+            ".week-control-row",
+            ".meal-weekly-shell .week-control-row",
+            ".period-control-panel",
+            ".month-picker-form-wide.period-control-panel",
+            ".meal-weekly-shell .week-control-row.period-control-panel",
+        ]:
+            single_column_pattern = re.compile(
+                rf"{re.escape(selector)}[^{{}}]*{{[^}}]*grid-template-columns:\s*1fr\s*!important;",
+                re.S,
+            )
+            with self.subTest(selector=selector):
+                self.assertIsNone(single_column_pattern.search(source_without_comments))
+
+        overload_section_pattern = re.compile(
+            r"\.overload-dashboard-section\s*{[^}]*border-radius:\s*8px\s*!important;",
+            re.S,
+        )
+        self.assertIsNotNone(overload_section_pattern.search(source_without_comments))
+
+        for selector in [
+            ".meal-weekly-shell .week-control-row",
+            ".meal-weekly-shell .week-control-row.period-control-panel",
+            ".period-control-panel",
+        ]:
+            stretch_pattern = re.compile(
+                rf"{re.escape(selector)}[^{{}}]*{{[^}}]*align-items:\s*stretch\s*!important;",
+                re.S,
+            )
+            with self.subTest(selector=selector):
+                self.assertIsNone(stretch_pattern.search(source_without_comments))
+
+        feature_source = Path("static/css/features/feature_pages_01.css").read_text(encoding="utf-8-sig")
+        compact_arrow_pattern = re.compile(
+            r"\.week-control-row\s+\.arrow-btn,\s*\.month-picker-form-wide\s+\.arrow-btn\s*{[^}]*min-height:\s*44px",
+            re.S,
+        )
+        self.assertIsNone(compact_arrow_pattern.search(feature_source))
 
     def test_v31_existing_ui_restore_removes_light_surface_pass_tokens(self) -> None:
         source = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8-sig")
@@ -235,9 +271,9 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
         manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
 
-        self.assertEqual("3.1.9", version)
+        self.assertEqual("3.1.12", version)
         self.assertIn(f'const CACHE_NAME = "workout-pwa-v{version}";', sw_source)
-        self.assertIn('"version": "3.1.9"', manifest_source)
+        self.assertIn('"version": "3.1.12"', manifest_source)
         self.assertIn('"background_color": "#0b0f17"', manifest_source)
         self.assertIn('"theme_color": "#0b0f17"', manifest_source)
         self.assertIn("/static/css/dark_theme_lock.css", sw_source)
@@ -255,27 +291,30 @@ class StaticAssetIntegrityTest(unittest.TestCase):
                 self.assertLess(source.index("filename='css/ui_rebuild.css'"), source.index(expected_link))
 
         lock_source = Path("static/css/dark_theme_lock.css").read_text(encoding="utf-8-sig").lower()
-        self.assertIn("v3.1.3 dark theme final cascade lock", lock_source)
-        self.assertIn("v3.1.3 dark theme measured-surface lock", lock_source)
-        self.assertIn(".content .today-hero-section", lock_source)
-        self.assertIn(".content .workout-clock-section", lock_source)
-        self.assertIn(".content .quality-metric", lock_source)
-        self.assertIn(".content .summary-card", lock_source)
-        self.assertIn(".content .record-card", lock_source)
-        self.assertIn(".content .pr-filter-form", lock_source)
-        self.assertIn(".content .mode-button.btn-primary", lock_source)
+        self.assertIn("v3.1 v3.0 ui cascade rollback", lock_source)
         self.assertIn(".content .cat-badge", lock_source)
         self.assertIn(".content .record-result-value", lock_source)
         self.assertIn(".content .analysis-action-plan", lock_source)
         self.assertIn(".content .recent-meal-template-row", lock_source)
         self.assertIn(".content .quality-bar", lock_source)
+        self.assertIn(".content .heat-track", lock_source)
         self.assertIn(".content .btn-danger", lock_source)
         self.assertIn(".content .row-remove-button", lock_source)
-        self.assertIn(".content .account-action-btn", lock_source)
-        self.assertIn("body.account-user #app > .content .today-shell .today-hero-section", lock_source)
-        self.assertIn("body.account-user #app > .content .today-shell .workout-clock-section", lock_source)
-        self.assertIn("body.account-user #app > .content .today-shell .summary-grid.overview-only > .summary-card", lock_source)
-        self.assertIn("body.account-user #app > .content .today-shell .record-card.workout-summary-card", lock_source)
-        self.assertIn("background-color: #111827 !important;", lock_source)
-        self.assertIn("background-color: #0f172a !important;", lock_source)
-        self.assertIn("background-color: #1e293b !important;", lock_source)
+        for selector in [
+            ".header",
+            ".tabs",
+            "tab-btn",
+            ".content .section",
+            ".content section",
+            ".content article",
+            ".content .summary-card",
+            ".content .record-card",
+            ".content .yearly-metric-card",
+            ".content .date-picker-form",
+            ".content .pagination-nav",
+            ".content .body-part-pagination-nav",
+            ".content .account-action-btn",
+        ]:
+            self.assertNotIn(selector, lock_source)
+        self.assertIn("background-color: var(--surface-control) !important;", lock_source)
+        self.assertIn("background-color: var(--surface-control-strong) !important;", lock_source)
