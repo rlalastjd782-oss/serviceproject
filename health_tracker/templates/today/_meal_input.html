@@ -17,6 +17,16 @@
         <option value="간식" class="{{ meal_type_class('간식') }}">간식</option>
         <option value="기타" class="{{ meal_type_class('기타') }}">기타</option>
       </select>
+      <div class="meal-type-control" role="group" aria-label="끼니 선택">
+        {% for meal_type_option in ["아침", "점심", "저녁", "간식", "기타"] %}
+          <button
+            class="meal-type-segment {% if loop.first %}is-active{% endif %}"
+            type="button"
+            data-meal-type-option="{{ meal_type_option }}"
+            aria-pressed="{{ 'true' if loop.first else 'false' }}"
+          >{{ meal_type_option }}</button>
+        {% endfor %}
+      </div>
       <div class="field-help meal-scope-help">
         음식은 아침, 점심, 저녁, 간식, 기타로 저장됩니다. 선택한 끼니 기준으로 후보를 보여줍니다.
       </div>

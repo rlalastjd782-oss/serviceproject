@@ -93,9 +93,8 @@
 .meal-tool-title,
 .meal-tool-meta {
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .meal-tool-title {
@@ -215,14 +214,25 @@
   display: none;
 }
 
+.meal-form.is-collapsed + .meal-tool-section {
+  display: none;
+}
+
 .meal-form > .meal-type-select {
-  min-height: 44px;
-  width: 100%;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .meal-type-control {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 7px;
   min-width: 0;
 }
@@ -530,15 +540,11 @@
 
 .body-part-filter-list {
   display: flex;
+  flex-wrap: wrap;
   gap: 7px;
-  overflow-x: auto;
+  overflow: visible;
   margin: 2px 0 14px;
   padding: 2px 0 4px;
-  scrollbar-width: none;
-}
-
-.body-part-filter-list::-webkit-scrollbar {
-  display: none;
 }
 
 .body-part-filter-chip {

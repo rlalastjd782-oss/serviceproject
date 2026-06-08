@@ -1,4 +1,9 @@
 ﻿# Changelog
+## 2026-06-09 v3.1 v3.0 UI cascade 원복 3.1.16
+
+- `static/css/ui_rebuild.css`, `static/css/dark_theme_lock.css`, `static/css/overrides/ui_rebuild_*.css` 삭제 상태와 `base.html`의 기존 stylesheet 8개 로드만 확인해 후단 rebuild/lock cascade를 제거한 원복 기준을 확정했습니다.
+- `VERSION`, `static/sw.js`, `static/manifest.webmanifest`를 `3.1.16`과 `workout-pwa-v3.1.16` 기준으로 확인해 이전 CSS/service worker cache 재사용 경로를 줄였습니다.
+- 최종검수에서 2026-06-09 00:50 KST Playwright 화면검수 산출물, 추가 DOM/CSS 63개 조합 실측 보고, 대표 PNG 확인, 로컬 HTTP `200`, 전체 unittest 47개 통과를 확인해 조건부 승인했습니다. axe 잔여 항목은 후속 접근성 개선으로 분리합니다.
 ## 2026-06-07 v3.1 v3.0 UI cascade 원복
 
 - `static/css/overrides/ui_rebuild_05.css`와 `static/css/features/feature_pages_01.css`의 식단 주간/월간 period control 회귀 원인을 정리해 `.arrow-btn`이 이전 `40x86` 또는 `40x82` 높이로 늘어나지 않도록 보정했습니다.
@@ -327,24 +332,3 @@
 - 실행 인사이트에 개인화 다음 운동 카드를 추가했습니다.
 - 최근 운동 기록을 기반으로 다음 운동 초점과 목표 힌트를 제안하도록 개선했습니다.
 - 개인화 계산 로직을 `health_tracker/services/personalization.py`로 분리했습니다.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

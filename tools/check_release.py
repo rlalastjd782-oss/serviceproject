@@ -13,7 +13,6 @@ STATIC_ASSETS = [
     "static/css/analysis.css",
     "static/css/responsive.css",
     "static/css/rules.css",
-    "static/css/ui_rebuild.css",
     "static/js/dom_data.js",
     "static/js/pwa.js",
     "static/js/select_theme.js",

@@ -91,7 +91,6 @@ class UiNavigationFlowTest(FlowTestBase):
             "/static/analysis.css",
             "/static/responsive.css",
             "/static/rules.css",
-            "/static/ui_rebuild.css",
             "/static/app.js",
             "/static/timers.js",
             "/static/offline_queue.js",
@@ -124,8 +123,10 @@ class UiNavigationFlowTest(FlowTestBase):
     def test_mobile_fold_css_contracts_stay_intact(self) -> None:
         styles = "\n".join(path.read_text(encoding="utf-8") for path in sorted(Path("static/css").rglob("*.css")))
         self.assertIn("@media (max-width: 430px)", styles)
-        self.assertIn(".tabs {\n    display: grid;", styles)
-        self.assertIn("grid-template-columns: repeat(3, minmax(0, 1fr));", styles)
+        self.assertIn(".tabs {\n    display: flex;", styles)
+        self.assertIn("overflow-x: auto;", styles)
+        self.assertIn(".tab-btn {\n    flex: 0 0 auto;", styles)
+        self.assertIn(".tab-logout-form {\n    flex: 0 0 auto;", styles)
         self.assertIn(".mobile-action-dock {\n    position: static;", styles)
         self.assertIn(".workout-mode .today-mode-actions", styles)
         self.assertIn(".weight-unit-control {\n    grid-template-columns: minmax(0, 1fr) 76px;", styles)
@@ -158,6 +159,7 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn("set-advanced-options", workout_html)
         self.assertIn("data-readiness-coach", workout_html)
         self.assertIn("id=\"routine-library\"", workout_html)
+        self.assertNotIn("입력 기준", workout_html)
         response = self.client.post(
             "/sets",
             data={
@@ -195,24 +197,12 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn(".meal-mode .meal-tool-section {\n  order: 30;", styles)
         self.assertIn(".meal-mode .meal-goal-section {\n  order: 70;", styles)
         self.assertIn(".meal-mode .optional-section {\n  order: 80;", styles)
-        self.assertIn(".today-shell.meal-mode .today-meal-section {\n  order: 10 !important;", styles)
-        self.assertIn(".today-shell.meal-mode .meal-tool-section {\n  order: 30 !important;", styles)
-        self.assertIn(".today-shell.meal-mode .meal-goal-section {\n  order: 70 !important;", styles)
-        self.assertNotIn(".today-shell.meal-mode .meal-goal-section {\n  order: 10 !important;", styles)
-        self.assertNotIn(".today-shell.meal-mode .today-meal-section {\n  order: 30 !important;", styles)
+        self.assertNotIn("order: 10 !important;", styles)
         self.assertIn(".focus-mode .workout-secondary-section", styles)
         self.assertIn(".focus-mode .workout-action-dock {\n  grid-template-columns: repeat(5", styles)
         self.assertIn(".workout-action-dock,\n  .mobile-action-dock {\n    top: 122px;", styles)
         self.assertIn("scroll-margin-top: 174px;", styles)
         self.assertIn(".compact-select span {\n  white-space: nowrap;", styles)
-        ui_rebuild_source = Path("static/css/overrides/ui_rebuild_04.css").read_text(encoding="utf-8")
-        self.assertIn(".today-shell .meal-entry-card.meal-entry-row", ui_rebuild_source)
-        self.assertIn("grid-template-columns: minmax(0, 1fr);", ui_rebuild_source)
-        self.assertIn("grid-template-columns: minmax(0, 1fr) 42px;", ui_rebuild_source)
-        self.assertIn("grid-template-columns: repeat(3, minmax(0, 1fr));", ui_rebuild_source)
-        self.assertIn("width: 42px;", ui_rebuild_source)
-        self.assertIn("height: 42px;", ui_rebuild_source)
-
         meal_html = self.client.get("/app?mode=meal").data.decode("utf-8")
         self.assertIn('id="meal-input"', meal_html)
         self.assertIn("식단 상태", meal_html)
@@ -302,13 +292,6 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn("v31-record-list-toolbar", daily_html)
         self.assertIn("body-part-summary-status", daily_html)
         self.assertLessEqual(daily_html.count('data-body-part-summary="'), 6)
-        rebuild_css = Path("static/css/overrides/ui_rebuild_05.css").read_text(encoding="utf-8")
-        self.assertIn("v3.1 v3.0 UI cascade rollback", rebuild_css)
-        self.assertNotIn(".section .period-filter-form.v31-period-filter-form", rebuild_css)
-        self.assertNotIn(".record-body-part-section .body-part-filter-list", rebuild_css)
-        self.assertNotIn("body-part-pagination-nav", rebuild_css)
-        self.assertIn(".content .body-part-filter-chip", rebuild_css)
-
         weekly_html = self.client.get("/summaries/weekly").data.decode("utf-8")
         self.assertIn("analysis-dashboard-section", weekly_html)
         self.assertIn("주간 분석", weekly_html)

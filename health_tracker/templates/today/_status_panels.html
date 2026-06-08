@@ -52,7 +52,7 @@
         <div class="finish-review-head">
           <div>
             <strong>운동 완료 리뷰</strong>
-            <span>{% if workout_finish_review.completed %}완료된 기록 기준{% else %}현재 입력 기준{% endif %}</span>
+            <span>{% if workout_finish_review.completed %}완료된 기록 기준{% else %}현재 기록 기준{% endif %}</span>
           </div>
           <a class="btn-small" href="{{ url_for('daily_summary_page', date=session.workout_date) }}">분석 보기</a>
         </div>

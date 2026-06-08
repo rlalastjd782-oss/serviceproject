@@ -5,7 +5,6 @@ from pathlib import Path
 
 STATIC_DEPLOYMENT_PATHS = (
     "/static/css/styles.css",
-    "/static/css/ui_rebuild.css",
     "/static/js/app.js",
     "/static/manifest.webmanifest",
     "/static/icon.svg",
