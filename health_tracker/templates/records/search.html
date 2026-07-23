@@ -21,6 +21,7 @@
       <a class="btn-small" href="{{ url_for('pr_summary_page') }}">PR</a>
       <a class="btn-small" href="{{ url_for('equipment_summary_page') }}">장비</a>
     </div>
+    {% set sort_options = [("newest", "최신순"), ("oldest", "오래된순"), ("weight", "중량순"), ("volume", "볼륨순")] %}
     <div class="yearly-metric-grid analysis-metric-grid record-search-metric-grid">
       <article class="yearly-metric-card is-primary">
         <span>검색 결과</span>
@@ -29,7 +30,7 @@
       </article>
       <article class="yearly-metric-card">
         <span>정렬</span>
-        <strong>{{ selected_sort }}</strong>
+        <strong>{{ dict(sort_options).get(selected_sort, selected_sort) }}</strong>
         <small>현재 결과 순서</small>
       </article>
       <article class="yearly-metric-card">
@@ -65,7 +66,7 @@
           <input class="record-search-start" name="start" type="date" value="{{ selected_start }}" aria-label="시작일">
           <input class="record-search-end" name="end" type="date" value="{{ selected_end }}" aria-label="종료일">
         </div>
-        {{ result_toolbar(pagination, [("newest", "최신순"), ("oldest", "오래된순"), ("weight", "중량순"), ("volume", "볼륨순")], selected_sort, url_for('record_search_page'), "적용") }}
+        {{ result_toolbar(pagination, sort_options, selected_sort, url_for('record_search_page'), "적용") }}
       </details>
     </form>
   </section>

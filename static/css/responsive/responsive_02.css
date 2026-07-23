@@ -129,6 +129,8 @@
     overflow-y: hidden;
     padding: 0 6px;
     scrollbar-width: none;
+    mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent);
   }
 
   .tabs::-webkit-scrollbar {
