@@ -168,6 +168,10 @@ function copySavedSet(button, setList) {
   if (equipmentSelect && button.dataset.equipment) {
     equipmentSelect.value = button.dataset.equipment;
   }
+  const equipmentBrandInput = workoutForm?.querySelector('input[name="equipment_brand"]');
+  if (equipmentBrandInput) {
+    equipmentBrandInput.value = button.dataset.equipmentBrand || "";
+  }
   const firstRow = setList.querySelector(".set-entry-row");
   const hasValue = firstRow && [...firstRow.querySelectorAll("input")].some((input) => input.value);
   const row = firstRow && !hasValue ? firstRow : addRow(setList, "set");

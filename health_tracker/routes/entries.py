@@ -120,6 +120,7 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
         preferences = get_app_preferences()
         default_set_type = str(preferences["set_type_options"][0]) if preferences["set_type_options"] else "본세트"
         equipment = normalize_equipment_category(request.form.get("equipment", ""))
+        equipment_brand = request.form.get("equipment_brand", "").strip()[:30]
         body_part = request.form.get("body_part", workout["body_part"] if workout else "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", workout["exercise_name"] if workout else "").strip()
         exercise_id = get_or_create_exercise(exercise_name) if exercise_name else None
@@ -142,7 +143,8 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
                     cardio_minutes = ?,
                     estimated_calories = ?,
                     rpe = ?,
-                    equipment = ?
+                    equipment = ?,
+                    equipment_brand = ?
                 WHERE id = ?
                 """,
                 (
@@ -155,6 +157,7 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
                     estimate_exercise_calories(body_part, cardio_incline, cardio_speed, cardio_minutes, workout_date),
                     parse_float(request.form.get("rpe")),
                     equipment[:20],
+                    equipment_brand,
                     set_id,
                 ),
             )
@@ -169,6 +172,7 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
                     set_type = ?,
                     rpe = ?,
                     equipment = ?,
+                    equipment_brand = ?,
                     cardio_incline = NULL,
                     cardio_speed = NULL,
                     cardio_minutes = NULL,
@@ -183,6 +187,7 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
                     request.form.get("set_type", default_set_type).strip() or default_set_type,
                     parse_float(request.form.get("rpe")),
                     equipment[:20],
+                    equipment_brand,
                     set_id,
                 ),
             )

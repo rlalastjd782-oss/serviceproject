@@ -4,13 +4,13 @@
       <span class="set-index">{{ loop.index }}세트</span>
       <span class="set-result">
       {% if group.body_part == "유산소" %}
-        {% if item.equipment %}<span class="badge">{{ item.equipment|display_item_name }}</span>{% endif %}
+        {% if item.equipment %}<span class="badge">{{ item.equipment|display_item_name }}{% if item.equipment_brand %} · {{ item.equipment_brand }}{% endif %}</span>{% endif %}
         인클라인 {% if item.cardio_incline is not none %}{{ "%.1f"|format(item.cardio_incline) }}{% else %}-{% endif %}
         · 속도 {% if item.cardio_speed is not none %}{{ "%.1f"|format(item.cardio_speed) }}{% else %}-{% endif %}
         · {% if item.cardio_minutes is not none %}{{ "%.0f"|format(item.cardio_minutes) }}분{% else %}-분{% endif %}
         {% if item.estimated_calories %} · 예상 {{ "%.0f"|format(item.estimated_calories) }}kcal{% endif %}
       {% else %}
-        {% if item.equipment %}<span class="badge">{{ item.equipment|display_item_name }}</span>{% endif %}
+        {% if item.equipment %}<span class="badge">{{ item.equipment|display_item_name }}{% if item.equipment_brand %} · {{ item.equipment_brand }}{% endif %}</span>{% endif %}
         <span class="badge">{{ item.set_type or set_type_options[0] }}</span>
         {% if item.weight is not none %}<span class="blue-text">{{ "%.1f"|format(item.weight) }}kg</span>{% else %}-kg{% endif %}
         ·
@@ -47,6 +47,10 @@
           <option value="{{ option }}" {% if (item.equipment or setting.get('equipment', '')) == option %}selected{% endif %}>{{ option|display_item_name }}</option>
         {% endfor %}
       </select>
+    </label>
+    <label class="edit-field">
+      <span>브랜드</span>
+      <input name="equipment_brand" maxlength="30" autocomplete="off" value="{{ item.equipment_brand or '' }}" placeholder="브랜드(선택)">
     </label>
     {% if group.body_part == "유산소" %}
       <label class="edit-field">
@@ -101,6 +105,7 @@
       data-body-part="{{ group.body_part }}"
       data-exercise-name="{{ group.exercise_name }}"
       data-equipment="{{ item.equipment or setting.get('equipment', '') }}"
+      data-equipment-brand="{{ item.equipment_brand or '' }}"
       data-weight="{% if item.weight is not none %}{{ item.weight }}{% endif %}"
       data-reps="{% if item.reps is not none %}{{ item.reps }}{% endif %}"
       data-set-type="{{ item.set_type or set_type_options[0] }}"

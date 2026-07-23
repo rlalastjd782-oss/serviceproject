@@ -284,6 +284,7 @@ def init_database(
         ("workout_sets", "estimated_calories", "REAL"),
         ("workout_sets", "rpe", "REAL"),
         ("workout_sets", "equipment", "TEXT NOT NULL DEFAULT ''"),
+        ("workout_sets", "equipment_brand", "TEXT NOT NULL DEFAULT ''"),
         ("exercise_settings", "equipment", "TEXT NOT NULL DEFAULT ''"),
         ("exercise_settings", "location_id", "INTEGER"),
         ("exercise_settings", "target_weight", "REAL"),

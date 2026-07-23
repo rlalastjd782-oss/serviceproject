@@ -510,6 +510,12 @@ label span {
   width: 100%;
 }
 
+.ex-input-row .equipment-brand-input {
+  grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
+}
+
 .equipment-select,
 .record-search-equipment,
 .location-equipment-form select[name="equipment_name"],

@@ -28,9 +28,9 @@ def list_workout_plan_from_db(db: sqlite3.Connection, workout_date: str) -> list
 def build_workout_completion_summary_from_db(
     db: sqlite3.Connection,
     workout_date: str,
-    get_or_create_session: Callable[[str | None, int | None], sqlite3.Row],
+    get_session_by_date: Callable[[str], sqlite3.Row | None],
 ) -> dict[str, object]:
-    session = get_or_create_session(workout_date, None)
+    session = get_session_by_date(workout_date)
     by_part = db.execute(
         """
         SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
@@ -60,8 +60,8 @@ def build_workout_completion_summary_from_db(
     plan_total = len(plan_rows)
     plan_done = sum(1 for row in plan_rows if int(row["completed_sets"] or 0) >= int(row["target_sets"] or 1))
     return {
-        "completed": bool(session["completed"]),
-        "duration_seconds": int(session["duration_seconds"] or 0),
+        "completed": bool(session["completed"]) if session else False,
+        "duration_seconds": int(session["duration_seconds"] or 0) if session else 0,
         "body_parts": [dict(row) for row in by_part],
         "top_exercise": dict(top_exercise) if top_exercise else None,
         "plan_total": plan_total,
@@ -73,9 +73,9 @@ def build_workout_completion_summary_from_db(
 def build_workout_finish_review_from_db(
     db: sqlite3.Connection,
     workout_date: str,
-    get_or_create_session: Callable[[str | None, int | None], sqlite3.Row],
+    get_session_by_date: Callable[[str], sqlite3.Row | None],
 ) -> dict[str, object]:
-    session = get_or_create_session(workout_date, None)
+    session = get_session_by_date(workout_date)
     summary = db.execute(
         """
         SELECT
@@ -155,10 +155,12 @@ def build_workout_finish_review_from_db(
     if cardio_minutes:
         metrics.append({"label": "유산소", "value": f"{cardio_minutes:.0f}분", "note": "오늘 누적"})
 
+    session_completed = bool(session["completed"]) if session else False
+
     insights: list[str] = []
     if set_count == 0:
         insights.append("아직 기록된 세트가 없어 완료 리뷰를 만들 수 없습니다.")
-    elif bool(session["completed"]):
+    elif session_completed:
         insights.append("운동 완료 처리되었습니다. 오늘 기록을 기준으로 다음 행동을 정리했습니다.")
     else:
         insights.append("완료 전 상태입니다. 세트 입력이 끝나면 완료 버튼으로 오늘 리뷰를 확정할 수 있습니다.")
@@ -186,8 +188,8 @@ def build_workout_finish_review_from_db(
         next_actions.append({"label": "다음 기록 준비", "detail": "오늘 운동 기록을 추가하면 다음 추천이 더 정확해집니다."})
 
     return {
-        "visible": bool(set_count or session["completed"]),
-        "completed": bool(session["completed"]),
+        "visible": bool(set_count or session_completed),
+        "completed": session_completed,
         "metrics": metrics,
         "insights": insights[:5],
         "next_actions": next_actions[:4],

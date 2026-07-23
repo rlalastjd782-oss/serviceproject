@@ -189,11 +189,11 @@ def list_workout_plan(workout_date: str) -> list[sqlite3.Row]:
 
 
 def build_workout_completion_summary(workout_date: str) -> dict[str, object]:
-    return build_workout_completion_summary_from_db(get_db(), workout_date, get_or_create_session)
+    return build_workout_completion_summary_from_db(get_db(), workout_date, get_session_by_date)
 
 
 def build_workout_finish_review(workout_date: str) -> dict[str, object]:
-    return build_workout_finish_review_from_db(get_db(), workout_date, get_or_create_session)
+    return build_workout_finish_review_from_db(get_db(), workout_date, get_session_by_date)
 
 
 def build_workout_session_flow(workout_date: str) -> dict[str, object]:

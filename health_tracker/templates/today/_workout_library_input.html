@@ -86,9 +86,10 @@
             <option value="{{ option }}">{{ option }}</option>
           {% endfor %}
         </select>
+        <input name="equipment_brand" class="equipment-brand-input" maxlength="30" autocomplete="off" placeholder="브랜드(선택)" aria-label="장비 브랜드">
       </div>
       <div class="field-help equipment-scope-help">
-        장비는 바벨, 덤벨, 핀머신, 플레이트로디드머신, 케이블, 프리웨이트 같은 카테고리로 저장합니다. 운동명 후보만 현재 장소 기준으로 제한됩니다.
+        장비는 바벨, 덤벨, 핀머신, 플레이트로디드머신, 케이블, 프리웨이트 같은 카테고리로 저장하고, 브랜드는 선택 입력으로 참고용으로만 남깁니다. 운동명 후보만 현재 장소 기준으로 제한됩니다.
       </div>
       {% include "today/_workout_quick_panel.html" %}
       <datalist id="exercise-list" data-exercise-datalist>

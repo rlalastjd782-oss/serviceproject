@@ -41,6 +41,7 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
         body_part = request.form.get("body_part", "").strip() or "기타"
         exercise_name = request.form.get("exercise_name", "").strip()
         equipment = normalize_equipment_category(request.form.get("equipment", ""))
+        equipment_brand = request.form.get("equipment_brand", "").strip()[:30]
         if not exercise_name:
             return redirect(url_for("index", date=session["workout_date"], mode=mode or None, location_id=session["location_id"]))
 
@@ -129,9 +130,9 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
                 """
                 INSERT INTO workout_sets (
                     session_id, exercise_id, weight, reps, cardio_incline, cardio_speed,
-                    cardio_minutes, estimated_calories, memo, sort_order, body_part, set_type, rpe, equipment
+                    cardio_minutes, estimated_calories, memo, sort_order, body_part, set_type, rpe, equipment, equipment_brand
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     session["id"],
@@ -148,6 +149,7 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
                     set_type,
                     rpe,
                     equipment[:20],
+                    equipment_brand,
                 ),
             )
             if body_part != "유산소":
