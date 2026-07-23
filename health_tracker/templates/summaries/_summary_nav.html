@@ -14,7 +14,8 @@
     {% elif active_page == "exercises" %}
       <strong>운동별 · 선택 운동 기준</strong>
     {% elif active_page == "equipment" %}
-      <strong>장비별 · {{ selected_scope or "all" }}</strong>
+      {% set scope_labels = {"week": "이번 주", "month": "이번 달", "all": "전체"} %}
+      <strong>장비별 · {{ scope_labels.get(selected_scope, "전체") }}</strong>
     {% elif active_page == "pr" %}
       <strong>PR · 개인 기록 기준</strong>
     {% elif active_page == "yearly" %}
