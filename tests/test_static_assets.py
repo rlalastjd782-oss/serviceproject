@@ -62,18 +62,17 @@ class StaticAssetIntegrityTest(unittest.TestCase):
                 with self.subTest(path=str(path), imported=str(imported)):
                     self.assertTrue(imported.is_file())
 
-    def test_ui_rebuild_css_is_retired_from_app_loading(self) -> None:
-        retired_assets = [
+    def test_ui_rebuild_css_is_loaded_by_every_layout(self) -> None:
+        required_assets = [
             Path("static/css/ui_rebuild.css"),
-            Path("static/css/dark_theme_lock.css"),
             *sorted(Path("static/css/overrides").glob("ui_rebuild_*.css")),
         ]
-        existing_retired_assets = [path for path in retired_assets if path.exists()]
-        sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
+        for path in required_assets:
+            with self.subTest(path=str(path)):
+                self.assertTrue(path.is_file())
 
-        self.assertEqual([], existing_retired_assets)
-        self.assertNotIn("ui_rebuild", sw_source)
-        self.assertNotIn("dark_theme_lock", sw_source)
+        sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
+        self.assertIn("ui_rebuild", sw_source)
 
         for template in [
             Path("health_tracker/templates/layouts/base.html"),
@@ -82,8 +81,7 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         ]:
             source = template.read_text(encoding="utf-8-sig")
             with self.subTest(template=str(template)):
-                self.assertNotIn("ui_rebuild", source)
-                self.assertNotIn("dark_theme_lock", source)
+                self.assertIn("ui_rebuild", source)
 
     def test_service_worker_precache_assets_exist(self) -> None:
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
@@ -105,8 +103,8 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
         manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
 
-        self.assertEqual("3.1.16", version)
+        self.assertEqual("3.1.17", version)
         self.assertIn(f'const CACHE_NAME = "workout-pwa-v{version}";', sw_source)
-        self.assertIn('"version": "3.1.16"', manifest_source)
+        self.assertIn('"version": "3.1.17"', manifest_source)
         self.assertIn('"background_color": "#0b0f17"', manifest_source)
         self.assertIn('"theme_color": "#0b0f17"', manifest_source)

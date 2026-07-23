@@ -1,4 +1,12 @@
 ﻿# Changelog
+## 2026-07-24 배포판(v3.0.0) 기준 ui_rebuild.css 오버라이드 복원 3.1.17
+
+- 배포된 `https://kimmins.pythonanywhere.com`(v3.0.0)과 로컬 정적 CSS를 전수 비교해, v3.1 cascade 원복 작업에서 삭제됐던 `static/css/ui_rebuild.css`와 `static/css/overrides/ui_rebuild_01~04.css`를 배포판 원본 그대로 복원했습니다. `base.html`, `auth.html`, `admin.html` 세 레이아웃 모두에 마지막 stylesheet로 다시 연결했습니다.
+- 이 오버라이드가 없어서 모바일(≤430px)에서 상단 탭바가 가로 스크롤 형태로 바뀌며 `오늘`/`로그아웃` 탭이 화면 밖으로 밀려나던 문제가, 배포판과 동일한 3열 그리드 탭바로 되돌아오며 함께 해결됐습니다.
+- 그 사이(2026-06-01 이후) 추가된 식단 재기획, 오늘 할 일 추천, 모바일 그래프 세로 스택, 장비 브랜드 입력 등 정당한 개선이 담긴 `today.css`, `meal.css`, `feature_pages_01/05/07.css`, `responsive_02.css`는 그대로 유지했습니다 (오버라이드 복원과 별개).
+- `VERSION`, `static/sw.js`, `static/manifest.webmanifest`를 `3.1.17`과 `workout-pwa-v3.1.17` 기준으로 갱신하고 서비스 워커 프리캐시 목록에 복원된 5개 CSS 파일을 추가했습니다.
+- `tools/check_release.py`, 전체 unittest 47개, 모바일(390px)/데스크톱(1280px) 주요 화면 콘솔 에러·가로 스크롤 overflow 확인을 통과했습니다.
+
 ## 2026-06-09 v3.1 v3.0 UI cascade 원복 3.1.16
 
 - `static/css/ui_rebuild.css`, `static/css/dark_theme_lock.css`, `static/css/overrides/ui_rebuild_*.css` 삭제 상태와 `base.html`의 기존 stylesheet 8개 로드만 확인해 후단 rebuild/lock cascade를 제거한 원복 기준을 확정했습니다.

@@ -68,7 +68,7 @@ class YearlyStaticFlowTest(FlowTestBase):
         self.assertNotIn("/meals/weekly", assets)
         self.assertNotIn("/summaries/exercises", assets)
         self.assertNotIn("/summaries/yearly", assets)
-        self.assertNotIn("/static/css/ui_rebuild.css", assets)
+        self.assertIn("/static/css/ui_rebuild.css", assets)
         self.assertNotIn("/static/css/dark_theme_lock.css", assets)
         self.assertIn("/sw.js", assets)
         self.assertIn("/favicon.ico", assets)
