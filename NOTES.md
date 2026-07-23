@@ -96,7 +96,8 @@
 
 - 최종검수는 보류로 정리했습니다. 준비 서버 기준 `/summaries/weekly`와 `/meals/weekly`의 `보기` 버튼이 세로로 좁게 렌더링되어 명시 실패 기준에 해당합니다.
 - `/records/search`의 `적용` 버튼도 `.list-tools` 마지막 액션으로 렌더링되지 않아 개발 재확인과 재QA가 필요합니다.
-- 준비 서버 DOM과 현재 작업 트리 템플릿이 일부 일치하지 않으므로 서버 반영 상태를 맞춘 뒤 visual QA를 다시 실행해야 합니다.# Codex Handoff Notes
+- 준비 서버 DOM과 현재 작업 트리 템플릿이 일부 일치하지 않으므로 서버 반영 상태를 맞춘 뒤 visual QA를 다시 실행해야 합니다.
+
 ## 2026-06-01 v3.0.0 UI v2.6.5 기준 실제 복구
 
 - 최종검수는 조건부 승인으로 정리했습니다. 자동 테스트, 컴파일, 릴리스 검사, `git diff --check`, 로컬 HTTP `200` 확인은 통과했습니다.
@@ -110,7 +111,7 @@
 - 최종검수는 조건부 승인으로 정리했습니다. 자동 테스트와 릴리스 계약 기준 배포 차단 이슈는 없고, 운영 전 실제 브라우저에서 `/app` 390px, 430px, 560px, desktop 첫 viewport를 수동 확인해야 합니다.
 - 확인 범위: `오늘 상태`와 `오늘 할 일` 첫 viewport 노출, hero Brand teal tint, compact date control 위치, 한글 텍스트 겹침, 기존 axe 위반 중 `label`/`color-contrast`/`aria-prohibited-attr` 후속 여부.
 - 검증 통과: `python -m unittest tests.test_static_assets`, `python -m unittest tests.test_ui_navigation_flows tests.test_static_assets`, `python -m unittest discover`, `python -m compileall app.py health_tracker tests`, `python tools\check_release.py`, `git diff --check`, `Invoke-WebRequest http://127.0.0.1:5000/ -UseBasicParsing -TimeoutSec 5`.
-- `npm run visual-qa`는 최종검수에서도 Chromium `spawn EPERM`으로 실패했습니다. 권한 문제가 해소되면 `.codex-agents/playwright-tools`에서 다시 실행해 최신 산출물을 생성해야 합니다.
+- `npm run visual-qa`는 최종검수에서도 Chromium `spawn EPERM`으로 실패했습니다. 권한 문제가 해소되면 당시 사용하던 Playwright 화면검수 도구에서 다시 실행해 최신 산출물을 생성해야 했습니다.
 - 작업 전부터 존재한 `.gitignore` 변경은 커밋 포함 전 의도 확인이 필요합니다.
 
 ## 2026-05-31 v3.0.0 UI 브랜드 컬러 리부트 재기획

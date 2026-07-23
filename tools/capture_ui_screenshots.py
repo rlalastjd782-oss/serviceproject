@@ -161,7 +161,7 @@ def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--chrome", required=True)
-    parser.add_argument("--output", default=".codex-agents/screenshots/latest")
+    parser.add_argument("--output", default="qa/screenshots/latest")
     args = parser.parse_args()
 
     chrome_path = Path(args.chrome)
