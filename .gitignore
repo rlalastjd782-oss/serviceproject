@@ -11,6 +11,8 @@ instance/
 docs/
 handoff/
 qa/
+.claude/
+CLAUDE.md
 *.db
 local-server*.log
 local-app-server*.log
