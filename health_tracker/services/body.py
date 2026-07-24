@@ -115,3 +115,15 @@ def list_body_photos_from_db(db: sqlite3.Connection, photo_date: str, limit: int
         """,
         (photo_date, limit),
     ).fetchall()
+
+
+def list_all_body_photos_from_db(db: sqlite3.Connection, limit: int = 200) -> list[sqlite3.Row]:
+    return db.execute(
+        """
+        SELECT id, photo_date, file_path, created_at
+        FROM body_photos
+        ORDER BY photo_date ASC, id ASC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()

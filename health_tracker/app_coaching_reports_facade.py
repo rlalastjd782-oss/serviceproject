@@ -210,7 +210,7 @@ def get_balance_score(scope: str = "weekly", date_text: str | None = None) -> di
         """,
         (start, end),
     ).fetchall()
-    target_parts = ["하체", "가슴", "등", "어깨", "팔", "유산소"]
+    target_parts = ["하체", "가슴", "등", "어깨", "팔(이두)", "팔(삼두)", "유산소"]
     counts = {part: 0 for part in target_parts}
     counts.update({row["body_part"]: int(row["set_count"]) for row in rows if row["body_part"] in counts})
     filled = sum(1 for count in counts.values() if count > 0)

@@ -33,6 +33,7 @@ initSetBuilder();
 renderReadinessCoach();
 processOfflineQueue();
 initNotificationTools();
+initPhotoCompare();
 
 function setMealFormToggleLabels(label) {
   document.querySelectorAll("[data-toggle-meal-form]").forEach((button) => {

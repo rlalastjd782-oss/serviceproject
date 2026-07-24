@@ -27,9 +27,9 @@
 
     {% if workout_mode %}
       {% if focus_mode %}
-        <a class="btn-primary mode-button focus-mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout', location_id=current_location.id if current_location else None) }}">집중 해제</a>
+        <a class="btn-primary mode-button focus-mode-button is-active" href="{{ url_for('index', date=session.workout_date, mode='workout', location_id=current_location.id if current_location else None) }}">🎯 집중 해제</a>
       {% else %}
-        <a class="btn-small mode-button focus-mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout', focus='1', location_id=current_location.id if current_location else None) }}">집중 모드</a>
+        <a class="btn-primary mode-button focus-mode-button" href="{{ url_for('index', date=session.workout_date, mode='workout', focus='1', location_id=current_location.id if current_location else None) }}">🎯 집중 모드</a>
       {% endif %}
     {% endif %}
   </div>

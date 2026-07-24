@@ -103,14 +103,14 @@ def list_recovery_statuses(date_text: str) -> list[dict[str, object]]:
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         WHERE s.workout_date >= ? AND s.workout_date < ?
-          AND COALESCE(NULLIF(ws.body_part, ''), '기타') IN ('하체', '등', '어깨', '가슴', '팔')
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') IN ('하체', '등', '어깨', '가슴', '팔(이두)', '팔(삼두)')
         GROUP BY body_part
         """,
         (start, date_text),
     ).fetchall()
     counts = {row["body_part"]: int(row["set_count"] or 0) for row in rows}
     statuses = []
-    for part in ["하체", "등", "어깨", "가슴", "팔"]:
+    for part in ["하체", "등", "어깨", "가슴", "팔(이두)", "팔(삼두)"]:
         count = counts.get(part, 0)
         state = "주의" if count >= 8 else "적정" if count >= 4 else "가능"
         statuses.append({"body_part": part, "set_count": count, "state": state})
@@ -119,7 +119,7 @@ def list_recovery_statuses(date_text: str) -> list[dict[str, object]]:
 
 def list_weekly_routine_recommendations(date_text: str) -> list[dict[str, object]]:
     balance = get_balance_score("weekly", date_text)
-    missing = [part for part in balance["missing"] if part in ["하체", "등", "어깨", "가슴", "팔", "유산소"]]
+    missing = [part for part in balance["missing"] if part in ["하체", "등", "어깨", "가슴", "팔(이두)", "팔(삼두)", "유산소"]]
     targets = (missing or ["하체", "등", "어깨"])[:3]
     recommendations = []
     for part in targets:

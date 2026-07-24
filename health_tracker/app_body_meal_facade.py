@@ -10,6 +10,7 @@ from health_tracker.services.body import (
     build_body_monthly_report_from_rows,
     get_body_metric_from_db,
     list_body_metric_trend_from_rows,
+    list_all_body_photos_from_db,
     list_body_metrics_from_db,
     list_body_photos_from_db,
     save_body_metric_to_db,
@@ -67,6 +68,10 @@ def save_body_photo(photo_date: str, file) -> None:
 
 def list_body_photos(photo_date: str, limit: int = 3) -> list[sqlite3.Row]:
     return list_body_photos_from_db(get_db(), photo_date, limit)
+
+
+def list_all_body_photos(limit: int = 200) -> list[sqlite3.Row]:
+    return list_all_body_photos_from_db(get_db(), limit)
 
 
 def list_meal_templates() -> list[dict[str, object]]:

@@ -431,7 +431,7 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertNotIn("앱 기본값", settings_html)
         self.assertNotIn("데이터 관리", settings_html)
         self.assertNotIn("QA 더미데이터", settings_html)
-        self.assertNotIn("리마인더", settings_html)
+        self.assertIn("리마인더", settings_html)
         self.assertNotIn("전체 데이터 삭제", settings_html)
 
         self.client.post("/logout")
@@ -445,7 +445,7 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertIn("앱 기본값", admin_html)
         self.assertIn("데이터 관리", admin_html)
         self.assertIn("QA 더미데이터", admin_html)
-        self.assertIn("리마인더", admin_html)
+        self.assertNotIn("리마인더", admin_html)
         self.assertIn("전체 데이터 삭제", admin_html)
 
     def test_core_page_query_counts_stay_bounded(self) -> None:

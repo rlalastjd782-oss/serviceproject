@@ -4,7 +4,7 @@ import sqlite3
 from collections.abc import Callable
 
 
-TARGET_BODY_PARTS = ("하체", "가슴", "등", "어깨", "팔", "유산소")
+TARGET_BODY_PARTS = ("하체", "가슴", "등", "어깨", "팔(이두)", "팔(삼두)", "유산소")
 
 
 def build_muscle_balance(

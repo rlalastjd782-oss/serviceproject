@@ -284,12 +284,12 @@
 .focus-mode .next-action-section,
 .focus-mode .readiness-section,
 .focus-mode .workout-recovery-section,
-.focus-mode .rest-day-section {
+.focus-mode .rest-day-section,
+.focus-mode .workout-coach-section,
+.focus-mode .workout-focus-section,
+.focus-mode .rule-card-section,
+.focus-mode .workout-plan-section {
   display: none;
-}
-
-.focus-mode .workout-focus-section {
-  order: 13;
 }
 
 .focus-mode #workout-input {
@@ -304,8 +304,45 @@
   order: 16;
 }
 
+.focus-mode .workout-clock-section {
+  border-width: 2px;
+  border-color: rgb(34 197 94 / 55%);
+  background: linear-gradient(180deg, rgb(34 197 94 / 12%), var(--panel));
+  box-shadow: 0 0 0 1px rgb(34 197 94 / 18%);
+}
+
+.focus-mode .workout-clock-display {
+  font-size: 34px;
+}
+
 .focus-mode .workout-action-dock {
   grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.focus-mode-button {
+  grid-column: 1 / -1;
+  border-color: rgb(96 165 250 / 55%);
+  background: linear-gradient(180deg, rgb(96 165 250 / 22%), rgb(37 99 235 / 16%));
+}
+
+.focus-mode-button.is-active {
+  border-color: rgb(34 197 94 / 60%);
+  background: linear-gradient(180deg, rgb(34 197 94 / 24%), rgb(21 128 61 / 18%));
+}
+
+#workout-input {
+  border-width: 2px;
+  border-color: rgb(96 165 250 / 55%);
+  background: linear-gradient(180deg, rgb(96 165 250 / 10%), var(--panel));
+}
+
+#workout-input .section-title {
+  font-size: 17px;
+}
+
+.workout-input-toggle {
+  min-width: 108px;
+  font-size: 14px;
 }
 
 .mode-button {

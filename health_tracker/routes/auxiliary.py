@@ -35,6 +35,14 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             location_insights=list_location_training_insights(limit=24),
         )
 
+    @app.get("/body/photos")
+    def body_progress_page():
+        return render_template(
+            "more/body_progress.html",
+            active_page="body_progress",
+            body_photos_all=list_all_body_photos(),
+        )
+
     @app.get("/insights/actions")
     def action_insights_page():
         selected_date = normalize_date(request.args.get("date"))

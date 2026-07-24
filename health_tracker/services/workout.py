@@ -94,6 +94,34 @@ def get_session_by_date_from_db(db: sqlite3.Connection, workout_date: str) -> sq
     ).fetchone()
 
 
+def get_session_or_placeholder_from_db(
+    db: sqlite3.Connection,
+    workout_date: str | None,
+    location_id: int | None,
+    normalize_date,
+    get_location,
+    get_recent_or_default_location,
+) -> dict[str, object]:
+    date_value = normalize_date(workout_date)
+    existing = db.execute(
+        f"SELECT {WORKOUT_SESSION_COLUMNS} FROM workout_sessions WHERE workout_date = ?",
+        (date_value,),
+    ).fetchone()
+    if existing:
+        return dict(existing)
+
+    location = get_location(db, location_id) if location_id else get_recent_or_default_location(db)
+    return {
+        "id": 0,
+        "workout_date": date_value,
+        "location_id": location["id"],
+        "note": "",
+        "completed": 0,
+        "duration_seconds": 0,
+        "created_at": None,
+    }
+
+
 def get_session_by_id_from_db(db: sqlite3.Connection, session_id: int) -> sqlite3.Row | None:
     return db.execute(f"SELECT {WORKOUT_SESSION_COLUMNS} FROM workout_sessions WHERE id = ?", (session_id,)).fetchone()
 

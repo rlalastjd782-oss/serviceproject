@@ -343,10 +343,10 @@ class WorkoutMealFlowTest(FlowTestBase):
             meal = app_module.build_monthly_meal_summary("2026-05-01")
             sample = app_module.get_sample_data_counts()
             self.assertEqual(monthly["workout_days"], 25)
-            self.assertEqual(monthly["set_count"], 325)
+            self.assertEqual(monthly["set_count"], 277)
             self.assertEqual(meal["meal_days"], 25)
             self.assertEqual(meal["meal_count"], 150)
-            self.assertEqual(sample["sets"], 325)
+            self.assertEqual(sample["sets"], 277)
             self.assertEqual(sample["meals"], 150)
 
         target_part = app_module.body_part_options()[0]

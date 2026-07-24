@@ -1,0 +1,49 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}체형 변화 비교{% endblock %}
+
+{% block content %}
+  <section class="section more-tool-section">
+    <div class="section-header">
+      <div>
+        <div class="section-title">체형 변화 비교</div>
+        <div class="section-subtitle">두 날짜의 진행 사진을 슬라이더로 비교합니다.</div>
+      </div>
+      <a class="btn-small" href="{{ url_for('more_page') }}">더보기</a>
+    </div>
+    {% if body_photos_all|length < 2 %}
+      <div class="empty compact-empty">
+        비교하려면 사진이 2장 이상 필요합니다. 오늘 화면의 체성분 카드에서 진행 사진을 저장해 보세요.
+      </div>
+    {% else %}
+      <div class="photo-compare-controls">
+        <label class="edit-field">
+          <span>이전 사진</span>
+          <select data-photo-compare-before-select>
+            {% for photo in body_photos_all %}
+              <option value="{{ url_for('static', filename=photo.file_path) }}" {% if loop.first %}selected{% endif %}>{{ photo.photo_date }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="edit-field">
+          <span>이후 사진</span>
+          <select data-photo-compare-after-select>
+            {% for photo in body_photos_all %}
+              <option value="{{ url_for('static', filename=photo.file_path) }}" {% if loop.last %}selected{% endif %}>{{ photo.photo_date }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <div class="photo-compare" data-photo-compare>
+        <div class="photo-compare-stage">
+          <img class="photo-compare-image photo-compare-after" data-photo-compare-after alt="이후 사진" src="{{ url_for('static', filename=body_photos_all[-1].file_path) }}">
+          <div class="photo-compare-overlay" data-photo-compare-overlay>
+            <img class="photo-compare-image photo-compare-before" data-photo-compare-before alt="이전 사진" src="{{ url_for('static', filename=body_photos_all[0].file_path) }}">
+          </div>
+          <div class="photo-compare-handle" data-photo-compare-handle></div>
+        </div>
+        <input type="range" min="0" max="100" value="50" class="photo-compare-range" data-photo-compare-range aria-label="비교 슬라이더">
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

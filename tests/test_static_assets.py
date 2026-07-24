@@ -103,8 +103,8 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
         manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
 
-        self.assertEqual("3.1.17", version)
+        self.assertEqual("3.1.20", version)
         self.assertIn(f'const CACHE_NAME = "workout-pwa-v{version}";', sw_source)
-        self.assertIn('"version": "3.1.17"', manifest_source)
+        self.assertIn('"version": "3.1.20"', manifest_source)
         self.assertIn('"background_color": "#0b0f17"', manifest_source)
         self.assertIn('"theme_color": "#0b0f17"', manifest_source)

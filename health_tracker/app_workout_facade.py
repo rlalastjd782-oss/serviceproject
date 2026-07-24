@@ -52,6 +52,7 @@ from health_tracker.services.workout import (
     get_or_create_session_from_db,
     get_session_by_date_from_db,
     get_session_by_id_from_db,
+    get_session_or_placeholder_from_db,
     list_exercise_stats_by_name_from_db,
     list_exercises_by_body_part_from_db,
     list_exercises_from_db,
@@ -80,6 +81,17 @@ def get_or_create_session(workout_date: str | None = None, location_id: int | No
         get_location_from_db,
         get_recent_or_default_location_from_db,
         get_session_by_date,
+    )
+
+
+def get_session_or_placeholder(workout_date: str | None = None, location_id: int | None = None) -> dict[str, object]:
+    return get_session_or_placeholder_from_db(
+        get_db(),
+        workout_date,
+        location_id,
+        normalize_date,
+        get_location_from_db,
+        get_recent_or_default_location_from_db,
     )
 
 

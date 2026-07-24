@@ -2,7 +2,7 @@
 <html lang="ko">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -36,7 +36,7 @@
         <a class="tab-btn {% if active_page in ['daily', 'search'] %}active{% endif %}" href="{{ url_for('daily_summary_page') }}">기록</a>
         <a class="tab-btn {% if active_page in ['weekly', 'monthly', 'yearly', 'exercises', 'pr', 'equipment'] %}active{% endif %}" href="{{ url_for('weekly_summary_page') }}">분석</a>
         <a class="tab-btn {% if active_page == 'meals' %}active{% endif %}" href="{{ url_for('meal_weekly_page') }}">식단</a>
-        <a class="tab-btn {% if active_page in ['more', 'library', 'plans', 'calendar'] %}active{% endif %}" href="{{ url_for('more_page') }}">더보기</a>
+        <a class="tab-btn {% if active_page in ['more', 'library', 'plans', 'calendar', 'body_progress'] %}active{% endif %}" href="{{ url_for('more_page') }}">더보기</a>
         <a class="tab-btn {% if active_page == 'settings' %}active{% endif %}" href="{{ url_for('settings_page') }}">설정</a>
         <form method="post" action="{{ url_for('logout_route') }}" class="tab-logout-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -56,6 +56,7 @@
     <script src="{{ url_for('static', filename='js/workout_tools.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/ui_interactions.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/notifications.js') }}?v={{ app_version }}"></script>
+    <script src="{{ url_for('static', filename='js/photo_compare.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/meal_entry.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/form_submit.js') }}?v={{ app_version }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}?v={{ app_version }}"></script>

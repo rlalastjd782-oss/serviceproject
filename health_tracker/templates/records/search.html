@@ -40,7 +40,7 @@
       </article>
     </div>
     <form method="get" action="{{ url_for('record_search_page') }}" class="record-search-form v31-record-search-form">
-      <input class="record-search-query" name="q" value="{{ search_query }}" placeholder="운동명 또는 메모">
+      <input class="record-search-query" name="q" value="{{ search_query }}" placeholder="운동명 또는 메모" aria-label="운동명 또는 메모 검색">
       <button class="btn-small record-search-submit" type="submit">검색</button>
       <details class="record-filter-details" {% if selected_part or selected_equipment or selected_start or selected_end %}open{% endif %}>
         <summary>상세 필터</summary>

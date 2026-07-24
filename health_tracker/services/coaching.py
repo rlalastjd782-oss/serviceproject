@@ -285,7 +285,11 @@ def list_recovery_recommendations_from_db(
     if not rows:
         return ["최근 48시간 근력 기록이 적습니다. 원하는 부위를 진행해도 좋습니다."]
     overloaded = [row["body_part"] for row in rows if int(row["set_count"]) >= 4]
-    rested = [part for part in ["하체", "가슴", "등", "어깨", "팔"] if part not in [row["body_part"] for row in rows]]
+    rested = [
+        part
+        for part in ["하체", "가슴", "등", "어깨", "팔(이두)", "팔(삼두)"]
+        if part not in [row["body_part"] for row in rows]
+    ]
     messages = []
     if overloaded:
         messages.append(f"{', '.join(overloaded[:2])}는 최근 사용량이 많습니다.")
