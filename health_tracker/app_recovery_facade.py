@@ -3,7 +3,7 @@ from __future__ import annotations
 from health_tracker.app_coaching_reports_facade import build_monthly_report, build_weekly_report, get_balance_score
 from health_tracker.app_database import get_db
 from health_tracker.app_workout_facade import get_goal_progress
-from health_tracker.constants import RECOMMENDED_EXERCISE_MAP
+from health_tracker.constants import BALANCE_BODY_PARTS, RECOMMENDED_EXERCISE_MAP, STRENGTH_BODY_PARTS
 from health_tracker.date_utils import current_local_date, normalize_month, shift_date, shift_month, week_start_for_date
 from health_tracker.services.coaching import (
     build_readiness_profile_from_db,
@@ -97,20 +97,21 @@ def build_rpe_report(scope: str = "weekly", date_text: str | None = None) -> dic
 
 def list_recovery_statuses(date_text: str) -> list[dict[str, object]]:
     start = shift_date(date_text, -2)
+    placeholders = ", ".join("?" for _ in STRENGTH_BODY_PARTS)
     rows = get_db().execute(
-        """
+        f"""
         SELECT COALESCE(NULLIF(ws.body_part, ''), '기타') AS body_part, COUNT(ws.id) AS set_count
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id
         WHERE s.workout_date >= ? AND s.workout_date < ?
-          AND COALESCE(NULLIF(ws.body_part, ''), '기타') IN ('하체', '등', '어깨', '가슴', '팔(이두)', '팔(삼두)')
+          AND COALESCE(NULLIF(ws.body_part, ''), '기타') IN ({placeholders})
         GROUP BY body_part
         """,
-        (start, date_text),
+        (start, date_text, *STRENGTH_BODY_PARTS),
     ).fetchall()
     counts = {row["body_part"]: int(row["set_count"] or 0) for row in rows}
     statuses = []
-    for part in ["하체", "등", "어깨", "가슴", "팔(이두)", "팔(삼두)"]:
+    for part in STRENGTH_BODY_PARTS:
         count = counts.get(part, 0)
         state = "주의" if count >= 8 else "적정" if count >= 4 else "가능"
         statuses.append({"body_part": part, "set_count": count, "state": state})
@@ -119,7 +120,7 @@ def list_recovery_statuses(date_text: str) -> list[dict[str, object]]:
 
 def list_weekly_routine_recommendations(date_text: str) -> list[dict[str, object]]:
     balance = get_balance_score("weekly", date_text)
-    missing = [part for part in balance["missing"] if part in ["하체", "등", "어깨", "가슴", "팔(이두)", "팔(삼두)", "유산소"]]
+    missing = [part for part in balance["missing"] if part in BALANCE_BODY_PARTS]
     targets = (missing or ["하체", "등", "어깨"])[:3]
     recommendations = []
     for part in targets:

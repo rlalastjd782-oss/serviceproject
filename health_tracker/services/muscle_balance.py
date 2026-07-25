@@ -3,8 +3,9 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Callable
 
+from health_tracker.constants import BALANCE_BODY_PARTS
 
-TARGET_BODY_PARTS = ("하체", "가슴", "등", "어깨", "팔(이두)", "팔(삼두)", "유산소")
+TARGET_BODY_PARTS = tuple(BALANCE_BODY_PARTS)
 
 
 def build_muscle_balance(

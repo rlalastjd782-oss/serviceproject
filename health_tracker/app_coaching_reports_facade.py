@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from health_tracker.app_database import get_db
 from health_tracker.app_summary_facade import body_part_options
+from health_tracker.constants import BALANCE_BODY_PARTS
 from health_tracker.date_utils import current_local_date, normalize_month, shift_date, shift_month, week_start_for_date
 
 
@@ -210,7 +211,7 @@ def get_balance_score(scope: str = "weekly", date_text: str | None = None) -> di
         """,
         (start, end),
     ).fetchall()
-    target_parts = ["하체", "가슴", "등", "어깨", "팔(이두)", "팔(삼두)", "유산소"]
+    target_parts = list(BALANCE_BODY_PARTS)
     counts = {part: 0 for part in target_parts}
     counts.update({row["body_part"]: int(row["set_count"]) for row in rows if row["body_part"] in counts})
     filled = sum(1 for count in counts.values() if count > 0)

@@ -13,6 +13,11 @@ SET_TYPE_OPTIONS = ["본세트", "워밍업", "드롭세트", "실패"]
 
 BODY_PARTS = ["하체", "가슴", "팔(이두)", "팔(삼두)", "등", "어깨", "유산소", "기타"]
 
+# "기타"는 실제 훈련 목표/밸런스 계산 대상이 아니라서 제외한 파생 목록.
+BALANCE_BODY_PARTS = [part for part in BODY_PARTS if part != "기타"]
+# 유산소는 근력 회복(48시간 세트 수 기준) 계산에서 의미가 없어 추가로 제외한 파생 목록.
+STRENGTH_BODY_PARTS = [part for part in BALANCE_BODY_PARTS if part != "유산소"]
+
 BODY_PART_CLASSES = {
     "하체": "body-part-legs",
     "가슴": "body-part-chest",

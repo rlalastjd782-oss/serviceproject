@@ -3,6 +3,8 @@ from __future__ import annotations
 import sqlite3
 from datetime import date, timedelta
 
+from health_tracker.constants import BODY_PARTS, EQUIPMENT_OPTIONS as EQUIPMENT
+
 
 QA_PREFIX = "QA-연간"
 QA_START_DATE = "2025-07-01"
@@ -10,8 +12,6 @@ QA_DAYS = 365
 QA_END_DATE = "2026-06-30"
 
 
-BODY_PARTS = ["가슴", "등", "하체", "어깨", "팔(이두)", "팔(삼두)", "기타", "유산소"]
-EQUIPMENT = ["바벨", "덤벨", "핀머신", "플레이트로디드머신", "케이블", "프리웨이트", "맨몸", "유산소기구"]
 MEAL_TYPES = ["아침", "점심", "저녁", "간식"]
 
 

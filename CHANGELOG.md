@@ -1,4 +1,13 @@
 ﻿# Changelog
+## 2026-07-24 부위/장비 목록 중복 정리 3.1.21
+
+- 부위 목록(하체/가슴/팔(이두)/팔(삼두)/등/어깨/유산소/기타)이 `constants.py` 외에도 `dummy_data.py`, `muscle_balance.py`, `app_coaching_reports_facade.py`, `app_recovery_facade.py`(3곳), `coaching.py`에 각각 하드코딩돼 있던 것을 정리했습니다.
+- `constants.py`에 파생 목록 `BALANCE_BODY_PARTS`("기타" 제외), `STRENGTH_BODY_PARTS`("기타"·"유산소" 제외)를 추가하고, 위 파일들이 자체 목록 대신 이 상수를 import해서 쓰도록 바꿨습니다.
+- `dummy_data.py`의 자체 `BODY_PARTS`/`EQUIPMENT` 목록도 제거하고 `constants.BODY_PARTS`/`EQUIPMENT_OPTIONS`를 그대로 가져다 쓰도록 변경했습니다.
+- 앞으로 부위/장비를 추가하거나 이름을 바꿀 때 `constants.py` 한 곳만 고치면 되도록 정리했습니다. "회복 상태" 카드 표시 순서가 `constants.BODY_PARTS` 순서로 통일되며 살짝 바뀝니다(기능 변화 없음).
+- `VERSION`/`sw.js`/`manifest`를 `3.1.21`로 갱신했습니다.
+- 전체 unittest 50개, `tools/check_release.py`, 오늘 화면(회복 상태/주간 균형/추천 루틴) 콘솔 에러 없이 정상 표시 확인을 통과했습니다.
+
 ## 2026-07-24 집중 모드/운동 입력 시각 강조 재보정 3.1.20
 
 - 이전 커밋에서 운동 시간 카드를 sticky로 고정했더니 flex order 재배치와 겹쳐 스크롤 시 어색하게 보인다는 피드백을 받아, sticky를 걷어내고 대신 진한 초록 테두리/글로우와 큰 타이머 숫자(34px)로 "지금 집중 모드"임을 표시하도록 바꿨습니다.
