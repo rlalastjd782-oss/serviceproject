@@ -6,9 +6,9 @@ import sqlite3
 from flask import Flask, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
 from jinja2 import FileSystemBytecodeCache
 
-from health_tracker.app_database import configure_database_helpers, get_db, get_or_create_secret_key, init_db
+from health_tracker.app_database_facade import configure_database_helpers, get_db, get_or_create_secret_key, init_db
 from health_tracker.app_lifecycle import configure_lifecycle_hooks
-from health_tracker.app_settings import (
+from health_tracker.app_settings_facade import (
     configure_settings_helpers,
     configured_page_params,
     get_app_preferences,
@@ -49,7 +49,7 @@ from health_tracker.date_utils import (
     shift_month,
     week_start_for_date,
 )
-from health_tracker.app_accounts import (
+from health_tracker.app_accounts_facade import (
     account_by_id,
     account_options,
     admin_audit_logs,
@@ -67,7 +67,7 @@ from health_tracker.app_accounts import (
     set_user_active,
     verify_account,
 )
-from health_tracker.app_data import (
+from health_tracker.app_data_facade import (
     build_v2_readiness,
     configure_data_helpers,
     create_may_sample_data,

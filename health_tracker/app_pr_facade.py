@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from health_tracker.app_database import get_db
+from health_tracker.app_database_facade import get_db
 from health_tracker.services.pr import (
     build_pr_cards_from_rows,
     build_pr_dashboard_from_rows,

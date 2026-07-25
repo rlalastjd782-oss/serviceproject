@@ -3,7 +3,7 @@ from __future__ import annotations
 import sqlite3
 
 from health_tracker.app_activity_facade import recalculate_exercise_calories_for_date
-from health_tracker.app_database import get_db
+from health_tracker.app_database_facade import get_db
 from health_tracker.config import PHOTO_DIR
 from health_tracker.date_utils import shift_month
 from health_tracker.services.body import (

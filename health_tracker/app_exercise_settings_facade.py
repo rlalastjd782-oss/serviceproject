@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import sqlite3
 
-from health_tracker.app_database import get_db
-from health_tracker.app_settings import get_app_preferences
+from health_tracker.app_database_facade import get_db
+from health_tracker.app_settings_facade import get_app_preferences
 from health_tracker.services.exercise_settings import (
     get_exercise_rest_seconds_from_db,
     list_exercise_goal_progress_from_db,

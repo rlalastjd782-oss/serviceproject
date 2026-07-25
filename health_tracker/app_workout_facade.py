@@ -3,9 +3,9 @@ from __future__ import annotations
 import sqlite3
 
 from health_tracker.app_activity_facade import estimate_exercise_calories
-from health_tracker.app_database import get_db
+from health_tracker.app_database_facade import get_db
 from health_tracker.app_exercise_settings_facade import get_exercise_rest_seconds
-from health_tracker.app_settings import get_app_preferences
+from health_tracker.app_settings_facade import get_app_preferences
 from health_tracker.app_summary_facade import body_part_class, body_part_options
 from health_tracker.constants import DEFAULT_PROGRAMS
 from health_tracker.date_utils import normalize_date, normalize_month, shift_date, shift_month, week_start_for_date

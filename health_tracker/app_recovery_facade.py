@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from health_tracker.app_coaching_reports_facade import build_monthly_report, build_weekly_report, get_balance_score
-from health_tracker.app_database import get_db
+from health_tracker.app_database_facade import get_db
 from health_tracker.app_workout_facade import get_goal_progress
 from health_tracker.constants import BALANCE_BODY_PARTS, RECOMMENDED_EXERCISE_MAP, STRENGTH_BODY_PARTS
 from health_tracker.date_utils import current_local_date, normalize_month, shift_date, shift_month, week_start_for_date

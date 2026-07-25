@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from health_tracker.app_database import get_db
+from health_tracker.app_database_facade import get_db
 
 
 def get_exercise_profile(exercise_id: int | None) -> dict[str, object] | None:

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from health_tracker.app_database import get_db
+from health_tracker.app_database_facade import get_db
 from health_tracker.app_summary_facade import body_part_options
 from health_tracker.constants import BALANCE_BODY_PARTS
 from health_tracker.date_utils import current_local_date, normalize_month, shift_date, shift_month, week_start_for_date

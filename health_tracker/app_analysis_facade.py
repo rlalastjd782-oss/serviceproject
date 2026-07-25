@@ -6,8 +6,8 @@ from flask import url_for
 
 from health_tracker.app_body_meal_facade import build_body_monthly_report
 from health_tracker.app_coaching_reports_facade import build_weekly_report, list_balance_warnings, list_volume_warnings
-from health_tracker.app_database import get_db
-from health_tracker.app_settings import get_app_preferences
+from health_tracker.app_database_facade import get_db
+from health_tracker.app_settings_facade import get_app_preferences
 from health_tracker.app_summary_facade import paged_rows
 from health_tracker.app_workout_facade import (
     build_adaptive_training_recommendations,
@@ -15,7 +15,7 @@ from health_tracker.app_workout_facade import (
     get_goal_value,
     list_record_gaps,
 )
-from health_tracker.app_data import get_backup_status, get_data_counts
+from health_tracker.app_data_facade import get_backup_status, get_data_counts
 from health_tracker.date_utils import current_local_date, normalize_date, normalize_month, shift_date, shift_month, week_start_for_date
 from health_tracker.services.location_insights import (
     list_location_quick_exercises_from_db,

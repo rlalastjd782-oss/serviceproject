@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from health_tracker.app_database import get_db
+from health_tracker.app_database_facade import get_db
 from health_tracker.constants import BODY_PART_CLASSES, BODY_PARTS, MEAL_TYPE_CLASSES
 from health_tracker.date_utils import current_local_date, meal_day_label, normalize_month, shift_date, shift_month, week_start_for_date
 from health_tracker.services.meal import (

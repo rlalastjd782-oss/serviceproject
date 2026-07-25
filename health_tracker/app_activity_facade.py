@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import sqlite3
 
-from health_tracker.app_database import get_db
-from health_tracker.app_settings import get_app_preferences
+from health_tracker.app_database_facade import get_db
+from health_tracker.app_settings_facade import get_app_preferences
 from health_tracker.date_utils import meal_week_label, normalize_month, shift_date, shift_month, week_start_for_date
 from health_tracker.services.body_part_analysis import (
     list_body_part_summary_from_db,
