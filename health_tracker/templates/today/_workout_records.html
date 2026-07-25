@@ -1,9 +1,14 @@
   <section class="section workout-only" id="today-workout">
     <div class="section-header">
-      <div class="section-title">📋 오늘 운동</div>
-      <span class="badge">⏱ {{ format_duration(session.duration_seconds) }}</span>
+      <div class="section-title">📋 오늘 운동{% if workout_groups %} <span class="record-list-count">{{ workout_groups|length }}개</span>{% endif %}</div>
+      <div class="record-list-header-actions">
+        <span class="badge">⏱ {{ format_duration(session.duration_seconds) }}</span>
+        {% if workout_groups %}
+          <button type="button" class="btn-small" data-toggle-workout-list aria-expanded="true" aria-controls="today-workout-list">숨기기</button>
+        {% endif %}
+      </div>
     </div>
-    <div class="record-list">
+    <div class="record-list" id="today-workout-list">
       {% if workout_groups %}
         {% for group in workout_groups %}
           {% set group_pr_events = pr_events | selectattr("exercise_name", "equalto", group.exercise_name) | list %}

@@ -270,6 +270,23 @@
   gap: 10px;
 }
 
+.record-list.is-collapsed {
+  display: none;
+}
+
+.record-list-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.record-list-count {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .record-card {
   display: grid;
   gap: 10px;

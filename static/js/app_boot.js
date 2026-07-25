@@ -36,6 +36,35 @@ initNotificationTools();
 initPhotoCompare();
 checkPrCelebration();
 
+const WORKOUT_LIST_COLLAPSE_KEY = "workout-list-collapsed";
+initWorkoutListToggle();
+
+function applyWorkoutListState(list, button, collapsed) {
+  list.classList.toggle("is-collapsed", collapsed);
+  button.textContent = collapsed ? "보기" : "숨기기";
+  button.setAttribute("aria-expanded", String(!collapsed));
+}
+
+function initWorkoutListToggle() {
+  const list = document.querySelector("#today-workout-list");
+  const button = document.querySelector("[data-toggle-workout-list]");
+  if (!list || !button) {
+    return;
+  }
+  applyWorkoutListState(list, button, localStorage.getItem(WORKOUT_LIST_COLLAPSE_KEY) === "1");
+}
+
+function toggleWorkoutList() {
+  const list = document.querySelector("#today-workout-list");
+  const button = document.querySelector("[data-toggle-workout-list]");
+  if (!list || !button) {
+    return;
+  }
+  const collapsed = !list.classList.contains("is-collapsed");
+  localStorage.setItem(WORKOUT_LIST_COLLAPSE_KEY, collapsed ? "1" : "0");
+  applyWorkoutListState(list, button, collapsed);
+}
+
 function checkPrCelebration() {
   const params = new URLSearchParams(window.location.search);
   if (params.get("new_pr") !== "1") {
@@ -174,6 +203,7 @@ document.addEventListener("click", (event) => {
   const mealFormToggleButton = event.target.closest("[data-toggle-meal-form]");
   const mealFormCancelButton = event.target.closest("[data-cancel-meal-form]");
   const cardToggleButton = event.target.closest("[data-toggle-card]");
+  const workoutListToggleButton = event.target.closest("[data-toggle-workout-list]");
 
   const setList = document.querySelector("[data-set-list]");
   const mealList = document.querySelector("[data-meal-list]");
@@ -183,6 +213,11 @@ document.addEventListener("click", (event) => {
     const card = cardToggleButton.closest("[data-collapsible-card]");
     const isCollapsed = card?.classList.toggle("is-collapsed");
     cardToggleButton.setAttribute("aria-expanded", String(!isCollapsed));
+    return;
+  }
+
+  if (workoutListToggleButton) {
+    toggleWorkoutList();
     return;
   }
 
