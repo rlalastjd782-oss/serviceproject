@@ -47,6 +47,37 @@ class WorkoutMealFlowTest(FlowTestBase):
             self.assertAlmostEqual(rows[1]["weight"], 70.31, places=2)
             self.assertEqual(rows[2]["reps"], 8)
 
+    def test_saving_a_pr_set_redirects_with_new_pr_flag(self) -> None:
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-22",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ PR Bench",
+                "set_weight": "50",
+                "set_reps": "5",
+                "set_type": "본세트",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("new_pr=1", response.headers["Location"])
+
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-22",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ PR Bench",
+                "set_weight": "40",
+                "set_reps": "3",
+                "set_type": "본세트",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertNotIn("new_pr=1", response.headers["Location"])
+
     def test_inline_set_repeat_count_saves_multiple_sets(self) -> None:
         response = self.client.post(
             "/sets",

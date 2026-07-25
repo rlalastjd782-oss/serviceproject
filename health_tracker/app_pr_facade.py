@@ -51,12 +51,13 @@ def record_pr_events(
     weight: float | None,
     reps: int | None,
     previous: dict[str, float],
-) -> None:
+) -> list[str]:
     candidates = [
         ("최고 중량", float(weight or 0), previous["max_weight"]),
         ("최고 반복", float(reps or 0), previous["max_reps"]),
         ("최고 볼륨", float(weight or 0) * float(reps or 0), previous["max_volume"]),
     ]
+    achieved: list[str] = []
     for record_type, value, old_value in candidates:
         if value > 0 and value > old_value:
             get_db().execute(
@@ -66,6 +67,8 @@ def record_pr_events(
                 """,
                 (workout_date, set_id, exercise_id, exercise_name, record_type, value),
             )
+            achieved.append(record_type)
+    return achieved
 
 
 def list_pr_events(workout_date: str) -> list[sqlite3.Row]:

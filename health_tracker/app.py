@@ -338,6 +338,7 @@ from health_tracker.app_workout_facade import (
     apply_session_template,
     build_adaptive_training_recommendations,
     build_data_quality_profile,
+    build_logging_streak,
     build_muscle_balance,
     build_next_set_suggestions,
     build_workout_completion_summary,

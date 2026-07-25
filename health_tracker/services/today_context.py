@@ -586,6 +586,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
         "next_date": deps["shift_date"](today_session["workout_date"], 1),
         "current_date": deps["current_local_date"](),
         "active_page": "today",
+        "logging_streak": deps["build_logging_streak"](today_session["workout_date"]),
     }
 
     if today_mode == "overview":

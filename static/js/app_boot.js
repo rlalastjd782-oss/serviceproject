@@ -34,6 +34,28 @@ renderReadinessCoach();
 processOfflineQueue();
 initNotificationTools();
 initPhotoCompare();
+checkPrCelebration();
+
+function checkPrCelebration() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("new_pr") !== "1") {
+    return;
+  }
+  params.delete("new_pr");
+  const newSearch = params.toString();
+  window.history.replaceState(null, "", window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash);
+
+  let toast = document.querySelector("[data-pr-celebration-toast]");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.dataset.prCelebrationToast = "1";
+    toast.className = "pr-celebration-toast";
+    document.body.append(toast);
+  }
+  toast.textContent = "🎉 신기록 달성!";
+  toast.classList.add("is-visible");
+  window.setTimeout(() => toast.classList.remove("is-visible"), 3200);
+}
 
 function setMealFormToggleLabels(label) {
   document.querySelectorAll("[data-toggle-meal-form]").forEach((button) => {

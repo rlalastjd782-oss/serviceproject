@@ -14,7 +14,7 @@
               <button class="record-toggle" type="button" data-toggle-card aria-expanded="false">
                 <span class="cat-badge {{ body_part_class(group.body_part) }}">{{ group.body_part }}</span>
                 <strong>{{ group.exercise_name|display_exercise_name }}</strong>
-                <span>{{ group.sets|length }}세트{% if setting.get('equipment') %} · {{ setting.get('equipment')|display_item_name }}{% endif %}{% if group_pr_events %} · PR {{ group_pr_events|length }}{% endif %}</span>
+                <span>{{ group.sets|length }}세트{% if setting.get('equipment') %} · {{ setting.get('equipment')|display_item_name }}{% endif %}{% if group_pr_events %} · <span class="pr-count-badge">🏆 PR {{ group_pr_events|length }}</span>{% endif %}</span>
               </button>
             </div>
             <div class="compact-set-preview">

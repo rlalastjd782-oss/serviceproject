@@ -380,6 +380,30 @@
   transform: translate(-50%, 0);
 }
 
+.pr-celebration-toast {
+  position: fixed;
+  left: 50%;
+  top: 18px;
+  z-index: 100;
+  transform: translate(-50%, -16px);
+  max-width: min(90vw, 420px);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid rgb(245 158 11 / 55%);
+  background: #1f1a10;
+  color: #fbbf24;
+  font-weight: 800;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.pr-celebration-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 :root {
   color-scheme: dark;
   --bg: #0b0d12;

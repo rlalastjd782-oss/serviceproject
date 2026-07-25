@@ -81,6 +81,10 @@
   font-weight: 800;
 }
 
+.pr-count-badge {
+  color: #fbbf24;
+}
+
 .compact-set-preview {
   display: flex;
   flex-wrap: wrap;

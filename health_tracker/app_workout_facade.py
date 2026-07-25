@@ -16,6 +16,7 @@ from health_tracker.services.coaching import (
     list_workout_focus_recommendations_from_db,
 )
 from health_tracker.services.data_quality import build_data_quality_profile_from_db, list_record_gaps_from_db
+from health_tracker.services.streaks import build_logging_streak_from_db
 from health_tracker.services.food_shortcuts import (
     delete_food_favorite_from_db,
     list_favorite_foods_from_db,
@@ -304,6 +305,10 @@ def get_goal_progress(date_text: str) -> dict[str, dict[str, int | float | str]]
 
 def goal_item(current: int | float, target: int, label: str) -> dict[str, int | float | str]:
     return build_goal_item(current, target, label)
+
+
+def build_logging_streak(today_date: str) -> dict[str, object]:
+    return build_logging_streak_from_db(get_db(), today_date)
 
 
 def build_weekly_plan_board(week_start: str) -> list[dict[str, object]]:
