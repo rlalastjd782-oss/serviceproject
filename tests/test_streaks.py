@@ -61,6 +61,15 @@ class LoggingStreakTest(FlowTestBase):
         self.assertEqual(streak["status"], "끊김")
         self.assertEqual(streak["last_active_date"], THREE_DAYS_AGO)
 
+    def test_ignores_activity_logged_after_the_viewed_date(self) -> None:
+        # Regression: browsing to an old date must not pick up a streak from
+        # activity logged on later dates (e.g. real "today").
+        FAR_FUTURE = (date.today() + timedelta(days=30)).isoformat()
+        self._insert_workout_set(FAR_FUTURE)
+        streak = self._streak()
+        self.assertEqual(streak["current_streak"], 0)
+        self.assertEqual(streak["status"], "새로 시작")
+
     def test_meal_entry_also_counts_toward_streak(self) -> None:
         with self.app.app_context():
             db = app_module.get_db()

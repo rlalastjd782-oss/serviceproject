@@ -12,9 +12,23 @@
     <div class="completion-card {% if session.completed %}is-complete{% endif %}">
       <strong>{% if session.completed %}오늘 운동 완료{% else %}아직 완료 전{% endif %}</strong>
       <span>저장된 운동 시간 <span data-workout-saved-duration>{{ format_duration(session.duration_seconds) }}</span></span>
-      <span>{{ today_summary.set_count }}세트 · {{ "%.0f"|format(today_summary.volume) }}kg{% if today_summary.cardio_minutes %} · 유산소 {{ "%.0f"|format(today_summary.cardio_minutes) }}분{% endif %}</span>
-      {% if pr_events %}<span>오늘 신기록 {{ pr_events|length }}개</span>{% endif %}
-      {% if logging_streak.current_streak %}<span class="streak-badge">🔥 {{ logging_streak.status }} · {{ logging_streak.current_streak }}일째</span>{% endif %}
+      <div class="today-stat-row">
+        <div class="stat-tile stat-tile--streak{% if not logging_streak.current_streak %} is-inactive{% endif %}" title="{{ logging_streak.status }}">
+          <span class="stat-icon">🔥</span>
+          <span class="stat-value">{{ logging_streak.current_streak or 0 }}일</span>
+          <span class="stat-label">연속 기록</span>
+        </div>
+        <div class="stat-tile stat-tile--pr{% if not pr_events %} is-inactive{% endif %}">
+          <span class="stat-icon">🏆</span>
+          <span class="stat-value">{{ pr_events|length }}개</span>
+          <span class="stat-label">오늘 신기록</span>
+        </div>
+        <div class="stat-tile stat-tile--volume">
+          <span class="stat-icon">💪</span>
+          <span class="stat-value">{{ "%.0f"|format(today_summary.volume) }}<small>kg</small></span>
+          <span class="stat-label">{{ today_summary.set_count }}세트{% if today_summary.cardio_minutes %} · {{ "%.0f"|format(today_summary.cardio_minutes) }}분{% endif %}</span>
+        </div>
+      </div>
       <span>주간 균형 {{ balance_score.score }}%{% if balance_score.missing %} · 부족: {{ balance_score.missing[:3]|join(", ") }}{% endif %}</span>
     </div>
     {% if session.completed or today_summary.set_count or pr_cards %}

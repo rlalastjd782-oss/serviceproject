@@ -10,10 +10,13 @@ def build_logging_streak_from_db(db: sqlite3.Connection, today_date: str) -> dic
         SELECT DISTINCT s.workout_date AS active_date
         FROM workout_sessions s
         JOIN workout_sets ws ON ws.session_id = s.id
+        WHERE s.workout_date <= ?
         UNION
         SELECT DISTINCT meal_date AS active_date
         FROM meal_entries
-        """
+        WHERE meal_date <= ?
+        """,
+        (today_date, today_date),
     ).fetchall()
     active_dates = {row["active_date"] for row in rows if row["active_date"]}
     if not active_dates:
