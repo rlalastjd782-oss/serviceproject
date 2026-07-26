@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from health_tracker.constants import SUMMARY_LIST_DEFAULT_PER_PAGE
 from health_tracker.services.summary_context import (
     build_daily_summary_context,
     build_monthly_summary_context,
@@ -97,7 +98,7 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
     def exercise_summary_page():
         page, per_page = configured_page_params(request.args)
         if "per_page" not in request.args:
-            per_page = 5
+            per_page = SUMMARY_LIST_DEFAULT_PER_PAGE
         exercise_sort = request.args.get("sort", "sets")
         exercise_id = parse_int(request.args.get("exercise_id"))
         search_query = request.args.get("q", "").strip()
@@ -186,7 +187,7 @@ def register_summary_routes(app, ctx: dict[str, object]) -> None:
     def pr_summary_page():
         page, per_page = configured_page_params(request.args)
         if "per_page" not in request.args:
-            per_page = 5
+            per_page = SUMMARY_LIST_DEFAULT_PER_PAGE
         selected_part = request.args.get("part", "").strip()
         search_query = request.args.get("q", "").strip()
         pr_sort = request.args.get("sort", "weight")

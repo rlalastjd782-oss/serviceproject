@@ -62,7 +62,7 @@ cd ~/serviceproject
 git pull origin master
 source .venv/bin/activate
 pip install -r requirements.txt
-touch /var/www/kimmins_pythonanywhere_com_wsgi.py
+touch /var/www/YOUR_PYTHONANYWHERE_USERNAME_pythonanywhere_com_wsgi.py
 ```
 
 ## 배포 전 확인

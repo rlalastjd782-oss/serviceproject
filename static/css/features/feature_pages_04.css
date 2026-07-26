@@ -288,7 +288,7 @@
 }
 
 .pr-card {
-  border-color: #f59e0b;
+  border-color: var(--amber);
   background: #1f1a10;
 }
 
@@ -301,7 +301,7 @@
 
 .pr-badge {
   border: none;
-  background: linear-gradient(135deg, #ffe08a, #f0a93c);
+  background: linear-gradient(135deg, var(--gradient-gold-start), var(--gradient-gold-end));
   color: #3a2504;
   font-weight: 800;
 }
@@ -364,7 +364,7 @@
 }
 
 .stat-tile--pr {
-  background: linear-gradient(160deg, #ffe08a, #f0a93c);
+  background: linear-gradient(160deg, var(--gradient-gold-start), var(--gradient-gold-end));
 }
 
 .stat-tile--pr .stat-value,
@@ -373,7 +373,7 @@
 }
 
 .stat-tile--volume {
-  background: linear-gradient(160deg, #7fb2ff, #3465e0);
+  background: linear-gradient(160deg, var(--gradient-blue-start), var(--gradient-blue-end));
 }
 
 .stat-tile--volume .stat-value,

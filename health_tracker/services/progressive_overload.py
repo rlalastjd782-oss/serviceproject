@@ -3,9 +3,11 @@ from __future__ import annotations
 import sqlite3
 from datetime import datetime
 
+from health_tracker.constants import ESTIMATED_1RM_REP_DIVISOR, PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG
+
 
 def estimated_1rm(weight: float, reps: int) -> float:
-    return round(weight * (1 + reps / 30), 1) if weight > 0 and reps > 0 else 0.0
+    return round(weight * (1 + reps / ESTIMATED_1RM_REP_DIVISOR), 1) if weight > 0 and reps > 0 else 0.0
 
 
 def classify_overload_state(rows: list[sqlite3.Row]) -> tuple[str, str]:
@@ -67,12 +69,12 @@ def next_set_advice_from_recent(
         }
     if readiness_percent < 50 or avg_rpe >= 9:
         advice_type = "감량/유지"
-        target_weight = max(0, weight - 2.5) if avg_rpe >= 9 else weight
+        target_weight = max(0, weight - PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG) if avg_rpe >= 9 else weight
         target_reps = max(1, reps)
         target_sets = 2
     elif state in {"상승", "유지"} and reps >= 10:
         advice_type = "소폭 증량"
-        target_weight = weight + 2.5
+        target_weight = weight + PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG
         target_reps = max(5, reps - 2)
     elif state == "정체":
         advice_type = "반복 추가"
@@ -93,14 +95,14 @@ def next_set_advice_from_recent(
 
 def recent_performance_rows(db: sqlite3.Connection, exercise_name: str, limit: int = 5) -> list[sqlite3.Row]:
     return db.execute(
-        """
+        f"""
         SELECT
             s.workout_date,
             COALESCE(NULLIF(MAX(ws.body_part), ''), '기타') AS body_part,
             MAX(COALESCE(ws.weight, 0)) AS max_weight,
             MAX(COALESCE(ws.reps, 0)) AS max_reps,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / {ESTIMATED_1RM_REP_DIVISOR})) AS estimated_1rm,
             AVG(ws.rpe) AS avg_rpe,
             COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM workout_sets ws
@@ -136,7 +138,7 @@ def build_next_set_suggestions(
                 MAX(COALESCE(ws.weight, 0)) AS max_weight,
                 MAX(COALESCE(ws.reps, 0)) AS max_reps,
                 COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-                MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+                MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / {ESTIMATED_1RM_REP_DIVISOR})) AS estimated_1rm,
                 AVG(ws.rpe) AS avg_rpe,
                 COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
             FROM workout_sets ws
@@ -231,7 +233,7 @@ def list_overload_suggestions_from_db(db: sqlite3.Connection) -> dict[str, str]:
         name = row["name"]
         if name in suggestions:
             continue
-        next_weight = float(row["weight"]) + 2.5
+        next_weight = float(row["weight"]) + PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG
         next_reps = int(row["reps"]) + 1
         suggestions[name] = (
             f"최근 기록 기준: {float(row['weight']):.1f}kg {int(row['reps'])}회 -> "

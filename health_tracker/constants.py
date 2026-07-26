@@ -11,6 +11,41 @@ REST_TIMER_PRESETS = [60, 90, 120]
 SUMMARY_DAY_OPTIONS = [7, 14, 30, 60, 90]
 SET_TYPE_OPTIONS = ["본세트", "워밍업", "드롭세트", "실패"]
 
+# 최초 실행 시 관리자 계정에 아직 설정 비밀번호(설정 페이지에서 지정)가 없을 때만 쓰는
+# 임시 부트스트랩 비밀번호. 사용자가 /settings에서 비밀번호를 설정하는 즉시 대체된다.
+DEFAULT_BOOTSTRAP_PASSWORD = "1234"
+
+DEFAULT_LIST_LIMIT = 20
+SUMMARY_LIST_DEFAULT_PER_PAGE = 5
+# SQL 문자열에 그대로 보간되므로 float이어야 한다(정수 30을 쓰면 SQLite가
+# 정수 나눗셈을 해서 reps < 30일 때 결과가 0으로 잘려 예상 1RM 계산이 깨진다).
+ESTIMATED_1RM_REP_DIVISOR = 30.0
+PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG = 2.5
+
+# 컨디션 체크(condition+sleep+(6-soreness)+(6-fatigue), 0~20점)를 백분율로 환산한
+# 뒤 적용하는 등급 구간. 서버(services/coaching.py)와 클라이언트(static/js/readiness.js)가
+# 같은 기준을 쓰도록 이 목록을 페이지에 데이터로 내려보낸다. min 값이 큰 순서로 정렬돼야 한다.
+READINESS_TIERS = [
+    {
+        "min": 75,
+        "label": "공격 가능",
+        "guide": f"메인 운동은 지난 기록보다 1회 또는 {PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG}kg 상향을 시도하세요.",
+        "tone": "high",
+    },
+    {
+        "min": 55,
+        "label": "표준 진행",
+        "guide": "지난 기록과 같은 중량에서 세트 완성도를 우선하세요.",
+        "tone": "normal",
+    },
+    {
+        "min": 0,
+        "label": "회복 우선",
+        "guide": "고중량보다 낮은 강도, 보조 운동, 유산소 위주로 조정하세요.",
+        "tone": "low",
+    },
+]
+
 BODY_PARTS = ["하체", "가슴", "팔(이두)", "팔(삼두)", "등", "어깨", "유산소", "기타"]
 
 # "기타"는 실제 훈련 목표/밸런스 계산 대상이 아니라서 제외한 파생 목록.

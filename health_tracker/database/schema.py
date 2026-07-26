@@ -3,6 +3,8 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Callable
 
+from health_tracker.constants import DEFAULT_REST_SECONDS
+
 
 def ensure_column(db: sqlite3.Connection, table: str, column: str, column_type: str) -> None:
     columns = [row["name"] for row in db.execute(f"PRAGMA table_info({table})").fetchall()]
@@ -43,7 +45,7 @@ def init_database(
     delete_internal_test_data: Callable[[], None],
 ) -> None:
     db.executescript(
-        """
+        f"""
         CREATE TABLE IF NOT EXISTS exercises (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL UNIQUE,
@@ -133,7 +135,7 @@ def init_database(
         CREATE TABLE IF NOT EXISTS exercise_settings (
             exercise_name TEXT PRIMARY KEY,
             location_id INTEGER,
-            rest_seconds INTEGER NOT NULL DEFAULT 90,
+            rest_seconds INTEGER NOT NULL DEFAULT {DEFAULT_REST_SECONDS},
             is_favorite INTEGER NOT NULL DEFAULT 0,
             equipment TEXT NOT NULL DEFAULT '',
             target_weight REAL,

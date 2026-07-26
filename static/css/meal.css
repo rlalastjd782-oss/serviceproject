@@ -382,7 +382,7 @@
 }
 
 .cat-stat-pr {
-  color: #fbbf24;
+  color: var(--gold);
   font-size: 10px;
   font-weight: 900;
   line-height: 1.35;

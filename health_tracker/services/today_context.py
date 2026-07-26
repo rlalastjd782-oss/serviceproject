@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from health_tracker.constants import DEFAULT_REST_SECONDS, READINESS_TIERS
 
 CARDIO_BODY_PART = "유산소"
 
@@ -521,7 +522,7 @@ def _empty_today_context() -> dict[str, object]:
             "target_sets": None,
             "target_reps": None,
             "target_weight": None,
-            "rest_seconds": 90,
+            "rest_seconds": DEFAULT_REST_SECONDS,
             "warmup_sets": [],
             "plate_combo": [],
             "actions": {},
@@ -540,7 +541,7 @@ def _empty_today_context() -> dict[str, object]:
         "workout_session_flow": {
             "next_item": None,
             "last_set": None,
-            "rest_seconds": 90,
+            "rest_seconds": DEFAULT_REST_SECONDS,
         },
         "record_gaps": [],
         "meal_copy_sources": [],
@@ -637,6 +638,7 @@ def build_today_context(args, deps: dict[str, object]) -> dict[str, object]:
                 "recovery_statuses": deps["list_recovery_statuses"](today_session["workout_date"]),
                 "recovery_checkin": deps["get_recovery_checkin"](today_session["workout_date"]),
                 "readiness_profile": deps["build_readiness_profile"](today_session["workout_date"]),
+                "readiness_tiers": READINESS_TIERS,
                 "recovery_recommendations": deps["list_recovery_recommendations"](today_session["workout_date"]),
                 "adaptive_training_recommendations": deps["build_adaptive_training_recommendations"](today_session["workout_date"]),
                 "daily_coaching": deps["list_daily_coaching"](today_session["workout_date"]),

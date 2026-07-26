@@ -330,7 +330,7 @@
 }
 
 .pr-share-card span {
-  color: #fbbf24;
+  color: var(--gold);
   font-size: 11px;
   font-weight: 900;
 }

@@ -3,7 +3,13 @@ from __future__ import annotations
 import sqlite3
 
 from health_tracker.app_database_facade import get_db
-from health_tracker.constants import BODY_PART_CLASSES, BODY_PARTS, MEAL_TYPE_CLASSES
+from health_tracker.constants import (
+    BODY_PART_CLASSES,
+    BODY_PARTS,
+    DEFAULT_LIST_LIMIT,
+    ESTIMATED_1RM_REP_DIVISOR,
+    MEAL_TYPE_CLASSES,
+)
 from health_tracker.date_utils import current_local_date, meal_day_label, normalize_month, shift_date, shift_month, week_start_for_date
 from health_tracker.services.meal import (
     build_monthly_meal_summary_from_db,
@@ -148,7 +154,7 @@ def paged_search_workout_records_filtered(
     end_date: str = "",
     sort: str = "newest",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object, str]:
     return paged_search_workout_records_filtered_from_db(
         get_db(),
@@ -168,7 +174,7 @@ def paged_search_workout_records(
     query: str,
     sort: str = "newest",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object, str]:
     return paged_search_workout_records_filtered(
         query=query,
@@ -178,7 +184,7 @@ def paged_search_workout_records(
     )
 
 
-def paged_exercise_summary(sort: str = "sets", page: int = 1, per_page: int = 20) -> tuple[list[sqlite3.Row], object, str]:
+def paged_exercise_summary(sort: str = "sets", page: int = 1, per_page: int = DEFAULT_LIST_LIMIT) -> tuple[list[sqlite3.Row], object, str]:
     return paged_exercise_summary_from_db(get_db(), sort, page, per_page)
 
 
@@ -187,7 +193,7 @@ def paged_exercise_pr_summary(
     query: str = "",
     sort: str = "weight",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object, str]:
     sort_options = {
         "1rm": "estimated_1rm DESC, best_weight DESC, last_date DESC, e.name",
@@ -224,7 +230,7 @@ def paged_exercise_pr_summary(
             COALESCE(MAX(ws.weight), 0) AS best_weight,
             COALESCE(MAX(ws.reps), 0) AS best_reps,
             COALESCE(MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS best_volume,
-            COALESCE(MAX(ws.weight * (1 + ws.reps / 30.0)), 0) AS estimated_1rm
+            COALESCE(MAX(ws.weight * (1 + ws.reps / {ESTIMATED_1RM_REP_DIVISOR})), 0) AS estimated_1rm
         {from_sql}
         ORDER BY {sort_options[selected_sort]}
         """,
@@ -250,7 +256,7 @@ def paged_equipment_summary(
     scope: str = "month",
     sort: str = "sets",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object, str]:
     return paged_equipment_summary_from_db(
         get_db(),
@@ -268,7 +274,7 @@ def paged_equipment_detail(
     equipment: str,
     scope: str = "month",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object]:
     return paged_equipment_detail_from_db(
         get_db(),
@@ -286,7 +292,7 @@ def paged_equipment_daily(
     equipment: str,
     scope: str = "month",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object]:
     return paged_equipment_daily_from_db(
         get_db(),

@@ -5,7 +5,7 @@ import sqlite3
 from collections.abc import Callable
 from datetime import datetime
 
-from health_tracker.constants import STRENGTH_BODY_PARTS
+from health_tracker.constants import PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG, READINESS_TIERS, STRENGTH_BODY_PARTS
 
 _NO_RECENT_ACTIVITY_MESSAGES = [
     "최근 48시간 근력 기록이 적습니다. 원하는 부위를 진행해도 좋습니다.",
@@ -26,7 +26,7 @@ _RESTED_TEMPLATES = [
 ]
 
 _CONDITION_GOOD_MESSAGES = [
-    "컨디션이 좋습니다. 메인 운동은 지난 기록보다 1회 또는 2.5kg 도전을 고려하세요.",
+    "컨디션이 좋습니다. 메인 운동은 지난 기록보다 1회 또는 {increment}kg 도전을 고려하세요.",
     "오늘 컨디션이 좋아 보입니다. 평소보다 살짝 더 밀어붙여도 좋은 타이밍입니다.",
     "회복이 잘 된 상태입니다. 지난 기록을 넘어설 좋은 기회입니다.",
 ]
@@ -350,7 +350,7 @@ def list_daily_coaching_from_db(
     fatigue = int(checkin["fatigue_score"] or 3)
     messages = []
     if condition >= 4 and sleep >= 4 and fatigue <= 2:
-        messages.append(random.choice(_CONDITION_GOOD_MESSAGES))
+        messages.append(random.choice(_CONDITION_GOOD_MESSAGES).format(increment=PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG))
     elif sleep <= 2 or fatigue >= 4:
         messages.append(random.choice(_CONDITION_LOW_MESSAGES))
     else:
@@ -361,32 +361,32 @@ def list_daily_coaching_from_db(
     return messages[:4]
 
 
-def build_readiness_profile_from_db(db: sqlite3.Connection, date_text: str) -> dict[str, object]:
-    checkin = get_recovery_checkin_from_db(db, date_text)
+def _compute_readiness_score(checkin: dict[str, object]) -> int:
     condition = int(checkin["condition_score"] or 3)
     sleep = int(checkin["sleep_score"] or 3)
     soreness = int(checkin["soreness_score"] or 3)
     fatigue = int(checkin["fatigue_score"] or 3)
-    score = condition + sleep + (6 - soreness) + (6 - fatigue)
+    return condition + sleep + (6 - soreness) + (6 - fatigue)
+
+
+def classify_readiness_percent(percent: int) -> dict[str, object]:
+    for tier in READINESS_TIERS:
+        if percent >= tier["min"]:
+            return tier
+    return READINESS_TIERS[-1]
+
+
+def build_readiness_profile_from_db(db: sqlite3.Connection, date_text: str) -> dict[str, object]:
+    checkin = get_recovery_checkin_from_db(db, date_text)
+    score = _compute_readiness_score(checkin)
     percent = round(score / 20 * 100)
-    if percent >= 75:
-        label = "공격 가능"
-        guide = "메인 운동은 지난 기록보다 1회 또는 2.5kg 상향을 시도하세요."
-        tone = "high"
-    elif percent >= 55:
-        label = "표준 진행"
-        guide = "지난 기록과 같은 중량에서 세트 완성도를 우선하세요."
-        tone = "normal"
-    else:
-        label = "회복 우선"
-        guide = "고중량보다 낮은 강도, 보조 운동, 유산소 위주로 조정하세요."
-        tone = "low"
+    tier = classify_readiness_percent(percent)
     return {
         "score": score,
         "percent": percent,
-        "label": label,
-        "guide": guide,
-        "tone": tone,
+        "label": tier["label"],
+        "guide": tier["guide"],
+        "tone": tier["tone"],
     }
 
 
@@ -397,13 +397,7 @@ def build_adaptive_training_recommendations_from_db(
     limit: int = 6,
 ) -> list[dict[str, object]]:
     recovery = get_recovery_checkin_from_db(db, workout_date)
-    readiness = (
-        int(recovery["condition_score"] or 3)
-        + int(recovery["sleep_score"] or 3)
-        + (6 - int(recovery["soreness_score"] or 3))
-        + (6 - int(recovery["fatigue_score"] or 3))
-    )
-    readiness_ratio = readiness / 20
+    readiness_ratio = _compute_readiness_score(recovery) / 20
     recent_start = shift_date(workout_date, -10)
     recent_load_rows = db.execute(
         """
@@ -494,7 +488,7 @@ def build_adaptive_training_recommendations_from_db(
         next_weight = row["last_weight"]
         next_reps = row["last_reps"]
         if next_weight is not None and action == "증량 시도":
-            next_weight = round(float(next_weight) + 2.5, 1)
+            next_weight = round(float(next_weight) + PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG, 1)
         items.append(
             {
                 "body_part": body_part,

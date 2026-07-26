@@ -97,7 +97,7 @@
 }
 
 .dot-meal {
-  background: #f59e0b;
+  background: var(--amber);
 }
 
 .dot-cardio {

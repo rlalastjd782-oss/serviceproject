@@ -5,6 +5,7 @@ import sqlite3
 from flask import url_for
 
 from health_tracker.app_body_meal_facade import build_body_monthly_report
+from health_tracker.constants import DEFAULT_LIST_LIMIT
 from health_tracker.app_coaching_reports_facade import build_weekly_report, list_balance_warnings, list_volume_warnings
 from health_tracker.app_database_facade import get_db
 from health_tracker.app_settings_facade import get_app_preferences
@@ -179,7 +180,7 @@ def paged_exercise_library(
     favorite_only: bool = False,
     sort: str = "favorite",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object, str]:
     default_rest_seconds = int(get_app_preferences()["default_rest_seconds"])
     sort_options = {
@@ -290,7 +291,7 @@ def build_data_center_status(date_text: str | None = None) -> dict[str, object]:
     }
 
 
-def list_location_training_insights(limit: int = 20) -> list[dict[str, object]]:
+def list_location_training_insights(limit: int = DEFAULT_LIST_LIMIT) -> list[dict[str, object]]:
     return list_location_training_insights_from_db(get_db(), limit)
 
 

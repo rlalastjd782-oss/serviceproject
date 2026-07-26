@@ -5,6 +5,7 @@ from contextlib import closing
 from pathlib import Path
 import re
 
+from health_tracker.constants import DEFAULT_BOOTSTRAP_PASSWORD
 from health_tracker.security import make_password_hash, verify_password_hash
 
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{2,32}$")
@@ -147,7 +148,7 @@ def create_account(
 
 def ensure_primary_account(main_database: Path, password_hash: str | None = None) -> None:
     init_accounts_db(main_database)
-    fallback_hash = password_hash or make_password_hash("1234")
+    fallback_hash = password_hash or make_password_hash(DEFAULT_BOOTSTRAP_PASSWORD)
     with closing(connect_auth_db(main_database)) as db:
         with db:
             row = db.execute("SELECT id FROM users WHERE id = 1").fetchone()

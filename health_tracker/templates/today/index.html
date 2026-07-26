@@ -318,7 +318,7 @@
           <div class="section-subtitle">운동 강도 추천에 쓰는 간단 체크입니다.</div>
         </div>
       </div>
-      <div class="readiness-coach-card state-{{ readiness_profile.tone }}" data-readiness-coach>
+      <div class="readiness-coach-card state-{{ readiness_profile.tone }}" data-readiness-coach data-readiness-tiers='{{ readiness_tiers|tojson }}'>
         <div>
           <span>오늘 강도</span>
           <strong data-readiness-label>{{ readiness_profile.label }}</strong>

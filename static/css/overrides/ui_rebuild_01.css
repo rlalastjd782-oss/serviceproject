@@ -172,7 +172,7 @@
   align-items: center;
   justify-content: center;
   border: none;
-  background: linear-gradient(160deg, #7fb2ff, #3465e0);
+  background: linear-gradient(160deg, var(--gradient-blue-start), var(--gradient-blue-end));
   color: #061431;
   font-size: 13px;
   font-weight: 800;

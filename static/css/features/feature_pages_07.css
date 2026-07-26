@@ -211,7 +211,7 @@
 }
 
 .calorie-bar {
-  background: #f59e0b;
+  background: var(--amber);
 }
 
 .set-bar {

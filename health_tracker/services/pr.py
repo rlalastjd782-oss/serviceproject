@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import sqlite3
 
+from health_tracker.constants import ESTIMATED_1RM_REP_DIVISOR
+
 PR_EVENT_COLUMNS = "id, workout_date, set_id, exercise_id, exercise_name, record_type, record_value, created_at"
 
 _PR_TIER_PRIORITY = {"big": 3, "first": 2, "solid": 1, "modest": 0}
@@ -122,7 +124,7 @@ def list_exercise_pr_summary_from_db(
             COALESCE(MAX(ws.weight), 0) AS best_weight,
             COALESCE(MAX(ws.reps), 0) AS best_reps,
             COALESCE(MAX(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS best_volume,
-            COALESCE(MAX(ws.weight * (1 + ws.reps / 30.0)), 0) AS estimated_1rm
+            COALESCE(MAX(ws.weight * (1 + ws.reps / {ESTIMATED_1RM_REP_DIVISOR})), 0) AS estimated_1rm
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
         JOIN workout_sessions s ON s.id = ws.session_id

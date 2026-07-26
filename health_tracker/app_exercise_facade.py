@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 
 from health_tracker.app_database_facade import get_db
+from health_tracker.constants import ESTIMATED_1RM_REP_DIVISOR, PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG
 
 
 def get_exercise_profile(exercise_id: int | None) -> dict[str, object] | None:
@@ -78,12 +79,12 @@ def build_exercise_next_plan(exercise_id: int | None) -> list[str]:
         return ["최근 세트에 중량/횟수가 비어 있습니다. 다음 기록부터 중량과 횟수를 같이 남겨주세요."]
     if reps >= 10:
         return [
-            f"최근 {weight:.1f}kg x {reps}회까지 했습니다. 다음 목표는 {weight + 2.5:.1f}kg로 6~8회입니다.",
+            f"최근 {weight:.1f}kg x {reps}회까지 했습니다. 다음 목표는 {weight + PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG:.1f}kg로 6~8회입니다.",
             "중량을 올린 날은 첫 세트 성공률을 보고 나머지 세트는 같은 중량으로 유지하세요.",
         ]
     return [
         f"최근 {weight:.1f}kg x {reps}회입니다. 다음 목표는 같은 중량으로 {reps + 1}회입니다.",
-        "목표 횟수에 도달하면 그 다음 운동에서 2.5kg 증량을 고려하세요.",
+        f"목표 횟수에 도달하면 그 다음 운동에서 {PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG}kg 증량을 고려하세요.",
     ]
 
 
@@ -91,11 +92,11 @@ def build_exercise_trend_summary(exercise_id: int | None) -> list[dict[str, obje
     if not exercise_id:
         return []
     rows = get_db().execute(
-        """
+        f"""
         SELECT
             s.workout_date,
             MAX(COALESCE(ws.weight, 0)) AS max_weight,
-            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / {ESTIMATED_1RM_REP_DIVISOR})) AS estimated_1rm,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
             COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes
         FROM workout_sets ws
@@ -144,13 +145,13 @@ def build_exercise_growth_chart(exercise_id: int | None, limit: int = 10) -> lis
     profile = get_exercise_profile(exercise_id)
     is_cardio = bool(profile and profile.get("body_part") == "유산소")
     rows = get_db().execute(
-        """
+        f"""
         SELECT
             s.workout_date AS period,
             MAX(COALESCE(ws.weight, 0)) AS max_weight,
             COALESCE(SUM(COALESCE(ws.reps, 0)), 0) AS rep_count,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume,
-            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / {ESTIMATED_1RM_REP_DIVISOR})) AS estimated_1rm,
             COALESCE(SUM(COALESCE(ws.cardio_minutes, 0)), 0) AS cardio_minutes,
             MAX(COALESCE(ws.cardio_speed, 0)) AS cardio_speed,
             MAX(COALESCE(ws.cardio_incline, 0)) AS cardio_incline
@@ -198,11 +199,11 @@ def list_exercise_pr_timeline(exercise_id: int | None, limit: int = 12) -> list[
     if not exercise_id:
         return []
     rows = get_db().execute(
-        """
+        f"""
         SELECT
             s.workout_date,
             MAX(COALESCE(ws.weight, 0)) AS max_weight,
-            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0)) AS estimated_1rm,
+            MAX(COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / {ESTIMATED_1RM_REP_DIVISOR})) AS estimated_1rm,
             COALESCE(SUM(COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0)), 0) AS volume
         FROM workout_sets ws
         JOIN workout_sessions s ON s.id = ws.session_id

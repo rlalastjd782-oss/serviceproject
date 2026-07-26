@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import sqlite3
 
+from health_tracker.constants import DEFAULT_REST_SECONDS
+
 
 BODY_PART_SET_TARGETS: dict[str, tuple[int, int]] = {
     "가슴": (10, 20),
@@ -80,7 +82,7 @@ def weekly_rule_report_from_db(db: sqlite3.Connection, week_start: str, shift_da
                 "state": state,
                 "advice": advice,
                 "alternatives": BODY_PART_ALTERNATIVES.get(body_part, [])[:3],
-                "rest_seconds": REST_RULES.get(body_part, 90),
+                "rest_seconds": REST_RULES.get(body_part, DEFAULT_REST_SECONDS),
             }
         )
     priority = {"부족": 0, "과다": 1, "적정": 2}

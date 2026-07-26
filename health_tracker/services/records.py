@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 from collections.abc import Callable
 
+from health_tracker.constants import DEFAULT_LIST_LIMIT
 from health_tracker.services.pagination import build_pagination
 
 
@@ -34,7 +35,7 @@ def paged_search_workout_records_filtered_from_db(
     end_date: str = "",
     sort: str = "newest",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object, str]:
     sort_options = {
         "newest": "s.workout_date DESC, ws.sort_order ASC, ws.id ASC",
@@ -104,7 +105,7 @@ def paged_exercise_summary_from_db(
     db: sqlite3.Connection,
     sort: str = "sets",
     page: int = 1,
-    per_page: int = 20,
+    per_page: int = DEFAULT_LIST_LIMIT,
 ) -> tuple[list[sqlite3.Row], object, str]:
     sort_options = {
         "sets": "set_count DESC, rep_count DESC, e.name",

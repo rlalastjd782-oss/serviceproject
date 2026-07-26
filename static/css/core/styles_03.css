@@ -126,7 +126,7 @@
 
 .preview-chip.is-orange {
   background: rgb(245 158 11 / 16%);
-  color: #f59e0b;
+  color: var(--amber);
 }
 
 .preview-chip.is-purple {
@@ -391,7 +391,7 @@
   border-radius: 8px;
   border: 1px solid rgb(245 158 11 / 55%);
   background: #1f1a10;
-  color: #fbbf24;
+  color: var(--gold);
   font-weight: 800;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
   opacity: 0;
@@ -421,7 +421,12 @@
   --blue-strong: #1d4ed8;
   --green: #22c55e;
   --amber: #f59e0b;
+  --gold: #fbbf24;
   --danger: #ef4444;
+  --gradient-blue-start: #7fb2ff;
+  --gradient-blue-end: #3465e0;
+  --gradient-gold-start: #ffe08a;
+  --gradient-gold-end: #f0a93c;
   --shadow: 0 14px 34px rgb(0 0 0 / 26%);
   --shadow-soft: 0 8px 22px rgb(0 0 0 / 18%);
   --radius: 8px;

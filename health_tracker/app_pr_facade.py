@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 
 from health_tracker.app_database_facade import get_db
+from health_tracker.constants import ESTIMATED_1RM_REP_DIVISOR
 from health_tracker.services.pr import (
     build_pr_cards_from_rows,
     build_pr_dashboard_from_rows,
@@ -112,7 +113,7 @@ def list_exercise_best_sets(exercise_id: int | None) -> list[dict[str, object]]:
     if not exercise_id:
         return []
     rows = get_db().execute(
-        """
+        f"""
         WITH base AS (
             SELECT
                 ws.id,
@@ -122,7 +123,7 @@ def list_exercise_best_sets(exercise_id: int | None) -> list[dict[str, object]]:
                 ws.weight,
                 ws.reps,
                 COALESCE(ws.weight, 0) * COALESCE(ws.reps, 0) AS volume,
-                COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / 30.0) AS estimated_1rm,
+                COALESCE(ws.weight, 0) * (1 + COALESCE(ws.reps, 0) / {ESTIMATED_1RM_REP_DIVISOR}) AS estimated_1rm,
                 ws.cardio_incline,
                 ws.cardio_speed,
                 ws.cardio_minutes,
