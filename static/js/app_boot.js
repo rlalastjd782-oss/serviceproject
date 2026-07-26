@@ -25,6 +25,13 @@ const nextSetAdviceView = document.querySelector("[data-next-set-advice]");
 const exerciseStatView = document.querySelector("[data-exercise-stat-view]");
 const exerciseNoteView = document.querySelector("[data-exercise-note-view]");
 const exerciseTargetView = document.querySelector("[data-exercise-target-view]");
+const WORKOUT_LIST_COLLAPSE_KEY = "workout-list-collapsed";
+const PR_TIER_MESSAGES = {
+  first: "🌱 첫 기록을 남겼습니다!",
+  modest: "🎉 신기록 달성!",
+  solid: "🔥 멋진 신기록!",
+  big: "🚀 놀라운 신기록!",
+};
 initWorkoutClock();
 restoreSavedScrollPosition();
 scrollActiveTabIntoView();
@@ -35,8 +42,6 @@ processOfflineQueue();
 initNotificationTools();
 initPhotoCompare();
 checkPrCelebration();
-
-const WORKOUT_LIST_COLLAPSE_KEY = "workout-list-collapsed";
 initWorkoutListToggle();
 
 function applyWorkoutListState(list, button, collapsed) {
@@ -70,7 +75,9 @@ function checkPrCelebration() {
   if (params.get("new_pr") !== "1") {
     return;
   }
+  const tier = params.get("pr_tier") || "modest";
   params.delete("new_pr");
+  params.delete("pr_tier");
   const newSearch = params.toString();
   window.history.replaceState(null, "", window.location.pathname + (newSearch ? `?${newSearch}` : "") + window.location.hash);
 
@@ -81,7 +88,7 @@ function checkPrCelebration() {
     toast.className = "pr-celebration-toast";
     document.body.append(toast);
   }
-  toast.textContent = "🎉 신기록 달성!";
+  toast.textContent = PR_TIER_MESSAGES[tier] || PR_TIER_MESSAGES.modest;
   toast.classList.add("is-visible");
   window.setTimeout(() => toast.classList.remove("is-visible"), 3200);
 }

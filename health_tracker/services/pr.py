@@ -4,6 +4,27 @@ import sqlite3
 
 PR_EVENT_COLUMNS = "id, workout_date, set_id, exercise_id, exercise_name, record_type, record_value, created_at"
 
+_PR_TIER_PRIORITY = {"big": 3, "first": 2, "solid": 1, "modest": 0}
+
+
+def classify_pr_tier(achieved: list[dict[str, object]]) -> str:
+    best = "modest"
+    for item in achieved:
+        old_value = float(item["old_value"])
+        if old_value <= 0:
+            tier = "first"
+        else:
+            pct = (float(item["value"]) - old_value) / old_value * 100
+            if pct >= 15:
+                tier = "big"
+            elif pct >= 5:
+                tier = "solid"
+            else:
+                tier = "modest"
+        if _PR_TIER_PRIORITY[tier] > _PR_TIER_PRIORITY[best]:
+            best = tier
+    return best
+
 
 def list_pr_events_from_db(db: sqlite3.Connection, workout_date: str) -> list[sqlite3.Row]:
     return db.execute(

@@ -118,7 +118,7 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
             "SELECT COALESCE(MAX(sort_order), 0) + 1 FROM workout_sets WHERE session_id = ?",
             (session["id"],),
         ).fetchone()[0]
-        new_pr_achieved = False
+        all_achieved: list[dict[str, object]] = []
         for offset, (weight, reps, cardio_incline, cardio_speed, cardio_minutes_value, memo, set_type, rpe) in enumerate(set_rows):
             estimated_calories = estimate_exercise_calories(
                 body_part,
@@ -155,8 +155,7 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
             )
             if body_part != "유산소":
                 achieved = record_pr_events(cursor.lastrowid, session["workout_date"], exercise_id, exercise_name, weight, reps, previous_records)
-                if achieved:
-                    new_pr_achieved = True
+                all_achieved.extend(achieved)
                 previous_records = update_record_values(previous_records, weight, reps)
         db.commit()
         return redirect(
@@ -165,7 +164,8 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
                 date=session["workout_date"],
                 mode=mode or None,
                 location_id=session["location_id"],
-                new_pr=1 if new_pr_achieved else None,
+                new_pr=1 if all_achieved else None,
+                pr_tier=classify_pr_tier(all_achieved) if all_achieved else None,
             )
         )
 

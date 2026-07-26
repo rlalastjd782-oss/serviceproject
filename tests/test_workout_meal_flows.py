@@ -62,6 +62,7 @@ class WorkoutMealFlowTest(FlowTestBase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertIn("new_pr=1", response.headers["Location"])
+        self.assertIn("pr_tier=first", response.headers["Location"])
 
         response = self.client.post(
             "/sets",
@@ -77,6 +78,23 @@ class WorkoutMealFlowTest(FlowTestBase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertNotIn("new_pr=1", response.headers["Location"])
+        self.assertNotIn("pr_tier", response.headers["Location"])
+
+        response = self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-22",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ PR Bench",
+                "set_weight": "70",
+                "set_reps": "5",
+                "set_type": "본세트",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("new_pr=1", response.headers["Location"])
+        self.assertIn("pr_tier=big", response.headers["Location"])
 
     def test_inline_set_repeat_count_saves_multiple_sets(self) -> None:
         response = self.client.post(

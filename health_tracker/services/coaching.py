@@ -1,10 +1,52 @@
 from __future__ import annotations
 
+import random
 import sqlite3
 from collections.abc import Callable
 from datetime import datetime
 
 from health_tracker.constants import STRENGTH_BODY_PARTS
+
+_NO_RECENT_ACTIVITY_MESSAGES = [
+    "최근 48시간 근력 기록이 적습니다. 원하는 부위를 진행해도 좋습니다.",
+    "최근 이틀간 기록이 많지 않습니다. 오늘은 원하는 부위부터 자유롭게 시작하세요.",
+    "최근 48시간 기록이 비어 있습니다. 컨디션에 맞춰 자유롭게 골라보세요.",
+]
+
+_OVERLOADED_TEMPLATES = [
+    "{parts}는 최근 사용량이 많습니다.",
+    "{parts} 부위는 최근 자극이 많이 들어갔습니다.",
+    "{parts}는 최근 48시간 안에 이미 많이 다뤘습니다.",
+]
+
+_RESTED_TEMPLATES = [
+    "오늘 추천 부위: {parts}",
+    "오늘은 {parts} 위주로 진행해보세요.",
+    "{parts}는 쉬어서 오늘 우선순위로 좋습니다.",
+]
+
+_CONDITION_GOOD_MESSAGES = [
+    "컨디션이 좋습니다. 메인 운동은 지난 기록보다 1회 또는 2.5kg 도전을 고려하세요.",
+    "오늘 컨디션이 좋아 보입니다. 평소보다 살짝 더 밀어붙여도 좋은 타이밍입니다.",
+    "회복이 잘 된 상태입니다. 지난 기록을 넘어설 좋은 기회입니다.",
+]
+
+_CONDITION_LOW_MESSAGES = [
+    "회복 점수가 낮습니다. 고중량보다 가벼운 볼륨이나 유산소 위주가 낫습니다.",
+    "오늘은 몸이 덜 회복된 상태입니다. 무리한 중량보다 가벼운 세트로 마무리하세요.",
+    "회복이 부족합니다. 강도를 낮추고 다음 회복을 우선하세요.",
+]
+
+_CONDITION_AVERAGE_MESSAGES = [
+    "평균 컨디션입니다. 지난 기록과 같은 중량에서 안정적으로 세트를 채우세요.",
+    "무난한 컨디션입니다. 평소 페이스를 유지하며 세트 완성도에 집중하세요.",
+    "특별히 좋거나 나쁘지 않은 상태입니다. 지난 기록 수준을 안정적으로 반복하세요.",
+]
+
+_SORENESS_HIGH_MESSAGES = [
+    "근육통이 높습니다. 같은 부위 반복보다 회복된 부위를 선택하세요.",
+    "근육통이 남아있습니다. 오늘은 다른 부위 위주로 진행하는 게 좋습니다.",
+]
 
 
 def get_recovery_checkin_from_db(db: sqlite3.Connection, date_text: str) -> dict[str, object]:
@@ -285,14 +327,14 @@ def list_recovery_recommendations_from_db(
         (start, date_text),
     ).fetchall()
     if not rows:
-        return ["최근 48시간 근력 기록이 적습니다. 원하는 부위를 진행해도 좋습니다."]
+        return [random.choice(_NO_RECENT_ACTIVITY_MESSAGES)]
     overloaded = [row["body_part"] for row in rows if int(row["set_count"]) >= 4]
     rested = [part for part in STRENGTH_BODY_PARTS if part not in [row["body_part"] for row in rows]]
     messages = []
     if overloaded:
-        messages.append(f"{', '.join(overloaded[:2])}는 최근 사용량이 많습니다.")
+        messages.append(random.choice(_OVERLOADED_TEMPLATES).format(parts=", ".join(overloaded[:2])))
     if rested:
-        messages.append(f"오늘 추천 부위: {', '.join(rested[:2])}")
+        messages.append(random.choice(_RESTED_TEMPLATES).format(parts=", ".join(rested[:2])))
     return messages[:2]
 
 
@@ -308,13 +350,13 @@ def list_daily_coaching_from_db(
     fatigue = int(checkin["fatigue_score"] or 3)
     messages = []
     if condition >= 4 and sleep >= 4 and fatigue <= 2:
-        messages.append("컨디션이 좋습니다. 메인 운동은 지난 기록보다 1회 또는 2.5kg 도전을 고려하세요.")
+        messages.append(random.choice(_CONDITION_GOOD_MESSAGES))
     elif sleep <= 2 or fatigue >= 4:
-        messages.append("회복 점수가 낮습니다. 고중량보다 가벼운 볼륨이나 유산소 위주가 낫습니다.")
+        messages.append(random.choice(_CONDITION_LOW_MESSAGES))
     else:
-        messages.append("평균 컨디션입니다. 지난 기록과 같은 중량에서 안정적으로 세트를 채우세요.")
+        messages.append(random.choice(_CONDITION_AVERAGE_MESSAGES))
     if soreness >= 4:
-        messages.append("근육통이 높습니다. 같은 부위 반복보다 회복된 부위를 선택하세요.")
+        messages.append(random.choice(_SORENESS_HIGH_MESSAGES))
     messages.extend(list_recovery_recommendations_from_db(db, date_text, shift_date))
     return messages[:4]
 

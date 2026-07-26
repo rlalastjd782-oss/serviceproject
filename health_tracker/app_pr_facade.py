@@ -6,6 +6,7 @@ from health_tracker.app_database_facade import get_db
 from health_tracker.services.pr import (
     build_pr_cards_from_rows,
     build_pr_dashboard_from_rows,
+    classify_pr_tier as classify_pr_tier_from_achieved,
     list_exercise_pr_history_from_db,
     list_exercise_pr_summary_from_db,
     list_pr_events_from_db,
@@ -51,13 +52,13 @@ def record_pr_events(
     weight: float | None,
     reps: int | None,
     previous: dict[str, float],
-) -> list[str]:
+) -> list[dict[str, object]]:
     candidates = [
         ("최고 중량", float(weight or 0), previous["max_weight"]),
         ("최고 반복", float(reps or 0), previous["max_reps"]),
         ("최고 볼륨", float(weight or 0) * float(reps or 0), previous["max_volume"]),
     ]
-    achieved: list[str] = []
+    achieved: list[dict[str, object]] = []
     for record_type, value, old_value in candidates:
         if value > 0 and value > old_value:
             get_db().execute(
@@ -67,8 +68,12 @@ def record_pr_events(
                 """,
                 (workout_date, set_id, exercise_id, exercise_name, record_type, value),
             )
-            achieved.append(record_type)
+            achieved.append({"record_type": record_type, "value": value, "old_value": old_value})
     return achieved
+
+
+def classify_pr_tier(achieved: list[dict[str, object]]) -> str:
+    return classify_pr_tier_from_achieved(achieved)
 
 
 def list_pr_events(workout_date: str) -> list[sqlite3.Row]:

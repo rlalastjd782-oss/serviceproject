@@ -386,6 +386,7 @@ from health_tracker.app_workout_facade import (
 from health_tracker.app_pr_facade import (
     build_pr_cards,
     build_pr_dashboard,
+    classify_pr_tier,
     get_exercise_record_values,
     list_exercise_best_sets,
     list_exercise_pr_history,
