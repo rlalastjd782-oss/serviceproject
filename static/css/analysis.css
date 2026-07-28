@@ -217,8 +217,11 @@
 }
 
 .yearly-metric-card.is-primary {
-  border-color: rgb(34 197 94 / 40%);
-  background: linear-gradient(180deg, #102018, #111827);
+  border-color: transparent;
+  background: linear-gradient(160deg, var(--gradient-blue-start), var(--gradient-blue-end));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 25%),
+    inset 0 -8px 14px -8px rgb(0 0 0 / 35%);
 }
 
 .yearly-metric-card span,
@@ -234,6 +237,12 @@
   font-weight: 900;
   line-height: 1.1;
   overflow-wrap: anywhere;
+}
+
+.yearly-metric-card.is-primary span,
+.yearly-metric-card.is-primary small,
+.yearly-metric-card.is-primary strong {
+  color: #061431;
 }
 
 .yearly-month-grid {
