@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 from contextlib import closing
+from datetime import datetime, timedelta
 from pathlib import Path
 import re
 
@@ -10,6 +11,9 @@ from health_tracker.security import make_password_hash, verify_password_hash
 
 USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_]{2,32}$")
 _INITIALIZED_AUTH_DATABASES: set[Path] = set()
+
+MAX_FAILED_LOGIN_ATTEMPTS = 5
+LOGIN_LOCKOUT_MINUTES = 15
 
 
 def account_db_path(main_database: Path, account_id: int) -> Path:
@@ -65,6 +69,8 @@ def init_accounts_db(main_database: Path) -> None:
                 ("last_seen_at", "TEXT"),
                 ("signup_status", "TEXT NOT NULL DEFAULT 'active'"),
                 ("memo", "TEXT NOT NULL DEFAULT ''"),
+                ("failed_login_count", "INTEGER NOT NULL DEFAULT 0"),
+                ("locked_until", "TEXT"),
             ]:
                 if column not in columns:
                     db.execute(f"ALTER TABLE users ADD COLUMN {column} {column_type}")
@@ -181,12 +187,34 @@ def ensure_primary_account(main_database: Path, password_hash: str | None = None
 def verify_account(main_database: Path, username: str, password: str) -> sqlite3.Row | None:
     init_accounts_db(main_database)
     with closing(connect_auth_db(main_database)) as db:
-        row = db.execute(
-            "SELECT id, username, display_name, role, is_active, password_hash FROM users WHERE username = ? AND is_active = 1",
-            (username.strip(),),
-        ).fetchone()
-    if not row or not verify_password_hash(password, row["password_hash"]):
-        return None
+        with db:
+            row = db.execute(
+                """
+                SELECT id, username, display_name, role, is_active, password_hash,
+                       failed_login_count, locked_until
+                FROM users WHERE username = ? AND is_active = 1
+                """,
+                (username.strip(),),
+            ).fetchone()
+            if not row:
+                return None
+            if row["locked_until"] and datetime.fromisoformat(row["locked_until"]) > datetime.now():
+                return None
+            if not verify_password_hash(password, row["password_hash"]):
+                failed_count = int(row["failed_login_count"] or 0) + 1
+                locked_until = None
+                if failed_count >= MAX_FAILED_LOGIN_ATTEMPTS:
+                    locked_until = (datetime.now() + timedelta(minutes=LOGIN_LOCKOUT_MINUTES)).isoformat()
+                    failed_count = 0
+                db.execute(
+                    "UPDATE users SET failed_login_count = ?, locked_until = ? WHERE id = ?",
+                    (failed_count, locked_until, row["id"]),
+                )
+                return None
+            db.execute(
+                "UPDATE users SET failed_login_count = 0, locked_until = NULL WHERE id = ?",
+                (row["id"],),
+            )
     return row
 
 

@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from health_tracker.constants import ESTIMATED_1RM_REP_DIVISOR, PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG
+
+# 운동 이력이 몇 년치 쌓여도 "최근 기록 기준" 계산이 테이블 전체를 스캔하지 않도록
+# 두는 조회 범위. 이보다 오래된 기록은 어차피 "다음 세트 제안"에 의미가 적다.
+_RECENT_SUGGESTION_WINDOW_DAYS = 400
 
 
 def estimated_1rm(weight: float, reps: int) -> float:
@@ -218,24 +222,33 @@ def list_progressive_overload_rows(
 
 
 def list_overload_suggestions_from_db(db: sqlite3.Connection) -> dict[str, str]:
+    cutoff = (datetime.now() - timedelta(days=_RECENT_SUGGESTION_WINDOW_DAYS)).strftime("%Y-%m-%d")
     rows = db.execute(
         """
-        SELECT e.name, ws.weight, ws.reps, s.workout_date
-        FROM workout_sets ws
-        JOIN exercises e ON e.id = ws.exercise_id
-        JOIN workout_sessions s ON s.id = ws.session_id
-        WHERE ws.weight IS NOT NULL AND ws.reps IS NOT NULL
-        ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
-        """
+        WITH ranked AS (
+            SELECT
+                e.name AS exercise_name,
+                ws.weight,
+                ws.reps,
+                ROW_NUMBER() OVER (
+                    PARTITION BY e.name
+                    ORDER BY s.workout_date DESC, ws.sort_order DESC, ws.id DESC
+                ) AS rn
+            FROM workout_sets ws
+            JOIN exercises e ON e.id = ws.exercise_id
+            JOIN workout_sessions s ON s.id = ws.session_id
+            WHERE ws.weight IS NOT NULL AND ws.reps IS NOT NULL
+              AND s.workout_date >= ?
+        )
+        SELECT exercise_name, weight, reps FROM ranked WHERE rn = 1
+        """,
+        (cutoff,),
     ).fetchall()
     suggestions: dict[str, str] = {}
     for row in rows:
-        name = row["name"]
-        if name in suggestions:
-            continue
         next_weight = float(row["weight"]) + PROGRESSIVE_OVERLOAD_WEIGHT_INCREMENT_KG
         next_reps = int(row["reps"]) + 1
-        suggestions[name] = (
+        suggestions[row["exercise_name"]] = (
             f"최근 기록 기준: {float(row['weight']):.1f}kg {int(row['reps'])}회 -> "
             f"{next_weight:.1f}kg 또는 {next_reps}회 도전"
         )

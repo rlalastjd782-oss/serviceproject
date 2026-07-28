@@ -15,6 +15,28 @@ SET_TYPE_OPTIONS = ["본세트", "워밍업", "드롭세트", "실패"]
 # 임시 부트스트랩 비밀번호. 사용자가 /settings에서 비밀번호를 설정하는 즉시 대체된다.
 DEFAULT_BOOTSTRAP_PASSWORD = "1234"
 
+# 무게/횟수/체감강도/유산소/식단 입력값의 상한·하한. 터무니없는 값(음수, 자릿수 실수
+# 입력 등)이 그대로 저장돼 예상 1RM/볼륨 계산이 깨지는 것을 막는 안전장치.
+# 정상적인 기록을 막지 않도록 넉넉하게 잡았다.
+MIN_SET_WEIGHT_KG = 0
+MAX_SET_WEIGHT_KG = 500
+MIN_SET_REPS = 0
+MAX_SET_REPS = 100
+MIN_RPE = 1
+MAX_RPE = 10
+MIN_CARDIO_INCLINE = 0
+MAX_CARDIO_INCLINE = 45
+MIN_CARDIO_SPEED = 0
+MAX_CARDIO_SPEED = 60
+MIN_CARDIO_MINUTES = 0
+MAX_CARDIO_MINUTES = 600
+MIN_MEAL_QUANTITY = 0
+MAX_MEAL_QUANTITY = 100
+MIN_MEAL_GRAMS = 0
+MAX_MEAL_GRAMS = 5000
+MIN_MEAL_CALORIES = 0
+MAX_MEAL_CALORIES = 20000
+
 DEFAULT_LIST_LIMIT = 20
 SUMMARY_LIST_DEFAULT_PER_PAGE = 5
 # SQL 문자열에 그대로 보간되므로 float이어야 한다(정수 30을 쓰면 SQLite가

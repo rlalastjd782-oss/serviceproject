@@ -342,8 +342,10 @@ def list_daily_coaching_from_db(
     db: sqlite3.Connection,
     date_text: str,
     shift_date: Callable[[str, int], str],
+    checkin: dict[str, object] | None = None,
 ) -> list[str]:
-    checkin = get_recovery_checkin_from_db(db, date_text)
+    if checkin is None:
+        checkin = get_recovery_checkin_from_db(db, date_text)
     condition = int(checkin["condition_score"] or 3)
     sleep = int(checkin["sleep_score"] or 3)
     soreness = int(checkin["soreness_score"] or 3)
@@ -376,8 +378,13 @@ def classify_readiness_percent(percent: int) -> dict[str, object]:
     return READINESS_TIERS[-1]
 
 
-def build_readiness_profile_from_db(db: sqlite3.Connection, date_text: str) -> dict[str, object]:
-    checkin = get_recovery_checkin_from_db(db, date_text)
+def build_readiness_profile_from_db(
+    db: sqlite3.Connection,
+    date_text: str,
+    checkin: dict[str, object] | None = None,
+) -> dict[str, object]:
+    if checkin is None:
+        checkin = get_recovery_checkin_from_db(db, date_text)
     score = _compute_readiness_score(checkin)
     percent = round(score / 20 * 100)
     tier = classify_readiness_percent(percent)
@@ -395,9 +402,11 @@ def build_adaptive_training_recommendations_from_db(
     workout_date: str,
     shift_date: Callable[[str, int], str],
     limit: int = 6,
+    checkin: dict[str, object] | None = None,
 ) -> list[dict[str, object]]:
-    recovery = get_recovery_checkin_from_db(db, workout_date)
-    readiness_ratio = _compute_readiness_score(recovery) / 20
+    if checkin is None:
+        checkin = get_recovery_checkin_from_db(db, workout_date)
+    readiness_ratio = _compute_readiness_score(checkin) / 20
     recent_start = shift_date(workout_date, -10)
     recent_load_rows = db.execute(
         """

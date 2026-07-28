@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sqlite3
 
 from flask import Flask, g, has_request_context, jsonify, redirect, render_template, request, session, url_for
@@ -32,7 +33,25 @@ from health_tracker.constants import (
     DEFAULT_PROGRAMS,
     EQUIPMENT_OPTIONS,
     FAVICON_CACHE_SECONDS,
+    MAX_CARDIO_INCLINE,
+    MAX_CARDIO_MINUTES,
+    MAX_CARDIO_SPEED,
+    MAX_MEAL_CALORIES,
+    MAX_MEAL_GRAMS,
+    MAX_MEAL_QUANTITY,
+    MAX_RPE,
+    MAX_SET_REPS,
+    MAX_SET_WEIGHT_KG,
     MEAL_TYPE_CLASSES,
+    MIN_CARDIO_INCLINE,
+    MIN_CARDIO_MINUTES,
+    MIN_CARDIO_SPEED,
+    MIN_MEAL_CALORIES,
+    MIN_MEAL_GRAMS,
+    MIN_MEAL_QUANTITY,
+    MIN_RPE,
+    MIN_SET_REPS,
+    MIN_SET_WEIGHT_KG,
     RECOMMENDED_EXERCISE_MAP,
     SET_TYPE_OPTIONS,
     SQLITE_BUSY_TIMEOUT_MS,
@@ -275,6 +294,7 @@ from health_tracker.services.yearly import (
     normalize_year,
 )
 from health_tracker.utils import (
+    clamp_optional,
     duration_hours,
     duration_minutes,
     format_duration,
@@ -314,7 +334,10 @@ def create_app() -> Flask:
     app.config.update(
         SESSION_COOKIE_HTTPONLY=True,
         SESSION_COOKIE_SAMESITE="Lax",
-        SESSION_COOKIE_SECURE=False,
+        # 로컬 개발 서버는 http://127.0.0.1이라 Secure 쿠키를 켜면 로그인 세션이
+        # 저장되지 않는다. HTTPS로 배포한 뒤 SESSION_COOKIE_SECURE=1 환경변수를
+        # 설정하면 켤 수 있다 (DEPLOY_PYTHONANYWHERE.md 참고).
+        SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE") == "1",
     )
     configure_lifecycle_hooks(
         app,
@@ -450,6 +473,7 @@ from health_tracker.app_body_meal_facade import (
     copy_meal_type_from_day,
     copy_meals_from_day,
     create_meal_template_from_day,
+    current_account_photo_dir,
     delete_meal_template,
     get_body_metric,
     list_all_body_photos,

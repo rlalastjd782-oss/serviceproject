@@ -96,10 +96,9 @@ def save_body_photo_to_db(db: sqlite3.Connection, photo_dir: Path, photo_date: s
     filename = f"{photo_date}-{datetime.now().strftime('%H%M%S')}{suffix}"
     target = photo_dir / filename
     file.save(target)
-    relative_path = f"progress_photos/{filename}"
     db.execute(
         "INSERT INTO body_photos (photo_date, file_path) VALUES (?, ?)",
-        (photo_date, relative_path),
+        (photo_date, filename),
     )
     db.commit()
 

@@ -272,6 +272,7 @@ def init_database(
         CREATE INDEX IF NOT EXISTS idx_pr_events_date ON pr_events(workout_date);
         CREATE INDEX IF NOT EXISTS idx_location_equipment_location ON location_equipment(location_id);
         CREATE INDEX IF NOT EXISTS idx_location_equipment_location_active ON location_equipment(location_id, is_active);
+        CREATE INDEX IF NOT EXISTS idx_workout_plan_items_date ON workout_plan_items(workout_date);
         """
     )
     for table, column, column_type in [
@@ -315,6 +316,7 @@ def init_database(
     db.execute("CREATE INDEX IF NOT EXISTS idx_workout_sets_body_part_session ON workout_sets(body_part, session_id)")
     db.execute("CREATE INDEX IF NOT EXISTS idx_meal_entries_date_type_food ON meal_entries(meal_date, meal_type, food_name)")
     db.execute("CREATE INDEX IF NOT EXISTS idx_pr_events_exercise_date ON pr_events(exercise_id, workout_date)")
+    db.execute("CREATE INDEX IF NOT EXISTS idx_workout_plan_items_date ON workout_plan_items(workout_date)")
     db.execute(
         """
         UPDATE meal_entries

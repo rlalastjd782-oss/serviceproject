@@ -11,8 +11,8 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
         if parsed is None:
             return None
         if (unit or "").strip().lower() in {"lb", "lbs"}:
-            return round(parsed * 0.45359237, 2)
-        return parsed
+            parsed = round(parsed * 0.45359237, 2)
+        return clamp_optional(parsed, MIN_SET_WEIGHT_KG, MAX_SET_WEIGHT_KG)
 
     @app.post("/meals")
     def create_meal():
@@ -45,9 +45,9 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
             meal_rows.append(
                 (
                     food_name,
-                    parse_float(quantity),
-                    parse_float(grams),
-                    parse_float(calories),
+                    clamp_optional(parse_float(quantity), MIN_MEAL_QUANTITY, MAX_MEAL_QUANTITY),
+                    clamp_optional(parse_float(grams), MIN_MEAL_GRAMS, MAX_MEAL_GRAMS),
+                    clamp_optional(parse_float(calories), MIN_MEAL_CALORIES, MAX_MEAL_CALORIES),
                     memo,
                 )
             )
@@ -84,9 +84,9 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
                 """,
                 (
                     food_name,
-                    parse_float(request.form.get("quantity")),
-                    parse_float(request.form.get("grams")),
-                    parse_float(request.form.get("calories")),
+                    clamp_optional(parse_float(request.form.get("quantity")), MIN_MEAL_QUANTITY, MAX_MEAL_QUANTITY),
+                    clamp_optional(parse_float(request.form.get("grams")), MIN_MEAL_GRAMS, MAX_MEAL_GRAMS),
+                    clamp_optional(parse_float(request.form.get("calories")), MIN_MEAL_CALORIES, MAX_MEAL_CALORIES),
                     meal_id,
                 ),
             )
@@ -127,9 +127,9 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
         if exercise_name and equipment:
             save_exercise_equipment(exercise_name, equipment)
         if body_part == "유산소":
-            cardio_incline = parse_float(request.form.get("cardio_incline"))
-            cardio_speed = parse_float(request.form.get("cardio_speed"))
-            cardio_minutes = parse_float(request.form.get("cardio_minutes"))
+            cardio_incline = clamp_optional(parse_float(request.form.get("cardio_incline")), MIN_CARDIO_INCLINE, MAX_CARDIO_INCLINE)
+            cardio_speed = clamp_optional(parse_float(request.form.get("cardio_speed")), MIN_CARDIO_SPEED, MAX_CARDIO_SPEED)
+            cardio_minutes = clamp_optional(parse_float(request.form.get("cardio_minutes")), MIN_CARDIO_MINUTES, MAX_CARDIO_MINUTES)
             db.execute(
                 """
                 UPDATE workout_sets
@@ -155,7 +155,7 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
                     cardio_speed,
                     cardio_minutes,
                     estimate_exercise_calories(body_part, cardio_incline, cardio_speed, cardio_minutes, workout_date),
-                    parse_float(request.form.get("rpe")),
+                    clamp_optional(parse_float(request.form.get("rpe")), MIN_RPE, MAX_RPE),
                     equipment[:20],
                     equipment_brand,
                     set_id,
@@ -183,9 +183,9 @@ def register_entry_routes(app, ctx: dict[str, object]) -> None:
                     exercise_id,
                     body_part,
                     parse_weight_kg(request.form.get("weight"), request.form.get("weight_unit", "kg")),
-                    parse_int(request.form.get("reps")),
+                    clamp_optional(parse_int(request.form.get("reps")), MIN_SET_REPS, MAX_SET_REPS),
                     request.form.get("set_type", default_set_type).strip() or default_set_type,
-                    parse_float(request.form.get("rpe")),
+                    clamp_optional(parse_float(request.form.get("rpe")), MIN_RPE, MAX_RPE),
                     equipment[:20],
                     equipment_brand,
                     set_id,

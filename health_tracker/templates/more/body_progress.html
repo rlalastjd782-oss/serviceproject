@@ -21,7 +21,7 @@
           <span>이전 사진</span>
           <select data-photo-compare-before-select>
             {% for photo in body_photos_all %}
-              <option value="{{ url_for('static', filename=photo.file_path) }}" {% if loop.first %}selected{% endif %}>{{ photo.photo_date }}</option>
+              <option value="{{ url_for('body_photo_file', filename=photo.file_path) }}" {% if loop.first %}selected{% endif %}>{{ photo.photo_date }}</option>
             {% endfor %}
           </select>
         </label>
@@ -29,16 +29,16 @@
           <span>이후 사진</span>
           <select data-photo-compare-after-select>
             {% for photo in body_photos_all %}
-              <option value="{{ url_for('static', filename=photo.file_path) }}" {% if loop.last %}selected{% endif %}>{{ photo.photo_date }}</option>
+              <option value="{{ url_for('body_photo_file', filename=photo.file_path) }}" {% if loop.last %}selected{% endif %}>{{ photo.photo_date }}</option>
             {% endfor %}
           </select>
         </label>
       </div>
       <div class="photo-compare" data-photo-compare>
         <div class="photo-compare-stage">
-          <img class="photo-compare-image photo-compare-after" data-photo-compare-after alt="이후 사진" src="{{ url_for('static', filename=body_photos_all[-1].file_path) }}">
+          <img class="photo-compare-image photo-compare-after" data-photo-compare-after alt="이후 사진" src="{{ url_for('body_photo_file', filename=body_photos_all[-1].file_path) }}">
           <div class="photo-compare-overlay" data-photo-compare-overlay>
-            <img class="photo-compare-image photo-compare-before" data-photo-compare-before alt="이전 사진" src="{{ url_for('static', filename=body_photos_all[0].file_path) }}">
+            <img class="photo-compare-image photo-compare-before" data-photo-compare-before alt="이전 사진" src="{{ url_for('body_photo_file', filename=body_photos_all[0].file_path) }}">
           </div>
           <div class="photo-compare-handle" data-photo-compare-handle></div>
         </div>

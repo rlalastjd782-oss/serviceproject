@@ -1,8 +1,12 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime, timedelta
 
 WORKOUT_SESSION_COLUMNS = "id, workout_date, location_id, note, completed, duration_seconds, created_at"
+
+# "최근 세트" 조회가 운동 기록이 몇 년치 쌓여도 테이블 전체를 스캔하지 않도록 두는 범위.
+_RECENT_SETS_WINDOW_DAYS = 400
 
 
 def reorder_set_within_exercise_in_db(db: sqlite3.Connection, set_id: int, requested_set_number: int) -> None:
@@ -190,15 +194,17 @@ def list_recent_sets_by_exercise_from_db(
     limit: int = 6,
     location_id: int | None = None,
 ) -> dict[str, list[dict[str, float | int | None]]]:
+    cutoff = (datetime.now() - timedelta(days=_RECENT_SETS_WINDOW_DAYS)).strftime("%Y-%m-%d")
     location_filter = "AND s.location_id = ?" if location_id else ""
-    params = (location_id,) if location_id else ()
+    params = (cutoff, location_id) if location_id else (cutoff,)
     rows = db.execute(
         f"""
         SELECT e.name, ws.weight, ws.reps, s.workout_date, ws.sort_order
         FROM workout_sets ws
         JOIN exercises e ON e.id = ws.exercise_id
         JOIN workout_sessions s ON s.id = ws.session_id
-        WHERE ws.weight IS NOT NULL OR ws.reps IS NOT NULL
+        WHERE (ws.weight IS NOT NULL OR ws.reps IS NOT NULL)
+          AND s.workout_date >= ?
         {location_filter}
         ORDER BY s.workout_date DESC, ws.sort_order ASC, ws.id ASC
         """,

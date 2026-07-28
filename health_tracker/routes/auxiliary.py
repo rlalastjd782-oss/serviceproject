@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from flask import Response
+from flask import Response, send_from_directory
 
 from health_tracker.services.data_cleanup import build_cleanup_wizard
 
@@ -42,6 +42,10 @@ def register_aux_routes(app, ctx: dict[str, object]) -> None:
             active_page="body_progress",
             body_photos_all=list_all_body_photos(),
         )
+
+    @app.get("/body/photos/file/<path:filename>")
+    def body_photo_file(filename: str):
+        return send_from_directory(current_account_photo_dir(), filename)
 
     @app.get("/insights/actions")
     def action_insights_page():

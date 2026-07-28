@@ -53,7 +53,7 @@
     {% if body_photos %}
       <div class="photo-strip">
         {% for photo in body_photos %}
-          <img src="{{ url_for('static', filename=photo.file_path) }}" alt="{{ photo.photo_date }} 몸 사진">
+          <img src="{{ url_for('body_photo_file', filename=photo.file_path) }}" alt="{{ photo.photo_date }} 몸 사진">
         {% endfor %}
       </div>
     {% endif %}

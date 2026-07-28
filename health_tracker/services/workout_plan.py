@@ -29,6 +29,7 @@ def build_workout_completion_summary_from_db(
     db: sqlite3.Connection,
     workout_date: str,
     get_session_by_date: Callable[[str], sqlite3.Row | None],
+    plan_rows: list[sqlite3.Row] | None = None,
 ) -> dict[str, object]:
     session = get_session_by_date(workout_date)
     by_part = db.execute(
@@ -56,7 +57,8 @@ def build_workout_completion_summary_from_db(
         """,
         (workout_date,),
     ).fetchone()
-    plan_rows = list_workout_plan_from_db(db, workout_date)
+    if plan_rows is None:
+        plan_rows = list_workout_plan_from_db(db, workout_date)
     plan_total = len(plan_rows)
     plan_done = sum(1 for row in plan_rows if int(row["completed_sets"] or 0) >= int(row["target_sets"] or 1))
     return {
@@ -74,6 +76,7 @@ def build_workout_finish_review_from_db(
     db: sqlite3.Connection,
     workout_date: str,
     get_session_by_date: Callable[[str], sqlite3.Row | None],
+    plan_rows: list[sqlite3.Row] | None = None,
 ) -> dict[str, object]:
     session = get_session_by_date(workout_date)
     summary = db.execute(
@@ -143,7 +146,8 @@ def build_workout_finish_review_from_db(
         """,
         (workout_date,),
     ).fetchall()
-    plan_rows = list_workout_plan_from_db(db, workout_date)
+    if plan_rows is None:
+        plan_rows = list_workout_plan_from_db(db, workout_date)
     plan_total = len(plan_rows)
     plan_done = sum(1 for row in plan_rows if int(row["completed_sets"] or 0) >= int(row["target_sets"] or 1))
 
@@ -203,8 +207,10 @@ def build_workout_session_flow_from_db(
     workout_date: str,
     get_exercise_rest_seconds: Callable[[str], int],
     default_rest_seconds: int,
+    plan_rows: list[sqlite3.Row] | None = None,
 ) -> dict[str, object]:
-    plan_rows = list_workout_plan_from_db(db, workout_date)
+    if plan_rows is None:
+        plan_rows = list_workout_plan_from_db(db, workout_date)
     next_item = None
     for row in plan_rows:
         if int(row["completed_sets"] or 0) < int(row["target_sets"] or 1):

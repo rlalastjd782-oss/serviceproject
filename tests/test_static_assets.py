@@ -101,11 +101,11 @@ class StaticAssetIntegrityTest(unittest.TestCase):
     def test_plate_calculator_js_matches_server_plate_denominations(self) -> None:
         """Regression: the client-side plate calculator (workout_tools.js) once dropped
         the 1.25kg plate that the server-side recommendation calculator
-        (today_context.py's _plate_combo) still used, so the two gave different
+        (today_context_coach.py's _plate_combo) still used, so the two gave different
         answers for the same target weight. Keep both denomination lists in sync.
         """
         js_source = Path("static/js/workout_tools.js").read_text(encoding="utf-8-sig")
-        py_source = Path("health_tracker/services/today_context.py").read_text(encoding="utf-8-sig")
+        py_source = Path("health_tracker/services/today_context_coach.py").read_text(encoding="utf-8-sig")
         self.assertIn("const available = [20, 10, 5, 2.5, 1.25];", js_source)
         self.assertIn("for plate in (20, 10, 5, 2.5, 1.25):", py_source)
 
@@ -114,8 +114,8 @@ class StaticAssetIntegrityTest(unittest.TestCase):
         sw_source = Path("static/sw.js").read_text(encoding="utf-8-sig")
         manifest_source = Path("static/manifest.webmanifest").read_text(encoding="utf-8-sig")
 
-        self.assertEqual("3.1.28", version)
+        self.assertEqual("3.1.30", version)
         self.assertIn(f'const CACHE_NAME = "workout-pwa-v{version}";', sw_source)
-        self.assertIn('"version": "3.1.28"', manifest_source)
+        self.assertIn('"version": "3.1.30"', manifest_source)
         self.assertIn('"background_color": "#0b0f17"', manifest_source)
         self.assertIn('"theme_color": "#0b0f17"', manifest_source)

@@ -451,7 +451,7 @@ class UiNavigationFlowTest(FlowTestBase):
     def test_core_page_query_counts_stay_bounded(self) -> None:
         limits = {
             "/app": 50,
-            "/app?mode=workout": 78,
+            "/app?mode=workout": 70,
             "/app?mode=meal": 45,
             "/records/search": 12,
             "/more": 30,
@@ -543,3 +543,46 @@ class UiNavigationFlowTest(FlowTestBase):
         self.assertNotIn("기록 검색", html)
         self.assertNotIn("장비 분석", html)
         self.assertNotIn(">PR<", html)
+
+    def test_readiness_tiers_are_rendered_as_client_side_data(self) -> None:
+        """Regression: readiness cutoffs/labels were centralized into
+        constants.READINESS_TIERS and must reach the page as JSON data so
+        readiness.js can recompute the same tiers live without a round trip.
+        Korean label/guide text is HTML-escaped to \\uXXXX by Jinja's tojson,
+        so this checks the ASCII-safe structural fields instead."""
+        html = self.client.get("/app?mode=workout").data.decode("utf-8")
+        self.assertIn("data-readiness-tiers=", html)
+        self.assertIn('"tone": "high"', html)
+        self.assertIn('"tone": "normal"', html)
+        self.assertIn('"tone": "low"', html)
+        self.assertIn('"min": 75', html)
+
+    def test_today_status_stat_tiles_render(self) -> None:
+        """Regression: the streak/PR/volume gradient stat tiles introduced in
+        the "sports gradient" UI direction must keep rendering with their
+        expected classes."""
+        html = self.client.get("/app?mode=workout").data.decode("utf-8")
+        self.assertIn("stat-tile--streak", html)
+        self.assertIn("stat-tile--pr", html)
+        self.assertIn("stat-tile--volume", html)
+
+    def test_workout_list_toggle_only_appears_when_there_are_workout_groups(self) -> None:
+        no_sets_html = self.client.get("/app?date=2026-05-19&mode=workout").data.decode("utf-8")
+        self.assertIn('id="today-workout-list"', no_sets_html)
+        self.assertNotIn("data-toggle-workout-list", no_sets_html)
+
+        self.client.post(
+            "/sets",
+            data={
+                "workout_date": "2026-05-19",
+                "mode": "workout",
+                "body_part": "가슴",
+                "exercise_name": "__TEST__ Toggle Bench",
+                "set_weight": "40",
+                "set_reps": "10",
+                "set_type": "본세트",
+            },
+        )
+        with_sets_html = self.client.get("/app?date=2026-05-19&mode=workout").data.decode("utf-8")
+        self.assertIn("data-toggle-workout-list", with_sets_html)
+        self.assertIn("숨기기", with_sets_html)

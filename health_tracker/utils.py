@@ -25,6 +25,12 @@ def parse_int(value: str | None) -> int | None:
         return None
 
 
+def clamp_optional(value: float | int | None, minimum: float | int, maximum: float | int) -> float | int | None:
+    if value is None:
+        return None
+    return max(minimum, min(maximum, value))
+
+
 def parse_duration_seconds(hours: str | None, minutes: str | None, seconds: str | None = None) -> int:
     hour_value = parse_int(hours) or 0
     minute_value = parse_int(minutes) or 0

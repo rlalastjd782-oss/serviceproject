@@ -11,8 +11,8 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
         if parsed is None:
             return None
         if (unit or "").strip().lower() in {"lb", "lbs"}:
-            return round(parsed * 0.45359237, 2)
-        return parsed
+            parsed = round(parsed * 0.45359237, 2)
+        return clamp_optional(parsed, MIN_SET_WEIGHT_KG, MAX_SET_WEIGHT_KG)
 
     @app.post("/recovery-checkins")
     def save_recovery_checkin_route():
@@ -91,13 +91,13 @@ def register_today_action_routes(app, ctx: dict[str, object]) -> None:
             set_rows.append(
                 (
                     None if is_cardio else parse_weight_kg(weight_value, weight_unit),
-                    None if is_cardio else parse_int(reps_value),
-                    parse_float(incline_value) if is_cardio else None,
-                    parse_float(speed_value) if is_cardio else None,
-                    parse_float(minutes_value) if is_cardio else None,
+                    None if is_cardio else clamp_optional(parse_int(reps_value), MIN_SET_REPS, MAX_SET_REPS),
+                    clamp_optional(parse_float(incline_value), MIN_CARDIO_INCLINE, MAX_CARDIO_INCLINE) if is_cardio else None,
+                    clamp_optional(parse_float(speed_value), MIN_CARDIO_SPEED, MAX_CARDIO_SPEED) if is_cardio else None,
+                    clamp_optional(parse_float(minutes_value), MIN_CARDIO_MINUTES, MAX_CARDIO_MINUTES) if is_cardio else None,
                     memo_value,
                     "유산소" if is_cardio else set_type,
-                    parse_float(rpe_value),
+                    clamp_optional(parse_float(rpe_value), MIN_RPE, MAX_RPE),
                 )
             )
 

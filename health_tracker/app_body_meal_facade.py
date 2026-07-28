@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import sqlite3
 
+from health_tracker.app_accounts_facade import current_account
 from health_tracker.app_activity_facade import recalculate_exercise_calories_for_date
 from health_tracker.app_database_facade import get_db
-from health_tracker.config import PHOTO_DIR
+from health_tracker.config import account_photo_dir
 from health_tracker.date_utils import shift_month
 from health_tracker.services.body import (
     build_body_monthly_report_from_rows,
@@ -62,8 +63,14 @@ def list_body_metric_trend(month_start: str) -> list[dict[str, object]]:
     return list_body_metric_trend_from_rows(list_body_metrics(month_start))
 
 
+def current_account_photo_dir():
+    account = current_account()
+    account_id = int(account["id"]) if account else 1
+    return account_photo_dir(account_id)
+
+
 def save_body_photo(photo_date: str, file) -> None:
-    save_body_photo_to_db(get_db(), PHOTO_DIR, photo_date, file)
+    save_body_photo_to_db(get_db(), current_account_photo_dir(), photo_date, file)
 
 
 def list_body_photos(photo_date: str, limit: int = 3) -> list[sqlite3.Row]:

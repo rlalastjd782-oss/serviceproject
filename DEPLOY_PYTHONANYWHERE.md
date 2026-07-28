@@ -73,6 +73,18 @@ touch /var/www/YOUR_PYTHONANYWHERE_USERNAME_pythonanywhere_com_wsgi.py
 - 설정 화면에서 JSON 백업 다운로드
 - PythonAnywhere에서 `bash deploy_pythonanywhere.sh` 실행
 - 모바일에서 새로고침 후 버전 표시 변경 확인
+- (최초 1회) 진행 사진을 계정별 폴더로 옮기는 `python tools/migrate_body_photos_to_account_storage.py` 실행
+
+## 세션 쿠키 Secure 플래그
+
+기본값은 꺼져 있다(로컬 `http://127.0.0.1` 개발 서버에서 로그인 세션이 저장되려면 꺼져 있어야 함). HTTPS 배포 후 로그인이 정상 동작하는 것을 확인했다면, PythonAnywhere의 WSGI 설정 파일에 아래를 추가해 켤 수 있다:
+
+```python
+import os
+os.environ["SESSION_COOKIE_SECURE"] = "1"
+```
+
+(WSGI 파일에서 `from app import app as application` 보다 위에 추가해야 한다.)
 
 ## 데이터 백업 위치
 

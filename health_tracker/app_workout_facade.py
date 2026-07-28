@@ -201,20 +201,21 @@ def list_workout_plan(workout_date: str) -> list[sqlite3.Row]:
     return list_workout_plan_from_db(get_db(), workout_date)
 
 
-def build_workout_completion_summary(workout_date: str) -> dict[str, object]:
-    return build_workout_completion_summary_from_db(get_db(), workout_date, get_session_by_date)
+def build_workout_completion_summary(workout_date: str, plan_rows: list[sqlite3.Row] | None = None) -> dict[str, object]:
+    return build_workout_completion_summary_from_db(get_db(), workout_date, get_session_by_date, plan_rows)
 
 
-def build_workout_finish_review(workout_date: str) -> dict[str, object]:
-    return build_workout_finish_review_from_db(get_db(), workout_date, get_session_by_date)
+def build_workout_finish_review(workout_date: str, plan_rows: list[sqlite3.Row] | None = None) -> dict[str, object]:
+    return build_workout_finish_review_from_db(get_db(), workout_date, get_session_by_date, plan_rows)
 
 
-def build_workout_session_flow(workout_date: str) -> dict[str, object]:
+def build_workout_session_flow(workout_date: str, plan_rows: list[sqlite3.Row] | None = None) -> dict[str, object]:
     return build_workout_session_flow_from_db(
         get_db(),
         workout_date,
         get_exercise_rest_seconds,
         int(get_app_preferences()["default_rest_seconds"]),
+        plan_rows,
     )
 
 
@@ -246,13 +247,23 @@ def list_workout_focus_recommendations(workout_date: str, limit: int = 5) -> lis
     return list_workout_focus_recommendations_from_db(get_db(), workout_date, body_part_options, limit)
 
 
-def build_adaptive_training_recommendations(workout_date: str, limit: int = 6) -> list[dict[str, object]]:
-    return build_adaptive_training_recommendations_from_db(get_db(), workout_date, shift_date, limit)
+def build_adaptive_training_recommendations(
+    workout_date: str,
+    limit: int = 6,
+    checkin: dict[str, object] | None = None,
+) -> list[dict[str, object]]:
+    return build_adaptive_training_recommendations_from_db(get_db(), workout_date, shift_date, limit, checkin)
 
 
-def build_next_set_suggestions(exercise_names: list[str], workout_date: str, limit: int = 8) -> dict[str, dict[str, object]]:
-    readiness = build_readiness_profile_from_db(get_db(), workout_date)
-    return build_next_set_suggestions_from_db(get_db(), exercise_names, int(readiness["percent"] or 60), limit)
+def build_next_set_suggestions(
+    exercise_names: list[str],
+    workout_date: str,
+    limit: int = 8,
+    readiness_percent: int | None = None,
+) -> dict[str, dict[str, object]]:
+    if readiness_percent is None:
+        readiness_percent = int(build_readiness_profile_from_db(get_db(), workout_date)["percent"] or 60)
+    return build_next_set_suggestions_from_db(get_db(), exercise_names, readiness_percent, limit)
 
 
 def list_progressive_overload_rows(limit: int = 30) -> list[dict[str, object]]:

@@ -118,8 +118,9 @@ def list_recovery_statuses(date_text: str) -> list[dict[str, object]]:
     return statuses
 
 
-def list_weekly_routine_recommendations(date_text: str) -> list[dict[str, object]]:
-    balance = get_balance_score("weekly", date_text)
+def list_weekly_routine_recommendations(date_text: str, balance: dict[str, object] | None = None) -> list[dict[str, object]]:
+    if balance is None:
+        balance = get_balance_score("weekly", date_text)
     missing = [part for part in balance["missing"] if part in BALANCE_BODY_PARTS]
     targets = (missing or ["하체", "등", "어깨"])[:3]
     recommendations = []
@@ -189,8 +190,8 @@ def save_rest_day(date_text: str, reason: str, memo: str = "") -> None:
     save_rest_day_to_db(get_db(), date_text, reason, memo)
 
 
-def list_daily_coaching(date_text: str) -> list[str]:
-    return list_daily_coaching_from_db(get_db(), date_text, shift_date)
+def list_daily_coaching(date_text: str, checkin: dict[str, object] | None = None) -> list[str]:
+    return list_daily_coaching_from_db(get_db(), date_text, shift_date, checkin)
 
 
 def list_today_next_actions(date_text: str) -> list[dict[str, str]]:
@@ -205,8 +206,8 @@ def build_weekly_rule_report(week_start: str) -> dict[str, object]:
     return weekly_rule_report_from_db(get_db(), week_start, shift_date)
 
 
-def build_readiness_profile(date_text: str) -> dict[str, object]:
-    return build_readiness_profile_from_db(get_db(), date_text)
+def build_readiness_profile(date_text: str, checkin: dict[str, object] | None = None) -> dict[str, object]:
+    return build_readiness_profile_from_db(get_db(), date_text, checkin)
 
 
 def build_period_highlights(scope: str, date_text: str) -> list[dict[str, str]]:
